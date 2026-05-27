@@ -432,7 +432,7 @@ OpenWebRX+ is a multi-user SDR receiver with a browser-based interface. Once run
 
 The preamble is a Golay(24,12)-protected field transmitted at the start of each frame. The receiver reads the analog/digital flag and mode ID, routes the signal to the correct demodulator bank, and does not pass unrecognised or mismatched traffic to the audio output. For example, a receiver set for analog FM does not present digital C4FM as noise on the speaker.
 
-The same identification approach applies to **Linht**, an open-source-hardware, Linux-based SDR handheld transceiver: it can discriminate between modes on receive so the operator is not forced to listen to digital C4FM while the radio is configured for analog FM. Conventional analog-only transceivers do not offer this capability.
+The same identification approach applies to **Linht**, an open-source-hardware, Linux-based SDR handheld transceiver: If it also has gr-ident it can discriminate between modes on receive so the operator is not forced to listen to digital C4FM while the radio is configured for analog FM. Conventional analog-only transceivers do not offer this capability.
 
 gr-ident is designed to work alongside **[gr-linux-crypto](https://github.com/Supermagnum/gr-linux-crypto)** (see [Section 8](#8-authenticated-remote-control)). The preamble includes an encrypted/open flag so a Linht or repeater implementation can identify the mode before attempting decryption, and can refuse to demodulate encrypted payloads for which no key is available.
 
