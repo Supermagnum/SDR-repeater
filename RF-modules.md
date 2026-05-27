@@ -666,12 +666,15 @@ RFIC (I2S) → DMA → ring buffer in kernel driver
 | `ipc:///run/ht-module/tx_2m` | SUB | local | GNU Radio → module | TX IQ data stream |
 | `ipc:///run/ht-module/tx_70cm` | SUB | local | GNU Radio → module | TX IQ data stream |
 | `ipc:///run/ht-module/tx_23cm` | SUB | local | GNU Radio → module | TX IQ data stream |
-| `ipc:///run/ht-module/ctrl` | REQ/REP | local | Any process → daemon | Per-module: frequency, gain, PTT, squelch, TX timeout, attenuator (see main README Section 7.5) |
+| `ipc:///run/ht-module/ctrl` | REQ/REP | local | Any process → daemon | Per-module: frequency, gain, PTT, squelch, TX timeout, attenuator ([zeromq-messages.md](zeromq-messages.md)) |
 | `ipc:///run/ht-module/status` | PUB | local | Daemon → consumers | RSSI, AGC state, PLL lock, temperature, battery |
 
 For remote monitoring or distributed processing, IPC sockets can be exposed as TCP sockets by changing the address to `tcp://0.0.0.0:<port>` — no other code changes required.
 
 ### 10.4 Frame Format
+
+Full binary layout, control commands, status JSON, and gr-ident integration:
+**[zeromq-messages.md](zeromq-messages.md)**.
 
 IQ frames are published as length-prefixed binary messages:
 

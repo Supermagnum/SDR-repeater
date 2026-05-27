@@ -25,6 +25,8 @@
 10. [Optional Solar Power](#10-optional-solar-power)
 11. [System Integration Summary](#11-system-integration-summary)
 
+**Wire formats:** [zeromq-messages.md](zeromq-messages.md) — canonical ZeroMQ message reference (repeater IQ/control, gr-ident, LinHT).
+
 ---
 
 ## 1. System Overview
@@ -445,82 +447,21 @@ gr-ident is designed to work alongside **[gr-linux-crypto](https://github.com/Su
 
 ### 7.5 ZeroMQ IPC
 
-**[ZeroMQ](https://zeromq.org/)** (ZMQ) is the inter-process communication layer between the radio module hardware path and signal processing on the K3. Raw IQ from each band's RFIC is delivered over I2S/DMA into `ht-module-daemon`, which packs frames and publishes them on ZMQ PUB sockets. GNU Radio 4.0, SDRangel, recording tools, and monitoring processes consume those streams as ZMQ SUB clients. TX IQ flows in the reverse direction from flowgraphs back to the daemon for SAI DMA output.
+**[ZeroMQ](https://zeromq.org/)** (ZMQ) is the inter-process communication layer between the radio module hardware path and signal processing on the K3. Raw IQ from each band's RFIC is delivered over I2S/DMA into **`ht-module-daemon`**, which publishes framed RX IQ on per-band PUB sockets. GNU Radio (`gr-ht13g`), SDRangel, and recorders connect as SUB clients. TX IQ and hardware control use separate sockets.
 
-ZeroMQ is used because it:
+| Plane | Sockets | Purpose |
+|-------|---------|---------|
+| IQ data | `iq_*` (PUB), `tx_*` (SUB) | Sample streams only; TX IQ does not key the PA by itself |
+| Control | `ctrl` (REQ/REP) | Per-module PTT, frequency, squelch, TX timeout, gain, attenuator |
+| Telemetry | `status` (PUB) | JSON: RSSI, PLL lock, temperature, alerts |
 
-- **Decouples processes** — the hardware daemon and the repeater flowgraph run independently; neither blocks the other
-- **Supports multiple consumers** — one PUB socket per band can feed GNU Radio, SDRangel, and a recorder at the same time
-- **Exposes remote IQ** — changing an `ipc://` address to `tcp://` forwards the same stream to an off-site workstation without application changes
-- **Integrates with GNU Radio** — GNU Radio 4.0 ships ZMQ source and sink blocks in **`gr-zeromq`**
+**Canonical wire formats, command tables, gr-ident preamble JSON, and LinHT compatibility** are documented in **[zeromq-messages.md](zeromq-messages.md)**.
 
-#### Socket layout (summary)
+When [gr-ident](https://github.com/Supermagnum/gr-ident) mode identification is enabled, a detect flowgraph publishes preamble decode JSON (for example `{"mode_id":20,"digital":false,...}`) so the repeater can route to the correct demodulator before audio is output — see [zeromq-messages.md Section 6](zeromq-messages.md#6-gr-ident-integration).
 
-| Socket | Pattern | Address | Direction | Contents |
-|--------|---------|---------|-----------|----------|
-| `iq_2m` / `iq_70cm` / `iq_23cm` | PUB | `ipc:///run/ht-module/...` | Daemon → consumers | RX IQ, int16 I/Q interleaved, 500 kHz |
-| `tx_2m` / `tx_70cm` / `tx_23cm` | SUB | `ipc:///run/ht-module/...` | Consumers → daemon | TX IQ stream |
-| `ctrl` | REQ/REP | `ipc:///run/ht-module/ctrl` | Any → daemon | Per-module: frequency, gain, PTT, squelch, TX timeout, attenuator |
-| `status` | PUB | `ipc:///run/ht-module/status` | Daemon → consumers | RSSI, PLL lock, temperature, battery |
+Local ZMQ `ctrl` commands use the same text as signed over-the-air frames in [Section 8](#8-authenticated-remote-control); only the transport differs.
 
-#### TX/RX control versus IQ data
-
-ZeroMQ carries **two roles** on separate sockets. Do not mix control with IQ streams.
-
-| Role | Sockets | What it does |
-|------|---------|--------------|
-| **Control plane** | `ctrl` (REQ/REP) | Switch TX/RX and configure each module: frequency, gain, **PTT**, squelch, TX timeout, attenuator. Any process (GNU Radio `ht13g_ctrl`, a script, or SDRangel integration) sends a request; `ht-module-daemon` replies and drives GPIO/SPI — including the hardware PTT sequence (RFIC PTT, T/R switch, 1 ms delay, PA enable). |
-| **IQ data plane** | `iq_*` (PUB), `tx_*` (SUB) | Carry sample data only. RX IQ is published on `iq_2m` / `iq_70cm` / `iq_23cm`; TX IQ is published by the flowgraph to `tx_*` and consumed by the daemon for DMA output. Starting TX IQ does not by itself key the transmitter — PTT must be asserted via `ctrl`. |
-| **Telemetry** | `status` (PUB) | Read-only: RSSI, PLL lock, temperature, battery. Does not change TX/RX state. |
-
-Example: to transmit on 70 cm, the flowgraph publishes modulated samples to `tx_70cm` **and** sends a PTT-on command on `ctrl`. The daemon keys the PA only after the control request; the `tx_*` socket supplies the waveform.
-
-This local ZMQ API is for on-host coordination between `ht-module-daemon` and signal-processing applications. It is separate from [Section 8](#8-authenticated-remote-control), which covers **authenticated over-the-air** remote management (signed commands, audit log) for operators at a distance.
-
-#### Control commands (`ctrl` socket)
-
-Requests are single-line ASCII strings sent on the `ctrl` REQ/REP socket. Replies are `OK` or `ERR <reason>` from `ht-module-daemon`.
-
-Module-specific commands take a **band** as the first argument after the command name:
-
-| Band token | Module |
-|------------|--------|
-| `2m` | 2 metre (VHF) |
-| `70cm` | 70 cm (UHF) |
-| `23cm` | 23 cm (UHF/SHF) |
-| `all` | Every installed module (where the command applies system-wide) |
-
-Examples (local ZMQ; same command text is used in signed over-the-air frames in Section 8):
-
-| Command | Example | Effect |
-|---------|---------|--------|
-| `SET_SQUELCH` | `SET_SQUELCH 70cm -120` | Set squelch threshold on the 70 cm module to −120 dBm |
-| `SET_SQUELCH` | `SET_SQUELCH 2m -120` | Set squelch threshold on the 2 m module only |
-| `SET_TX_TIMEOUT` | `SET_TX_TIMEOUT 2m 300` | Limit transmit on 2 m to 300 seconds, then force PTT off |
-| `SET_TX_TIMEOUT` | `SET_TX_TIMEOUT 70cm 300` | Same for 70 cm |
-| `SET_FREQ` | `SET_FREQ 23cm 1252000000` | Set centre frequency on 23 cm (Hz) |
-| `SET_PWR` | `SET_PWR 2m 5` | Set RF output power on 2 m (watts) |
-| `PTT` | `PTT 70cm on` / `PTT 70cm off` | Key or unkey transmitter on 70 cm |
-| `GET_TEMP` | `GET_TEMP all` | Temperature from all module sensors |
-| `GET_STATUS` | `GET_STATUS 2m` | Status for one module; `GET_STATUS all` for full report |
-
-Squelch and TX timeout are always per-module: there is no global squelch without naming a band (use `all` only if the daemon implements the same value on every module).
-
-Each IQ message is length-prefixed: GNSS-disciplined 64-bit nanosecond timestamp, band ID, sample count, then interleaved int16 I/Q samples (little-endian).
-
-#### `ht-module-daemon` and `gr-ht13g`
-
-`ht-module-daemon` is a C daemon that owns SPI/I2C/GPIO access to all modules, enforces the hardware PTT sequence, disciplines VCTCXO trim from GNSS 1PPS, and bridges DMA ring buffers to ZMQ. The GNU Radio OOT module **`gr-ht13g`** provides:
-
-- `ht13g_source` — ZMQ SUB → `complex float` RX stream
-- `ht13g_sink` — `complex float` TX stream → ZMQ PUB
-- `ht13g_ctrl` — control commands over the `ctrl` REQ/REP socket
-
-Cross-band repeat (for example receive on 2 m, transmit on 70 cm) is a single flowgraph: subscribe to `iq_2m`, demodulate and re-encode, publish to `tx_70cm`. Per-band T/R switching remains in the daemon.
-
-On Ubuntu 26.04, install **`libzmq3-dev`** (build) and **`libzmq5`** (runtime) for the daemon and `gr-ht13g`.
-
-Full data-flow diagram, frame layout, and daemon API details are in **[RF-modules.md](RF-modules.md)**, [Section 10 — Software Interface: ZeroMQ IPC](RF-modules.md#10-software-interface-zeromq-ipc).
+Hardware daemon details: **[RF-modules.md](RF-modules.md)**, [Section 10](RF-modules.md#10-software-interface-zeromq-ipc). Packages: **`libzmq3-dev`**, **`libzmq5`** on Ubuntu 26.04.
 
 ---
 
@@ -542,7 +483,7 @@ Remote management of the repeater over the air replaces DTMF entirely. For **loc
 | Full status report | `GET_STATUS all` or `GET_STATUS 70cm` |
 | Graceful reboot | `REBOOT` (elevated trust required) |
 
-Per-module addressing uses the same band tokens as the ZeroMQ `ctrl` socket ([Section 7.5](#control-commands-ctrl-socket)). A command without a band is rejected unless the command is inherently global (`GET_BATTERY`, `REBOOT`).
+Per-module addressing uses the same band tokens as the ZeroMQ `ctrl` socket ([zeromq-messages.md Section 4](zeromq-messages.md#4-control-plane-ctrl)). A command without a band is rejected unless the command is inherently global (`GET_BATTERY`, `REBOOT`).
 
 ### 9.2 How it works — summary
 
@@ -745,7 +686,7 @@ The battery bus is always live. The DRC module and MPPT controller both float-ch
 |-------|-----------|
 | OS | Ubuntu 26.04 LTS (RISC-V RVA23) |
 | SDR framework | GNU Radio 4.0 + VOLK 3.3 (RISC-V vector optimised) |
-| IQ transport | [ZeroMQ](https://zeromq.org/) (`ht-module-daemon`, `gr-zeromq`, `gr-ht13g`) |
+| IQ transport | [ZeroMQ](https://zeromq.org/) — see [zeromq-messages.md](zeromq-messages.md) |
 | Mode identification | [gr-ident](https://github.com/Supermagnum/gr-ident) preamble (optional automatic mode switching) |
 | Repeater frontend | SDRangel (TX/RX, digital modes) |
 | Remote monitoring | OpenWebRX+ (browser-based, multi-user) |
