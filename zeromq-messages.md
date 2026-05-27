@@ -47,13 +47,15 @@ adds gr-ident blocks (or bridges) when automatic mode identification is enabled.
 
 ## 2. Repeater native (`ht-module-daemon`)
 
+> **Implementation:** [`ht-module-daemon`](docs/repo-map.md) in **Rust** (not shipped in this spec repo). Companion processes: [`repeater-supervisord`](docs/repeater-logic.md), [`repeater-authd`](docs/ota-remote-control.md).
+
 ### 2.1 Data flow
 
 ```
 RFIC (I2S) -> DMA -> ring buffer
                          |
                          v
-              ht-module-daemon (C)
+              ht-module-daemon (Rust)
               |  pack IQ / unpack TX
               |  GPIO/SPI (PTT, attenuator, VCTCXO)
               v
@@ -191,7 +193,9 @@ Syntax: `COMMAND <band> <arguments...>` unless global.
 
 Squelch and TX timeout are always **per-module**; there is no implicit global target.
 
-### 4.4 Example REQ/REP exchange (Python)
+### 4.4 Example REQ/REP exchange (illustrative)
+
+Reference client logic only; not maintained in this repository.
 
 ```python
 import zmq
@@ -437,8 +441,10 @@ Per-band T/R timing handled in daemon per band
 
 | Process | Sockets used |
 |---------|----------------|
-| `ht-module-daemon` | Binds `iq_*`, `status`, `ctrl` REP; connects `tx_*` SUB |
-| GNU Radio repeater | SUB `iq_*`, PUB `tx_*`, REQ `ctrl`, optional SUB `grident` |
+| `ht-module-daemon` (Rust) | Binds `iq_*`, `status`, `ctrl` REP; connects `tx_*` SUB |
+| `repeater-supervisord` (Rust) | REQ `ctrl` (lease holder); policy per [docs/repeater-logic.md](docs/repeater-logic.md) |
+| `repeater-authd` (Rust) | OTA bytes in; verified commands to supervisor/`ctrl` per [docs/ota-remote-control.md](docs/ota-remote-control.md) |
+| GNU Radio repeater | SUB `iq_*`, PUB `tx_*` (with lease), optional SUB `grident` |
 | gr-ident detect (optional) | SUB IQ, PUB `tcp://127.0.0.1:5560` |
 | OpenWebRX+ / recorder | SUB `iq_*` only |
 
@@ -463,6 +469,12 @@ Per-band T/R timing handled in daemon per band
 |----------|---------|
 | [README.md](README.md) | System overview; [Section 7.5](README.md#75-zeromq-ipc) summary |
 | [RF-modules.md](RF-modules.md) | RFIC, backplane, daemon context (Section 10) |
+| [docs/repo-map.md](docs/repo-map.md) | Where runtime code lives |
+| [docs/runtime/README.md](docs/runtime/README.md) | Per-repository implementation specs |
+| [docs/repeater-logic.md](docs/repeater-logic.md) | Supervisor and PTT lease |
+| [docs/ota-remote-control.md](docs/ota-remote-control.md) | Signed OTA frames |
+| [docs/implementation-language.md](docs/implementation-language.md) | Rust policy |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to change specs |
 | [gr-ident README](https://github.com/Supermagnum/gr-ident/blob/main/README.md) | Preamble specification, mode ID table |
 | [gr-ident zeromq-protocol.md](https://github.com/Supermagnum/gr-ident/blob/main/docs/zeromq-protocol.md) | Full gr-ident and LinHT wire formats |
 | [gr-ident sync-sequences.md](https://github.com/Supermagnum/gr-ident/blob/main/docs/sync-sequences.md) | Normative sync bit patterns |

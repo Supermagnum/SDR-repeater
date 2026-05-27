@@ -643,7 +643,7 @@ ZeroMQ provides:
 RFIC (I2S) → DMA → ring buffer in kernel driver
                               │
                               ▼
-                    ht-module-daemon (C)
+                    ht-module-daemon (Rust)
                     │ reads ring buffer
                     │ packs IQ frames (interleaved int16 I, int16 Q)
                     │ publishes on ZMQ PUB socket
@@ -689,7 +689,9 @@ The 64-bit nanosecond timestamp uses the system clock disciplined by chrony + GN
 
 ### 10.5 `ht-module-daemon` Functions
 
-The `ht-module-daemon` is a single C daemon responsible for:
+> **Implementation status:** Specified here and in [zeromq-messages.md](zeromq-messages.md). Source code is **not** in the SDR-repeater repository; implement in a separate **Rust** repo per [docs/implementation-language.md](docs/implementation-language.md) and [docs/repo-map.md](docs/repo-map.md).
+
+The `ht-module-daemon` is a single Rust daemon responsible for:
 
 - Initialising all three module RFICs via SPI on startup
 - Reading module temperature sensors via I²C (VITA 46 utility plane) and publishing via status socket
@@ -768,7 +770,8 @@ All design work produced for this project follows the same licensing as the Open
 |-------|---------|
 | Module PCB design (KiCad) | CERN OHL-S v2 |
 | RFIC design (GDS / Xschem / ngspice) | Apache 2.0 (matching IHP PDK) |
-| `ht-module-daemon` firmware (C) | GPL v3 |
+| `ht-module-daemon` (Rust) | GPL-3.0-or-later |
+| `repeater-supervisord` / `repeater-authd` (Rust) | GPL-3.0-or-later |
 | `gr-ht13g` GNU Radio OOT blocks | GPL v3 |
 | Documentation | CC-BY-SA 4.0 |
 

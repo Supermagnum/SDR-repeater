@@ -1,6 +1,6 @@
 # SDR Multiband Repeater System Design
 
-**Revision:** 1.1  
+**Revision:** 1.2  
 **Date:** May 2026  
 **Architecture:** Open Silicon · Linux · Modular OpenVPX  
 
@@ -26,6 +26,8 @@
 11. [System Integration Summary](#11-system-integration-summary)
 
 **Wire formats:** [zeromq-messages.md](zeromq-messages.md) — canonical ZeroMQ message reference (repeater IQ/control, gr-ident, LinHT).
+
+**Developer documentation:** [CONTRIBUTING.md](CONTRIBUTING.md) · [docs/repo-map.md](docs/repo-map.md) · [docs/runtime/](docs/runtime/README.md) (per-repo specs) · [docs/roadmap.md](docs/roadmap.md) · [docs/dev-environment.md](docs/dev-environment.md) · [docs/repeater-logic.md](docs/repeater-logic.md) · [docs/ota-remote-control.md](docs/ota-remote-control.md) · [docs/release-integrity.md](docs/release-integrity.md) · [docs/implementation-language.md](docs/implementation-language.md) · [ADR 001: I2S + ZMQ](docs/adr/001-iq-transport-i2s-zmq.md)
 
 ---
 
@@ -66,11 +68,11 @@ The system supports up to four pluggable radio modules on the backplane. Three b
 Each module connects to the backplane via:
 
 - **Edge connector:** VITA 46 high-speed serial connector (Eurocard edgecard)
-- **Data bus:** PCIe Gen 3 or 1/10 GbE over VITA 46 fabric — sufficient for 500 kHz IQ streams from all four modules simultaneously
+- **Data bus:** VITA 46 utility plane (**I2S** IQ per module into the compute slot) and optional chassis PCIe/GbE for expansion — see [ADR 001](docs/adr/001-iq-transport-i2s-zmq.md). Baseline repeater IQ is **not** carried as raw PCIe DMA from RF modules.
 - **Power:** +12 V, +5 V, +3.3 V from backplane VITA 62 power rails
 - **Temperature monitoring:** I²C on the VITA 46 J0 utility plane (per-slot sensor readable by the chassis manager and Linux `hwmon`)
 - **RF antenna port:** RP-SMA on the module front panel for the antenna connection. IQ data is transported digitally over the VITA 46 data bus; the RP-SMA is the antenna interface only, not a backplane RF path.
-- **Userspace IQ:** The `ht-module-daemon` on the K3 publishes per-band RX IQ and accepts TX IQ over **ZeroMQ** sockets (see [Section 7.5](#75-zeromq-ipc))
+- **Userspace IQ:** The **`ht-module-daemon`** (Rust; specified, see [docs/repo-map.md](docs/repo-map.md)) on the K3 publishes per-band RX IQ and accepts TX IQ over **ZeroMQ** sockets (see [Section 7.5](#75-zeromq-ipc))
 
 > **Note on VITA 67:** VITA 67 RF backplane connectors (SMPM/SMPS blind-mate coaxial) are available as an option if RF signals ever need to be routed through the backplane rather than digitised at the module. At 144–1258 MHz with 500 kHz IQ bandwidth, digital transport over VITA 46 is the preferred and simpler approach, making front-panel RP-SMA the natural choice.
 
@@ -389,12 +391,14 @@ GQRX is a software-defined radio receiver built on top of GNU Radio and the Qt g
 - **Best for:** Monitoring, receive-only operations, scripting via its TCP control interface
 - **Limitations:** No digital voice decoding built in; no transmit; limited plugin ecosystem
 
-#### SDRangel
+#### SDRangel (upstream fork base)
 
-SDRangel is a Qt5/OpenGL SDR frontend that supports both receive and transmit simultaneously across multiple SDR devices. It includes a large built-in decoder suite covering DMR, D-Star, NXDN, YSF, FT8, APRS, AIS, ADS-B, and many others. It can run TX and RX on separate SDR devices concurrently, making it well-suited to a repeater role where simultaneous receive and transmit is required. The interface is dense but highly capable.
+**Upstream for application forks:** [f4exb/sdrangel](https://github.com/f4exb/sdrangel) on GitHub. Among the maintained Linux SDR frontends compared here, it is the preferred base because it supports real **TX and RX** (including concurrent RX and TX on separate devices), ships a large built-in digital-mode suite, and is actively maintained (GPL-3.0).
 
-- **Best for:** Digital voice repeater operation, multi-mode monitoring, TX/RX simultaneous use
-- **Limitations:** Steep learning curve; resource-intensive on lower-end hardware
+SDRangel is a Qt5/OpenGL SDR frontend. It includes decoders and channel plugins for DMR, D-Star, NXDN, YSF, FT8, APRS, AIS, ADS-B, M17 (`modemm17`), and others. For a headless repeater site, the **server** build (`sdrsrv` / `appsrv`) plus the REST API (and optional [SDRangelcli](https://github.com/f4exb/sdrangelcli) web UI) fits better than the desktop GUI alone. Custom work for this project is expected as **device/sample-source plugins** (for example IQ from [ZeroMQ](#75-zeromq-ipc) via `ht-module-daemon`) and repeater-oriented channel presets, not a greenfield TX/RX application.
+
+- **Best for:** Repeater TX/RX, digital voice, multi-mode monitoring, headless remote control
+- **Limitations:** Steep learning curve; resource-intensive on lower-end hardware; no native ZMQ IQ path until a plugin or bridge is added
 - **RISC-V status:** Confirmed running on Banana Pi BPI-F3 (SpacemiT K1, RISC-V)
 
 #### QRadioLink
@@ -429,7 +433,7 @@ OpenWebRX+ is a multi-user SDR receiver with a browser-based interface. Once run
 | SDR++ | ✗ | ✓ | SoapySDR | Via plugins | Network source | ✓ |
 | OpenWebRX+ | ✗ | ✓ | Compatible | FT8, APRS, ADS-B | Browser-based | ✓ |
 
-**Recommended combination for a repeater:** SDRangel for TX/RX repeater logic and digital modes, with OpenWebRX+ running in parallel for remote site monitoring over the network.
+**Recommended combination for a repeater:** Fork and extend [f4exb/sdrangel](https://github.com/f4exb/sdrangel) for TX/RX and digital modes; use GNU Radio 4.0 + [gr-ident](#74-gr-ident--radio-mode-identification) + [gr-linux-crypto](#8-authenticated-remote-control) for flowgraph-centric logic and authenticated control; run OpenWebRX+ in parallel for browser-based spectrum monitoring. Use QRadioLink only if ROIP/EchoLink-style linking is required alongside SDRangel.
 
 ---
 
@@ -467,9 +471,11 @@ Hardware daemon details: **[RF-modules.md](RF-modules.md)**, [Section 10](RF-mod
 
 ## 8. Authenticated Remote Control
 
-Remote management of the repeater over the air replaces DTMF entirely. For **local** TX/RX switching, frequency, and gain on the K3, applications use the ZeroMQ `ctrl` socket described in [Section 7.5](#75-zeromq-ipc); Section 8 is the signed RF command channel for remote operators. All control commands are cryptographically signed using GnuPG-compatible keys. The repeater authenticates every command before acting on it and logs every accepted change with a complete audit trail. Full technical specification, GNU Radio flowgraph integration, and operator workflows are described in the companion document **SDR Repeater — RF Module and RFIC Specification**, Section 11.
+Remote management of the repeater over the air replaces DTMF entirely. For **local** TX/RX switching, frequency, and gain on the K3, applications use the ZeroMQ `ctrl` socket described in [Section 7.5](#75-zeromq-ipc); Section 8 is the signed RF command channel for remote operators. All control commands are cryptographically signed using GnuPG-compatible keys. The repeater authenticates every command in **`repeater-authd`** (Rust) before acting on it and logs every accepted change with a complete audit trail.
 
-### 9.1 What can be controlled remotely
+**Normative specifications:** [docs/ota-remote-control.md](docs/ota-remote-control.md) (OTA frame format and verification), [docs/repeater-logic.md](docs/repeater-logic.md) (supervisor and PTT policy), [docs/implementation-language.md](docs/implementation-language.md) (Rust daemons).
+
+### 8.1 What can be controlled remotely
 
 | Task | Command (band: `2m`, `70cm`, `23cm`, or `all`) |
 |------|---------|
@@ -485,7 +491,7 @@ Remote management of the repeater over the air replaces DTMF entirely. For **loc
 
 Per-module addressing uses the same band tokens as the ZeroMQ `ctrl` socket ([zeromq-messages.md Section 4](zeromq-messages.md#4-control-plane-ctrl)). A command without a band is rejected unless the command is inherently global (`GET_BATTERY`, `REBOOT`).
 
-### 9.2 How it works — summary
+### 8.2 How it works — summary
 
 Each command frame contains the target repeater callsign, the sender's callsign, a GNSS-disciplined UTC timestamp, the command text, and a detached GnuPG signature. The repeater verifies the signature against its keyring of trusted operator public keys before taking any action. Commands with invalid signatures, unknown senders, or timestamps outside ±30 seconds of the repeater's GNSS clock are silently discarded and logged as rejected.
 
@@ -493,7 +499,7 @@ The repeater itself has a GnuPG key pair (callsign as the key UID). It signs all
 
 Because the frames are signed but not encrypted, every receiver on the network can read the content. Only the repeater whose callsign and key match the command target will act on it. All others ignore it. This means control commands propagate naturally across linked repeater networks.
 
-### 9.3 gr-linux-crypto
+### 8.3 gr-linux-crypto
 
 The authentication system is implemented using **[gr-linux-crypto](https://github.com/Supermagnum/gr-linux-crypto)**, a GNU Radio out-of-tree module providing:
 
@@ -506,7 +512,7 @@ The authentication system is implemented using **[gr-linux-crypto](https://githu
 
 Operator private keys should be stored on a **Nitrokey** hardware token. When the token is removed, `gr-linux-crypto` immediately clears all cached key material from memory — no residual key remains in the system.
 
-### 9.4 Audit log
+### 8.4 Audit log
 
 Every accepted command is written to `/var/log/repeater/audit.log` in append-only JSON format. Each entry records:
 
@@ -671,7 +677,8 @@ The battery bus is always live. The DRC module and MPPT controller both float-ch
 | Radio module ×3 | 2 m / 70 cm / 23 cm SDR TX/RX | VITA 46 edgecard, RP-SMA front panel |
 | Expansion slot | Spare (4th module or switch card) | VITA 46 edgecard |
 | Compute | SpacemiT K3 Pico-ITX or K3-CoM260 SoM | PCIe Gen3, GbE RJ45, USB 3.2 |
-| Module daemon | `ht-module-daemon` (C, libzmq) | ZMQ IPC under `/run/ht-module/` |
+| Module daemon | `ht-module-daemon` (Rust, libzmq) | ZMQ IPC under `/run/ht-module/` — see [docs/repo-map.md](docs/repo-map.md) |
+| Repeater control | `repeater-control` repo: `repeater-supervisord` + `repeater-authd` (Rust) | [docs/runtime/repeater-control.md](docs/runtime/repeater-control.md) |
 | Storage | 2 × 240 GB M.2 NVMe SSD, mdadm RAID 1 | M-Key + B-Key on K3 board |
 | GNSS receiver | u-blox NEO-M9N (standard) or ZED-F9T (precision) | USB or UART to K3; 1PPS to GPIO |
 | GNSS antenna | Active multi-band patch, roof/mast mount | SMA / TNC coaxial |
@@ -688,13 +695,13 @@ The battery bus is always live. The DRC module and MPPT controller both float-ch
 | SDR framework | GNU Radio 4.0 + VOLK 3.3 (RISC-V vector optimised) |
 | IQ transport | [ZeroMQ](https://zeromq.org/) — see [zeromq-messages.md](zeromq-messages.md) |
 | Mode identification | [gr-ident](https://github.com/Supermagnum/gr-ident) preamble (optional automatic mode switching) |
-| Repeater frontend | SDRangel (TX/RX, digital modes) |
+| Repeater application (fork upstream) | [f4exb/sdrangel](https://github.com/f4exb/sdrangel) — TX/RX, plugins, server/REST |
 | Remote monitoring | OpenWebRX+ (browser-based, multi-user) |
 | Supplementary SDR tools | GQRX, QRadioLink (ROIP/linking), SDR++ |
 | GNSS daemon | gpsd (NMEA/UBX parsing, shared memory) |
 | Time discipline | chrony (GNSS SHM + PPS → Stratum 1 NTP) |
 | Frequency correction | Software PPM in GNU Radio / SDRangel (standard); hardware 10 MHz ref (optional) |
-| Remote control | gr-linux-crypto (Brainpool signing/verification, CallsignKeyStore, Nitrokey integration) |
+| Remote control | `repeater-authd` (Rust) + gr-linux-crypto (Brainpool, CallsignKeyStore, Nitrokey) |
 | Audit log | `/var/log/repeater/audit.log` — append-only JSON, daily repeater-signed rotation |
 | Crypto | Linux kernel crypto API (K3 hardware AES/SHA/RSA) + GnuPG userspace + gr-linux-crypto |
 | Battery monitoring | `bq27xxx_battery_i2c` → `/sys/class/power_supply/battery/` |
