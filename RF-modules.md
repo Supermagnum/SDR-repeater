@@ -19,10 +19,9 @@
 8. [Module PCB Architecture](#8-module-pcb-architecture)
 9. [Backplane Interface](#9-backplane-interface)
 10. [Software Interface: ZeroMQ IPC](#10-software-interface-zeromq-ipc)
-11. [Authenticated Remote Control via gr-linux-crypto](#11-authenticated-remote-control-via-gr-linux-crypto)
-12. [MPW Tapeout Strategy](#12-mpw-tapeout-strategy)
-13. [Risk Register](#13-risk-register)
-14. [Open Licensing](#14-open-licensing)
+11. [MPW Tapeout Strategy](#11-mpw-tapeout-strategy)
+12. [Risk Register](#12-risk-register)
+13. [Open Licensing](#13-open-licensing)
 
 ---
 
@@ -547,6 +546,82 @@ Each module's RFIC is configured via SPI. The SPI bus is carried over the VITA 4
 | TEMP_70CM | module → K3 | same |
 | TEMP_23CM | module → K3 | same |
 
+### 9.4 VITA 46 Connector Pin Assignment
+
+The OpenVPX VITA 46 edgecard connector on each module has three physical connectors: **J0** (utility plane, power, slow signals), **J1** (data plane, primary high-speed fabric), and optionally **J2** (secondary fabric or expansion). Pin designations follow the VITA 46.0 standard naming convention: row letters A–Z (component side) and rows a–z (solder side), columns 1 onward.
+
+**J0 — Utility plane, power, and module control signals**
+
+J0 carries power rails, I²C, SPI configuration, GPIO control signals, I2S IQ streams, and GNSS discipline. All signals here are low-frequency or quasi-static.
+
+| J0 Pin | Signal | Direction | Description |
+|--------|--------|-----------|-------------|
+| A1 | GND | — | Ground |
+| A2 | GND | — | Ground |
+| A3 | +12V_PA | PWR in | PA supply rail (direct battery bus, decoupled on module) |
+| A4 | +12V_PA | PWR in | PA supply rail (second pin for current capacity) |
+| A5 | +5V | PWR in | 5 V from VITA 62 PSU |
+| A6 | +3V3 | PWR in | 3.3 V from VITA 62 PSU |
+| A7 | +1V8 | PWR in | 1.8 V from VITA 62 PSU |
+| A8 | GND | — | Ground |
+| B1 | SPI_CLK | In | Shared SPI clock from K3 (up to 10 MHz) |
+| B2 | SPI_MOSI | In | SPI data from K3 to RFIC |
+| B3 | SPI_MISO | Out | SPI data from RFIC to K3 (tri-state when CS inactive) |
+| B4 | SPI_CS_N | In | Active-low chip select (unique per module) |
+| B5 | ATT_LE | In | Attenuator latch enable (PE4312 parallel mode LE pin) |
+| B6 | RFIC_RESET_N | In | Active-low RFIC reset from K3 |
+| B7 | RFIC_IRQ_N | Out | Active-low IRQ: PLL unlock, AGC threshold, RSSI update |
+| B8 | GND | — | Ground |
+| C1 | PTT | In | TX enable from K3 (step 1 in PTT sequence) |
+| C2 | TR_SW | In | T/R switch control from K3 (step 2 in PTT sequence) |
+| C3 | PA_EN | In | PA enable from K3 (step 3, after 1 ms delay) |
+| C4 | ANT_SW | In | Shared/independent antenna mode select (HT13G-M only; NC on HT13G-S module) |
+| C5 | MOD_PRESENT | Out | Module presence detect — pulled low on module, open on empty slot |
+| C6 | MOD_ID0 | Out | Module type ID bit 0 (resistor-coded: 00=2m, 01=70cm, 10=23cm, 11=spare) |
+| C7 | MOD_ID1 | Out | Module type ID bit 1 |
+| C8 | GND | — | Ground |
+| D1 | I2C_SCL | In | I²C clock — VITA 46 J0 utility plane bus (shared, 100 kHz) |
+| D2 | I2C_SDA | Bidir | I²C data — temperature sensor, module ID EEPROM |
+| D3 | VCTCXO_TUNE | In | Analog 0–1.8 V GNSS frequency discipline (from K3 PWM + RC filter) |
+| D4 | PPS_REF | In | Optional 1PPS reference input for module-local timestamp (not required for basic operation) |
+| D5 | I2S_BCLK | In | I2S bit clock from K3 SAI peripheral |
+| D6 | I2S_LRCLK | In | I2S left/right clock (500 kHz IQ sample rate word select) |
+| D7 | I2S_DOUT | Out | I2S data out from RFIC to K3 (RX IQ: I=Left, Q=Right, 16-bit) |
+| D8 | I2S_DIN | In | I2S data in to RFIC from K3 (TX IQ) |
+| E1–E8 | GND | — | Ground (via-fence reference, RF zone boundary) |
+
+**Notes on J0:**
+
+- `MOD_PRESENT` allows the K3 to detect which slots are populated at boot. The K3 reads `MOD_ID[1:0]` to identify the band. An empty slot presents high-impedance on all lines.
+- `I2C_SDA/SCL` are shared across all module slots on the J0 utility plane bus. Each module has a unique I²C address for its temperature sensor and EEPROM. Temperature sensors use the LM75 / TMP102 family (7-bit address set by address pins on the module).
+- `VCTCXO_TUNE` is a per-module signal — each module has its own RC-filtered PWM input from a separate K3 PWM channel, allowing independent VCTCXO discipline per band.
+- `I2S_BCLK`, `I2S_LRCLK`, `I2S_DOUT`, `I2S_DIN` are per-module — each module occupies one SAI peripheral on the K3 (SAI1 = 2 m, SAI2 = 70 cm, SAI3 = 23 cm).
+- All GPIO signals (PTT, TR_SW, PA_EN, ATT_LE, RFIC_RESET_N) are 1.8 V logic driven by the K3 EC-IO GPIO. The RFIC `VDD_IO` must be configured to 1.8 V on all modules to match. No level translation is required.
+- `RFIC_IRQ_N` is an open-drain output from the module; a 10 kΩ pull-up to 1.8 V is on the module PCB.
+
+**J1 — Data plane (reserved for future high-speed expansion)**
+
+J1 is reserved. In the current design, all IQ data is carried over J0 I2S at 500 kHz bandwidth — well within the J0 signal routing capability. J1 is not connected at this time. If a future module variant requires higher IQ bandwidth (e.g. wideband monitoring beyond 500 kHz), J1 provides PCIe Gen 3 × 1 or GbE lanes per the VITA 65 slot profile.
+
+| J1 Pins | Signal | Notes |
+|---------|--------|-------|
+| All | NC | Not connected in current revision. PCB pads present; VITA 46 connector populated for mechanical retention. |
+
+**Module identity EEPROM**
+
+Each module carries a small I²C EEPROM (24C02 or equivalent, 256 bytes) at a unique address determined by address pins tied to VCC or GND on the module. The EEPROM stores:
+
+| Byte offset | Content |
+|-------------|---------|
+| 0x00–0x01 | Module type (0x0001 = 2 m, 0x0002 = 70 cm, 0x0003 = 23 cm) |
+| 0x02–0x03 | Hardware revision |
+| 0x04–0x13 | Serial number (16 ASCII bytes) |
+| 0x14–0x17 | Factory calibration: VCTCXO trim offset (int32, ppb) |
+| 0x18–0x1B | Factory calibration: PA output power calibration point (uint32, dBm × 100) |
+| 0x1C–0xFF | Reserved |
+
+The `ht-module-daemon` reads this EEPROM at startup to identify each installed module, load its calibration constants, and set the correct VCTCXO trim starting point before GNSS discipline takes over.
+
 ---
 
 ## 10. Software Interface: ZeroMQ IPC
@@ -635,197 +710,7 @@ For cross-band repeat (e.g. receive on 2 m, retransmit on 70 cm), a single GNU R
 
 ---
 
-## 11. Authenticated Remote Control via gr-linux-crypto
-
-Remote control of the repeater — adjusting RF power, enabling or disabling modules, checking temperatures and battery levels — is performed over the air using cryptographically signed command frames. No DTMF, no shared secret codes, no plaintext control tones. Every command is authenticated against a known public key before the repeater acts on it. Every accepted command is logged with a tamper-evident audit trail.
-
-### 11.1 Design Principles
-
-- **No DTMF.** DTMF control is inherently insecure: tones are audible, replayable, and trivially spoofed. It is replaced entirely by signed command frames.
-- **No encryption required.** Command frames are signed (for authentication and integrity) but not encrypted. The content of a command is readable by anyone — the repeater simply will not act on a command it cannot verify.
-- **No central server.** Authentication uses the OpenPGP Web of Trust. The repeater holds a keyring of trusted operator public keys. There is no backend, no internet dependency, no cloud service.
-- **Callsign-bound keys.** Each operator's GnuPG key is created with their callsign as the key UID (e.g. `LA1ABC`), following the `callsign:LA1ABC` convention used by the `CallsignKeyStore` API in `gr-linux-crypto`. This binds cryptographic identity to amateur radio identity.
-- **The repeater has its own key pair.** It signs replies and status broadcasts with its private key, allowing operators to verify the reply came from the correct repeater.
-- **Network-wide propagation.** A signed command frame broadcast on any band propagates naturally across the repeater network (if links are active). Every repeater receives it, but only the repeater whose callsign and key match the command's target will process it and reply. Others silently ignore it.
-
-### 11.2 gr-linux-crypto
-
-The authentication system is built on **[gr-linux-crypto](https://github.com/Supermagnum/gr-linux-crypto)**, a GNU Radio out-of-tree module providing:
-
-- **Linux kernel keyring integration** — keys are stored in the kernel, not in files
-- **Nitrokey / hardware security token support** — operator private keys never leave the hardware token
-- **Brainpool ECC blocks** — ECDSA signing and verification as native GNU Radio blocks
-- **`CallsignKeyStore` API** — stores and retrieves public keys indexed by callsign
-- **`M17SessionKeyExchange`** — Python helpers for signing and verification in the flowgraph
-- **Multi-recipient ECIES** — for encrypted replies to specific operators (optional, where regulations permit)
-
-The module integrates with `gr-openssl` (for AES/SHA) and `gr-nacl` (for Curve25519/Ed25519/ChaCha20-Poly1305), using `gr-linux-crypto` as the secure key storage and hardware token bridge layer.
-
-### 11.3 Command Frame Format
-
-A control command is a short text frame, signed with the sender's GnuPG private key, carried over any digital mode the repeater receives (M17 data, APRS, or a dedicated narrow digital channel).
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  REPEATER CONTROL FRAME                                         │
-├──────────────────┬──────────────────────────────────────────────┤
-│  TARGET          │  Callsign of target repeater (e.g. LA1REP)   │
-│  SENDER          │  Callsign of commanding operator             │
-│  TIMESTAMP       │  ISO 8601 UTC (GNSS-disciplined on sender)   │
-│  COMMAND         │  Verb + parameters (see table below)         │
-│  SIGNATURE       │  Detached GnuPG signature over above fields  │
-└──────────────────┴──────────────────────────────────────────────┘
-```
-
-The signature covers the concatenation of TARGET, SENDER, TIMESTAMP, and COMMAND fields. Replaying an old frame fails because the timestamp will not match the repeater's GNSS-disciplined clock within the allowed window (default ±30 seconds).
-
-### 11.4 Supported Commands
-
-| Command | Parameters | Effect |
-|---------|-----------|--------|
-| `SET_PWR` | band, watts | Set TX power on specified band (0–5 W) |
-| `SET_SQUELCH` | band, dBm | Set squelch threshold |
-| `MOD_ENABLE` | band | Enable a radio module |
-| `MOD_DISABLE` | band | Disable a radio module |
-| `GET_STATUS` | — | Request full status reply (temps, battery, RSSI, module states) |
-| `GET_TEMP` | — | Request temperature readings (all module slots + SBC) |
-| `GET_BATTERY` | — | Request battery state of charge and charge/discharge current |
-| `REBOOT` | — | Graceful system reboot (requires elevated trust level) |
-| `SET_FREQ` | band, Hz | Set receive/transmit centre frequency |
-| `SET_CTCSS` | band, Hz | Set CTCSS tone |
-
-Commands are case-insensitive plain text; parsing is done by `ht-module-daemon` after signature verification.
-
-### 11.5 Authentication and Key Management
-
-The repeater maintains two keyrings:
-
-**Repeater private key** (stored in Linux kernel keyring, optionally on a Nitrokey token):
-- Used to sign all outgoing replies and periodic status broadcasts
-- Never leaves the repeater hardware
-- Key UID is the repeater's callsign: e.g. `LA1REP <la1rep@example.org>`
-
-**Trusted operator keyring** (GnuPG keyring, populated at installation):
-- Contains the public keys of all operators authorised to issue commands
-- Keys are indexed by callsign via `gr-linux-crypto` `CallsignKeyStore`
-- New operators are added by importing their public key and signing it with the repeater's private key (or an existing trusted operator's key)
-- Web of Trust model: the repeater accepts a key if it is signed by at least one key already in its trusted keyring
-
-**Verification flow in the `ht-module-daemon`:**
-
-```
-Received signed command frame
-          │
-          ▼
-Extract SENDER callsign
-          │
-          ▼
-Look up sender's public key in CallsignKeyStore
-          │
-     key found?
-     ├── No  → Discard frame silently; log rejected attempt
-     └── Yes ↓
-          ▼
-gpg --verify signature against frame content
-          │
-     valid?
-     ├── No  → Discard frame; log verification failure with sender callsign
-     └── Yes ↓
-          ▼
-Check TIMESTAMP within ±30 s of GNSS clock
-          │
-     in window?
-     ├── No  → Discard (replay protection); log
-     └── Yes ↓
-          ▼
-Execute command
-          │
-          ▼
-Write audit log entry (see Section 11.6)
-          │
-          ▼
-Sign and broadcast reply to sender's public key
-```
-
-### 11.6 Audit Log
-
-Every accepted command — and every rejected attempt — is written to a structured audit log at `/var/log/repeater/audit.log`. The log format is append-only JSON lines, one record per event:
-
-```json
-{
-  "timestamp_utc": "2026-05-27T14:32:01.000Z",
-  "gnss_disciplined": true,
-  "event": "COMMAND_ACCEPTED",
-  "target": "LA1REP",
-  "sender_callsign": "LA1ABC",
-  "sender_key_fingerprint": "A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2",
-  "command": "SET_PWR",
-  "band": "2m",
-  "param_from": 5,
-  "param_to": 3,
-  "param_unit": "W",
-  "signature_verified": true,
-  "replay_check": "pass"
-}
-```
-
-For `GET_STATUS`, `GET_TEMP`, and `GET_BATTERY` queries (no state change), `param_from` and `param_to` are omitted. For commands that change a parameter, both the previous value and the new value are recorded — the log answers the questions: who changed it, when, what was it before, and what is it now.
-
-Log entries are signed by the repeater's own key at midnight daily (rolling log rotation), producing a chain of custody that cannot be silently altered. Log files are kept for 90 days by default (configurable).
-
-Rejected attempts are logged with event type `COMMAND_REJECTED` and a `reason` field: `KEY_NOT_FOUND`, `SIGNATURE_INVALID`, or `REPLAY_DETECTED`.
-
-### 11.7 GNU Radio Integration
-
-In the GNU Radio flowgraph, command reception and signing uses `gr-linux-crypto` blocks directly:
-
-```
-[RX IQ from module] → [Demodulator] → [Frame sync / decoder]
-                                              │
-                                              ▼
-                                    [gr-linux-crypto: Brainpool verify block]
-                                    (verifies detached signature)
-                                              │
-                                   ┌──────────┴──────────┐
-                                verified               rejected
-                                    │                      │
-                                    ▼                      ▼
-                            [ht-module-daemon:       [Audit log:
-                             execute command]         COMMAND_REJECTED]
-                                    │
-                                    ▼
-                            [gr-linux-crypto: Brainpool sign block]
-                            (signs reply with repeater key)
-                                    │
-                                    ▼
-                            [Modulator → TX IQ → module]
-```
-
-The `CallsignKeyStore` API from `gr-linux-crypto` provides the callsign-to-key lookup used by the verification block. It integrates directly with the Linux GnuPG keyring so no separate key database is needed.
-
-### 11.8 Operator Workflow
-
-**Initial setup (at installation):**
-1. Generate the repeater's GnuPG key pair with callsign as UID: `gpg --full-generate-key`
-2. Import all authorised operator public keys: `gpg --import operator_keys.asc`
-3. Sign each imported key with the repeater key to establish trust
-4. Export repeater public key and publish to keyserver and club website
-
-**Adding a new authorised operator:**
-1. Receive operator's public key (via keyserver, email, or key signing party)
-2. Verify identity (in person or via Web of Trust)
-3. Import and sign: `gpg --import la2new.asc && gpg --sign-key LA2NEW`
-4. No repeater restart required; `ht-module-daemon` reloads keyring on SIGHUP
-
-**Issuing a command (operator side):**
-1. Compose command frame (any text editor or purpose-built tool)
-2. Sign: `gpg --detach-sign --armor command.txt`
-3. Transmit over radio using M17 data mode, APRS, or the designated control channel
-
-**Hardware token (Nitrokey):**  
-Operators are encouraged to store their private keys on a Nitrokey hardware token. With `gr-linux-crypto`'s Nitrokey integration, the private key never exists in host memory. If the token is removed, signing operations cease immediately — no cached key remains.
-
-## 12. MPW Tapeout Strategy
+## 11. MPW Tapeout Strategy
 
 Full dual-band or triple-band integration on a single die would require approximately 4–6 mm² including the sealring — exceeding the 2 mm² community slot in the OpenMPW program. The strategy is therefore to submit and validate each chain independently before integration.
 
@@ -855,7 +740,7 @@ A Phase 1 (VHF RX chain) submission targeting the October 2026 run would receive
 
 ---
 
-## 13. Risk Register
+## 12. Risk Register
 
 | Risk | Likelihood | Mitigation |
 |------|------------|------------|
@@ -872,7 +757,7 @@ A Phase 1 (VHF RX chain) submission targeting the October 2026 run would receive
 
 ---
 
-## 14. Open Licensing
+## 13. Open Licensing
 
 All design work produced for this project follows the same licensing as the OpenHT-DB source project from which the RFIC specification is adapted.
 
@@ -888,4 +773,3 @@ RFIC measurement results from OpenMPW submissions are published as open data per
 
 ---
 
-*Revision 0.1. RFIC electrical specifications are design targets and should be reviewed by an experienced RF IC designer before committing to tapeout. The HT13G-M specification is adapted from the OpenHT-DB Draft v0.4 handheld transceiver design by the same project group; the 23 cm HT13G-S is a new specification. IHP SG13G2 process parameters are taken from the public open-source PDK documentation.*
