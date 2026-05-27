@@ -15,9 +15,10 @@
 5. [Storage](#5-storage)
 6. [GNSS Timing and Frequency Reference](#6-gnss-timing-and-frequency-reference)
 7. [Software Stack](#7-software-stack)
-8. [Power Architecture](#8-power-architecture)
-9. [Optional Solar Power](#9-optional-solar-power)
-10. [System Integration Summary](#10-system-integration-summary)
+8. [Authenticated Remote Control](#8-authenticated-remote-control)
+9. [Power Architecture](#9-power-architecture)
+10. [Optional Solar Power](#10-optional-solar-power)
+11. [System Integration Summary](#11-system-integration-summary)
 
 ---
 
@@ -419,13 +420,69 @@ OpenWebRX+ is a multi-user SDR receiver with a browser-based interface. Once run
 
 ---
 
-## 8. Power Architecture
+## 8. Authenticated Remote Control
+
+Remote management of the repeater over the air replaces DTMF entirely. All control commands are cryptographically signed using GnuPG-compatible keys. The repeater authenticates every command before acting on it and logs every accepted change with a complete audit trail. Full technical specification, GNU Radio flowgraph integration, and operator workflows are described in the companion document **SDR Repeater — RF Module and RFIC Specification**, Section 11.
+
+### 9.1 What can be controlled remotely
+
+| Task | Command |
+|------|---------|
+| Adjust RF output power | `SET_PWR band watts` |
+| Check all temperatures | `GET_TEMP` |
+| Check battery state and current | `GET_BATTERY` |
+| Enable or disable a radio module | `MOD_ENABLE` / `MOD_DISABLE` |
+| Set squelch threshold | `SET_SQUELCH band dBm` |
+| Set receive / transmit frequency | `SET_FREQ band Hz` |
+| Full status report | `GET_STATUS` |
+| Graceful reboot | `REBOOT` (elevated trust required) |
+
+### 9.2 How it works — summary
+
+Each command frame contains the target repeater callsign, the sender's callsign, a GNSS-disciplined UTC timestamp, the command text, and a detached GnuPG signature. The repeater verifies the signature against its keyring of trusted operator public keys before taking any action. Commands with invalid signatures, unknown senders, or timestamps outside ±30 seconds of the repeater's GNSS clock are silently discarded and logged as rejected.
+
+The repeater itself has a GnuPG key pair (callsign as the key UID). It signs all outgoing replies and periodic status broadcasts, so operators can verify replies came from the correct repeater.
+
+Because the frames are signed but not encrypted, every receiver on the network can read the content. Only the repeater whose callsign and key match the command target will act on it. All others ignore it. This means control commands propagate naturally across linked repeater networks.
+
+### 9.3 gr-linux-crypto
+
+The authentication system is implemented using **[gr-linux-crypto](https://github.com/Supermagnum/gr-linux-crypto)**, a GNU Radio out-of-tree module providing:
+
+- Linux kernel keyring integration (keys stored in kernel, not in files)
+- Nitrokey and hardware security token support (operator private key never leaves the token)
+- Brainpool ECC signing and verification as native GNU Radio blocks
+- `CallsignKeyStore` API — indexes public keys by amateur radio callsign
+- `M17SessionKeyExchange` helpers for signing and frame composition
+- Web of Trust key management compatible with existing GnuPG infrastructure
+
+Operator private keys should be stored on a **Nitrokey** hardware token. When the token is removed, `gr-linux-crypto` immediately clears all cached key material from memory — no residual key remains in the system.
+
+### 9.4 Audit log
+
+Every accepted command is written to `/var/log/repeater/audit.log` in append-only JSON format. Each entry records:
+
+- GNSS-disciplined UTC timestamp
+- Sender callsign and key fingerprint
+- Command issued
+- Previous value → new value (for state-changing commands)
+- Signature verification result
+
+This answers definitively: who changed it, when, what it was before, and what it was changed to. Rejected attempts are also logged with the reason (`KEY_NOT_FOUND`, `SIGNATURE_INVALID`, `REPLAY_DETECTED`). Daily log files are signed by the repeater key to produce a tamper-evident chain of custody.
+
+### 8.5 Key management
+
+Operator keys are GnuPG key pairs with the operator's callsign as the key UID (e.g. `LA1ABC`). New operators are added by importing their public key and signing it with the repeater key or an existing trusted operator key — no central authority, no backend service. The Web of Trust model applies: the repeater accepts a key if it is signed by at least one key already in its trusted keyring. Key management uses standard GnuPG tooling (`gpg --import`, `gpg --sign-key`) and the `gr-linux-crypto` `CallsignKeyStore` API.
+
+---
+
+## 9. Power Architecture
 
 ### Philosophy: DC UPS topology — no generator
 
 The system uses a DC UPS topology rather than a traditional AC UPS or generator. The load runs from a DC bus at all times. When 230 V AC mains is present, an AC-DC converter simultaneously powers the bus and charges the battery. When mains fails, the battery takes over with zero switching delay — no relay, no inverter, no interruption. Generator backup is deliberately excluded; battery sizing and optional solar input provide the required autonomy.
 
-### 8.1 AC-DC UPS module: Mean Well DRC series
+### 9.1 AC-DC UPS module: Mean Well DRC series
 
 The **Mean Well DRC-100B** (or DRC-240B for more headroom) is an all-in-one DIN-rail mounted unit providing AC-DC conversion, battery charging, and UPS function in a single package.
 
@@ -441,7 +498,7 @@ The **Mean Well DRC-100B** (or DRC-240B for more headroom) is an all-in-one DIN-
 | Mounting | DIN rail TS-35/7.5 or TS-35/15 | DIN rail |
 | Certifications | UL, TÜV, CE | UL, TÜV, CE |
 
-### 8.2 Battery: LiFePO4
+### 9.2 Battery: LiFePO4
 
 **LiFePO4 (Lithium Iron Phosphate)** is the correct chemistry for a site repeater installation.
 
@@ -463,7 +520,7 @@ Advantages over lead-acid:
 
 The BMS inside the battery pack provides cell balancing, over-charge protection, over-discharge cutoff, and short-circuit protection. The DRC module's 27.6 V float voltage is compatible with an 8S LiFePO4 pack (8 × 3.2 V nominal = 25.6 V, fully charged at 8 × 3.65 V = 29.2 V — adjust DRC output trim to match).
 
-### 8.3 Power budget estimate
+### 9.3 Power budget estimate
 
 | Component | Typical draw |
 |-----------|-------------|
@@ -477,7 +534,7 @@ The BMS inside the battery pack provides cell balancing, over-charge protection,
 
 The DRC-100B at 100 W provides comfortable headroom for typical operation. The DRC-240B is recommended if all four modules may transmit simultaneously or if a larger battery requires faster recharge.
 
-### 8.4 Battery status monitoring in Linux
+### 9.4 Battery status monitoring in Linux
 
 Battery state is exposed to Linux through two complementary paths.
 
@@ -503,11 +560,11 @@ Tools like `upower`, monitoring daemons, and SNMP agents read from this standard
 
 ---
 
-## 9. Optional Solar Power
+## 10. Optional Solar Power
 
 Solar input is an optional supplement to 230 V AC mains. There is no generator. The architecture is additive — the solar charge controller connects to the same 24 V battery bus as the DRC module, and both charge the battery simultaneously or independently depending on availability.
 
-### 9.1 MPPT charge controller
+### 10.1 MPPT charge controller
 
 A **Maximum Power Point Tracking (MPPT)** solar charge controller is required for LiFePO4 batteries. MPPT controllers achieve 97–99% tracking efficiency and include CC/CV (Constant Current / Constant Voltage) charging profiles correct for LiFePO4 chemistry.
 
@@ -524,7 +581,7 @@ A **Maximum Power Point Tracking (MPPT)** solar charge controller is required fo
 
 Suitable products: Victron SmartSolar MPPT 100/20 or 100/30 (Bluetooth + VE.Direct for monitoring), Bioenno Power SC-122430NE (LiFePO4-specific), or equivalent.
 
-### 9.2 Panel sizing for Norway (latitude ~60–70°N)
+### 10.2 Panel sizing for Norway (latitude ~60–70°N)
 
 Without a generator, battery capacity and panel sizing together determine winter survivability. Solar alone cannot sustain a Norwegian repeater through polar winter — AC mains is the essential primary source, and solar is a valuable summer supplement that reduces mains consumption and extends battery autonomy during grid outages.
 
@@ -536,7 +593,7 @@ Without a generator, battery capacity and panel sizing together determine winter
 
 > **Note:** In winter at high northern latitudes, days may have fewer than 2 usable solar hours, and snow cover on panels reduces output further. The system must be designed to operate indefinitely from AC mains alone. Solar provides additional battery reserve and energy cost savings during the other eight months of the year.
 
-### 9.3 Wiring topology
+### 10.3 Wiring topology
 
 ```
 [230 V AC mains] ──► [Mean Well DRC-100B/240B] ──┐
@@ -555,7 +612,7 @@ The battery bus is always live. The DRC module and MPPT controller both float-ch
 
 ---
 
-## 10. System Integration Summary
+## 11. System Integration Summary
 
 ### Complete bill of materials overview
 
@@ -586,7 +643,9 @@ The battery bus is always live. The DRC module and MPPT controller both float-ch
 | GNSS daemon | gpsd (NMEA/UBX parsing, shared memory) |
 | Time discipline | chrony (GNSS SHM + PPS → Stratum 1 NTP) |
 | Frequency correction | Software PPM in GNU Radio / SDRangel (standard); hardware 10 MHz ref (optional) |
-| Crypto | Linux kernel crypto API (K3 hardware AES/SHA/RSA) + GnuPG userspace |
+| Remote control | gr-linux-crypto (Brainpool signing/verification, CallsignKeyStore, Nitrokey integration) |
+| Audit log | `/var/log/repeater/audit.log` — append-only JSON, daily repeater-signed rotation |
+| Crypto | Linux kernel crypto API (K3 hardware AES/SHA/RSA) + GnuPG userspace + gr-linux-crypto |
 | Battery monitoring | `bq27xxx_battery_i2c` → `/sys/class/power_supply/battery/` |
 | RAID | mdadm RAID 1 on two NVMe SSDs |
 | UPS signalling | systemd service on DRC GPIO alarm pins |
@@ -603,6 +662,9 @@ The battery bus is always live. The DRC module and MPPT controller both float-ch
 | NMEA 0183 | GNSS serial data protocol |
 | UBX | u-blox binary GNSS protocol |
 | RFC 5905 | NTP v4 (chrony implementation) |
+| OpenPGP / RFC 4880 | GnuPG key format, Web of Trust, digital signatures |
 | IEC 62619 | Battery safety standard for lithium systems |
 | IPC-2141 | PCB design reference for edgecard connectors |
+
+---
 
