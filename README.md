@@ -15,6 +15,10 @@
 5. [Storage](#5-storage)
 6. [GNSS Timing and Frequency Reference](#6-gnss-timing-and-frequency-reference)
 7. [Software Stack](#7-software-stack)
+   - [7.1 Operating system](#71-operating-system)
+   - [7.2 GNU Radio 4.0](#72-gnu-radio-40)
+   - [7.3 User-friendly frontends](#73-user-friendly-frontends-gnu-radio-based-or-gnu-radio-compatible)
+   - [7.4 gr-ident — radio mode identification](#74-gr-ident--radio-mode-identification)
 8. [Authenticated Remote Control](#8-authenticated-remote-control)
 9. [Power Architecture](#9-power-architecture)
 10. [Optional Solar Power](#10-optional-solar-power)
@@ -363,6 +367,8 @@ GNU Radio 4.0 reached Release Candidate 1 in March 2026. The core architecture i
 
 GNU Radio is the most powerful and flexible option but has a steep learning curve due to its flowgraph / block-programming paradigm. For operators who prefer a more direct interface, the following GNU Radio-based frontends are available.
 
+When the repeater should identify the incoming modulation type and route IQ data to the correct demodulator automatically (rather than relying on manual mode selection or statistical classification), the flowgraph can implement the **[gr-ident](https://github.com/Supermagnum/gr-ident)** preamble specification — see [Section 7.4](#74-gr-ident--radio-mode-identification).
+
 ---
 
 ### 7.3 User-friendly frontends (GNU Radio-based or GNU Radio-compatible)
@@ -417,6 +423,18 @@ OpenWebRX+ is a multi-user SDR receiver with a browser-based interface. Once run
 | OpenWebRX+ | ✗ | ✓ | Compatible | FT8, APRS, ADS-B | Browser-based | ✓ |
 
 **Recommended combination for a repeater:** SDRangel for TX/RX repeater logic and digital modes, with OpenWebRX+ running in parallel for remote site monitoring over the network.
+
+---
+
+### 7.4 gr-ident — radio mode identification
+
+**[gr-ident](https://github.com/Supermagnum/gr-ident)** specifies a lightweight radio mode identification preamble for GNU Radio systems. When the repeater is configured to use it, the receiver can identify the incoming modulation type (analog or digital, and the specific mode such as narrowband FM versus C4FM) before committing to a demodulator, and automatically switch to the appropriate processing path.
+
+The preamble is a Golay(24,12)-protected field transmitted at the start of each frame. The receiver reads the analog/digital flag and mode ID, routes the signal to the correct demodulator bank, and does not pass unrecognised or mismatched traffic to the audio output. For example, a receiver set for analog FM does not present digital C4FM as noise on the speaker.
+
+The same identification approach applies to **Linht**, an open-source-hardware, Linux-based SDR handheld transceiver: it can discriminate between modes on receive so the operator is not forced to listen to digital C4FM while the radio is configured for analog FM. Conventional analog-only transceivers do not offer this capability.
+
+gr-ident is designed to work alongside **[gr-linux-crypto](https://github.com/Supermagnum/gr-linux-crypto)** (see [Section 8](#8-authenticated-remote-control)). The preamble includes an encrypted/open flag so a Linht or repeater implementation can identify the mode before attempting decryption, and can refuse to demodulate encrypted payloads for which no key is available.
 
 ---
 
@@ -637,6 +655,7 @@ The battery bus is always live. The DRC module and MPPT controller both float-ch
 |-------|-----------|
 | OS | Ubuntu 26.04 LTS (RISC-V RVA23) |
 | SDR framework | GNU Radio 4.0 + VOLK 3.3 (RISC-V vector optimised) |
+| Mode identification | [gr-ident](https://github.com/Supermagnum/gr-ident) preamble (optional automatic mode switching) |
 | Repeater frontend | SDRangel (TX/RX, digital modes) |
 | Remote monitoring | OpenWebRX+ (browser-based, multi-user) |
 | Supplementary SDR tools | GQRX, QRadioLink (ROIP/linking), SDR++ |
