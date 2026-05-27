@@ -460,8 +460,51 @@ ZeroMQ is used because it:
 |--------|---------|---------|-----------|----------|
 | `iq_2m` / `iq_70cm` / `iq_23cm` | PUB | `ipc:///run/ht-module/...` | Daemon → consumers | RX IQ, int16 I/Q interleaved, 500 kHz |
 | `tx_2m` / `tx_70cm` / `tx_23cm` | SUB | `ipc:///run/ht-module/...` | Consumers → daemon | TX IQ stream |
-| `ctrl` | REQ/REP | `ipc:///run/ht-module/ctrl` | Any → daemon | Frequency, gain, PTT, attenuator |
+| `ctrl` | REQ/REP | `ipc:///run/ht-module/ctrl` | Any → daemon | Per-module: frequency, gain, PTT, squelch, TX timeout, attenuator |
 | `status` | PUB | `ipc:///run/ht-module/status` | Daemon → consumers | RSSI, PLL lock, temperature, battery |
+
+#### TX/RX control versus IQ data
+
+ZeroMQ carries **two roles** on separate sockets. Do not mix control with IQ streams.
+
+| Role | Sockets | What it does |
+|------|---------|--------------|
+| **Control plane** | `ctrl` (REQ/REP) | Switch TX/RX and configure each module: frequency, gain, **PTT**, squelch, TX timeout, attenuator. Any process (GNU Radio `ht13g_ctrl`, a script, or SDRangel integration) sends a request; `ht-module-daemon` replies and drives GPIO/SPI — including the hardware PTT sequence (RFIC PTT, T/R switch, 1 ms delay, PA enable). |
+| **IQ data plane** | `iq_*` (PUB), `tx_*` (SUB) | Carry sample data only. RX IQ is published on `iq_2m` / `iq_70cm` / `iq_23cm`; TX IQ is published by the flowgraph to `tx_*` and consumed by the daemon for DMA output. Starting TX IQ does not by itself key the transmitter — PTT must be asserted via `ctrl`. |
+| **Telemetry** | `status` (PUB) | Read-only: RSSI, PLL lock, temperature, battery. Does not change TX/RX state. |
+
+Example: to transmit on 70 cm, the flowgraph publishes modulated samples to `tx_70cm` **and** sends a PTT-on command on `ctrl`. The daemon keys the PA only after the control request; the `tx_*` socket supplies the waveform.
+
+This local ZMQ API is for on-host coordination between `ht-module-daemon` and signal-processing applications. It is separate from [Section 8](#8-authenticated-remote-control), which covers **authenticated over-the-air** remote management (signed commands, audit log) for operators at a distance.
+
+#### Control commands (`ctrl` socket)
+
+Requests are single-line ASCII strings sent on the `ctrl` REQ/REP socket. Replies are `OK` or `ERR <reason>` from `ht-module-daemon`.
+
+Module-specific commands take a **band** as the first argument after the command name:
+
+| Band token | Module |
+|------------|--------|
+| `2m` | 2 metre (VHF) |
+| `70cm` | 70 cm (UHF) |
+| `23cm` | 23 cm (UHF/SHF) |
+| `all` | Every installed module (where the command applies system-wide) |
+
+Examples (local ZMQ; same command text is used in signed over-the-air frames in Section 8):
+
+| Command | Example | Effect |
+|---------|---------|--------|
+| `SET_SQUELCH` | `SET_SQUELCH 70cm -120` | Set squelch threshold on the 70 cm module to −120 dBm |
+| `SET_SQUELCH` | `SET_SQUELCH 2m -120` | Set squelch threshold on the 2 m module only |
+| `SET_TX_TIMEOUT` | `SET_TX_TIMEOUT 2m 300` | Limit transmit on 2 m to 300 seconds, then force PTT off |
+| `SET_TX_TIMEOUT` | `SET_TX_TIMEOUT 70cm 300` | Same for 70 cm |
+| `SET_FREQ` | `SET_FREQ 23cm 1252000000` | Set centre frequency on 23 cm (Hz) |
+| `SET_PWR` | `SET_PWR 2m 5` | Set RF output power on 2 m (watts) |
+| `PTT` | `PTT 70cm on` / `PTT 70cm off` | Key or unkey transmitter on 70 cm |
+| `GET_TEMP` | `GET_TEMP all` | Temperature from all module sensors |
+| `GET_STATUS` | `GET_STATUS 2m` | Status for one module; `GET_STATUS all` for full report |
+
+Squelch and TX timeout are always per-module: there is no global squelch without naming a band (use `all` only if the daemon implements the same value on every module).
 
 Each IQ message is length-prefixed: GNSS-disciplined 64-bit nanosecond timestamp, band ID, sample count, then interleaved int16 I/Q samples (little-endian).
 
@@ -483,20 +526,23 @@ Full data-flow diagram, frame layout, and daemon API details are in **[RF-module
 
 ## 8. Authenticated Remote Control
 
-Remote management of the repeater over the air replaces DTMF entirely. All control commands are cryptographically signed using GnuPG-compatible keys. The repeater authenticates every command before acting on it and logs every accepted change with a complete audit trail. Full technical specification, GNU Radio flowgraph integration, and operator workflows are described in the companion document **SDR Repeater — RF Module and RFIC Specification**, Section 11.
+Remote management of the repeater over the air replaces DTMF entirely. For **local** TX/RX switching, frequency, and gain on the K3, applications use the ZeroMQ `ctrl` socket described in [Section 7.5](#75-zeromq-ipc); Section 8 is the signed RF command channel for remote operators. All control commands are cryptographically signed using GnuPG-compatible keys. The repeater authenticates every command before acting on it and logs every accepted change with a complete audit trail. Full technical specification, GNU Radio flowgraph integration, and operator workflows are described in the companion document **SDR Repeater — RF Module and RFIC Specification**, Section 11.
 
 ### 9.1 What can be controlled remotely
 
-| Task | Command |
+| Task | Command (band: `2m`, `70cm`, `23cm`, or `all`) |
 |------|---------|
-| Adjust RF output power | `SET_PWR band watts` |
-| Check all temperatures | `GET_TEMP` |
+| Adjust RF output power | `SET_PWR 70cm 5` |
+| Check all temperatures | `GET_TEMP all` |
 | Check battery state and current | `GET_BATTERY` |
-| Enable or disable a radio module | `MOD_ENABLE` / `MOD_DISABLE` |
-| Set squelch threshold | `SET_SQUELCH band dBm` |
-| Set receive / transmit frequency | `SET_FREQ band Hz` |
-| Full status report | `GET_STATUS` |
+| Enable or disable a radio module | `MOD_ENABLE 2m` / `MOD_DISABLE 23cm` |
+| Set squelch threshold | `SET_SQUELCH 70cm -120` |
+| Set transmit timeout (seconds) | `SET_TX_TIMEOUT 2m 300` |
+| Set receive / transmit frequency | `SET_FREQ 2m 145500000` |
+| Full status report | `GET_STATUS all` or `GET_STATUS 70cm` |
 | Graceful reboot | `REBOOT` (elevated trust required) |
+
+Per-module addressing uses the same band tokens as the ZeroMQ `ctrl` socket ([Section 7.5](#control-commands-ctrl-socket)). A command without a band is rejected unless the command is inherently global (`GET_BATTERY`, `REBOOT`).
 
 ### 9.2 How it works — summary
 
