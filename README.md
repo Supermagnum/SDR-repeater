@@ -19,6 +19,7 @@
    - [7.2 GNU Radio 4.0](#72-gnu-radio-40)
    - [7.3 User-friendly frontends](#73-user-friendly-frontends-gnu-radio-based-or-gnu-radio-compatible)
    - [7.4 gr-ident — radio mode identification](#74-gr-ident--radio-mode-identification)
+   - [7.5 ZeroMQ IPC](#75-zeromq-ipc)
 8. [Authenticated Remote Control](#8-authenticated-remote-control)
 9. [Power Architecture](#9-power-architecture)
 10. [Optional Solar Power](#10-optional-solar-power)
@@ -41,6 +42,7 @@ This document describes a modular, Linux-based, software-defined radio (SDR) rep
 - Temperature and battery state monitored in Linux userspace via standard kernel interfaces
 - System time disciplined by GNSS (GPS/GLONASS/Galileo/BeiDou) — no internet dependency
 - Optional GNSS-disciplined frequency reference for SDR oscillator correction
+- IQ data between hardware drivers and signal processing over **ZeroMQ** IPC (see [Section 7.5](#75-zeromq-ipc))
 
 ---
 
@@ -66,6 +68,7 @@ Each module connects to the backplane via:
 - **Power:** +12 V, +5 V, +3.3 V from backplane VITA 62 power rails
 - **Temperature monitoring:** I²C on the VITA 46 J0 utility plane (per-slot sensor readable by the chassis manager and Linux `hwmon`)
 - **RF antenna port:** RP-SMA on the module front panel for the antenna connection. IQ data is transported digitally over the VITA 46 data bus; the RP-SMA is the antenna interface only, not a backplane RF path.
+- **Userspace IQ:** The `ht-module-daemon` on the K3 publishes per-band RX IQ and accepts TX IQ over **ZeroMQ** sockets (see [Section 7.5](#75-zeromq-ipc))
 
 > **Note on VITA 67:** VITA 67 RF backplane connectors (SMPM/SMPS blind-mate coaxial) are available as an option if RF signals ever need to be routed through the backplane rather than digitised at the module. At 144–1258 MHz with 500 kHz IQ bandwidth, digital transport over VITA 46 is the preferred and simpler approach, making front-panel RP-SMA the natural choice.
 
@@ -369,6 +372,8 @@ GNU Radio is the most powerful and flexible option but has a steep learning curv
 
 When the repeater should identify the incoming modulation type and route IQ data to the correct demodulator automatically (rather than relying on manual mode selection or statistical classification), the flowgraph can implement the **[gr-ident](https://github.com/Supermagnum/gr-ident)** preamble specification — see [Section 7.4](#74-gr-ident--radio-mode-identification).
 
+IQ streams enter and leave the flowgraph over **[ZeroMQ](https://zeromq.org/)** PUB/SUB sockets provided by `ht-module-daemon` and the `gr-ht13g` blocks — see [Section 7.5](#75-zeromq-ipc).
+
 ---
 
 ### 7.3 User-friendly frontends (GNU Radio-based or GNU Radio-compatible)
@@ -435,6 +440,44 @@ The preamble is a Golay(24,12)-protected field transmitted at the start of each 
 The same identification approach applies to **Linht**, an open-source-hardware, Linux-based SDR handheld transceiver: If it also has gr-ident it can discriminate between modes on receive so the operator is not forced to listen to digital C4FM while the radio is configured for analog FM. Conventional analog-only transceivers do not offer this capability.
 
 gr-ident is designed to work alongside **[gr-linux-crypto](https://github.com/Supermagnum/gr-linux-crypto)** (see [Section 8](#8-authenticated-remote-control)). The preamble includes an encrypted/open flag so a Linht or repeater implementation can identify the mode before attempting decryption, and can refuse to demodulate encrypted payloads for which no key is available.
+
+---
+
+### 7.5 ZeroMQ IPC
+
+**[ZeroMQ](https://zeromq.org/)** (ZMQ) is the inter-process communication layer between the radio module hardware path and signal processing on the K3. Raw IQ from each band's RFIC is delivered over I2S/DMA into `ht-module-daemon`, which packs frames and publishes them on ZMQ PUB sockets. GNU Radio 4.0, SDRangel, recording tools, and monitoring processes consume those streams as ZMQ SUB clients. TX IQ flows in the reverse direction from flowgraphs back to the daemon for SAI DMA output.
+
+ZeroMQ is used because it:
+
+- **Decouples processes** — the hardware daemon and the repeater flowgraph run independently; neither blocks the other
+- **Supports multiple consumers** — one PUB socket per band can feed GNU Radio, SDRangel, and a recorder at the same time
+- **Exposes remote IQ** — changing an `ipc://` address to `tcp://` forwards the same stream to an off-site workstation without application changes
+- **Integrates with GNU Radio** — GNU Radio 4.0 ships ZMQ source and sink blocks in **`gr-zeromq`**
+
+#### Socket layout (summary)
+
+| Socket | Pattern | Address | Direction | Contents |
+|--------|---------|---------|-----------|----------|
+| `iq_2m` / `iq_70cm` / `iq_23cm` | PUB | `ipc:///run/ht-module/...` | Daemon → consumers | RX IQ, int16 I/Q interleaved, 500 kHz |
+| `tx_2m` / `tx_70cm` / `tx_23cm` | SUB | `ipc:///run/ht-module/...` | Consumers → daemon | TX IQ stream |
+| `ctrl` | REQ/REP | `ipc:///run/ht-module/ctrl` | Any → daemon | Frequency, gain, PTT, attenuator |
+| `status` | PUB | `ipc:///run/ht-module/status` | Daemon → consumers | RSSI, PLL lock, temperature, battery |
+
+Each IQ message is length-prefixed: GNSS-disciplined 64-bit nanosecond timestamp, band ID, sample count, then interleaved int16 I/Q samples (little-endian).
+
+#### `ht-module-daemon` and `gr-ht13g`
+
+`ht-module-daemon` is a C daemon that owns SPI/I2C/GPIO access to all modules, enforces the hardware PTT sequence, disciplines VCTCXO trim from GNSS 1PPS, and bridges DMA ring buffers to ZMQ. The GNU Radio OOT module **`gr-ht13g`** provides:
+
+- `ht13g_source` — ZMQ SUB → `complex float` RX stream
+- `ht13g_sink` — `complex float` TX stream → ZMQ PUB
+- `ht13g_ctrl` — control commands over the `ctrl` REQ/REP socket
+
+Cross-band repeat (for example receive on 2 m, transmit on 70 cm) is a single flowgraph: subscribe to `iq_2m`, demodulate and re-encode, publish to `tx_70cm`. Per-band T/R switching remains in the daemon.
+
+On Ubuntu 26.04, install **`libzmq3-dev`** (build) and **`libzmq5`** (runtime) for the daemon and `gr-ht13g`.
+
+Full data-flow diagram, frame layout, and daemon API details are in **[RF-modules.md](RF-modules.md)**, [Section 10 — Software Interface: ZeroMQ IPC](RF-modules.md#10-software-interface-zeromq-ipc).
 
 ---
 
@@ -641,6 +684,7 @@ The battery bus is always live. The DRC module and MPPT controller both float-ch
 | Radio module ×3 | 2 m / 70 cm / 23 cm SDR TX/RX | VITA 46 edgecard, RP-SMA front panel |
 | Expansion slot | Spare (4th module or switch card) | VITA 46 edgecard |
 | Compute | SpacemiT K3 Pico-ITX or K3-CoM260 SoM | PCIe Gen3, GbE RJ45, USB 3.2 |
+| Module daemon | `ht-module-daemon` (C, libzmq) | ZMQ IPC under `/run/ht-module/` |
 | Storage | 2 × 240 GB M.2 NVMe SSD, mdadm RAID 1 | M-Key + B-Key on K3 board |
 | GNSS receiver | u-blox NEO-M9N (standard) or ZED-F9T (precision) | USB or UART to K3; 1PPS to GPIO |
 | GNSS antenna | Active multi-band patch, roof/mast mount | SMA / TNC coaxial |
@@ -655,6 +699,7 @@ The battery bus is always live. The DRC module and MPPT controller both float-ch
 |-------|-----------|
 | OS | Ubuntu 26.04 LTS (RISC-V RVA23) |
 | SDR framework | GNU Radio 4.0 + VOLK 3.3 (RISC-V vector optimised) |
+| IQ transport | [ZeroMQ](https://zeromq.org/) (`ht-module-daemon`, `gr-zeromq`, `gr-ht13g`) |
 | Mode identification | [gr-ident](https://github.com/Supermagnum/gr-ident) preamble (optional automatic mode switching) |
 | Repeater frontend | SDRangel (TX/RX, digital modes) |
 | Remote monitoring | OpenWebRX+ (browser-based, multi-user) |
