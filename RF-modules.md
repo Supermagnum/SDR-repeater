@@ -33,7 +33,7 @@ The repeater system described in the companion document uses three pluggable rad
 - Module B — 70 cm: 432–438 MHz, 500 kHz IQ bandwidth, 5 W TX
 - Module C — 23 cm: 1240–1258 MHz, 500 kHz IQ bandwidth, 5 W TX
 
-Each module is a self-contained PCB that plugs into a VITA 46 edgecard slot on the backplane. It carries its own RFIC, RF front end, power amplifier, band-pass filter, T/R switch, variable attenuator, and external LNA. IQ data is transported digitally over the backplane data bus. The RP-SMA connector on the module front panel is the only antenna interface.
+Each module is a self-contained PCB that plugs into a VITA 46 edgecard slot on the backplane. It carries its own RFIC, RF front end, power amplifier, band-pass filter, T/R switch, variable attenuator, and external LNA. IQ data is transported digitally over the backplane data bus. The default antenna interface is front-panel **RP-SMA**; optional **Type-N** jacks are preferred where panel space and the site coax plan allow (see [Section 9.5](#95-antenna-connector-options-rp-sma-or-type-n)).
 
 This document specifies the RFIC(s) for these modules and the surrounding RF signal chain.
 
@@ -474,7 +474,8 @@ Each module is a single PCB on a 3U OpenVPX edgecard form factor (~100 × 100 mm
 | RFIC EPAD via array | 9 vias minimum (3×3) | RF and thermal ground |
 | PA ground vias | Immediately adjacent to PA ground pad | Minimise source inductance |
 | BPF placement | Immediately after PA output, before T/R switch | Harmonics filtered before reaching antenna path |
-| RP-SMA connector | Front-panel edge mount; coax land on L1 | Short RF path to T/R switch |
+| RP-SMA connector | Front-panel edge mount; coax land on L1 (default `-SMA` variant) | Use when panel space is tight or cables are short RP-SMA patches |
+| Type-N connector | Front-panel bulkhead; same coax land (`-N` variant) | **Preferred when it fits** — fixed sites, outdoor enclosures, large coax |
 | Shield cans | Press-fit SMD cans over RF zone (Würth or Laird) | Strongly recommended for production |
 
 ### 8.4 Test Points and Audio Monitoring
@@ -621,6 +622,47 @@ Each module carries a small I²C EEPROM (24C02 or equivalent, 256 bytes) at a un
 | 0x1C–0xFF | Reserved |
 
 The `ht-module-daemon` reads this EEPROM at startup to identify each installed module, load its calibration constants, and set the correct VCTCXO trim starting point before GNSS discipline takes over.
+
+### 9.5 Antenna connector options — RP-SMA or Type-N
+
+Analog RF leaves the module T/R switch through one front-panel coax jack. The PCB layout supports **RP-SMA** (default) or **Type-N** on the same 50 Ω microstrip land. This choice affects only the faceplate RF port.
+
+#### Default: RP-SMA
+
+```
+T/R switch ── BPF ── RP-SMA (front panel) ── coax ── antenna
+```
+
+Standard production fitment. Use when the 3U module front panel lacks depth or clearance for a Type-N bulkhead, or when the site plan uses only short RP-SMA patch cables (bench, indoor cabinet).
+
+#### Option: Type-N (N connector) — preferred when it fits
+
+```
+T/R switch ── BPF ── Type-N (front panel) ── coax ── antenna
+```
+
+| Why Type-N is better (when it fits) | Detail |
+|-------------------------------------|--------|
+| Mechanical | Threaded mate; tolerates vibration and repeated tightening on a fixed install |
+| Weather | Bulkhead jacks suit outdoor enclosures and exposed repeater cabinets |
+| Coax compatibility | Natural mate to LMR-400, LMR-600, and other site feedline used on repeaters |
+| Loss | Lower contribution from the connector interface at 432 MHz and 1240 MHz than RP-SMA, especially with large cable |
+| Site practice | Common on commercial and amateur repeater hardware at UHF and above |
+
+Order **`-N`** per module when the panel cutout and enclosure depth accommodate a Type-N bulkhead and the antenna run justifies it. **23 cm** modules at permanent sites should default to Type-N unless panel constraints forbid it. **2 m** modules may remain RP-SMA on compact builds.
+
+Type-N does **not** replace the VITA 46 edgecard connector.
+
+**Module PCB variants:**
+
+| Variant | Front-panel RF | When to order |
+|---------|----------------|---------------|
+| `-SMA` (default) | RP-SMA populated | Compact panel, indoor/cabinet, short patches |
+| `-N` | Type-N populated | Type-N fits the panel and site coax — preferred for fixed outdoor repeaters |
+
+One connector type per module at assembly. IQ (I2S on J0), SPI, GPIO, EEPROM, and ZeroMQ are unchanged between variants.
+
+**Layout:** Type-N bulkheads need a larger panel opening and slightly more depth than RP-SMA. If the cutout cannot be made without violating the Section 8.3 λ/10 trace-length rule, stay on `-SMA` rather than forcing Type-N.
 
 ---
 

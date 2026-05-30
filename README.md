@@ -56,12 +56,12 @@ The system supports up to four pluggable radio modules on the backplane. Three b
 
 ### Module specifications
 
-| Module | Band | Frequency Range | IQ Bandwidth | TX Power | Antenna |
-|--------|------|-----------------|--------------|----------|---------|
-| 2 metre | VHF | 144–146 MHz | 500 kHz | 5 W | RP-SMA (front panel) |
-| 70 cm | UHF | 432–438 MHz | 500 kHz | 5 W | RP-SMA (front panel) |
-| 23 cm | UHF/SHF | 1240–1258 MHz | 500 kHz | 5 W | RP-SMA (front panel) |
-| Expansion | — | User-defined | — | — | RP-SMA (front panel) |
+| Module | Band | Frequency Range | IQ Bandwidth | TX Power | Antenna (default) | Antenna (optional, preferred when it fits) |
+|--------|------|-----------------|--------------|----------|-------------------|--------------------------------------------|
+| 2 metre | VHF | 144–146 MHz | 500 kHz | 5 W | RP-SMA (front panel) | Type-N (front panel) |
+| 70 cm | UHF | 432–438 MHz | 500 kHz | 5 W | RP-SMA (front panel) | Type-N (front panel) |
+| 23 cm | UHF/SHF | 1240–1258 MHz | 500 kHz | 5 W | RP-SMA (front panel) | Type-N (front panel) |
+| Expansion | — | User-defined | — | — | RP-SMA (front panel) | Type-N (front panel) |
 
 ### Module interface
 
@@ -71,10 +71,28 @@ Each module connects to the backplane via:
 - **Data bus:** VITA 46 utility plane (**I2S** IQ per module into the compute slot) and optional chassis PCIe/GbE for expansion — see [ADR 001](docs/adr/001-iq-transport-i2s-zmq.md). Baseline repeater IQ is **not** carried as raw PCIe DMA from RF modules.
 - **Power:** +12 V, +5 V, +3.3 V from backplane VITA 62 power rails
 - **Temperature monitoring:** I²C on the VITA 46 J0 utility plane (per-slot sensor readable by the chassis manager and Linux `hwmon`)
-- **RF antenna port:** RP-SMA on the module front panel for the antenna connection. IQ data is transported digitally over the VITA 46 data bus; the RP-SMA is the antenna interface only, not a backplane RF path.
+- **RF antenna port (default):** **RP-SMA** on the module front panel — compact; suited to cabinet installs and short patch leads.
+- **RF antenna port (optional):** **Type-N** (N connector) on the module front panel when panel space and the site coax plan allow — **preferred over RP-SMA where it fits**; see [Section 2.1](#21-optional-type-n-antenna-connectors). Both carry **analog RF only**; IQ is digitised on-module and transported over I2S on VITA 46 J0.
 - **Userspace IQ:** The **`ht-module-daemon`** (Rust; specified, see [docs/repo-map.md](docs/repo-map.md)) on the K3 publishes per-band RX IQ and accepts TX IQ over **ZeroMQ** sockets (see [Section 7.5](#75-zeromq-ipc))
 
-> **Note on VITA 67:** VITA 67 RF backplane connectors (SMPM/SMPS blind-mate coaxial) are available as an option if RF signals ever need to be routed through the backplane rather than digitised at the module. At 144–1258 MHz with 500 kHz IQ bandwidth, digital transport over VITA 46 is the preferred and simpler approach, making front-panel RP-SMA the natural choice.
+> **Note on VITA 67:** VITA 67 RF backplane connectors (SMPM/SMPS blind-mate coaxial) are a separate, optional chassis-level interface if RF must be routed through the backplane rather than the module front panel. They do **not** replace VITA 46 edgecard connectors and are unrelated to the RP-SMA / Type-N front-panel choice.
+
+### 2.1 Optional Type-N antenna connectors
+
+Each radio module ships with **RP-SMA** by default. **Type-N** (N connector) is an optional front-panel substitute on the same 50 Ω T/R path — not a backplane change and not related to VITA 46 or VITA 67.
+
+**When Type-N fits the install, use it.** It is the better connector for fixed repeater work:
+
+| | RP-SMA (default) | Type-N (optional) |
+|---|------------------|-------------------|
+| **Best for** | Tight panels, bench bring-up, short indoor patch cables | Outdoor enclosures, mast/roof feedlines, LMR-400 / LMR-600, 23 cm |
+| **Why** | Smaller footprint; mates with common handheld-style cables | Threaded, weather-resistant mate; lower interface loss with large coax; more durable for permanent installs |
+
+Choose RP-SMA when the front-panel cutout or depth budget is too small for a Type-N bulkhead, or when the site uses only short RP-SMA patch leads. Choose Type-N when the panel layout and coax plan accommodate it — especially on 70 cm and 23 cm modules at a permanent site.
+
+**Unchanged regardless of connector choice:** VITA 46 edgecard (power, I2S IQ, SPI, GPIO), ZeroMQ, and `ht-module-daemon` behaviour. One connector type is populated per module at build time (`-SMA` or `-N`).
+
+Module PCB variants and layout rules: [RF-modules.md Section 9.5](RF-modules.md#95-antenna-connector-options-rp-sma-or-type-n).
 
 ---
 
@@ -674,7 +692,7 @@ The battery bus is always live. The DRC module and MPPT controller both float-ch
 |----------|-----------|---------------------|
 | Backplane | Pixus 3U OpenVPX Cube, 5-slot | VITA 65, VITA 46 edgecard |
 | Power supply slot | Mean Well DRC-100B or DRC-240B (DIN rail) | VITA 62 to OpenVPX |
-| Radio module ×3 | 2 m / 70 cm / 23 cm SDR TX/RX | VITA 46 edgecard, RP-SMA front panel |
+| Radio module ×3 | 2 m / 70 cm / 23 cm SDR TX/RX | VITA 46 edgecard; RP-SMA default, Type-N optional (preferred at fixed sites when panel allows) |
 | Expansion slot | Spare (4th module or switch card) | VITA 46 edgecard |
 | Compute | SpacemiT K3 Pico-ITX or K3-CoM260 SoM | PCIe Gen3, GbE RJ45, USB 3.2 |
 | Module daemon | `ht-module-daemon` (Rust, libzmq) | ZMQ IPC under `/run/ht-module/` — see [docs/repo-map.md](docs/repo-map.md) |
