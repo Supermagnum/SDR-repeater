@@ -35,6 +35,12 @@
 
 This document describes a modular, Linux-based, software-defined radio (SDR) repeater system capable of simultaneous operation across the 2 metre, 70 cm, and 23 cm amateur radio bands. The system is designed around open standards throughout: open silicon CPU, open backplane standards, and open-source software. It runs from 230 V AC mains with seamless battery backup, and optionally from solar power. No generator is used or required.
 
+### Relationship to LinHT
+
+**[LinHT](https://linux-radio.eu/)** is an open-source handheld software-defined radio (SDR) transceiver built around a modern Linux System-on-Module and a true IQ RF front-end — the successor to the OpenHT project, developed by the M17 community with GNU Radio, SoapySDR, and open hardware design files.
+
+This repeater system is the **natural fixed-site extension** of that lineage: same Linux-first SDR philosophy, IQ baseband processing, and open toolchain, scaled to a modular multiband repeater with pluggable RF modules, site power, and authenticated remote control. Portable operation stays on LinHT; continuous multiband repeater service is what this design adds. Shared conventions (including [gr-ident](https://github.com/Supermagnum/gr-ident) mode identification and LinHT ZeroMQ compatibility documented in [zeromq-messages.md](zeromq-messages.md)) keep handheld and repeater implementations aligned.
+
 ### Design principles
 
 - All hardware uses open or openly-documented standards (RISC-V ISA, OpenVPX/VITA 65, VITA 46, VITA 67)
@@ -142,6 +148,28 @@ The main compute module is based on the **SpacemiT Key Stone K3** SoC, an 8-core
 | Memory | Up to 32 GB LPDDR5-6400 |
 | Linux kernel | Mainline support from kernel 7.0 |
 | OS support | Ubuntu 26.04 LTS (RVA23 required), Bianbu 3.0 (Ubuntu-based), Fedora, Deepin 25 |
+
+#### AI acceleration (A100 cores)
+
+The K3 integrates **8 × A100 AI cores at 60 TOPS** with **RVV 1.0** (vector lanes up to 1024-bit). In this repeater design they are a **bonus capability** of the platform — useful when enabled, but not required for baseline operation on the X100 CPU cores and GNU Radio flowgraphs.
+
+**Signal processing tasks that fit AI acceleration well:**
+
+| Application | Role |
+|-------------|------|
+| **[gr-ident](https://github.com/Supermagnum/gr-ident) mode identification** | The preamble decoder identifies whether an incoming signal is analog FM, C4FM, DMR, and so on. That is fundamentally a **classification** problem — what neural inference cores are built for. A trained model could identify modes faster and more robustly than the Golay-based preamble alone, including signals that carry **no** gr-ident preamble at all. Complements (does not replace) the normative gr-ident path in [Section 7.4](#74-gr-ident--radio-mode-identification). |
+| **Interference and noise classification** | Distinguish a weak wanted signal from interference, or classify interference type to inform filtering and blanking decisions. |
+| **Anomaly detection on status telemetry** | Learn normal temperature, RSSI, and PLL lock patterns across all three modules from the `status` ZMQ stream ([zeromq-messages.md Section 5](zeromq-messages.md#5-telemetry-status)) and flag unusual behaviour before hard failure. |
+| **Automatic gain control optimisation** | Learn site-specific AGC curves instead of fixed parameters — useful when the RF environment varies by band or season. |
+
+**Audio and voice processing:**
+
+| Application | Role |
+|-------------|------|
+| **Voice activity detection** | More accurate squelch decisions than RSSI-only thresholds, especially in noisy RF environments — can augment `SET_SQUELCH` policy on the `ctrl` socket. |
+| **Digital voice codec acceleration** | Codecs such as **Codec2** (used in M17) involve analysis-synthesis workloads that can be offloaded to the AI cores when a digital-mode flowgraph is active. |
+
+The A100 cores are genuinely useful for classification and anomaly detection on a fixed repeater site. The repeater remains fully specified without them: IQ transport, PTT, gr-ident preamble routing, and authenticated remote control run on the general-purpose CPU path today.
 
 #### Hardware cryptography
 
@@ -461,9 +489,11 @@ OpenWebRX+ is a multi-user SDR receiver with a browser-based interface. Once run
 
 The preamble is a Golay(24,12)-protected field transmitted at the start of each frame. The receiver reads the analog/digital flag and mode ID, routes the signal to the correct demodulator bank, and does not pass unrecognised or mismatched traffic to the audio output. For example, a receiver set for analog FM does not present digital C4FM as noise on the speaker.
 
-The same identification approach applies to **Linht**, an open-source-hardware, Linux-based SDR handheld transceiver: If it also has gr-ident it can discriminate between modes on receive so the operator is not forced to listen to digital C4FM while the radio is configured for analog FM. Conventional analog-only transceivers do not offer this capability.
+The same identification approach applies to **[LinHT](https://linux-radio.eu/)**, an open-source-hardware, Linux-based SDR handheld transceiver: if it also implements gr-ident it can discriminate between modes on receive so the operator is not forced to listen to digital C4FM while the radio is configured for analog FM. Conventional analog-only transceivers do not offer this capability.
 
-gr-ident is designed to work alongside **[gr-linux-crypto](https://github.com/Supermagnum/gr-linux-crypto)** (see [Section 8](#8-authenticated-remote-control)). The preamble includes an encrypted/open flag so a Linht or repeater implementation can identify the mode before attempting decryption, and can refuse to demodulate encrypted payloads for which no key is available.
+gr-ident is designed to work alongside **[gr-linux-crypto](https://github.com/Supermagnum/gr-linux-crypto)** (see [Section 8](#8-authenticated-remote-control)). The preamble includes an encrypted/open flag so a LinHT or repeater implementation can identify the mode before attempting decryption, and can refuse to demodulate encrypted payloads for which no key is available.
+
+Optionally, the K3 **A100 AI cores** can run a trained classifier alongside or instead of preamble-only detection for signals without a gr-ident header — see [AI acceleration (A100 cores)](#ai-acceleration-a100-cores).
 
 ---
 
@@ -694,7 +724,7 @@ The battery bus is always live. The DRC module and MPPT controller both float-ch
 | Power supply slot | Mean Well DRC-100B or DRC-240B (DIN rail) | VITA 62 to OpenVPX |
 | Radio module ×3 | 2 m / 70 cm / 23 cm SDR TX/RX | VITA 46 edgecard; RP-SMA default, Type-N optional (preferred at fixed sites when panel allows) |
 | Expansion slot | Spare (4th module or switch card) | VITA 46 edgecard |
-| Compute | SpacemiT K3 Pico-ITX or K3-CoM260 SoM | PCIe Gen3, GbE RJ45, USB 3.2 |
+| Compute | SpacemiT K3 Pico-ITX or K3-CoM260 SoM | PCIe Gen3, GbE RJ45, USB 3.2; 8 × A100 @ 60 TOPS (optional ML — see [AI acceleration](#ai-acceleration-a100-cores)) |
 | Module daemon | `ht-module-daemon` (Rust, libzmq) | ZMQ IPC under `/run/ht-module/` — see [docs/repo-map.md](docs/repo-map.md) |
 | Repeater control | `repeater-control` repo: `repeater-supervisord` + `repeater-authd` (Rust) | [docs/runtime/repeater-control.md](docs/runtime/repeater-control.md) |
 | Storage | 2 × 240 GB M.2 NVMe SSD, mdadm RAID 1 | M-Key + B-Key on K3 board |
