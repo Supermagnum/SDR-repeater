@@ -51,6 +51,7 @@ Record actual GitHub/Codeberg URLs in the **URL** column when repos exist:
 |---------|-----|
 | [f4exb/sdrangel](https://github.com/f4exb/sdrangel) | Fork base for TX/RX application |
 | [Supermagnum/gr-ident](https://github.com/Supermagnum/gr-ident) | Mode identification |
+| [Supermagnum/radio-modulation-validator](https://github.com/Supermagnum/radio-modulation-validator) | Validate GNU Radio OOT modulator blocks (IQ classification) |
 | [Supermagnum/gr-linux-crypto](https://github.com/Supermagnum/gr-linux-crypto) | Signing alignment, operator keys |
 | [M17-Project/LinHT-utils](https://github.com/M17-Project/LinHT-utils) | Reference ZMQ/ALSA bridge (`tests/zmq_proxy`) |
 | GNU Radio 4.0 + gr-zeromq | Flowgraph IPC |
