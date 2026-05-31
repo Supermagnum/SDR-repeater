@@ -72,25 +72,25 @@ States: `IDLE`, `RX_ACTIVE`, `TX_ARMED`, `TX_ON`, `TX_HANG`, `DISABLED`.
 | TX_HANG -> IDLE | Hang time elapsed (default **800 ms**) | Release lease |
 | * -> DISABLED | `MOD_DISABLE` | Force `PTT off`; reject new leases |
 
-**Parameters** (per band, stored in daemon, set via `ctrl`):
+**Parameters** (per module, stored in daemon, set via `ctrl`):
 
 | Parameter | Default | `ctrl` command |
 |-----------|---------|----------------|
-| Hang time | 800 ms | `SET_HANG 70cm 800` (extension; until implemented use supervisor config file) |
-| Attack delay | 300 ms | `SET_ATTACK 70cm 300` (extension) |
-| TX timeout | 300 s | `SET_TX_TIMEOUT 70cm 300` |
-| Squelch | site-specific | `SET_SQUELCH 70cm -120` |
+| Hang time | 800 ms | `SET_HANG B 800` (extension; until implemented use supervisor config file) |
+| Attack delay | 300 ms | `SET_ATTACK B 300` (extension) |
+| TX timeout | 300 s | `SET_TX_TIMEOUT B 300` |
+| Squelch | site-specific | `SET_SQUELCH B -120` |
 
 Document extension commands in zeromq-messages when implemented; until then supervisor reads TOML.
 
 ## 5. Cross-band repeat
 
-Example: 2 m RX -> 70 cm TX.
+Example: module A (2 m) RX -> module B (70 cm) TX.
 
-- Two bands, **two independent** state machines.
-- RX band stays in `RX_ACTIVE` or `IDLE`; TX band follows `TX_ARMED`/`TX_ON` when audio is present on cross-band bus.
-- Supervisor ensures **never** both bands key the same PA path (not applicable on separate modules).
-- `ctrl`: `PTT 2m off` always during 70 cm TX unless full-duplex cross-band profile enabled in site config.
+- Two modules, **two independent** state machines.
+- RX module stays in `RX_ACTIVE` or `IDLE`; TX module follows `TX_ARMED`/`TX_ON` when audio is present on cross-band bus.
+- Supervisor ensures **never** both modules key the same PA path (not applicable on separate modules).
+- `ctrl`: `PTT A off` always during module B TX unless full-duplex cross-band profile enabled in site config.
 
 ## 6. Identification and courtesy tone
 

@@ -27,11 +27,14 @@
 
 ## 1. Design Context and Rationale
 
-The repeater system described in the companion document uses three pluggable radio modules on a 3U OpenVPX backplane:
+The repeater system described in the companion document uses up to four pluggable radio modules on a 3U OpenVPX backplane, in slots **A** through **D**. Each slot has a fixed **module address** (letter). The band a module covers comes from the module PCB and EEPROM, not from the slot letter — two slots can hold the same band (for example 70 cm in B and 70 cm in C).
 
-- Module A — 2 metre: 144–146 MHz, 500 kHz IQ bandwidth, 5 W TX
-- Module B — 70 cm: 432–438 MHz, 500 kHz IQ bandwidth, 5 W TX
-- Module C — 23 cm: 1240–1258 MHz, 500 kHz IQ bandwidth, 5 W TX
+Example default install:
+
+- Slot A — 2 metre: 144–146 MHz, 500 kHz IQ bandwidth, 5 W TX
+- Slot B — 70 cm: 432–438 MHz, 500 kHz IQ bandwidth, 5 W TX
+- Slot C — 23 cm: 1240–1258 MHz, 500 kHz IQ bandwidth, 5 W TX (or a second 70 cm link module)
+- Slot D — spare or expansion
 
 Each module is a self-contained PCB that plugs into a VITA 46 edgecard slot on the backplane. It carries its own RFIC, RF front end, power amplifier, band-pass filter, T/R switch, variable attenuator, and external LNA. IQ data is transported digitally over the backplane data bus. The default antenna interface is front-panel **RP-SMA**; optional **Type-N** jacks are preferred where panel space and the site coax plan allow (see [Section 9.5](#95-antenna-connector-options-rp-sma-or-type-n)).
 
@@ -593,10 +596,10 @@ J0 carries power rails, I²C, SPI configuration, GPIO control signals, I2S IQ st
 
 **Notes on J0:**
 
-- `MOD_PRESENT` allows the K3 to detect which slots are populated at boot. The K3 reads `MOD_ID[1:0]` to identify the band. An empty slot presents high-impedance on all lines.
+- `MOD_PRESENT` allows the K3 to detect which slots are populated at boot. The K3 reads `MOD_ID[1:0]` and module EEPROM to learn each module's band type. An empty slot presents high-impedance on all lines.
 - `I2C_SDA/SCL` are shared across all module slots on the J0 utility plane bus. Each module has a unique I²C address for its temperature sensor and EEPROM. Temperature sensors use the LM75 / TMP102 family (7-bit address set by address pins on the module).
 - `VCTCXO_TUNE` is a per-module signal — each module has its own RC-filtered PWM input from a separate K3 PWM channel, allowing independent VCTCXO discipline per band.
-- `I2S_BCLK`, `I2S_LRCLK`, `I2S_DOUT`, `I2S_DIN` are per-module — each module occupies one SAI peripheral on the K3 (SAI1 = 2 m, SAI2 = 70 cm, SAI3 = 23 cm).
+- `I2S_BCLK`, `I2S_LRCLK`, `I2S_DOUT`, `I2S_DIN` are per slot — each populated module occupies one SAI peripheral on the K3 (SAI mapping: slot A, B, C, D).
 - All GPIO signals (PTT, TR_SW, PA_EN, ATT_LE, RFIC_RESET_N) are 1.8 V logic driven by the K3 EC-IO GPIO. The RFIC `VDD_IO` must be configured to 1.8 V on all modules to match. No level translation is required.
 - `RFIC_IRQ_N` is an open-drain output from the module; a 10 kΩ pull-up to 1.8 V is on the module PCB.
 
@@ -702,14 +705,16 @@ RFIC (I2S) → DMA → ring buffer in kernel driver
 
 | Socket | Pattern | Address | Direction | Contents |
 |--------|---------|---------|-----------|----------|
-| `ipc:///run/ht-module/iq_2m` | PUB | local | Module → consumers | Raw IQ, int16 interleaved, 500 kHz |
-| `ipc:///run/ht-module/iq_70cm` | PUB | local | Module → consumers | Raw IQ, int16 interleaved, 500 kHz |
-| `ipc:///run/ht-module/iq_23cm` | PUB | local | Module → consumers | Raw IQ, int16 interleaved, 500 kHz |
-| `ipc:///run/ht-module/tx_2m` | SUB | local | GNU Radio → module | TX IQ data stream |
-| `ipc:///run/ht-module/tx_70cm` | SUB | local | GNU Radio → module | TX IQ data stream |
-| `ipc:///run/ht-module/tx_23cm` | SUB | local | GNU Radio → module | TX IQ data stream |
-| `ipc:///run/ht-module/ctrl` | REQ/REP | local | Any process → daemon | Per-module: frequency, gain, PTT, squelch, TX timeout, attenuator ([zeromq-messages.md](zeromq-messages.md)) |
-| `ipc:///run/ht-module/status` | PUB | local | Daemon → consumers | RSSI, AGC state, PLL lock, temperature, battery |
+| `ipc:///run/ht-module/iq_A` | PUB | local | Module A -> consumers | Raw IQ, int16 interleaved, 500 kHz |
+| `ipc:///run/ht-module/iq_B` | PUB | local | Module B -> consumers | Raw IQ, int16 interleaved, 500 kHz |
+| `ipc:///run/ht-module/iq_C` | PUB | local | Module C -> consumers | Raw IQ, int16 interleaved, 500 kHz |
+| `ipc:///run/ht-module/iq_D` | PUB | local | Module D -> consumers | Raw IQ, int16 interleaved, 500 kHz |
+| `ipc:///run/ht-module/tx_A` | SUB | local | GNU Radio -> module A | TX IQ data stream |
+| `ipc:///run/ht-module/tx_B` | SUB | local | GNU Radio -> module B | TX IQ data stream |
+| `ipc:///run/ht-module/tx_C` | SUB | local | GNU Radio -> module C | TX IQ data stream |
+| `ipc:///run/ht-module/tx_D` | SUB | local | GNU Radio -> module D | TX IQ data stream |
+| `ipc:///run/ht-module/ctrl` | REQ/REP | local | Any process -> daemon | Per-module: frequency, gain, PTT, squelch, TX timeout, attenuator ([zeromq-messages.md](zeromq-messages.md)) |
+| `ipc:///run/ht-module/status` | PUB | local | Daemon -> consumers | RSSI, AGC state, PLL lock, temperature, battery |
 
 For remote monitoring or distributed processing, IPC sockets can be exposed as TCP sockets by changing the address to `tcp://0.0.0.0:<port>` — no other code changes required.
 
@@ -722,7 +727,7 @@ IQ frames are published as length-prefixed binary messages:
 
 ```
 [ 8 bytes: uint64 timestamp (nanoseconds, GNSS-disciplined) ]
-[ 4 bytes: uint32 band identifier (0=2m, 1=70cm, 2=23cm) ]
+[ 4 bytes: uint32 module identifier (0=A, 1=B, 2=C, 3=D) ]
 [ 4 bytes: uint32 sample count in this frame ]
 [ N×4 bytes: int16 I, int16 Q interleaved, little-endian ]
 ```
@@ -753,7 +758,7 @@ A GNU Radio OOT (out-of-tree) module `gr-ht13g` provides:
 - `ht13g_sink` — ZMQ PUB block; accepts `complex float` TX stream; sends to daemon
 - `ht13g_ctrl` — Python block; sends control commands (frequency, PTT, gain) via `ctrl` REQ/REP socket
 
-For cross-band repeat (e.g. receive on 2 m, retransmit on 70 cm), a single GNU Radio flowgraph subscribes to the `iq_2m` ZMQ source, demodulates, re-encodes, and publishes to the `tx_70cm` ZMQ sink. The daemon handles T/R switching for each band independently, with no coordination required between bands in the flowgraph.
+For cross-band repeat (e.g. receive on module A, 2 m, retransmit on module B, 70 cm), a single GNU Radio flowgraph subscribes to `iq_A`, demodulates, re-encodes, and publishes to `tx_B`. The daemon handles T/R switching for each module independently, with no coordination required between modules in the flowgraph.
 
 ---
 

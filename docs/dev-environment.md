@@ -55,7 +55,7 @@ Created by systemd or installer scripts (not committed here):
 With a Phase A daemon binary (external repo):
 
 1. Confirm socket `ipc:///run/ht-module/ctrl` answers `GET_STATUS all` with `OK` or structured reply per [zeromq-messages.md](../zeromq-messages.md).
-2. SUB to `ipc:///run/ht-module/iq_70cm` and verify frame size `16 + sample_count * 4`.
+2. SUB to `ipc:///run/ht-module/iq_B` and verify frame size `16 + sample_count * 4`.
 3. SUB to `ipc:///run/ht-module/status` and parse JSON schema Section 5.
 
 No test scripts are maintained in this repository.

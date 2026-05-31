@@ -67,16 +67,18 @@ This repeater system is the **natural fixed-site extension** of that lineage: sa
 
 ## 2. Radio Modules
 
-The system supports up to four pluggable radio modules on the backplane. Three bands are defined; the fourth slot is spare or expansion.
+The system supports up to four pluggable radio modules on the backplane (slots **A** through **D**). Each slot has a fixed **module address** (letter). The band a module covers (2 m, 70 cm, 23 cm, or expansion) comes from the module PCB and its EEPROM — not from the slot letter. Two modules in different slots can cover the **same band** (for example two 70 cm link radios in slots B and C) and are controlled individually by address.
 
 ### Module specifications
 
-| Module | Band | Frequency Range | IQ Bandwidth | TX Power | Antenna (default) | Antenna (optional, preferred when it fits) |
-|--------|------|-----------------|--------------|----------|-------------------|--------------------------------------------|
-| 2 metre | VHF | 144–146 MHz | 500 kHz | 5 W | RP-SMA (front panel) | Type-N (front panel) |
-| 70 cm | UHF | 432–438 MHz | 500 kHz | 5 W | RP-SMA (front panel) | Type-N (front panel) |
-| 23 cm | UHF/SHF | 1240–1258 MHz | 500 kHz | 5 W | RP-SMA (front panel) | Type-N (front panel) |
-| Expansion | — | User-defined | — | — | RP-SMA (front panel) | Type-N (front panel) |
+| Slot | Example band | Frequency Range | IQ Bandwidth | TX Power | Antenna (default) | Antenna (optional, preferred when it fits) |
+|------|--------------|-----------------|--------------|----------|-------------------|--------------------------------------------|
+| A | 2 metre (VHF) | 144–146 MHz | 500 kHz | 5 W | RP-SMA (front panel) | Type-N (front panel) |
+| B | 70 cm (UHF) | 432–438 MHz | 500 kHz | 5 W | RP-SMA (front panel) | Type-N (front panel) |
+| C | 70 cm (UHF) or 23 cm | 432–438 MHz or 1240–1258 MHz | 500 kHz | 5 W | RP-SMA (front panel) | Type-N (front panel) |
+| D | 23 cm (UHF/SHF) or expansion | 1240–1258 MHz or user-defined | 500 kHz | 5 W | RP-SMA (front panel) | Type-N (front panel) |
+
+The table shows a typical install (2 m in A, 70 cm in B, 23 cm in D). Slot **C** might hold a second 70 cm module for an inter-site link while **B** serves local users — both are 70 cm but addressed as **`B`** and **`C`** in control commands and IQ sockets.
 
 ### Module interface
 
@@ -508,7 +510,7 @@ Optionally, the K3 **A100 AI cores** can run a trained classifier alongside or i
 
 ### 7.5 ZeroMQ IPC
 
-**[ZeroMQ](https://zeromq.org/)** (ZMQ) is the inter-process communication layer between the radio module hardware path and signal processing on the K3. Raw IQ from each band's RFIC is delivered over I2S/DMA into **`ht-module-daemon`**, which publishes framed RX IQ on per-band PUB sockets. GNU Radio (`gr-ht13g`), SDRangel, and recorders connect as SUB clients. TX IQ and hardware control use separate sockets.
+**[ZeroMQ](https://zeromq.org/)** (ZMQ) is the inter-process communication layer between the radio module hardware path and signal processing on the K3. Raw IQ from each module's RFIC is delivered over I2S/DMA into **`ht-module-daemon`**, which publishes framed RX IQ on per-module PUB sockets (`iq_A` … `iq_D`). GNU Radio (`gr-ht13g`), SDRangel, and recorders connect as SUB clients. TX IQ and hardware control use separate sockets per module address.
 
 | Plane | Sockets | Purpose |
 |-------|---------|---------|
@@ -534,29 +536,31 @@ Remote management of the repeater over the air replaces DTMF entirely. For **loc
 
 ### 8.1 What can be controlled remotely
 
-Each pluggable RF module has a **module address** (letter) and a **band token** used in command text:
+Each pluggable RF module is identified by a **module address**: the backplane slot letter **`A`**, **`B`**, **`C`**, or **`D`**. The address names the **physical module**, not its band. Two modules can cover the same band (for example 70 cm in slot B and 70 cm in slot C) and are controlled independently:
 
-| Module | Band token | Band |
-|--------|------------|------|
-| A | `2m` | 2 metre (VHF), 144–146 MHz |
-| B | `70cm` | 70 cm (UHF), 432–438 MHz |
-| C | `23cm` | 23 cm (UHF/SHF), 1240–1258 MHz |
+| Slot | Example install | Band (from module EEPROM) |
+|------|-----------------|---------------------------|
+| A | 2 m user access | 2 metre (VHF) |
+| B | 70 cm local repeater | 70 cm (UHF) |
+| C | 70 cm inter-site link | 70 cm (UHF) |
+| D | 23 cm or expansion | 23 cm or user-defined |
 
-Commands use the band token (`2m`, `70cm`, `23cm`) or `all` for every installed module. Global commands (`GET_BATTERY`, `REBOOT`) omit the band token.
+Commands target a module address or **`all`** (every populated slot). Global commands (`GET_BATTERY`, `REBOOT`) omit the address. Syntax: `COMMAND <module> <arguments...>` — see [zeromq-messages.md Section 4](zeromq-messages.md#4-control-plane-ctrl).
 
 | Task | Module | Command |
 |------|--------|---------|
-| Adjust RF output power | B (70 cm) | `SET_PWR 70cm 5` |
+| Adjust RF output power | B | `SET_PWR B 5` |
+| Adjust RF output power (second 70 cm module) | C | `SET_PWR C 3` |
 | Check all temperatures | all | `GET_TEMP all` |
 | Check battery state and current | — (chassis) | `GET_BATTERY` |
-| Enable or disable a radio module | A (2 m) / C (23 cm) | `MOD_ENABLE 2m` / `MOD_DISABLE 23cm` |
-| Set squelch threshold | B (70 cm) | `SET_SQUELCH 70cm -120` |
-| Set transmit timeout (seconds) | A (2 m) | `SET_TX_TIMEOUT 2m 300` |
-| Set receive / transmit frequency | A (2 m) | `SET_FREQ 2m 145500000` |
-| Full status report | all or B (70 cm) | `GET_STATUS all` or `GET_STATUS 70cm` |
+| Enable or disable a radio module | A / C | `MOD_ENABLE A` / `MOD_DISABLE C` |
+| Set squelch threshold | B | `SET_SQUELCH B -120` |
+| Set transmit timeout (seconds) | A | `SET_TX_TIMEOUT A 300` |
+| Set receive / transmit frequency | A | `SET_FREQ A 145500000` |
+| Full status report | all or B | `GET_STATUS all` or `GET_STATUS B` |
 | Graceful reboot | — (chassis) | `REBOOT` (elevated trust required) |
 
-Per-module addressing uses the band tokens above on the ZeroMQ `ctrl` socket ([zeromq-messages.md Section 4](zeromq-messages.md#4-control-plane-ctrl)). Module letters (A, B, C) match the backplane slot labels in [RF-modules.md](RF-modules.md). A command without a band token is rejected unless the command is inherently global (`GET_BATTERY`, `REBOOT`).
+Band names (`2m`, `70cm`, `23cm`) appear in status JSON and IQ metadata as **module properties**, not as command targets — using a band name alone is ambiguous when more than one module shares that band. Module letters match the silkscreened slot labels on the chassis ([RF-modules.md](RF-modules.md)).
 
 ### 8.2 How it works — summary
 

@@ -25,8 +25,8 @@ Local operators use the same command text on `ipc:///run/ht-module/ctrl` without
 
 Command text is **identical** to [zeromq-messages.md Section 4.3](../zeromq-messages.md#43-command-reference). Examples:
 
-- `SET_SQUELCH 70cm -120`
-- `PTT 70cm on`
+- `SET_SQUELCH B -120`
+- `PTT B on`
 - `GET_STATUS all`
 - `REBOOT` (elevated; see Section 7)
 
@@ -56,7 +56,7 @@ Rules:
 REPT=LA1XYZ
 FROM=LA1ABC
 TS=1717000000123456789
-CMD=SET_SQUELCH 70cm -120
+CMD=SET_SQUELCH B -120
 ```
 
 ## 5. OpenPGP signature
@@ -128,7 +128,7 @@ Each line: one JSON object, append-only.
   "sender": "LA1ABC",
   "sender_fpr": "ABCD1234...",
   "target": "LA1XYZ",
-  "cmd": "SET_SQUELCH 70cm -120",
+  "cmd": "SET_SQUELCH B -120",
   "prev": "-130",
   "new": "-120",
   "result": "ACCEPTED",
@@ -143,7 +143,7 @@ Each line: one JSON object, append-only.
   "utc_ns": 1717000000888888888,
   "sender": "LA1ABC",
   "target": "LA1XYZ",
-  "cmd": "PTT 70cm on",
+  "cmd": "PTT B on",
   "result": "REJECTED",
   "reason": "REPLAY_DETECTED",
   "transport": "ota"

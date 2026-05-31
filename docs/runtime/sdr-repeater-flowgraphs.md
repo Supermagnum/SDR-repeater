@@ -28,7 +28,7 @@ Version-controlled GNU Radio 4 flowgraphs for repeater signal paths: analog FM r
 | `flowgraphs/ota_loopback.grc` | Lab: emit OTA frames to `ipc:///run/repeater/ota_rx` |
 | `flowgraphs/README.md` | Per-graph prerequisites and run order |
 | `scripts/run_graph.sh` | Optional launcher — document only, implementation in runtime repo |
-| `config/graph.toml` | Endpoints, callsigns, band tokens |
+| `config/graph.toml` | Endpoints, callsigns, module addresses |
 | `README.md` | Depends: GNU Radio 4, gr-ht13g, gr-ident, gr-linux-crypto |
 
 ## Dependency repositories (must be installed)
@@ -46,12 +46,12 @@ Version-controlled GNU Radio 4 flowgraphs for repeater signal paths: analog FM r
 
 | Stage | Block (indicative) | Notes |
 |-------|-------------------|-------|
-| IQ in | `ht13g_source` | endpoint `ipc:///run/ht-module/iq_70cm` |
+| IQ in | `ht13g_source` | endpoint `ipc:///run/ht-module/iq_B` (module B; typically 70 cm) |
 | Channel filter | `fir_filter_fff` or `freq_xlating_fir_filter` | 12.5 kHz NFM chain |
 | Demod | `analog.fm_demod_cf` | Audio stream |
 | Squelch / COR | `analog.simple_squelch_cc` or custom power detector | Drives supervisor COR messages or internal repeat gate |
 | Resample / mod | `analog.fm_mod_cf` | TX audio |
-| IQ out | `ht13g_sink` | endpoint `ipc:///run/ht-module/tx_70cm` |
+| IQ out | `ht13g_sink` | endpoint `ipc:///run/ht-module/tx_B` |
 | PTT | `ht13g_ctrl` or message to supervisor | Lease acquired before key-down |
 
 **GNU Radio API references:** `gr::analog::fm_demod_cf`, `gr::analog::fm_mod_cf`, `gr::blocks::multiply_const_cc` for AGC.
@@ -73,9 +73,9 @@ Demod branches (indicative): NFM (`mode_id` 20), C4FM path when `digital` true �
 
 | Leg | Blocks |
 |-----|--------|
-| RX | `ht13g_source` on `iq_2m` → demod → audio |
-| TX | audio → mod → `ht13g_sink` on `tx_70cm` |
-| PTT | Supervisor coordinates `PTT 2m off` / `PTT 70cm on` per [repeater-logic Section 5](../repeater-logic.md#5-cross-band-repeat) |
+| RX | `ht13g_source` on `iq_A` → demod → audio |
+| TX | audio → mod → `ht13g_sink` on `tx_B` |
+| PTT | Supervisor coordinates `PTT A off` / `PTT B on` per [repeater-logic Section 5](../repeater-logic.md#5-cross-band-repeat) |
 
 ### `ota_loopback`
 
@@ -116,7 +116,7 @@ Flowgraph should document one integration choice:
 | A | Periodic message to `ipc:///run/repeater/supervisor` with COR state |
 | B | Poll `status` JSON via external helper — not recommended inside GR real-time path |
 
-Indicative supervisor API messages: `COR 70cm active`, `COR 70cm idle` — exact strings defined in `repeater-control` runtime README and mirrored in supervisor spec.
+Indicative supervisor API messages: `COR B active`, `COR B idle` — exact strings defined in `repeater-control` runtime README and mirrored in supervisor spec.
 
 ## Testing matrix
 

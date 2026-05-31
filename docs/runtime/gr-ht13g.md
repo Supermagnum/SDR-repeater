@@ -57,7 +57,7 @@ GNU Radio 4 out-of-tree module that connects flowgraphs to the repeater native Z
 | gr-zeromq SUB source | `gr::zeromq::sub_msg_source` — message framing patterns |
 | VOLK | `volk_16i_s32f_convert_32f` or project-specific scale |
 
-Connect SUB to `ipc:///run/ht-module/iq_70cm` (etc.) per band.
+Connect SUB to `ipc:///run/ht-module/iq_B` (etc.) per module address.
 
 ### `ht13g_sink`
 
@@ -109,7 +109,7 @@ Prefer thin wrapper: one REQ per command, block until `OK` or log `ERR`.
 | HT13G Sink | `grc/ht13g_ht13g_sink.block.yml` |
 | HT13G Ctrl | `grc/ht13g_ht13g_ctrl.block.yml` |
 
-Parameters exposed: endpoint, band token dropdown (`2m` / `70cm` / `23cm`), sample rate.
+Parameters exposed: endpoint, module address dropdown (`A` / `B` / `C` / `D`), sample rate.
 
 ## Interaction with gr-ident
 
@@ -136,7 +136,7 @@ Use gr-linux-crypto in **flowgraphs** for modem-side signing tests. Production O
 |------|------|
 | Source connected to Phase A stub daemon | Continuous `complex` stream at 500 kSa/s equivalent |
 | Sink | Daemon receives valid frame length for configured `sample_count` |
-| Ctrl | `SET_FREQ 70cm 433000000` returns OK at daemon |
+| Ctrl | `SET_FREQ B 433000000` returns OK at daemon |
 | Lease | `ptt_on` without lease fails at supervisor, not silent TX |
 
 ## Deliverables by phase

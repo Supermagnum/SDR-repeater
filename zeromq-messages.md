@@ -74,24 +74,28 @@ All paths below use the `ipc://` scheme. The daemon **binds** PUB sockets; consu
 
 | Endpoint | Pattern | Binder | Direction | Payload |
 |----------|---------|--------|-----------|---------|
-| `ipc:///run/ht-module/iq_2m` | PUB | daemon | RX IQ -> consumers | Binary IQ frame ([Section 3](#3-iq-data-plane)) |
-| `ipc:///run/ht-module/iq_70cm` | PUB | daemon | RX IQ -> consumers | Binary IQ frame |
-| `ipc:///run/ht-module/iq_23cm` | PUB | daemon | RX IQ -> consumers | Binary IQ frame |
-| `ipc:///run/ht-module/tx_2m` | SUB | daemon | consumers -> TX IQ | Binary IQ frame |
-| `ipc:///run/ht-module/tx_70cm` | SUB | daemon | consumers -> TX IQ | Binary IQ frame |
-| `ipc:///run/ht-module/tx_23cm` | SUB | daemon | consumers -> TX IQ | Binary IQ frame |
+| `ipc:///run/ht-module/iq_A` | PUB | daemon | RX IQ -> consumers | Binary IQ frame ([Section 3](#3-iq-data-plane)) |
+| `ipc:///run/ht-module/iq_B` | PUB | daemon | RX IQ -> consumers | Binary IQ frame |
+| `ipc:///run/ht-module/iq_C` | PUB | daemon | RX IQ -> consumers | Binary IQ frame |
+| `ipc:///run/ht-module/iq_D` | PUB | daemon | RX IQ -> consumers | Binary IQ frame |
+| `ipc:///run/ht-module/tx_A` | SUB | daemon | consumers -> TX IQ | Binary IQ frame |
+| `ipc:///run/ht-module/tx_B` | SUB | daemon | consumers -> TX IQ | Binary IQ frame |
+| `ipc:///run/ht-module/tx_C` | SUB | daemon | consumers -> TX IQ | Binary IQ frame |
+| `ipc:///run/ht-module/tx_D` | SUB | daemon | consumers -> TX IQ | Binary IQ frame |
 | `ipc:///run/ht-module/ctrl` | REQ/REP | daemon (REP) | client <-> daemon | ASCII command / reply ([Section 4](#4-control-plane-ctrl)) |
 | `ipc:///run/ht-module/status` | PUB | daemon | telemetry -> consumers | UTF-8 JSON ([Section 5](#5-telemetry-status)) |
 
-**Remote IQ:** change `ipc:///run/ht-module/iq_70cm` to `tcp://0.0.0.0:<port>` on the
+**Remote IQ:** change `ipc:///run/ht-module/iq_B` to `tcp://0.0.0.0:<port>` on the
 daemon and matching connect address on subscribers. Frame layout is unchanged.
+
+Only **populated** slots have sockets; empty slots have no `iq_*` / `tx_*` endpoints.
 
 ### 2.3 Daemon responsibilities
 
 - Initialise RFICs over SPI; read module EEPROM and temperature sensors over I2C
 - Publish RX IQ from DMA ring buffers; consume TX IQ into SAI DMA
 - Execute hardware PTT sequence on `ctrl` commands: RFIC PTT -> T/R switch -> 1 ms delay -> PA enable
-- Apply frequency, gain, squelch, TX timeout, and attenuator settings per band
+- Apply frequency, gain, squelch, TX timeout, and attenuator settings **per module address**
 - Discipline VCTCXO trim from GNSS 1PPS
 - Publish `status` JSON on a fixed interval and on alerts (PLL unlock, AGC events)
 
@@ -111,7 +115,7 @@ daemon and matching connect address on subscribers. Frame layout is unchanged.
 | Offset | Size | Field | Type | Description |
 |--------|------|-------|------|-------------|
 | 0 | 8 | `timestamp_ns` | `uint64` LE | GNSS-disciplined UTC-related time (nanoseconds) |
-| 8 | 4 | `band_id` | `uint32` LE | `0` = 2 m, `1` = 70 cm, `2` = 23 cm |
+| 8 | 4 | `module_id` | `uint32` LE | `0` = A, `1` = B, `2` = C, `3` = D |
 | 12 | 4 | `sample_count` | `uint32` LE | Number of **complex** samples (pairs) in this message |
 | 16 | `sample_count * 4` | `iq[]` | int16[I], int16[Q] ... | Interleaved I/Q |
 
@@ -152,46 +156,55 @@ message — not wire-compatible with repeater frames without conversion
 | Reply | **Single ZMQ frame**: `OK` or `ERR <reason>` |
 
 The control plane is **separate** from IQ sockets. Sending IQ to `tx_*` does not key the
-transmitter; issue `PTT <band> on` on `ctrl` as well.
+transmitter; issue `PTT B on` on `ctrl` as well.
 
 Over-the-air remote control uses the **same command text** inside signed frames
 ([README.md Section 8](README.md#8-authenticated-remote-control)); only the transport
 differs (RF + GnuPG vs local ZMQ).
 
-### 4.2 Band tokens
+### 4.2 Module addresses
 
-| Token | Module | Band |
-|-------|--------|------|
-| `2m` | A | 2 metre (VHF), 144–146 MHz |
-| `70cm` | B | 70 cm (UHF), 432–438 MHz |
-| `23cm` | C | 23 cm (UHF/SHF), 1240–1258 MHz |
-| `all` | — | Every installed module (only where noted) |
+Each backplane slot has a fixed **module address** (letter). The address identifies the
+physical module, not its band. Two modules in slots B and C can both be 70 cm hardware;
+commands and IQ sockets still use **`B`** and **`C`** individually.
 
-Commands that configure RF parameters **require** a band token. Global commands omit it.
+| Address | Backplane slot |
+|---------|----------------|
+| `A` | Slot A |
+| `B` | Slot B |
+| `C` | Slot C |
+| `D` | Slot D |
+| `all` | Every populated slot (only where noted) |
+
+The module's band (`2m`, `70cm`, `23cm`, …) is read from EEPROM at startup and reported
+in `status` JSON. It is **not** used as a command target — band names alone are ambiguous
+when more than one module shares a band.
+
+Commands that configure RF parameters **require** a module address. Global commands omit it.
 
 ### 4.3 Command reference
 
-Syntax: `COMMAND <band> <arguments...>` unless global.
+Syntax: `COMMAND <module> <arguments...>` unless global.
 
 | Command | Example | Effect |
 |---------|---------|--------|
-| `SET_SQUELCH` | `SET_SQUELCH 70cm -120` | Squelch threshold (dBm) on 70 cm |
-| `SET_SQUELCH` | `SET_SQUELCH 2m -120` | Squelch on 2 m only |
-| `SET_TX_TIMEOUT` | `SET_TX_TIMEOUT 2m 300` | Auto PTT off after 300 s on 2 m |
-| `SET_TX_TIMEOUT` | `SET_TX_TIMEOUT 70cm 300` | Auto PTT off on 70 cm |
-| `SET_FREQ` | `SET_FREQ 23cm 1252000000` | Centre frequency (Hz) |
-| `SET_PWR` | `SET_PWR 2m 5` | RF output power (watts) |
-| `PTT` | `PTT 70cm on` | Key transmitter (hardware sequence) |
-| `PTT` | `PTT 70cm off` | Unkey transmitter |
-| `MOD_ENABLE` | `MOD_ENABLE 2m` | Enable module |
-| `MOD_DISABLE` | `MOD_DISABLE 23cm` | Disable module |
+| `SET_SQUELCH` | `SET_SQUELCH B -120` | Squelch threshold (dBm) on module B |
+| `SET_SQUELCH` | `SET_SQUELCH C -120` | Squelch on module C (e.g. second 70 cm link) |
+| `SET_TX_TIMEOUT` | `SET_TX_TIMEOUT A 300` | Auto PTT off after 300 s on module A |
+| `SET_TX_TIMEOUT` | `SET_TX_TIMEOUT B 300` | Auto PTT off on module B |
+| `SET_FREQ` | `SET_FREQ D 1252000000` | Centre frequency (Hz) on module D |
+| `SET_PWR` | `SET_PWR A 5` | RF output power (watts) on module A |
+| `PTT` | `PTT B on` | Key transmitter on module B |
+| `PTT` | `PTT B off` | Unkey transmitter on module B |
+| `MOD_ENABLE` | `MOD_ENABLE A` | Enable module A |
+| `MOD_DISABLE` | `MOD_DISABLE C` | Disable module C |
 | `GET_TEMP` | `GET_TEMP all` | Query temperature sensors |
-| `GET_STATUS` | `GET_STATUS 70cm` | Status for one band |
+| `GET_STATUS` | `GET_STATUS B` | Status for module B |
 | `GET_STATUS` | `GET_STATUS all` | Full status report |
 | `GET_BATTERY` | `GET_BATTERY` | Battery state (global) |
 | `REBOOT` | `REBOOT` | Graceful reboot (global, elevated trust OTA) |
 
-Squelch and TX timeout are always **per-module**; there is no implicit global target.
+Squelch and TX timeout are always **per module**; there is no implicit global target.
 
 ### 4.4 Example REQ/REP exchange (illustrative)
 
@@ -204,13 +217,13 @@ ctx = zmq.Context()
 req = ctx.socket(zmq.REQ)
 req.connect("ipc:///run/ht-module/ctrl")
 
-req.send_string("SET_SQUELCH 70cm -120")
+req.send_string("SET_SQUELCH B -120")
 print(req.recv_string())  # OK
 
-req.send_string("PTT 70cm on")
+req.send_string("PTT B on")
 print(req.recv_string())  # OK
 
-req.send_string("PTT 70cm off")
+req.send_string("PTT B off")
 print(req.recv_string())  # OK
 ```
 
@@ -230,6 +243,7 @@ print(req.recv_string())  # OK
 
 ```json
 {
+  "module": "B",
   "band": "70cm",
   "timestamp_ns": 1717000000123456789,
   "rssi_dbm": -95.5,
@@ -243,7 +257,8 @@ print(req.recv_string())  # OK
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `band` | string | `2m`, `70cm`, or `23cm` |
+| `module` | string | Module address: `A`, `B`, `C`, or `D` |
+| `band` | string | Band type from module EEPROM: `2m`, `70cm`, `23cm`, … |
 | `timestamp_ns` | integer | Same clock domain as IQ frames |
 | `rssi_dbm` | number | Estimated RSSI |
 | `agc_gain_db` | number | AGC setting |
@@ -258,6 +273,7 @@ On PLL unlock or AGC threshold crossing, the daemon may publish:
 
 ```json
 {
+  "module": "A",
   "band": "2m",
   "timestamp_ns": 1717000000999999999,
   "alert": "pll_unlock"
@@ -287,7 +303,7 @@ Used after Golay preamble decode on the receive path.
 |-----------|-------------------|---------------------|
 | Socket | PUB | PUB on detect flowgraph |
 | Endpoint | `tcp://127.0.0.1:5560` | `tcp://127.0.0.1:5560` or `ipc:///run/ht-module/grident` |
-| Topic (frame 0) | `grident` | `grident` or `grident.2m` / `grident.70cm` / `grident.23cm` |
+| Topic (frame 0) | `grident` | `grident`, `grident.A` … `grident.D`, or `grident.70cm` when unambiguous |
 | Body (frame 1) | UTF-8 JSON | Same |
 
 **JSON body schema:**
@@ -361,7 +377,7 @@ For lab or TCP-based co-process flowgraphs (not the hardware daemon `ctrl` socke
 
 **Accepted body payloads (TX off):** `PTT_OFF`, `RX`, `KEYUP`, `0`, `OFF`, `EOT`, `{"ptt": false}`
 
-On the repeater, **hardware PTT** should still use `ctrl` (`PTT 70cm on`). Use gr-ident
+On the repeater, **hardware PTT** should still use `ctrl` (`PTT B on`). Use gr-ident
 PTT to gate `PreambleOnPtt` inside GNU Radio when inserting mode-ident bursts on key-down.
 
 ### 6.3 Distributed IQ (PUSH / PULL)
@@ -378,7 +394,7 @@ Supported types in gr-ident include `std::complex<float>`. Connect a PUSH bridge
 
 ### 6.4 Worked example: mode 20 (NFM) on repeater 70 cm
 
-1. `ht-module-daemon` publishes IQ on `ipc:///run/ht-module/iq_70cm`.
+1. `ht-module-daemon` publishes IQ on `ipc:///run/ht-module/iq_B` (module B, 70 cm in a typical install).
 2. Detect flowgraph: `ht13g_source` -> CPFSK/Golay detect -> `PreambleResultZmqPub` on `tcp://*:5560`.
 3. Mode router receives `{"mode_id":20,"digital":false,"encrypted":false,"metadata_present":false}`.
 4. Router enables NFM 12.5 kHz demod on the same IQ stream; ignores C4FM if `digital` were true on a mismatch.
@@ -423,18 +439,20 @@ remains on `ipc:///run/ht-module/ctrl`.
 ### 8.1 Single-band FM repeater with gr-ident
 
 ```
-iq_70cm (ZMQ SUB) -> ht13g_source -> detect chain -> PreambleResultZmqPub (tcp://*:5560)
+iq_B (ZMQ SUB; module B, typically 70 cm) -> ht13g_source -> detect chain -> PreambleResultZmqPub (tcp://*:5560)
                               \-> mode router SUB (grident) -> NFM / C4FM / ... demods
-tx_70cm <- ht13g_sink <- modulator <- audio
-ctrl REQ: SET_FREQ, SET_SQUELCH, PTT on/off
+tx_B <- ht13g_sink <- modulator <- audio
+ctrl REQ: SET_FREQ B ..., SET_SQUELCH B ..., PTT B on/off
 ```
 
-### 8.2 Cross-band repeat (2 m -> 70 cm)
+### 8.2 Cross-band repeat (module A -> module B)
+
+Example: 2 m in slot A, 70 cm in slot B.
 
 ```
-iq_2m -> demod -> re-encode -> tx_70cm
-ctrl: PTT 2m off/on as needed; PTT 70cm on only during TX burst
-Per-band T/R timing handled in daemon per band
+iq_A -> demod -> re-encode -> tx_B
+ctrl: PTT A off/on as needed; PTT B on only during TX burst
+Per-module T/R timing handled in daemon
 ```
 
 ### 8.3 Process summary
