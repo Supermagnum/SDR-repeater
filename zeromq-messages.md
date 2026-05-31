@@ -160,12 +160,12 @@ differs (RF + GnuPG vs local ZMQ).
 
 ### 4.2 Band tokens
 
-| Token | Module |
-|-------|--------|
-| `2m` | 2 metre (VHF) |
-| `70cm` | 70 cm (UHF) |
-| `23cm` | 23 cm (UHF/SHF) |
-| `all` | Every installed module (only where noted) |
+| Token | Module | Band |
+|-------|--------|------|
+| `2m` | A | 2 metre (VHF), 144–146 MHz |
+| `70cm` | B | 70 cm (UHF), 432–438 MHz |
+| `23cm` | C | 23 cm (UHF/SHF), 1240–1258 MHz |
+| `all` | — | Every installed module (only where noted) |
 
 Commands that configure RF parameters **require** a band token. Global commands omit it.
 

@@ -9,6 +9,7 @@
 ## Table of Contents
 
 1. [System Overview](#1-system-overview)
+   - [What is a radio repeater?](#what-is-a-radio-repeater)
 2. [Radio Modules](#2-radio-modules)
 3. [Backplane Architecture](#3-backplane-architecture)
 4. [Compute Module](#4-compute-module)
@@ -32,6 +33,14 @@
 ---
 
 ## 1. System Overview
+
+### What is a radio repeater?
+
+A radio repeater receives a signal on one frequency and retransmits it on another, usually with higher power and from a better antenna site (hilltop, tower, or rooftop). Stations that cannot reach each other directly — handhelds in a valley, mobiles on a highway — can communicate through the repeater, which extends coverage across a town or region.
+
+Repeaters are often linked into **regional networks** so that a transmission heard at one site is retransmitted at others. That inter-site linking is most commonly done on the **70 cm band** (432 MHz): dedicated radio links between sites carry audio or data from one repeater to the next. In many networks the 70 cm band acts as the **spine** — the backbone that ties sites together — while local users still access the system on 2 metre or other bands at each location.
+
+Where reliable **internet access** is available, some networks use IP-based linking (VoIP, ROIP, or similar) instead of or alongside RF backbone links. Remote sites without connectivity depend on over-the-air linking; sites with internet may use either path, depending on local policy and infrastructure.
 
 This document describes a modular, Linux-based, software-defined radio (SDR) repeater system capable of simultaneous operation across the 2 metre, 70 cm, and 23 cm amateur radio bands. The system is designed around open standards throughout: open silicon CPU, open backplane standards, and open-source software. It runs from 230 V AC mains with seamless battery backup, and optionally from solar power. No generator is used or required.
 
@@ -525,19 +534,29 @@ Remote management of the repeater over the air replaces DTMF entirely. For **loc
 
 ### 8.1 What can be controlled remotely
 
-| Task | Command (band: `2m`, `70cm`, `23cm`, or `all`) |
-|------|---------|
-| Adjust RF output power | `SET_PWR 70cm 5` |
-| Check all temperatures | `GET_TEMP all` |
-| Check battery state and current | `GET_BATTERY` |
-| Enable or disable a radio module | `MOD_ENABLE 2m` / `MOD_DISABLE 23cm` |
-| Set squelch threshold | `SET_SQUELCH 70cm -120` |
-| Set transmit timeout (seconds) | `SET_TX_TIMEOUT 2m 300` |
-| Set receive / transmit frequency | `SET_FREQ 2m 145500000` |
-| Full status report | `GET_STATUS all` or `GET_STATUS 70cm` |
-| Graceful reboot | `REBOOT` (elevated trust required) |
+Each pluggable RF module has a **module address** (letter) and a **band token** used in command text:
 
-Per-module addressing uses the same band tokens as the ZeroMQ `ctrl` socket ([zeromq-messages.md Section 4](zeromq-messages.md#4-control-plane-ctrl)). A command without a band is rejected unless the command is inherently global (`GET_BATTERY`, `REBOOT`).
+| Module | Band token | Band |
+|--------|------------|------|
+| A | `2m` | 2 metre (VHF), 144–146 MHz |
+| B | `70cm` | 70 cm (UHF), 432–438 MHz |
+| C | `23cm` | 23 cm (UHF/SHF), 1240–1258 MHz |
+
+Commands use the band token (`2m`, `70cm`, `23cm`) or `all` for every installed module. Global commands (`GET_BATTERY`, `REBOOT`) omit the band token.
+
+| Task | Module | Command |
+|------|--------|---------|
+| Adjust RF output power | B (70 cm) | `SET_PWR 70cm 5` |
+| Check all temperatures | all | `GET_TEMP all` |
+| Check battery state and current | — (chassis) | `GET_BATTERY` |
+| Enable or disable a radio module | A (2 m) / C (23 cm) | `MOD_ENABLE 2m` / `MOD_DISABLE 23cm` |
+| Set squelch threshold | B (70 cm) | `SET_SQUELCH 70cm -120` |
+| Set transmit timeout (seconds) | A (2 m) | `SET_TX_TIMEOUT 2m 300` |
+| Set receive / transmit frequency | A (2 m) | `SET_FREQ 2m 145500000` |
+| Full status report | all or B (70 cm) | `GET_STATUS all` or `GET_STATUS 70cm` |
+| Graceful reboot | — (chassis) | `REBOOT` (elevated trust required) |
+
+Per-module addressing uses the band tokens above on the ZeroMQ `ctrl` socket ([zeromq-messages.md Section 4](zeromq-messages.md#4-control-plane-ctrl)). Module letters (A, B, C) match the backplane slot labels in [RF-modules.md](RF-modules.md). A command without a band token is rejected unless the command is inherently global (`GET_BATTERY`, `REBOOT`).
 
 ### 8.2 How it works — summary
 
