@@ -4,6 +4,8 @@
 **Date:** May 2026  
 **Architecture:** Open Silicon · Linux · Modular OpenVPX  
 
+**Status:** This repository records **design ideas and a target architecture** for a modular Linux SDR repeater — not committed hardware, tapeout data, shipping products, or implemented runtime code. Specifications (including [RF-modules.md](RF-modules.md), wire formats, and software contracts) may change as bench work, MPW runs, and implementation experience inform later revisions.
+
 ---
 
 ## Table of Contents
@@ -432,6 +434,8 @@ GNU Radio 4.0 reached Release Candidate 1 in March 2026. The core architecture i
 GNU Radio is the most powerful and flexible option but has a steep learning curve due to its flowgraph / block-programming paradigm. For operators who prefer a more direct interface, the following GNU Radio-based frontends are available.
 
 When the repeater should identify the incoming modulation type and route IQ data to the correct demodulator automatically (rather than relying on manual mode selection or statistical classification), the flowgraph can implement the **[gr-ident](https://github.com/Supermagnum/gr-ident)** preamble specification — see [Section 7.4](#74-gr-ident--radio-mode-identification).
+
+For development and CI, **[radio-modulation-validator](https://github.com/Supermagnum/radio-modulation-validator)** checks that GNU Radio out-of-tree modulator blocks produce IQ matching expected modulation families and orders (ONNX classification of captured samples). It complements runtime gr-ident mode routing; listed with other upstream tools in [docs/repo-map.md](docs/repo-map.md).
 
 IQ streams enter and leave the flowgraph over **[ZeroMQ](https://zeromq.org/)** PUB/SUB sockets provided by `ht-module-daemon` and the `gr-ht13g` blocks — see [Section 7.5](#75-zeromq-ipc).
 

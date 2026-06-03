@@ -5,12 +5,16 @@
 **Date:** May 2026  
 **Relates to:** SDR Multiband Repeater System Design v1.1  
 
+**Status:** This document records **design ideas and a target architecture** — not committed tapeout data, BOMs, or shipping hardware. Numbers, block diagrams, and MPW plans may change as bench results and shuttle runs inform later revisions.
+
 ---
 
 ## Table of Contents
 
 1. [Design Context and Rationale](#1-design-context-and-rationale)
 2. [Why a Custom RFIC](#2-why-a-custom-rfic)
+   - [LinHT and the SX1255 path](#linht-and-the-sx1255-path)
+   - [Wideband integrated transceivers (LMS7002M, AD9361)](#wideband-integrated-transceivers-lms7002m-ad9361)
 3. [Fabrication Process: IHP SG13G2](#3-fabrication-process-ihp-sg13g2)
 4. [RFIC Family Overview](#4-rfic-family-overview)
 5. [HT13G-M RFIC — 2 m / 70 cm Module](#5-ht13g-m-rfic--2-m--70-cm-module)
@@ -62,21 +66,44 @@ All hardware present in the OpenHT-DB design is retained on the module PCB. The 
 
 ## 2. Why a Custom RFIC
 
-No existing commodity RFIC adequately covers all three bands (144 MHz, 432 MHz, 1240 MHz) with sufficient IQ bandwidth, low noise figure, a clean open digital interface, and power consumption appropriate for a modular embedded Linux SDR platform. The following table summarises the commodity chip gap:
+No existing commodity RFIC adequately covers all three bands (144 MHz, 432 MHz, 1240 MHz) with sufficient IQ bandwidth, low noise figure, a clean open digital interface, and power consumption appropriate for a modular embedded Linux SDR platform.
+
+### LinHT and the SX1255 path
+
+The **[LinHT](https://linux-radio.eu/)** handheld project (OpenHT lineage) uses the Semtech **SX1255** for its UHF transceiver path — a reasonable fit at 432 MHz with 500 kHz IQ bandwidth. There is **no comparable commodity transceiver IC with a clean IQ interface at 144 MHz (VHF)** in the same class: the SX1255 family does not operate below roughly 400 MHz. That gap affects LinHT as well as this repeater concept. Both need true VHF coverage, not merely a UHF chip with an external upconverter or a compromised narrowband sub-GHz part.
+
+The repeater addresses multiband service differently — one module PCB per band (or per role), each with a purpose-narrow RFIC — but the underlying commodity-silicon problem is the same: **no single off-the-shelf part spans VHF, UHF, and 23 cm** with the IQ interface and noise figure this architecture expects.
+
+### Commodity parts considered (summary)
+
+The following table summarises the commodity chip gap:
 
 | Chip | 144 MHz | 432 MHz | 1240 MHz | IQ BW | Disqualifier |
 |------|:-------:|:-------:|:--------:|-------|-------------|
-| SX1255 | ✗ | ✓ | ✗ | 500 kHz | 400 MHz lower limit; no VHF |
+| SX1255 | ✗ | ✓ | ✗ | 500 kHz | 400 MHz lower limit; no VHF (LinHT UHF path only) |
 | CC1200 | ✓ | ✓ | ✗ | ~200 kHz | Bandwidth too narrow; no 23 cm |
 | AT86RF215 | ✗ | ✓ | ✗ | 4 MHz | 400 MHz lower limit; no VHF or 23 cm |
-| AD9361 | ✓ | ✓ | ✓ | 56 MHz | Power and size prohibitive; 3.3 W typical |
+| LMS7002M | ✓ | ✓ | ✓ | wide | 2×2 MIMO LTE/5G platform; cost and complexity (see below) |
+| AD9361 | ✓ | ✓ | ✓ | 56 MHz | 2×2 MIMO; power, size, cost (see below) |
 | Si4463/Si4468 | ✓ | ✓ | ✗ | ~1 MHz | Obsolete architecture; no clean IQ stream; no 23 cm |
 | RFFC5072 | ✓ | ✓ | partial | wide | Mixer-only; requires external LNA/VCO/ADC |
 | MAX2769 | ✗ | ✗ | ✓ | narrow | GNSS receiver only; not a transceiver |
 
-No commodity part covers the full 130 MHz–1300 MHz range with ≥500 kHz IQ bandwidth, sub-5 dB noise figure, full-duplex per band, and an I2S digital baseband interface compatible with Linux. A custom RFIC is the only clean path.
+### Wideband integrated transceivers (LMS7002M, AD9361)
 
-The approach taken here — one dedicated RFIC per module, each covering one amateur band — avoids the power and complexity penalties of a wideband transceiver covering all three bands simultaneously. Each module is a focused, optimised design.
+**LMS7002M** (Lime Microsystems) is a remarkable device, and Lime's open-source stance is genuinely admirable — it has enabled a generation of SDR experimentation. For LinHT and for this repeater idea, however, it carries significant drawbacks:
+
+- It is a **2×2 MIMO transceiver** aimed primarily at LTE and 5G research platforms. LinHT needs only a **single TX and single RX chain**; a fixed-site repeater module needs one chain per band. Much of the chip's analogue and digital complexity goes unused.
+- **Cost** (roughly **$100** in low quantities) is prohibitive for an open community hardware project targeting amateur radio operators.
+- While it solves the **frequency coverage** problem in one package, it introduces **cost, power, and integration overhead** that a purpose-designed RFIC on **IHP SG13G2** would avoid.
+
+**AD9361** (Analog Devices) is in the same class: a **2×2 RF transceiver** with integrated 12-bit DACs and ADCs, wide tuning, and substantial digital backend. For a focused **1240 MHz module** — or any single-band repeater slot — that level of MIMO and converter capacity is unnecessary. Typical power is on the order of **3.3 W**, which is acceptable on a mains-powered repeater module but is also a serious concern on a **battery-powered handheld** (the LinHT context). Again, the part solves bandwidth and tuning in one die at the price of silicon area, BOM, and software stack complexity.
+
+No commodity part in this survey covers the full 130 MHz–1300 MHz range with ≥500 kHz IQ bandwidth, sub-5 dB noise figure, full-duplex per band, and an I2S digital baseband interface compatible with Linux — **without** paying for unused MIMO channels and wideband research features.
+
+A custom RFIC is the only clean path for the goals stated here.
+
+The approach taken — **one dedicated RFIC per module**, each covering one amateur band (or one link role) — avoids the power and complexity penalties of a wideband transceiver covering all three bands simultaneously. Each module is a focused, optimised design.
 
 ---
 

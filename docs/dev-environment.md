@@ -64,6 +64,7 @@ No test scripts are maintained in this repository.
 
 - Flowgraphs live in **`sdr-repeater-flowgraphs`** (to be created) — see [runtime/sdr-repeater-flowgraphs.md](runtime/sdr-repeater-flowgraphs.md).
 - Use `gr-zeromq` or `gr-ht13g` for IQ; gr-ident for preamble per [zeromq-messages.md Section 6](../zeromq-messages.md#6-gr-ident-integration).
+- Validate modulator OOT blocks with [radio-modulation-validator](https://github.com/Supermagnum/radio-modulation-validator) (IQ classification against expected modulation types).
 - Point `ctrl` at the daemon; do not bypass supervisor in production tests without documenting `local_ctrl_trust`.
 
 ## SDRangel fork
