@@ -1,9 +1,9 @@
 # SDR Repeater — RF Module and RFIC Specification
 
 **Document:** Module RF Hardware Design Specification  
-**Revision:** 0.1  
-**Date:** May 2026  
-**Relates to:** SDR Multiband Repeater System Design v1.1  
+**Revision:** 0.2  
+**Date:** June 2026  
+**Relates to:** SDR Multiband Repeater System Design v1.4  
 
 **Status:** This document records **design ideas and a target architecture** — not committed tapeout data, BOMs, or shipping hardware. Numbers, block diagrams, and MPW plans may change as bench results and shuttle runs inform later revisions.
 
@@ -40,7 +40,7 @@ Example default install:
 - Slot C — 23 cm: 1240–1258 MHz, 500 kHz IQ bandwidth, 5 W TX (or a second 70 cm link module)
 - Slot D — spare or expansion
 
-Each module is a self-contained PCB that plugs into a VITA 46 edgecard slot on the backplane. It carries its own RFIC, RF front end, power amplifier, band-pass filter, T/R switch, variable attenuator, and external LNA. IQ data is transported digitally over the backplane data bus. The default antenna interface is front-panel **RP-SMA**; optional **Type-N** jacks are preferred where panel space and the site coax plan allow (see [Section 9.5](#95-antenna-connector-options-rp-sma-or-type-n)).
+Each module is a self-contained PCB that plugs into a VITA 46 edgecard slot on the backplane. It carries its own RFIC, RF front end, power amplifier, band-pass filter, T/R switch, variable attenuator, SWR bridge, and external LNA. IQ data is transported digitally over the backplane data bus. The default antenna interface is front-panel **RP-SMA**; optional **Type-N** jacks are preferred where panel space and the site coax plan allow (see [Section 9.5](#95-antenna-connector-options-rp-sma-or-type-n)).
 
 This document specifies the RFIC(s) for these modules and the surrounding RF signal chain.
 
@@ -59,6 +59,7 @@ The repeater module context differs from a handheld transceiver in several impor
 | USB-A (security token) | On-board | On main SBC via backplane; Nitrokey token plugged into K3 USB-A |
 | Bands per PCB | Dual (VHF + UHF) | Single band per module |
 | GNSS on module | No — on main SBC | No — on main SBC |
+| SWR monitoring | Not applicable (handheld) | On-module SWR bridge + ADC; auto-disable on SWR > 3.0 |
 
 All hardware present in the OpenHT-DB design is retained on the module PCB. The audio codec, microphone header, and headphone/line output are populated on all variants. In repeater operation they provide an optional audio monitoring tap and greatly simplify bench testing — an operator can plug a PC soundcard into the 3.5 mm jack during bring-up without needing the full backplane. The 3.5 mm jack is present and populated on all builds; there is no DNP variant.
 
@@ -359,24 +360,106 @@ Each module presents the same external signal chain architecture regardless of b
 ### 7.1 Full RF Chain Block
 
 ```
-ANT (RP-SMA, front panel)
+ANT (RP-SMA or Type-N, front panel)
     │
     ▼
 T/R Switch (SPDT, solid-state)
-    │                 │
-    ▼ (RX path)       ▼ (TX path)
-Variable Attenuator   Band-Pass / Harmonic Filter
-(0–31.5 dB, 0.5 dB step)   (7-element Chebyshev, > 60 dBc)
-    │                 │
-    ▼                 ▲
-External LNA          Power Amplifier (5 W)
-(NF < 0.8 dB)            │
-    │                 ▲
-    ▼                 │
-  [RFIC RX input]  [RFIC TX output]
+    │                    │
+    ▼ (RX path)          ▼ (TX path)
+Variable Attenuator      SWR Bridge (directional coupler)
+(0–31.5 dB, 0.5 dB)          │
+    │                    ▼
+    ▼              Band-Pass / Harmonic Filter
+External LNA       (7-element Chebyshev, > 60 dBc)
+(NF < 0.8 dB)           │
+    │                    ▼
+    ▼              Power Amplifier (5 W)
+  [RFIC RX input]        │
+                         ▲
+                   [RFIC TX output]
 ```
 
-### 7.2 Component Specifications
+The SWR bridge is placed **between the PA output and the T/R switch**, after the harmonic filter, so it measures the power actually reaching the antenna port — including any mismatch at the connector and feedline. Forward and reflected power detector outputs feed a dual-channel ADC on the module PCB; the ADC result is read by the `ht-module-daemon` via I²C or SPI during transmit.
+
+### 7.2 SWR Bridge and Power Measurement
+
+#### 7.2.1 Directional Coupler / Bridge
+
+A small-format directional coupler is placed in the TX path between the harmonic filter output and the T/R switch antenna port. At 5 W output power the coupler must handle full PA output continuously.
+
+| Parameter | VHF (144 MHz) | UHF (432 MHz) | 23 cm (1240 MHz) |
+|-----------|:-------------:|:-------------:|:----------------:|
+| Topology | Transmission-line coupler or toroidal transformer coupler | same | Microstrip coupled-line section |
+| Coupling factor | 20 dB (forward), 20 dB (reflected) | same | same |
+| Directivity | > 20 dB | > 20 dB | > 18 dB |
+| Insertion loss | < 0.3 dB | < 0.3 dB | < 0.5 dB |
+| Power rating | > 10 W continuous | > 10 W continuous | > 10 W continuous |
+| Implementation | SMD toroidal transformer (e.g. Coilcraft WBC series) | same | Hairpin microstrip on L1 |
+| Termination | 50 Ω load on isolated port (forward detector); 50 Ω on through port (reflected detector) | same | same |
+
+At VHF and UHF a small toroidal transformer coupler (wound on a ferrite bead, 4–6 turns, SMD construction) is practical and well-characterised. At 1240 MHz a microstrip coupled-line section on L1 is more reproducible and avoids ferrite performance variation at L-band.
+
+#### 7.2.2 RF Power Detectors
+
+Each coupler output (forward and reflected) drives an RF power detector diode. The detector output is a DC voltage proportional to the envelope of the coupled RF signal.
+
+| Parameter | Value |
+|-----------|-------|
+| Detector diode | Skyworks SMS7630 or equivalent zero-bias Schottky |
+| Detection range | −20 dBm to +10 dBm at detector input (20 dB coupling factor → 5 W = +37 dBm forward → +17 dBm at detector) |
+| Output voltage range | ~50 mV to ~800 mV DC (log-linear characteristic) |
+| Low-pass filter | 10 kΩ + 100 nF RC after each detector (3 dB at ~160 Hz — envelope following for CW/FM; not audio-following) |
+| Supply | No supply required — zero-bias detector |
+
+#### 7.2.3 Dual-Channel ADC
+
+The two detector outputs (forward power, reflected power) are read by a dedicated dual-channel ADC on the module PCB. This ADC is separate from the RFIC and from the audio codec.
+
+| Parameter | Value |
+|-----------|-------|
+| Part (candidate) | MCP3202 (Microchip, 12-bit, dual-channel, SPI) or ADS1015 (TI, 12-bit, 4-channel, I²C) |
+| Resolution | 12-bit |
+| Interface | SPI (MCP3202) or I²C at address set by module address pins (ADS1015) |
+| Sample rate | On-demand polling by `ht-module-daemon` during TX; no continuous streaming required |
+| Supply | 3.3 V from module power rail |
+| Reference | 3.3 V supply reference (adequate for SWR ratio computation; absolute accuracy not critical) |
+
+#### 7.2.4 SWR Computation
+
+The `ht-module-daemon` reads both ADC channels during TX and computes:
+
+```
+V_fwd  = ADC channel 0 (forward detector output, mV)
+V_ref  = ADC channel 1 (reflected detector output, mV)
+
+Gamma  = V_ref / V_fwd          (voltage reflection coefficient, linear)
+SWR    = (1 + Gamma) / (1 - Gamma)
+
+P_fwd  = calibrated from V_fwd using factory calibration table in module EEPROM
+P_ref  = calibrated from V_ref using factory calibration table in module EEPROM
+```
+
+Factory calibration maps detector voltage to power in dBm at three reference points per band (stored in module EEPROM at offset 0x18 onwards — see [Section 9.4](#94-vita-46-connector-pin-assignment)). This allows accurate absolute power reporting without requiring the 3.3 V ADC reference to be a precision source.
+
+**Automatic protection:** If SWR > 3.0 is measured during transmit, `ht-module-daemon` immediately:
+
+1. De-asserts PA_EN (PA disabled)
+2. De-asserts TR_SW (T/R switch returns to RX)
+3. De-asserts PTT (RFIC TX path disabled)
+4. Sets module fault state (`fault: true`, `fault_reason: "swr_high"`)
+5. Publishes `swr_high` alert on the `status` ZMQ socket
+
+The module will not transmit again until an operator issues `MOD_CLEAR_FAULT` after physically inspecting and correcting the antenna system. See [zeromq-messages.md Section 5.3](zeromq-messages.md#53-alert-messages) for the alert wire format.
+
+#### 7.2.5 SWR Bridge Placement and Layout
+
+- The coupler is placed on L1 in the RF zone, **after** the harmonic filter and **before** the T/R switch antenna port
+- The two detector circuits (diode + RC filter) are placed immediately adjacent to the coupler ports, within 5 mm, to minimise parasitic pickup
+- The ADC is placed in the mixed zone, away from the PA
+- SPI or I²C traces from the ADC to the backplane run on L4, below the L5 ground plane shield
+- At 1240 MHz, the microstrip coupler geometry is calculated for the L1 substrate (FR4, εr ≈ 4.5, h ≈ 0.18 mm to L2 ground plane)
+
+### 7.3 Component Specifications
 
 #### T/R Switch (Solid-state, per band)
 
@@ -444,7 +527,7 @@ At 5 W output with 40% efficiency, the PA draws approximately 3.4 A at its suppl
 
 #### Band-Pass / Harmonic Filter (TX path, per band)
 
-A 7-element Chebyshev band-pass filter is placed between the PA output and the T/R switch. It carries full TX power; component ratings must reflect this.
+A 7-element Chebyshev band-pass filter is placed between the PA output and the SWR bridge. It carries full TX power; component ratings must reflect this.
 
 | Parameter | VHF filter | UHF filter | 23 cm filter |
 |-----------|-----------|-----------|-------------|
@@ -460,16 +543,16 @@ A 7-element Chebyshev band-pass filter is placed between the PA output and the T
 
 ## 8. Module PCB Architecture
 
-Each module is a single PCB on a 3U OpenVPX edgecard form factor (~100 × 100 mm usable area, 160 mm pitch per VITA 46 standard). The module is self-contained: all RF components, RFIC, power conditioning, and backplane interface logic are on-board.
+Each module is a single PCB on a 3U OpenVPX edgecard form factor (~100 × 100 mm usable area, 160 mm pitch per VITA 46 standard). The module is self-contained: all RF components, RFIC, SWR bridge, power conditioning, and backplane interface logic are on-board.
 
 ### 8.1 Layer Stack (6-layer, identical for all three modules)
 
 | Layer | Function |
 |-------|----------|
-| L1 top | RF routing + all RF components (RFIC, LNA, PA, filters, switches, attenuator) |
+| L1 top | RF routing + all RF components (RFIC, LNA, PA, BPF, SWR bridge, switches, attenuator) |
 | L2 | Solid ground plane — unbroken RF reference; via-stitched at RF zone perimeter |
 | L3 | Power distribution — 3.3 V, 5 V, 12 V PA rail |
-| L4 | Secondary power + slow signals — SPI, I2S, GPIO, I²C |
+| L4 | Secondary power + slow signals — SPI, I2S, GPIO, I²C, SWR ADC signals |
 | L5 | Solid ground plane — shielding between digital and RF |
 | L6 bottom | Backplane interface — VITA 46 connector signals, PCIe/GbE routing |
 
@@ -478,16 +561,18 @@ Each module is a single PCB on a 3U OpenVPX edgecard form factor (~100 × 100 mm
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  RF ZONE (L1, via-fence boundary)                           │
-│  RFIC · External LNA · PA (5W) · BPF · T/R Switch          │
-│  Variable Attenuator · 50 Ω microstrip L1                   │
+│  RFIC · External LNA · PA (5W) · BPF · SWR Bridge          │
+│  Detector diodes · T/R Switch · Variable Attenuator         │
+│  50 Ω microstrip L1                                         │
 ├────────────────────────────────────┬────────────────────────┤
 │  MIXED ZONE                        │  DIGITAL ZONE          │
 │  VCTCXO 32 MHz                     │  VITA 46 edgecard      │
 │  VCTCXO_TUNE RC filter             │  connector area        │
-│  SPI / I2S traces (short,          │  PCIe / GbE PHY        │
-│  series-terminated 33 Ω)           │  Power conditioning    │
-│  RP-SMA (front panel)              │  Module control FPGA   │
-│  Power regulators                  │  (optional, per rev)   │
+│  SWR ADC (MCP3202 / ADS1015)       │  PCIe / GbE PHY        │
+│  SPI / I2S traces (short,          │  Power conditioning    │
+│  series-terminated 33 Ω)           │  Module control FPGA   │
+│  RP-SMA / Type-N (front panel)     │  (optional, per rev)   │
+│  Power regulators                  │                        │
 └────────────────────────────────────┴────────────────────────┘
 │  VITA 46 EDGECARD CONNECTOR (bottom edge)                   │
 └─────────────────────────────────────────────────────────────┘
@@ -503,7 +588,10 @@ Each module is a single PCB on a 3U OpenVPX edgecard form factor (~100 × 100 mm
 | Component size in RF path | 0402 max; 0201 preferred above 300 MHz | Minimise parasitic inductance |
 | RFIC EPAD via array | 9 vias minimum (3×3) | RF and thermal ground |
 | PA ground vias | Immediately adjacent to PA ground pad | Minimise source inductance |
-| BPF placement | Immediately after PA output, before T/R switch | Harmonics filtered before reaching antenna path |
+| BPF placement | Immediately after PA output, before SWR bridge | Harmonics filtered before power measurement and antenna path |
+| SWR bridge placement | After BPF, before T/R switch antenna port | Measures power at antenna interface, after filtering |
+| Detector circuits | Within 5 mm of coupler ports | Minimise parasitic pickup on low-level detector outputs |
+| SWR ADC traces | L4, below L5 ground plane | Isolate from RF zone |
 | RP-SMA connector | Front-panel edge mount; coax land on L1 (default `-SMA` variant) | Use when panel space is tight or cables are short RP-SMA patches |
 | Type-N connector | Front-panel bulkhead; same coax land (`-N` variant) | **Preferred when it fits** — fixed sites, outdoor enclosures, large coax |
 | Shield cans | Press-fit SMD cans over RF zone (Würth or Laird) | Strongly recommended for production |
@@ -514,6 +602,8 @@ Every module exposes the following test points for bench characterisation and au
 
 - RF test point between attenuator output and RFIC RX input (SMA footprint, unpopulated)
 - RF test point between RFIC TX output and PA input (SMA footprint, unpopulated)
+- RF test point between BPF output and SWR bridge input (SMA footprint, unpopulated) — allows calibration of the SWR bridge with a known source
+- SWR detector output test points: two 0.1" pads (forward, reflected) for DC voltmeter connection during calibration
 - SPI header (2×4, 2.54 mm) for RFIC direct configuration
 - I2S header (1×6, 2.54 mm) for direct audio capture during testing
 - **3.5 mm TRRS audio jack (populated on all variants)** — carries stereo IQ (I = Left, Q = Right) at baseband; allows direct monitoring or capture via any PC soundcard without the full backplane. Pinout follows Kenwood convention for compatibility with existing test equipment. In repeater operation, this port is available as a live audio monitoring tap.
@@ -542,14 +632,19 @@ For the production repeater, the I2S streams are not presented to userspace via 
 
 Each module's RFIC is configured via SPI. The SPI bus is carried over the VITA 46 utility plane (J0). Each module has a unique chip-select line, allowing all three modules to share a single SPI bus from the K3.
 
+The SWR ADC (MCP3202) shares the same SPI bus with a dedicated chip-select line per module, or uses I²C (ADS1015 variant) on the shared I²C utility plane bus.
+
 | Signal | Direction | Notes |
 |--------|-----------|-------|
 | SPI_CLK | K3 → all modules | Shared clock, up to 10 MHz |
 | SPI_MOSI | K3 → all modules | Shared data |
 | SPI_MISO | modules → K3 | Tri-stated when CS inactive |
-| SPI_CS_2M | K3 → 2 m module | Active-low chip select |
-| SPI_CS_70CM | K3 → 70 cm module | Active-low chip select |
-| SPI_CS_23CM | K3 → 23 cm module | Active-low chip select |
+| SPI_CS_2M | K3 → 2 m module | Active-low chip select (RFIC) |
+| SPI_CS_70CM | K3 → 70 cm module | Active-low chip select (RFIC) |
+| SPI_CS_23CM | K3 → 23 cm module | Active-low chip select (RFIC) |
+| SPI_CS_ADC_2M | K3 → 2 m module | Active-low chip select (SWR ADC, MCP3202 variant) |
+| SPI_CS_ADC_70CM | K3 → 70 cm module | same |
+| SPI_CS_ADC_23CM | K3 → 23 cm module | same |
 
 ### 9.3 Control Signals over VITA 46
 
@@ -596,39 +691,41 @@ J0 carries power rails, I²C, SPI configuration, GPIO control signals, I2S IQ st
 | A7 | +1V8 | PWR in | 1.8 V from VITA 62 PSU |
 | A8 | GND | — | Ground |
 | B1 | SPI_CLK | In | Shared SPI clock from K3 (up to 10 MHz) |
-| B2 | SPI_MOSI | In | SPI data from K3 to RFIC |
-| B3 | SPI_MISO | Out | SPI data from RFIC to K3 (tri-state when CS inactive) |
-| B4 | SPI_CS_N | In | Active-low chip select (unique per module) |
-| B5 | ATT_LE | In | Attenuator latch enable (PE4312 parallel mode LE pin) |
-| B6 | RFIC_RESET_N | In | Active-low RFIC reset from K3 |
-| B7 | RFIC_IRQ_N | Out | Active-low IRQ: PLL unlock, AGC threshold, RSSI update |
+| B2 | SPI_MOSI | In | SPI data from K3 to RFIC and SWR ADC |
+| B3 | SPI_MISO | Out | SPI data from RFIC / SWR ADC to K3 (tri-state when CS inactive) |
+| B4 | SPI_CS_N | In | Active-low chip select for RFIC (unique per module) |
+| B5 | SPI_CS_ADC_N | In | Active-low chip select for SWR ADC (unique per module; NC if I²C ADC variant fitted) |
+| B6 | ATT_LE | In | Attenuator latch enable (PE4312 parallel mode LE pin) |
+| B7 | RFIC_RESET_N | In | Active-low RFIC reset from K3 |
 | B8 | GND | — | Ground |
-| C1 | PTT | In | TX enable from K3 (step 1 in PTT sequence) |
-| C2 | TR_SW | In | T/R switch control from K3 (step 2 in PTT sequence) |
-| C3 | PA_EN | In | PA enable from K3 (step 3, after 1 ms delay) |
-| C4 | ANT_SW | In | Shared/independent antenna mode select (HT13G-M only; NC on HT13G-S module) |
-| C5 | MOD_PRESENT | Out | Module presence detect — pulled low on module, open on empty slot |
-| C6 | MOD_ID0 | Out | Module type ID bit 0 (resistor-coded: 00=2m, 01=70cm, 10=23cm, 11=spare) |
-| C7 | MOD_ID1 | Out | Module type ID bit 1 |
-| C8 | GND | — | Ground |
-| D1 | I2C_SCL | In | I²C clock — VITA 46 J0 utility plane bus (shared, 100 kHz) |
-| D2 | I2C_SDA | Bidir | I²C data — temperature sensor, module ID EEPROM |
-| D3 | VCTCXO_TUNE | In | Analog 0–1.8 V GNSS frequency discipline (from K3 PWM + RC filter) |
-| D4 | PPS_REF | In | Optional 1PPS reference input for module-local timestamp (not required for basic operation) |
-| D5 | I2S_BCLK | In | I2S bit clock from K3 SAI peripheral |
-| D6 | I2S_LRCLK | In | I2S left/right clock (500 kHz IQ sample rate word select) |
-| D7 | I2S_DOUT | Out | I2S data out from RFIC to K3 (RX IQ: I=Left, Q=Right, 16-bit) |
-| D8 | I2S_DIN | In | I2S data in to RFIC from K3 (TX IQ) |
-| E1–E8 | GND | — | Ground (via-fence reference, RF zone boundary) |
+| C1 | RFIC_IRQ_N | Out | Active-low IRQ: PLL unlock, AGC threshold, RSSI update |
+| C2 | PTT | In | TX enable from K3 (step 1 in PTT sequence) |
+| C3 | TR_SW | In | T/R switch control from K3 (step 2 in PTT sequence) |
+| C4 | PA_EN | In | PA enable from K3 (step 3, after 1 ms delay) |
+| C5 | ANT_SW | In | Shared/independent antenna mode select (HT13G-M only; NC on HT13G-S module) |
+| C6 | MOD_PRESENT | Out | Module presence detect — pulled low on module, open on empty slot |
+| C7 | MOD_ID0 | Out | Module type ID bit 0 (resistor-coded: 00=2m, 01=70cm, 10=23cm, 11=spare) |
+| C8 | MOD_ID1 | Out | Module type ID bit 1 |
+| D1 | GND | — | Ground |
+| D2 | I2C_SCL | In | I²C clock — VITA 46 J0 utility plane bus (shared, 100 kHz); temperature sensor, EEPROM, SWR ADC (ADS1015 variant) |
+| D3 | I2C_SDA | Bidir | I²C data |
+| D4 | VCTCXO_TUNE | In | Analog 0–1.8 V GNSS frequency discipline (from K3 PWM + RC filter) |
+| D5 | PPS_REF | In | Optional 1PPS reference input for module-local timestamp (not required for basic operation) |
+| D6 | I2S_BCLK | In | I2S bit clock from K3 SAI peripheral |
+| D7 | I2S_LRCLK | In | I2S left/right clock (500 kHz IQ sample rate word select) |
+| D8 | I2S_DOUT | Out | I2S data out from RFIC to K3 (RX IQ: I=Left, Q=Right, 16-bit) |
+| E1 | I2S_DIN | In | I2S data in to RFIC from K3 (TX IQ) |
+| E2–E8 | GND | — | Ground (via-fence reference, RF zone boundary) |
 
 **Notes on J0:**
 
 - `MOD_PRESENT` allows the K3 to detect which slots are populated at boot. The K3 reads `MOD_ID[1:0]` and module EEPROM to learn each module's band type. An empty slot presents high-impedance on all lines.
-- `I2C_SDA/SCL` are shared across all module slots on the J0 utility plane bus. Each module has a unique I²C address for its temperature sensor and EEPROM. Temperature sensors use the LM75 / TMP102 family (7-bit address set by address pins on the module).
+- `I2C_SDA/SCL` are shared across all module slots on the J0 utility plane bus. Each module has a unique I²C address for its temperature sensor, EEPROM, and (if the ADS1015 ADC variant is fitted) SWR ADC. Temperature sensors use the LM75 / TMP102 family (7-bit address set by address pins on the module).
 - `VCTCXO_TUNE` is a per-module signal — each module has its own RC-filtered PWM input from a separate K3 PWM channel, allowing independent VCTCXO discipline per band.
 - `I2S_BCLK`, `I2S_LRCLK`, `I2S_DOUT`, `I2S_DIN` are per slot — each populated module occupies one SAI peripheral on the K3 (SAI mapping: slot A, B, C, D).
 - All GPIO signals (PTT, TR_SW, PA_EN, ATT_LE, RFIC_RESET_N) are 1.8 V logic driven by the K3 EC-IO GPIO. The RFIC `VDD_IO` must be configured to 1.8 V on all modules to match. No level translation is required.
 - `RFIC_IRQ_N` is an open-drain output from the module; a 10 kΩ pull-up to 1.8 V is on the module PCB.
+- `SPI_CS_ADC_N` is a separate chip-select for the SWR ADC (MCP3202 variant). If the I²C ADC variant (ADS1015) is fitted instead, this pin is NC and the ADC is addressed via `I2C_SDA/SCL`.
 
 **J1 — Data plane (reserved for future high-speed expansion)**
 
@@ -648,10 +745,12 @@ Each module carries a small I²C EEPROM (24C02 or equivalent, 256 bytes) at a un
 | 0x02–0x03 | Hardware revision |
 | 0x04–0x13 | Serial number (16 ASCII bytes) |
 | 0x14–0x17 | Factory calibration: VCTCXO trim offset (int32, ppb) |
-| 0x18–0x1B | Factory calibration: PA output power calibration point (uint32, dBm × 100) |
-| 0x1C–0xFF | Reserved |
+| 0x18–0x1F | Factory calibration: SWR forward detector — 3-point table (voltage → dBm), 3 × int16 pairs |
+| 0x20–0x27 | Factory calibration: SWR reflected detector — 3-point table (voltage → dBm), 3 × int16 pairs |
+| 0x28–0x2B | Factory calibration: PA output power calibration point (uint32, dBm × 100) |
+| 0x2C–0xFF | Reserved |
 
-The `ht-module-daemon` reads this EEPROM at startup to identify each installed module, load its calibration constants, and set the correct VCTCXO trim starting point before GNSS discipline takes over.
+The `ht-module-daemon` reads this EEPROM at startup to identify each installed module, load its calibration constants, and set the correct VCTCXO trim starting point before GNSS discipline takes over. The SWR detector calibration tables are loaded into the daemon's memory and used for all subsequent SWR computations during TX.
 
 ### 9.5 Antenna connector options — RP-SMA or Type-N
 
@@ -660,7 +759,7 @@ Analog RF leaves the module T/R switch through one front-panel coax jack. The PC
 #### Default: RP-SMA
 
 ```
-T/R switch ── BPF ── RP-SMA (front panel) ── coax ── antenna
+T/R switch ── SWR Bridge ── BPF ── RP-SMA (front panel) ── coax ── antenna
 ```
 
 Standard production fitment. Use when the 3U module front panel lacks depth or clearance for a Type-N bulkhead, or when the site plan uses only short RP-SMA patch cables (bench, indoor cabinet).
@@ -668,7 +767,7 @@ Standard production fitment. Use when the 3U module front panel lacks depth or c
 #### Option: Type-N (N connector) — preferred when it fits
 
 ```
-T/R switch ── BPF ── Type-N (front panel) ── coax ── antenna
+T/R switch ── SWR Bridge ── BPF ── Type-N (front panel) ── coax ── antenna
 ```
 
 | Why Type-N is better (when it fits) | Detail |
@@ -690,7 +789,7 @@ Type-N does **not** replace the VITA 46 edgecard connector.
 | `-SMA` (default) | RP-SMA populated | Compact panel, indoor/cabinet, short patches |
 | `-N` | Type-N populated | Type-N fits the panel and site coax — preferred for fixed outdoor repeaters |
 
-One connector type per module at assembly. IQ (I2S on J0), SPI, GPIO, EEPROM, and ZeroMQ are unchanged between variants.
+One connector type per module at assembly. IQ (I2S on J0), SPI, GPIO, EEPROM, SWR monitoring, and ZeroMQ are unchanged between variants.
 
 **Layout:** Type-N bulkheads need a larger panel opening and slightly more depth than RP-SMA. If the cutout cannot be made without violating the Section 8.3 λ/10 trace-length rule, stay on `-SMA` rather than forcing Type-N.
 
@@ -718,6 +817,7 @@ RFIC (I2S) → DMA → ring buffer in kernel driver
                     ht-module-daemon (Rust)
                     │ reads ring buffer
                     │ packs IQ frames (interleaved int16 I, int16 Q)
+                    │ polls SWR ADC during TX; computes SWR; auto-disables on SWR > 3.0
                     │ publishes on ZMQ PUB socket
                               │
                     ┌─────────┼─────────────────────────────┐
@@ -740,14 +840,14 @@ RFIC (I2S) → DMA → ring buffer in kernel driver
 | `ipc:///run/ht-module/tx_B` | SUB | local | GNU Radio -> module B | TX IQ data stream |
 | `ipc:///run/ht-module/tx_C` | SUB | local | GNU Radio -> module C | TX IQ data stream |
 | `ipc:///run/ht-module/tx_D` | SUB | local | GNU Radio -> module D | TX IQ data stream |
-| `ipc:///run/ht-module/ctrl` | REQ/REP | local | Any process -> daemon | Per-module: frequency, gain, PTT, squelch, TX timeout, attenuator ([zeromq-messages.md](zeromq-messages.md)) |
-| `ipc:///run/ht-module/status` | PUB | local | Daemon -> consumers | RSSI, AGC state, PLL lock, temperature, battery |
+| `ipc:///run/ht-module/ctrl` | REQ/REP | local | Any process -> daemon | Per-module: frequency, gain, PTT, squelch, TX timeout, attenuator, SWR query, fault clear ([zeromq-messages.md](zeromq-messages.md)) |
+| `ipc:///run/ht-module/status` | PUB | local | Daemon -> consumers | RSSI, AGC state, PLL lock, temperature, SWR, forward/reflected power, fault state |
 
 For remote monitoring or distributed processing, IPC sockets can be exposed as TCP sockets by changing the address to `tcp://0.0.0.0:<port>` — no other code changes required.
 
 ### 10.4 Frame Format
 
-Full binary layout, control commands, status JSON, and gr-ident integration:
+Full binary layout, control commands, status JSON (including SWR fields), and gr-ident integration:
 **[zeromq-messages.md](zeromq-messages.md)**.
 
 IQ frames are published as length-prefixed binary messages:
@@ -767,10 +867,12 @@ The 64-bit nanosecond timestamp uses the system clock disciplined by chrony + GN
 
 The `ht-module-daemon` is a single Rust daemon responsible for:
 
-- Initialising all three module RFICs via SPI on startup
+- Initialising all three module RFICs via SPI on startup; loading SWR calibration tables from each module's EEPROM
 - Reading module temperature sensors via I²C (VITA 46 utility plane) and publishing via status socket
 - Managing the PTT sequence (hardware-enforced order: RFIC PTT → T/R switch → 1 ms delay → PA enable) in response to `ctrl` socket commands
 - Setting attenuator values via SPI in response to `ctrl` socket commands
+- **Polling the SWR ADC on each transmitting module** at regular intervals during TX (recommended: every 100 ms); computing SWR from forward and reflected detector voltages using the EEPROM calibration table; publishing `swr`, `fwd_w`, and `ref_w` in the `status` JSON
+- **Auto-disabling any module whose SWR exceeds 3.0:** immediately de-asserting PA_EN, TR_SW, and PTT in that order; setting the module's fault state; publishing a `swr_high` alert; blocking subsequent PTT commands until `MOD_CLEAR_FAULT` is received
 - Managing VCTCXO frequency discipline: reading GNSS 1PPS interrupt from K3 GPIO, computing correction, updating PWM duty cycle for each module's VCTCXO_TUNE input
 - Monitoring RFIC IRQ lines (PLL unlock, AGC threshold events) and publishing alerts via `status` socket
 - Routing TX IQ from ZMQ SUB to SAI DMA TX path
@@ -783,9 +885,10 @@ A GNU Radio OOT (out-of-tree) module `gr-ht13g` provides:
 
 - `ht13g_source` — ZMQ SUB block; receives IQ from `ht-module-daemon`; outputs `complex float` stream
 - `ht13g_sink` — ZMQ PUB block; accepts `complex float` TX stream; sends to daemon
-- `ht13g_ctrl` — Python block; sends control commands (frequency, PTT, gain) via `ctrl` REQ/REP socket
+- `ht13g_ctrl` — Python block; sends control commands (frequency, PTT, gain, fault clear) via `ctrl` REQ/REP socket
+- `ht13g_monitor` — Python block; subscribes to `status` PUB socket; exposes RSSI, SWR, PLL lock, and fault state as GRC variables for flowgraph-level monitoring and alerting
 
-For cross-band repeat (e.g. receive on module A, 2 m, retransmit on module B, 70 cm), a single GNU Radio flowgraph subscribes to `iq_A`, demodulates, re-encodes, and publishes to `tx_B`. The daemon handles T/R switching for each module independently, with no coordination required between modules in the flowgraph.
+For cross-band repeat (e.g. receive on module A, 2 m, retransmit on module B, 70 cm), a single GNU Radio flowgraph subscribes to `iq_A`, demodulates, re-encodes, and publishes to `tx_B`. The daemon handles T/R switching and SWR protection for each module independently, with no coordination required between modules in the flowgraph.
 
 ---
 
@@ -828,6 +931,8 @@ A Phase 1 (VHF RX chain) submission targeting the October 2026 run would receive
 | IQ imbalance at 1240 MHz (HT13G-S) | Medium–High | L-band IQ balance harder than VHF/UHF; on-chip IQ calibration registers; measured and corrected at startup |
 | IHP MPW 2 mm² area insufficient for full HT13G-M die | High | Planned; individual chain validation in community slots before commercial MPW submission |
 | 5 W PA thermal dissipation on module | Medium | 40% efficiency → 7.5 W total at full power; module PCB copper pour to chassis wall; duty-cycle limiting in firmware; module slot pitch provides ventilation |
+| SWR bridge directivity at VHF (144 MHz) | Medium | Toroidal transformer couplers at VHF can exhibit reduced directivity below 150 MHz; validate directivity at 144 MHz on bench; adjust winding ratio or use transmission-line coupler if directivity < 20 dB |
+| SWR detector calibration drift with temperature | Low–Medium | Schottky detector diodes have temperature-dependent characteristics; three-point calibration table in EEPROM covers nominal temperature; consider two-temperature calibration table in future EEPROM revision |
 | PE4312 insertion loss at 1240 MHz | Low | Rated to 4 GHz; at 1.24 GHz insertion loss rises slightly but remains < 2 dB; acceptable for system NF budget |
 | VITA 46 I2S signal integrity over backplane | Low | I2S at 16 MHz bit clock is well within VITA 46 bandwidth; series termination 33 Ω |
 | ZMQ IPC latency causing TX audio artefacts | Low | ZMQ PUB/SUB is sub-millisecond at localhost; hardware PTT sequencing (1 ms delay) already dominates latency |
@@ -852,4 +957,3 @@ All design work produced for this project follows the same licensing as the Open
 RFIC measurement results from OpenMPW submissions are published as open data per the IHP OpenMPW program participation agreement.
 
 ---
-
