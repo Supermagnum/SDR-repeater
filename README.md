@@ -56,15 +56,19 @@ Repeaters are used across a wide range of applications:
 
 This document describes a modular, Linux-based, software-defined radio (SDR) repeater system capable of simultaneous operation across the 2 metre, 70 cm, and 23 cm amateur radio bands. The system is designed around open standards throughout: open silicon CPU, open backplane standards, and open-source software. It runs from 230 V AC mains with seamless battery backup, and optionally from solar power. No generator is used or required.
 
+> **This is a design concept.** The specifications in this document represent a practical starting point, not fixed constraints. The modular architecture is deliberately chosen so that the system can be adapted: additional RF modules beyond the three described here may fit depending on backplane slot count and power budget; mains voltage and power supply selection can be adjusted for local grid standards; battery bank capacity can be scaled from small to very large depending on site autonomy requirements; and RF output power levels can be varied — 5 W is used as a standard throughout this document but the module design can accommodate different power levels. The guiding principle is open standards all the way from DC power input to software: all circuit diagrams, PCB layouts, and enclosure designs are to be produced in **KiCad** and published openly, so that any operator with appropriate soldering equipment, test gear, and RF experience can build, maintain, and service the system without dependency on any vendor or proprietary toolchain.
+
 ### Design principles
 
 - All hardware uses open or openly-documented standards (RISC-V ISA, OpenVPX/VITA 65, VITA 46, VITA 67)
 - All software is free and open source (Linux, GNU Radio ecosystem)
+- All schematics, PCB layouts, and enclosure designs produced in KiCad and publicly available
 - Pluggable modular architecture — radio modules are field-replaceable
 - Single DC bus throughout — no AC/DC inversion on the load side
 - Battery backup is zero-switchover (DC UPS topology)
 - Power sources: 230 V AC mains + optional solar — no generator
 - Temperature and battery state monitored in Linux userspace via standard kernel interfaces
+- SWR (Standing Wave Ratio) monitored per module and reported via ZeroMQ status messages
 - System time disciplined by GNSS (GPS/GLONASS/Galileo/BeiDou) — no internet dependency
 - Optional GNSS-disciplined frequency reference for SDR oscillator correction
 - IQ data between hardware drivers and signal processing over **ZeroMQ** IPC (see [Section 7.5](#75-zeromq-ipc))
@@ -492,7 +496,7 @@ gr-ident is designed to work alongside **[gr-linux-crypto](https://github.com/Su
 |-------|---------|---------|
 | IQ data | `iq_*` (PUB), `tx_*` (SUB) | Sample streams only; TX IQ does not key the PA by itself |
 | Control | `ctrl` (REQ/REP) | Per-module PTT, frequency, squelch, TX timeout, gain, attenuator |
-| Telemetry | `status` (PUB) | JSON: RSSI, PLL lock, temperature, alerts |
+| Telemetry | `status` (PUB) | JSON: RSSI, PLL lock, temperature, SWR, alerts |
 
 **Canonical wire formats, command tables, gr-ident preamble JSON, and LinHT compatibility** are documented in **[zeromq-messages.md](zeromq-messages.md)**.
 
