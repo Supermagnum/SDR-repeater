@@ -1,6 +1,6 @@
 # ZeroMQ Message Reference — SDR Repeater
 
-**Revision:** 1.1  
+**Revision:** 1.2  
 **Date:** June 2026  
 
 This document is the canonical wire-format reference for ZeroMQ on the SDR multiband repeater.
@@ -97,6 +97,7 @@ Only **populated** slots have sockets; empty slots have no `iq_*` / `tx_*` endpo
 - Publish RX IQ from DMA ring buffers; consume TX IQ into SAI DMA
 - Execute hardware PTT sequence on `ctrl` commands: RFIC PTT -> T/R switch -> 1 ms delay -> PA enable
 - Read SWR bridge forward and reflected power via ADC on each module during TX; compute SWR and include in `status` JSON
+- **Automatically disable any module whose SWR exceeds 3.0 during transmission** — immediately unkey the PA and T/R switch, publish a `swr_high` alert, and set the module to a `fault` state that prevents re-enabling via normal PTT commands; the fault must be manually cleared by an operator using `MOD_CLEAR_FAULT` before the module can transmit again
 - Apply frequency, gain, squelch, TX timeout, and attenuator settings **per module address**
 - Discipline VCTCXO trim from GNSS 1PPS
 - Publish `status` JSON on a fixed interval and on alerts (PLL unlock, AGC events, SWR threshold exceeded)
@@ -196,10 +197,12 @@ Syntax: `COMMAND <module> <arguments...>` unless global.
 | `SET_TX_TIMEOUT` | `SET_TX_TIMEOUT B 300` | Auto PTT off on module B |
 | `SET_FREQ` | `SET_FREQ D 1252000000` | Centre frequency (Hz) on module D |
 | `SET_PWR` | `SET_PWR A 5` | RF output power (watts) on module A |
-| `PTT` | `PTT B on` | Key transmitter on module B |
+| `PTT` | `PTT B on` | Key transmitter on module B (rejected if module is in fault state) |
 | `PTT` | `PTT B off` | Unkey transmitter on module B |
 | `MOD_ENABLE` | `MOD_ENABLE A` | Enable module A |
 | `MOD_DISABLE` | `MOD_DISABLE C` | Disable module C |
+| `MOD_CLEAR_FAULT` | `MOD_CLEAR_FAULT B` | Clear fault state on module B after SWR or other hardware fault; requires manual operator inspection before issuing |
+| `GET_FAULT` | `GET_FAULT B` | Query fault state and fault reason on module B |
 | `GET_TEMP` | `GET_TEMP all` | Query temperature sensors |
 | `GET_SWR` | `GET_SWR B` | Query current SWR reading on module B |
 | `GET_STATUS` | `GET_STATUS B` | Status for module B |
@@ -258,9 +261,11 @@ print(req.recv_string())  # OK
   "temp_c": 42.1,
   "ptt": false,
   "tx_timeout_remaining_s": 0,
-  "swr": 1.25,
-  "fwd_w": 4.8,
-  "ref_w": 0.05
+  "swr": null,
+  "fwd_w": null,
+  "ref_w": null,
+  "fault": false,
+  "fault_reason": null
 }
 ```
 
@@ -278,10 +283,14 @@ print(req.recv_string())  # OK
 | `swr` | number | Standing Wave Ratio measured at module antenna port; `null` when TX inactive |
 | `fwd_w` | number | Forward power in watts measured by SWR bridge; `null` when TX inactive |
 | `ref_w` | number | Reflected power in watts measured by SWR bridge; `null` when TX inactive |
+| `fault` | boolean | `true` if module is in fault state and transmission is inhibited |
+| `fault_reason` | string or null | Reason for fault: `"swr_high"` or `null` if no fault |
 
 SWR fields are populated only while the transmitter is keyed (`ptt: true`). When TX is
-inactive all three fields are `null`. A high SWR reading (typically > 3.0) should trigger
-an operator alert; the daemon will also publish an `swr_high` alert (see [Section 5.3](#53-alert-messages)).
+inactive all three fields are `null`. If SWR exceeds 3.0 during transmission the daemon
+immediately disables the module, sets `fault: true` and `fault_reason: "swr_high"`, and
+publishes a `swr_high` alert. The module will not transmit again until an operator issues
+`MOD_CLEAR_FAULT` after inspecting the antenna system.
 
 ### 5.3 Alert messages
 
@@ -316,7 +325,7 @@ Allowed `alert` values:
 | `pll_lock` | Synthesizer regained lock |
 | `agc_high` | AGC at upper limit — strong signal |
 | `agc_low` | AGC at lower limit — weak or no signal |
-| `swr_high` | SWR exceeded threshold (default > 3.0) while transmitting |
+| `swr_high` | SWR exceeded 3.0 while transmitting — module automatically disabled and placed in fault state; operator must issue `MOD_CLEAR_FAULT` after inspection |
 
 ---
 
