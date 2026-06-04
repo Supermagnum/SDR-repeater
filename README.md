@@ -34,6 +34,26 @@
 
 ## 1. System Overview
 
+### What is a repeater?
+
+A radio repeater receives a signal on one frequency and simultaneously retransmits it on another, typically from an elevated location such as a hilltop or tall building. This extends the usable range of radio communications far beyond what a handheld or mobile radio could achieve on its own — a portable radio may reach a few kilometres directly, but through a well-sited repeater it can cover tens or hundreds of kilometres.
+
+### What is a repeater network?
+
+A repeater network links multiple repeater sites together, so that a transmission into any one site is relayed across all of them simultaneously. This extends coverage across large geographic areas — across a county, a mountain range, or an entire country — while allowing users anywhere on the network to communicate with each other.
+
+### Who uses repeaters?
+
+Repeaters are used across a wide range of applications:
+
+- **Amateur radio** — operators use repeater networks for local communication, emergency coordination, and as infrastructure for digital modes and weak-signal work
+- **Public safety** — police, fire, and ambulance services depend on repeater networks for reliable coverage across their operational areas
+- **Hospitals and healthcare** — on-site and regional repeater systems support staff communications and emergency response coordination
+- **Utilities and infrastructure** — electricity networks, water authorities, and other utilities use private repeater networks for operational communications across large and often remote service areas
+- **Forestry and hunting** — repeaters provide communication in remote terrain where direct radio contact is impossible; specialised radios used in these environments include a dedicated emergency button that transmits an alert with a GPS position, allowing search and rescue to locate a person in distress
+- **County and municipal services** — local government services use repeater infrastructure for coordination across their areas
+- **VoIP and telephone integration** — repeaters are commonly linked to Voice over IP systems and telephone networks, allowing radio users to make and receive telephone calls, and enabling remote sites to be connected over the internet; systems such as EchoLink and AllStar are widely used for this purpose
+
 This document describes a modular, Linux-based, software-defined radio (SDR) repeater system capable of simultaneous operation across the 2 metre, 70 cm, and 23 cm amateur radio bands. The system is designed around open standards throughout: open silicon CPU, open backplane standards, and open-source software. It runs from 230 V AC mains with seamless battery backup, and optionally from solar power. No generator is used or required.
 
 ### Design principles
