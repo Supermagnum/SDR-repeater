@@ -418,7 +418,7 @@ The module provides a comprehensive set of validated blocks covering:
 
 The module has been fuzz-tested with over 104 million executions across all blocks with zero crashes or memory leaks. All C++ unit tests pass (100%), and 41 MMDVM protocol tests pass (100%).
 
-For this repeater system, `gr-qradiolink` provides the signal processing blocks for any mode not covered by SDRangel's built-in plugins, and is the natural choice when building GNU Radio 4.0 flowgraphs that need DMR, dPMR, NXDN, P25.
+For this repeater system, `gr-qradiolink` provides the signal processing blocks for any mode not covered by SDRangel's built-in plugins, and is the natural choice when building GNU Radio 4.0 flowgraphs that need DMR, dPMR, NXDN, P25, or multimode digital voice operation.
 
 - **Best for:** Repeater linking, radio-over-IP, multimode digital voice flowgraphs, spread-spectrum operation
 - **Limitations:** Smaller community than GQRX or SDRangel; QRadioLink application UI less polished than SDRangel
@@ -448,7 +448,7 @@ OpenWebRX+ is a multi-user SDR receiver with a browser-based interface. Once run
 | SDR++ | ✗ | ✓ | SoapySDR | Via plugins | Network source | ✓ |
 | OpenWebRX+ | ✗ | ✓ | Compatible | FT8, APRS, ADS-B | Browser-based | ✓ |
 
-**Recommended combination for a repeater:** Fork and extend [f4exb/sdrangel](https://github.com/f4exb/sdrangel) for TX/RX and digital modes; use GNU Radio 4.0 + [gr-ident](#74-gr-ident--radio-mode-identification) + [gr-linux-crypto](#8-authenticated-remote-control) for flowgraph-centric logic and authenticated control; use **[gr-qradiolink](https://github.com/Supermagnum/gr-qradiolink)** for DMR, dPMR, NXDN, P25, and spread-spectrum GNU Radio blocks; run OpenWebRX+ in parallel for browser-based spectrum monitoring. Use QRadioLink application only if ROIP/EchoLink-style linking is required alongside SDRangel.
+**Recommended combination for a repeater:** Fork and extend [f4exb/sdrangel](https://github.com/f4exb/sdrangel) for TX/RX and digital modes; use GNU Radio 4.0 + [gr-ident](#74-gr-ident--radio-mode-identification) + [gr-linux-crypto](#8-authenticated-remote-control) for flowgraph-centric logic and authenticated control; use **[gr-qradiolink](https://github.com/Supermagnum/gr-qradiolink)** for DMR, dPMR, NXDN, P25, and M17 GNU Radio blocks; run OpenWebRX+ in parallel for browser-based spectrum monitoring. Use QRadioLink application only if ROIP/EchoLink-style linking is required alongside SDRangel.
 
 ---
 
@@ -502,7 +502,7 @@ Remote management of the repeater over the air replaces DTMF entirely. For **loc
 | Set transmit timeout (seconds) | `SET_TX_TIMEOUT 2m 300` |
 | Set receive / transmit frequency | `SET_FREQ 2m 145500000` |
 | Full status report | `GET_STATUS all` or `GET_STATUS 70cm` |
-| Graceful reboot | `REBOOT` (elevated trust required) and other functions.
+| Graceful reboot | `REBOOT` (elevated trust required) |
 
 Per-module addressing uses the same band tokens as the ZeroMQ `ctrl` socket ([zeromq-messages.md Section 4](zeromq-messages.md#4-control-plane-ctrl)). A command without a band is rejected unless the command is inherently global (`GET_BATTERY`, `REBOOT`).
 
@@ -792,7 +792,7 @@ The open nature of the hardware and software stack facilitates regulatory compli
 | Repeater application (fork upstream) | [f4exb/sdrangel](https://github.com/f4exb/sdrangel) — TX/RX, plugins, server/REST |
 | Remote monitoring | OpenWebRX+ (browser-based, multi-user) |
 | Supplementary SDR tools | GQRX, QRadioLink application (ROIP/linking), SDR++ |
-| Digital voice / spread-spectrum blocks | [gr-qradiolink](https://github.com/Supermagnum/gr-qradiolink) — DMR, dPMR, NXDN, P25, M17, DSSS, GDSS, LDPC FEC as GNU Radio OOT blocks |
+| Digital voice blocks | [gr-qradiolink](https://github.com/Supermagnum/gr-qradiolink) — DMR, dPMR, NXDN, P25, M17, FreeDV, LDPC FEC as GNU Radio OOT blocks |
 | GNSS daemon | gpsd (NMEA/UBX parsing, shared memory) |
 | Time discipline | chrony (GNSS SHM + PPS → Stratum 1 NTP) |
 | Frequency correction | Software PPM in GNU Radio / SDRangel (standard); hardware 10 MHz ref (optional) |
