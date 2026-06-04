@@ -414,13 +414,11 @@ The module provides a comprehensive set of validated blocks covering:
 
 **Digital voice:** FreeDV, M17, DMR (Tier I/II/III), dPMR (ETSI TS 102 658, 6.25 kHz), NXDN (NXDN48 and NXDN96), and MMDVM-compatible protocols including POCSAG, D-STAR, YSF, and P25 Phase 1 C4FM.
 
-**Spread spectrum:** DSSS with enhanced timing recovery, soft-decision metrics, AFC, adaptive correlation threshold, and coarse-to-fine acquisition; DSSS-CDMA with multi-user support and configurable spreading factors (32–512); GDSS (Gaussian-Distributed Spread-Spectrum, implementing Shakeel et al., *Sensors* 2023) with equivalent enhancements. GDSS is also used as the spreading layer in **[GR-K-GDSS](https://github.com/Supermagnum/GR-K-GDSS)** when combined with `gr-linux-crypto` for cryptographically keyed spread-spectrum operation.
-
 **FEC:** Soft-decision LDPC encoder/decoder with configurable code rates (1/2, 2/3, 3/4) and block lengths (576, 1152, 2304 bits); HF burst interleaver.
 
 The module has been fuzz-tested with over 104 million executions across all blocks with zero crashes or memory leaks. All C++ unit tests pass (100%), and 41 MMDVM protocol tests pass (100%).
 
-For this repeater system, `gr-qradiolink` provides the signal processing blocks for any mode not covered by SDRangel's built-in plugins, and is the natural choice when building GNU Radio 4.0 flowgraphs that need DMR, dPMR, NXDN, P25, or spread-spectrum operation.
+For this repeater system, `gr-qradiolink` provides the signal processing blocks for any mode not covered by SDRangel's built-in plugins, and is the natural choice when building GNU Radio 4.0 flowgraphs that need DMR, dPMR, NXDN, P25.
 
 - **Best for:** Repeater linking, radio-over-IP, multimode digital voice flowgraphs, spread-spectrum operation
 - **Limitations:** Smaller community than GQRX or SDRangel; QRadioLink application UI less polished than SDRangel
@@ -504,7 +502,7 @@ Remote management of the repeater over the air replaces DTMF entirely. For **loc
 | Set transmit timeout (seconds) | `SET_TX_TIMEOUT 2m 300` |
 | Set receive / transmit frequency | `SET_FREQ 2m 145500000` |
 | Full status report | `GET_STATUS all` or `GET_STATUS 70cm` |
-| Graceful reboot | `REBOOT` (elevated trust required) |
+| Graceful reboot | `REBOOT` (elevated trust required) and other functions.
 
 Per-module addressing uses the same band tokens as the ZeroMQ `ctrl` socket ([zeromq-messages.md Section 4](zeromq-messages.md#4-control-plane-ctrl)). A command without a band is rejected unless the command is inherently global (`GET_BATTERY`, `REBOOT`).
 
