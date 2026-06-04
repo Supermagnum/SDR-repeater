@@ -1,7 +1,7 @@
 # ZeroMQ Message Reference — SDR Repeater
 
-**Revision:** 1.0  
-**Date:** May 2026  
+**Revision:** 1.1  
+**Date:** June 2026  
 
 This document is the canonical wire-format reference for ZeroMQ on the SDR multiband repeater.
 Hardware integration and daemon responsibilities are also summarised in
@@ -58,6 +58,7 @@ RFIC (I2S) -> DMA -> ring buffer
               ht-module-daemon (Rust)
               |  pack IQ / unpack TX
               |  GPIO/SPI (PTT, attenuator, VCTCXO)
+              |  SPI/ADC (SWR bridge forward/reflected power)
               v
         ZMQ PUB/SUB/REQ/REP under ipc:///run/ht-module/
                          |
@@ -95,9 +96,10 @@ Only **populated** slots have sockets; empty slots have no `iq_*` / `tx_*` endpo
 - Initialise RFICs over SPI; read module EEPROM and temperature sensors over I2C
 - Publish RX IQ from DMA ring buffers; consume TX IQ into SAI DMA
 - Execute hardware PTT sequence on `ctrl` commands: RFIC PTT -> T/R switch -> 1 ms delay -> PA enable
+- Read SWR bridge forward and reflected power via ADC on each module during TX; compute SWR and include in `status` JSON
 - Apply frequency, gain, squelch, TX timeout, and attenuator settings **per module address**
 - Discipline VCTCXO trim from GNSS 1PPS
-- Publish `status` JSON on a fixed interval and on alerts (PLL unlock, AGC events)
+- Publish `status` JSON on a fixed interval and on alerts (PLL unlock, AGC events, SWR threshold exceeded)
 
 ---
 
@@ -199,6 +201,7 @@ Syntax: `COMMAND <module> <arguments...>` unless global.
 | `MOD_ENABLE` | `MOD_ENABLE A` | Enable module A |
 | `MOD_DISABLE` | `MOD_DISABLE C` | Disable module C |
 | `GET_TEMP` | `GET_TEMP all` | Query temperature sensors |
+| `GET_SWR` | `GET_SWR B` | Query current SWR reading on module B |
 | `GET_STATUS` | `GET_STATUS B` | Status for module B |
 | `GET_STATUS` | `GET_STATUS all` | Full status report |
 | `GET_BATTERY` | `GET_BATTERY` | Battery state (global) |
@@ -222,6 +225,9 @@ print(req.recv_string())  # OK
 
 req.send_string("PTT B on")
 print(req.recv_string())  # OK
+
+req.send_string("GET_SWR B")
+print(req.recv_string())  # {"module":"B","swr":1.25,"fwd_w":4.8,"ref_w":0.05}
 
 req.send_string("PTT B off")
 print(req.recv_string())  # OK
@@ -251,7 +257,10 @@ print(req.recv_string())  # OK
   "pll_lock": true,
   "temp_c": 42.1,
   "ptt": false,
-  "tx_timeout_remaining_s": 0
+  "tx_timeout_remaining_s": 0,
+  "swr": 1.25,
+  "fwd_w": 4.8,
+  "ref_w": 0.05
 }
 ```
 
@@ -266,10 +275,17 @@ print(req.recv_string())  # OK
 | `temp_c` | number | Module temperature |
 | `ptt` | boolean | Transmitter keyed |
 | `tx_timeout_remaining_s` | integer | Seconds until auto PTT off (0 if inactive) |
+| `swr` | number | Standing Wave Ratio measured at module antenna port; `null` when TX inactive |
+| `fwd_w` | number | Forward power in watts measured by SWR bridge; `null` when TX inactive |
+| `ref_w` | number | Reflected power in watts measured by SWR bridge; `null` when TX inactive |
+
+SWR fields are populated only while the transmitter is keyed (`ptt: true`). When TX is
+inactive all three fields are `null`. A high SWR reading (typically > 3.0) should trigger
+an operator alert; the daemon will also publish an `swr_high` alert (see [Section 5.3](#53-alert-messages)).
 
 ### 5.3 Alert messages
 
-On PLL unlock or AGC threshold crossing, the daemon may publish:
+On PLL unlock, AGC threshold crossing, or SWR threshold exceeded, the daemon publishes:
 
 ```json
 {
@@ -280,7 +296,27 @@ On PLL unlock or AGC threshold crossing, the daemon may publish:
 }
 ```
 
-Allowed `alert` values: `pll_unlock`, `pll_lock`, `agc_high`, `agc_low`.
+```json
+{
+  "module": "B",
+  "band": "70cm",
+  "timestamp_ns": 1717000001000000000,
+  "alert": "swr_high",
+  "swr": 4.2,
+  "fwd_w": 4.7,
+  "ref_w": 1.9
+}
+```
+
+Allowed `alert` values:
+
+| Value | Meaning |
+|-------|---------|
+| `pll_unlock` | Synthesizer lost lock |
+| `pll_lock` | Synthesizer regained lock |
+| `agc_high` | AGC at upper limit — strong signal |
+| `agc_low` | AGC at lower limit — weak or no signal |
+| `swr_high` | SWR exceeded threshold (default > 3.0) while transmitting |
 
 ---
 
@@ -443,6 +479,7 @@ iq_B (ZMQ SUB; module B, typically 70 cm) -> ht13g_source -> detect chain -> Pre
                               \-> mode router SUB (grident) -> NFM / C4FM / ... demods
 tx_B <- ht13g_sink <- modulator <- audio
 ctrl REQ: SET_FREQ B ..., SET_SQUELCH B ..., PTT B on/off
+status SUB: monitor swr, rssi, pll_lock, temp_c per module
 ```
 
 ### 8.2 Cross-band repeat (module A -> module B)
@@ -453,6 +490,7 @@ Example: 2 m in slot A, 70 cm in slot B.
 iq_A -> demod -> re-encode -> tx_B
 ctrl: PTT A off/on as needed; PTT B on only during TX burst
 Per-module T/R timing handled in daemon
+status SUB: monitor swr on B during TX; alert on swr_high
 ```
 
 ### 8.3 Process summary
@@ -462,7 +500,7 @@ Per-module T/R timing handled in daemon
 | `ht-module-daemon` (Rust) | Binds `iq_*`, `status`, `ctrl` REP; connects `tx_*` SUB |
 | `repeater-supervisord` (Rust) | REQ `ctrl` (lease holder); policy per [docs/repeater-logic.md](docs/repeater-logic.md) |
 | `repeater-authd` (Rust) | OTA bytes in; verified commands to supervisor/`ctrl` per [docs/ota-remote-control.md](docs/ota-remote-control.md) |
-| GNU Radio repeater | SUB `iq_*`, PUB `tx_*` (with lease), optional SUB `grident` |
+| GNU Radio repeater | SUB `iq_*`, PUB `tx_*` (with lease), optional SUB `grident`, SUB `status` (SWR monitoring) |
 | gr-ident detect (optional) | SUB IQ, PUB `tcp://127.0.0.1:5560` |
 | OpenWebRX+ / recorder | SUB `iq_*` only |
 
@@ -477,7 +515,7 @@ Per-module T/R timing handled in daemon
 | Hardware PTT | `ctrl` ASCII | — | — |
 | GR preamble gating | — | `grident.tx` or LinHT PMT | `ptt_msg`, `fg_aux_data_in` |
 | Mode ID to router | — | JSON `tcp://127.0.0.1:5560` | — |
-| Site telemetry | JSON `status` | — | — |
+| Site telemetry | JSON `status` (RSSI, SWR, temp, PLL) | — | — |
 
 ---
 
