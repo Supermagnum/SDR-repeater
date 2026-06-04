@@ -1,17 +1,14 @@
 # SDR Multiband Repeater System Design
 
-**Revision:** 1.2  
-**Date:** May 2026  
+**Revision:** 1.3  
+**Date:** June 2026  
 **Architecture:** Open Silicon · Linux · Modular OpenVPX  
-
-**Status:** This repository records **design ideas and a target architecture** for a modular Linux SDR repeater — not committed hardware, tapeout data, shipping products, or implemented runtime code. Specifications (including [RF-modules.md](RF-modules.md), wire formats, and software contracts) may change as bench work, MPW runs, and implementation experience inform later revisions.
 
 ---
 
 ## Table of Contents
 
 1. [System Overview](#1-system-overview)
-   - [What is a radio repeater?](#what-is-a-radio-repeater)
 2. [Radio Modules](#2-radio-modules)
 3. [Backplane Architecture](#3-backplane-architecture)
 4. [Compute Module](#4-compute-module)
@@ -26,7 +23,8 @@
 8. [Authenticated Remote Control](#8-authenticated-remote-control)
 9. [Power Architecture](#9-power-architecture)
 10. [Optional Solar Power](#10-optional-solar-power)
-11. [System Integration Summary](#11-system-integration-summary)
+11. [Commercial and Licensed Private Network Applications](#11-commercial-and-licensed-private-network-applications)
+12. [System Integration Summary](#12-system-integration-summary)
 
 **Wire formats:** [zeromq-messages.md](zeromq-messages.md) — canonical ZeroMQ message reference (repeater IQ/control, gr-ident, LinHT).
 
@@ -36,21 +34,7 @@
 
 ## 1. System Overview
 
-### What is a radio repeater?
-
-A radio repeater receives a signal on one frequency and retransmits it on another, usually with higher power and from a better antenna site (hilltop, tower, or rooftop). Stations that cannot reach each other directly — handhelds in a valley, mobiles on a highway — can communicate through the repeater, which extends coverage across a town or region.
-
-Repeaters are often linked into **regional networks** so that a transmission heard at one site is retransmitted at others. That inter-site linking is most commonly done on the **70 cm band** (432 MHz): dedicated radio links between sites carry audio or data from one repeater to the next. In many networks the 70 cm band acts as the **spine** — the backbone that ties sites together — while local users still access the system on 2 metre or other bands at each location.
-
-Where reliable **internet access** is available, some networks use IP-based linking (VoIP, ROIP, or similar) instead of or alongside RF backbone links. Remote sites without connectivity depend on over-the-air linking; sites with internet may use either path, depending on local policy and infrastructure.
-
 This document describes a modular, Linux-based, software-defined radio (SDR) repeater system capable of simultaneous operation across the 2 metre, 70 cm, and 23 cm amateur radio bands. The system is designed around open standards throughout: open silicon CPU, open backplane standards, and open-source software. It runs from 230 V AC mains with seamless battery backup, and optionally from solar power. No generator is used or required.
-
-### Relationship to LinHT
-
-**[LinHT](https://linux-radio.eu/)** is an open-source handheld software-defined radio (SDR) transceiver built around a modern Linux System-on-Module and a true IQ RF front-end — the successor to the OpenHT project, developed by the M17 community with GNU Radio, SoapySDR, and open hardware design files.
-
-This repeater system is the **natural fixed-site extension** of that lineage: same Linux-first SDR philosophy, IQ baseband processing, and open toolchain, scaled to a modular multiband repeater with pluggable RF modules, site power, and authenticated remote control. Portable operation stays on LinHT; continuous multiband repeater service is what this design adds. Shared conventions (including [gr-ident](https://github.com/Supermagnum/gr-ident) mode identification and LinHT ZeroMQ compatibility documented in [zeromq-messages.md](zeromq-messages.md)) keep handheld and repeater implementations aligned.
 
 ### Design principles
 
@@ -69,18 +53,16 @@ This repeater system is the **natural fixed-site extension** of that lineage: sa
 
 ## 2. Radio Modules
 
-The system supports up to four pluggable radio modules on the backplane (slots **A** through **D**). Each slot has a fixed **module address** (letter). The band a module covers (2 m, 70 cm, 23 cm, or expansion) comes from the module PCB and its EEPROM — not from the slot letter. Two modules in different slots can cover the **same band** (for example two 70 cm link radios in slots B and C) and are controlled individually by address.
+The system supports up to four pluggable radio modules on the backplane. Three bands are defined; the fourth slot is spare or expansion.
 
 ### Module specifications
 
-| Slot | Example band | Frequency Range | IQ Bandwidth | TX Power | Antenna (default) | Antenna (optional, preferred when it fits) |
-|------|--------------|-----------------|--------------|----------|-------------------|--------------------------------------------|
-| A | 2 metre (VHF) | 144–146 MHz | 500 kHz | 5 W | RP-SMA (front panel) | Type-N (front panel) |
-| B | 70 cm (UHF) | 432–438 MHz | 500 kHz | 5 W | RP-SMA (front panel) | Type-N (front panel) |
-| C | 70 cm (UHF) or 23 cm | 432–438 MHz or 1240–1258 MHz | 500 kHz | 5 W | RP-SMA (front panel) | Type-N (front panel) |
-| D | 23 cm (UHF/SHF) or expansion | 1240–1258 MHz or user-defined | 500 kHz | 5 W | RP-SMA (front panel) | Type-N (front panel) |
-
-The table shows a typical install (2 m in A, 70 cm in B, 23 cm in D). Slot **C** might hold a second 70 cm module for an inter-site link while **B** serves local users — both are 70 cm but addressed as **`B`** and **`C`** in control commands and IQ sockets.
+| Module | Band | Frequency Range | IQ Bandwidth | TX Power | Antenna |
+|--------|------|-----------------|--------------|----------|---------|
+| 2 metre | VHF | 144–146 MHz | 500 kHz | 5 W | RP-SMA (front panel) |
+| 70 cm | UHF | 432–438 MHz | 500 kHz | 5 W | RP-SMA (front panel) |
+| 23 cm | UHF/SHF | 1240–1258 MHz | 500 kHz | 5 W | RP-SMA (front panel) |
+| Expansion | — | User-defined | — | — | RP-SMA (front panel) |
 
 ### Module interface
 
@@ -90,28 +72,10 @@ Each module connects to the backplane via:
 - **Data bus:** VITA 46 utility plane (**I2S** IQ per module into the compute slot) and optional chassis PCIe/GbE for expansion — see [ADR 001](docs/adr/001-iq-transport-i2s-zmq.md). Baseline repeater IQ is **not** carried as raw PCIe DMA from RF modules.
 - **Power:** +12 V, +5 V, +3.3 V from backplane VITA 62 power rails
 - **Temperature monitoring:** I²C on the VITA 46 J0 utility plane (per-slot sensor readable by the chassis manager and Linux `hwmon`)
-- **RF antenna port (default):** **RP-SMA** on the module front panel — compact; suited to cabinet installs and short patch leads.
-- **RF antenna port (optional):** **Type-N** (N connector) on the module front panel when panel space and the site coax plan allow — **preferred over RP-SMA where it fits**; see [Section 2.1](#21-optional-type-n-antenna-connectors). Both carry **analog RF only**; IQ is digitised on-module and transported over I2S on VITA 46 J0.
+- **RF antenna port:** RP-SMA on the module front panel for the antenna connection. IQ data is transported digitally over the VITA 46 data bus; the RP-SMA is the antenna interface only, not a backplane RF path.
 - **Userspace IQ:** The **`ht-module-daemon`** (Rust; specified, see [docs/repo-map.md](docs/repo-map.md)) on the K3 publishes per-band RX IQ and accepts TX IQ over **ZeroMQ** sockets (see [Section 7.5](#75-zeromq-ipc))
 
-> **Note on VITA 67:** VITA 67 RF backplane connectors (SMPM/SMPS blind-mate coaxial) are a separate, optional chassis-level interface if RF must be routed through the backplane rather than the module front panel. They do **not** replace VITA 46 edgecard connectors and are unrelated to the RP-SMA / Type-N front-panel choice.
-
-### 2.1 Optional Type-N antenna connectors
-
-Each radio module ships with **RP-SMA** by default. **Type-N** (N connector) is an optional front-panel substitute on the same 50 Ω T/R path — not a backplane change and not related to VITA 46 or VITA 67.
-
-**When Type-N fits the install, use it.** It is the better connector for fixed repeater work:
-
-| | RP-SMA (default) | Type-N (optional) |
-|---|------------------|-------------------|
-| **Best for** | Tight panels, bench bring-up, short indoor patch cables | Outdoor enclosures, mast/roof feedlines, LMR-400 / LMR-600, 23 cm |
-| **Why** | Smaller footprint; mates with common handheld-style cables | Threaded, weather-resistant mate; lower interface loss with large coax; more durable for permanent installs |
-
-Choose RP-SMA when the front-panel cutout or depth budget is too small for a Type-N bulkhead, or when the site uses only short RP-SMA patch leads. Choose Type-N when the panel layout and coax plan accommodate it — especially on 70 cm and 23 cm modules at a permanent site.
-
-**Unchanged regardless of connector choice:** VITA 46 edgecard (power, I2S IQ, SPI, GPIO), ZeroMQ, and `ht-module-daemon` behaviour. One connector type is populated per module at build time (`-SMA` or `-N`).
-
-Module PCB variants and layout rules: [RF-modules.md Section 9.5](RF-modules.md#95-antenna-connector-options-rp-sma-or-type-n).
+> **Note on VITA 67:** VITA 67 RF backplane connectors (SMPM/SMPS blind-mate coaxial) are available as an option if RF signals ever need to be routed through the backplane rather than digitised at the module. At 144–1258 MHz with 500 kHz IQ bandwidth, digital transport over VITA 46 is the preferred and simpler approach, making front-panel RP-SMA the natural choice.
 
 ---
 
@@ -161,28 +125,6 @@ The main compute module is based on the **SpacemiT Key Stone K3** SoC, an 8-core
 | Memory | Up to 32 GB LPDDR5-6400 |
 | Linux kernel | Mainline support from kernel 7.0 |
 | OS support | Ubuntu 26.04 LTS (RVA23 required), Bianbu 3.0 (Ubuntu-based), Fedora, Deepin 25 |
-
-#### AI acceleration (A100 cores)
-
-The K3 integrates **8 × A100 AI cores at 60 TOPS** with **RVV 1.0** (vector lanes up to 1024-bit). In this repeater design they are a **bonus capability** of the platform — useful when enabled, but not required for baseline operation on the X100 CPU cores and GNU Radio flowgraphs.
-
-**Signal processing tasks that fit AI acceleration well:**
-
-| Application | Role |
-|-------------|------|
-| **[gr-ident](https://github.com/Supermagnum/gr-ident) mode identification** | The preamble decoder identifies whether an incoming signal is analog FM, C4FM, DMR, and so on. That is fundamentally a **classification** problem — what neural inference cores are built for. A trained model could identify modes faster and more robustly than the Golay-based preamble alone, including signals that carry **no** gr-ident preamble at all. Complements (does not replace) the normative gr-ident path in [Section 7.4](#74-gr-ident--radio-mode-identification). |
-| **Interference and noise classification** | Distinguish a weak wanted signal from interference, or classify interference type to inform filtering and blanking decisions. |
-| **Anomaly detection on status telemetry** | Learn normal temperature, RSSI, and PLL lock patterns across all three modules from the `status` ZMQ stream ([zeromq-messages.md Section 5](zeromq-messages.md#5-telemetry-status)) and flag unusual behaviour before hard failure. |
-| **Automatic gain control optimisation** | Learn site-specific AGC curves instead of fixed parameters — useful when the RF environment varies by band or season. |
-
-**Audio and voice processing:**
-
-| Application | Role |
-|-------------|------|
-| **Voice activity detection** | More accurate squelch decisions than RSSI-only thresholds, especially in noisy RF environments — can augment `SET_SQUELCH` policy on the `ctrl` socket. |
-| **Digital voice codec acceleration** | Codecs such as **Codec2** (used in M17) involve analysis-synthesis workloads that can be offloaded to the AI cores when a digital-mode flowgraph is active. |
-
-The A100 cores are genuinely useful for classification and anomaly detection on a fixed repeater site. The repeater remains fully specified without them: IQ transport, PTT, gr-ident preamble routing, and authenticated remote control run on the general-purpose CPU path today.
 
 #### Hardware cryptography
 
@@ -435,8 +377,6 @@ GNU Radio is the most powerful and flexible option but has a steep learning curv
 
 When the repeater should identify the incoming modulation type and route IQ data to the correct demodulator automatically (rather than relying on manual mode selection or statistical classification), the flowgraph can implement the **[gr-ident](https://github.com/Supermagnum/gr-ident)** preamble specification — see [Section 7.4](#74-gr-ident--radio-mode-identification).
 
-For development and CI, **[radio-modulation-validator](https://github.com/Supermagnum/radio-modulation-validator)** checks that GNU Radio out-of-tree modulator blocks produce IQ matching expected modulation families and orders (ONNX classification of captured samples). It complements runtime gr-ident mode routing; listed with other upstream tools in [docs/repo-map.md](docs/repo-map.md).
-
 IQ streams enter and leave the flowgraph over **[ZeroMQ](https://zeromq.org/)** PUB/SUB sockets provided by `ht-module-daemon` and the `gr-ht13g` blocks — see [Section 7.5](#75-zeromq-ipc).
 
 ---
@@ -504,17 +444,15 @@ OpenWebRX+ is a multi-user SDR receiver with a browser-based interface. Once run
 
 The preamble is a Golay(24,12)-protected field transmitted at the start of each frame. The receiver reads the analog/digital flag and mode ID, routes the signal to the correct demodulator bank, and does not pass unrecognised or mismatched traffic to the audio output. For example, a receiver set for analog FM does not present digital C4FM as noise on the speaker.
 
-The same identification approach applies to **[LinHT](https://linux-radio.eu/)**, an open-source-hardware, Linux-based SDR handheld transceiver: if it also implements gr-ident it can discriminate between modes on receive so the operator is not forced to listen to digital C4FM while the radio is configured for analog FM. Conventional analog-only transceivers do not offer this capability.
+The same identification approach applies to **Linht**, an open-source-hardware, Linux-based SDR handheld transceiver: If it also has gr-ident it can discriminate between modes on receive so the operator is not forced to listen to digital C4FM while the radio is configured for analog FM. Conventional analog-only transceivers do not offer this capability.
 
-gr-ident is designed to work alongside **[gr-linux-crypto](https://github.com/Supermagnum/gr-linux-crypto)** (see [Section 8](#8-authenticated-remote-control)). The preamble includes an encrypted/open flag so a LinHT or repeater implementation can identify the mode before attempting decryption, and can refuse to demodulate encrypted payloads for which no key is available.
-
-Optionally, the K3 **A100 AI cores** can run a trained classifier alongside or instead of preamble-only detection for signals without a gr-ident header — see [AI acceleration (A100 cores)](#ai-acceleration-a100-cores).
+gr-ident is designed to work alongside **[gr-linux-crypto](https://github.com/Supermagnum/gr-linux-crypto)** (see [Section 8](#8-authenticated-remote-control)). The preamble includes an encrypted/open flag so a Linht or repeater implementation can identify the mode before attempting decryption, and can refuse to demodulate encrypted payloads for which no key is available.
 
 ---
 
 ### 7.5 ZeroMQ IPC
 
-**[ZeroMQ](https://zeromq.org/)** (ZMQ) is the inter-process communication layer between the radio module hardware path and signal processing on the K3. Raw IQ from each module's RFIC is delivered over I2S/DMA into **`ht-module-daemon`**, which publishes framed RX IQ on per-module PUB sockets (`iq_A` … `iq_D`). GNU Radio (`gr-ht13g`), SDRangel, and recorders connect as SUB clients. TX IQ and hardware control use separate sockets per module address.
+**[ZeroMQ](https://zeromq.org/)** (ZMQ) is the inter-process communication layer between the radio module hardware path and signal processing on the K3. Raw IQ from each band's RFIC is delivered over I2S/DMA into **`ht-module-daemon`**, which publishes framed RX IQ on per-band PUB sockets. GNU Radio (`gr-ht13g`), SDRangel, and recorders connect as SUB clients. TX IQ and hardware control use separate sockets.
 
 | Plane | Sockets | Purpose |
 |-------|---------|---------|
@@ -540,31 +478,19 @@ Remote management of the repeater over the air replaces DTMF entirely. For **loc
 
 ### 8.1 What can be controlled remotely
 
-Each pluggable RF module is identified by a **module address**: the backplane slot letter **`A`**, **`B`**, **`C`**, or **`D`**. The address names the **physical module**, not its band. Two modules can cover the same band (for example 70 cm in slot B and 70 cm in slot C) and are controlled independently:
+| Task | Command (band: `2m`, `70cm`, `23cm`, or `all`) |
+|------|---------|
+| Adjust RF output power | `SET_PWR 70cm 5` |
+| Check all temperatures | `GET_TEMP all` |
+| Check battery state and current | `GET_BATTERY` |
+| Enable or disable a radio module | `MOD_ENABLE 2m` / `MOD_DISABLE 23cm` |
+| Set squelch threshold | `SET_SQUELCH 70cm -120` |
+| Set transmit timeout (seconds) | `SET_TX_TIMEOUT 2m 300` |
+| Set receive / transmit frequency | `SET_FREQ 2m 145500000` |
+| Full status report | `GET_STATUS all` or `GET_STATUS 70cm` |
+| Graceful reboot | `REBOOT` (elevated trust required) |
 
-| Slot | Example install | Band (from module EEPROM) |
-|------|-----------------|---------------------------|
-| A | 2 m user access | 2 metre (VHF) |
-| B | 70 cm local repeater | 70 cm (UHF) |
-| C | 70 cm inter-site link | 70 cm (UHF) |
-| D | 23 cm or expansion | 23 cm or user-defined |
-
-Commands target a module address or **`all`** (every populated slot). Global commands (`GET_BATTERY`, `REBOOT`) omit the address. Syntax: `COMMAND <module> <arguments...>` — see [zeromq-messages.md Section 4](zeromq-messages.md#4-control-plane-ctrl).
-
-| Task | Module | Command |
-|------|--------|---------|
-| Adjust RF output power | B | `SET_PWR B 5` |
-| Adjust RF output power (second 70 cm module) | C | `SET_PWR C 3` |
-| Check all temperatures | all | `GET_TEMP all` |
-| Check battery state and current | — (chassis) | `GET_BATTERY` |
-| Enable or disable a radio module | A / C | `MOD_ENABLE A` / `MOD_DISABLE C` |
-| Set squelch threshold | B | `SET_SQUELCH B -120` |
-| Set transmit timeout (seconds) | A | `SET_TX_TIMEOUT A 300` |
-| Set receive / transmit frequency | A | `SET_FREQ A 145500000` |
-| Full status report | all or B | `GET_STATUS all` or `GET_STATUS B` |
-| Graceful reboot | — (chassis) | `REBOOT` (elevated trust required) |
-
-Band names (`2m`, `70cm`, `23cm`) appear in status JSON and IQ metadata as **module properties**, not as command targets — using a band name alone is ambiguous when more than one module shares that band. Module letters match the silkscreened slot labels on the chassis ([RF-modules.md](RF-modules.md)).
+Per-module addressing uses the same band tokens as the ZeroMQ `ctrl` socket ([zeromq-messages.md Section 4](zeromq-messages.md#4-control-plane-ctrl)). A command without a band is rejected unless the command is inherently global (`GET_BATTERY`, `REBOOT`).
 
 ### 8.2 How it works — summary
 
@@ -584,6 +510,9 @@ The authentication system is implemented using **[gr-linux-crypto](https://githu
 - `CallsignKeyStore` API — indexes public keys by amateur radio callsign
 - `M17SessionKeyExchange` helpers for signing and frame composition
 - Web of Trust key management compatible with existing GnuPG infrastructure
+- AES-GCM and ChaCha20-Poly1305 authenticated encryption via kernel crypto API
+- Multi-recipient ECIES encryption (up to 25 recipients) using Brainpool curves
+- NIST CAVP-validated cryptographic implementations
 
 Operator private keys should be stored on a **Nitrokey** hardware token. When the token is removed, `gr-linux-crypto` immediately clears all cached key material from memory — no residual key remains in the system.
 
@@ -741,7 +670,83 @@ The battery bus is always live. The DRC module and MPPT controller both float-ch
 
 ---
 
-## 11. System Integration Summary
+## 11. Commercial and Licensed Private Network Applications
+
+Although designed for amateur radio use, the hardware and software in this system are directly applicable to licensed commercial and private network deployments. The RFIC frequency ranges, the cryptographic infrastructure, and the open architecture make this a compelling platform for organisations requiring transparent, auditable, and cost-effective radio infrastructure.
+
+### 11.1 Frequency coverage and commercial band overlap
+
+The HT13G-M and HT13G-S RFICs cover ranges that encompass the major VHF and UHF commercial land mobile allocations used worldwide:
+
+| RFIC | Coverage | Commercial allocations included |
+|------|----------|----------------------------------|
+| HT13G-M VHF chain | 130–175 MHz | VHF high band PMR (150–174 MHz) |
+| HT13G-M UHF chain | 400–480 MHz | UHF PMR (450–470 MHz), TETRA UHF |
+| HT13G-S | 1200–1300 MHz | L-band data links, TETRA 1.4 GHz |
+
+The hardware does not distinguish between amateur and commercial allocations. A module configured for 144 MHz and a module configured for 460 MHz use identical hardware; only the firmware frequency word differs. For a licensed commercial operator, the same field-replaceable module PCB covers the relevant allocation with no hardware change.
+
+### 11.2 Encryption for licensed commercial use
+
+Encryption of voice and data is legally permitted — and often required — on commercial and private PMR allocations in most jurisdictions. The cryptographic infrastructure already present in this system (see [Section 8.3](#83-gr-linux-crypto)) is fully capable of supporting encrypted operation:
+
+- **AES-256-GCM** authenticated encryption via the Linux kernel crypto API, hardware-accelerated on the K3 SoC
+- **Brainpool P-256/P-384 ECC** for key exchange and digital signatures — chosen specifically to avoid algorithm monoculture and NSA-influenced curve parameters
+- **Multi-recipient ECIES** allowing a single transmission to be decrypted by up to 25 independent key holders — useful for fleet or group communications
+- **Nitrokey hardware token** support ensuring private keys never exist in software-accessible memory; removing the token immediately clears all cached key material
+- **NIST CAVP-validated** cryptographic implementations with 268+ million fuzz-test executions and zero crashes or memory safety violations recorded
+
+The same `gr-linux-crypto` module that handles amateur radio authentication handles commercial encrypted voice and data. No additional cryptographic software is required.
+
+### 11.3 Comparison with proprietary commercial PMR systems
+
+This system provides a fully open-source, open-silicon alternative to proprietary commercial PMR infrastructure:
+
+| | This system | Motorola MOTOTRBO / Hytera DMR / Kenwood NEXEDGE |
+|--|-------------|--------------------------------------------------|
+| Hardware source | Open design, field-replaceable modules | Proprietary, vendor-specific |
+| Firmware | Open source, fully auditable | Closed, vendor-controlled |
+| Encryption implementation | Auditable open-source (gr-linux-crypto, kernel crypto API) | Proprietary, unauditable |
+| Key management | Standard GnuPG Web of Trust, Nitrokey hardware tokens | Vendor key management systems |
+| Vendor lock-in | None — standard interfaces throughout | High — proprietary protocols and accessories |
+| Remote management | Cryptographically authenticated, tamper-evident audit log | Vendor management software |
+| Cost at scale | Significantly lower — open hardware and software | High — per-unit licensing and support contracts |
+
+For municipalities, utilities, transport operators, emergency services, and other organisations in jurisdictions where **open and independently auditable communications infrastructure** is required or preferred, this architecture offers capabilities unavailable in proprietary systems.
+
+### 11.4 Simulcast capability
+
+The GNSS-disciplined nanosecond timestamps embedded in every ZeroMQ IQ frame provide the foundation for simulcast operation across linked sites — a requirement in many commercial land mobile deployments covering large geographic areas.
+
+The infrastructure already in place:
+
+- All sites share a common GNSS time reference accurate to 5 ns RMS (ZED-F9T) or 30 ns RMS (NEO-M9N)
+- Per-module VCTCXO discipline holds each band's carrier to sub-millihertz accuracy
+- ZeroMQ IQ frames carry 64-bit nanosecond UTC timestamps from the point of reception
+- The `ctrl` socket supports per-module frequency and timing control
+
+What a simulcast implementation would add in software:
+
+- A transmit scheduler in `ht-module-daemon` that holds IQ frames in a buffer and releases them at a specified future UTC timestamp, ensuring all sites transmit the same audio at the same moment regardless of network path delay
+- An inter-site delay measurement and compensation coordinator
+- A phase calibration procedure for the RF overlap zones
+
+The hardware and transport infrastructure for this is already present. Simulcast is a natural software extension requiring no hardware changes.
+
+### 11.5 Legal and regulatory notes
+
+Operators deploying this system on commercial or private PMR allocations are responsible for ensuring compliance with all applicable regulations in their jurisdiction, including:
+
+- Holding the appropriate radio licence for the frequencies used
+- Complying with technical emission standards (bandwidth, power, spurious emissions)
+- Complying with any local regulations governing the use of encryption on radio
+- Ensuring type approval or equipment authorisation requirements are met where applicable
+
+The open nature of the hardware and software stack facilitates regulatory compliance by making the complete technical specification of the system available for inspection. **This documentation does not constitute legal or regulatory advice.**
+
+---
+
+## 12. System Integration Summary
 
 ### Complete bill of materials overview
 
@@ -749,9 +754,9 @@ The battery bus is always live. The DRC module and MPPT controller both float-ch
 |----------|-----------|---------------------|
 | Backplane | Pixus 3U OpenVPX Cube, 5-slot | VITA 65, VITA 46 edgecard |
 | Power supply slot | Mean Well DRC-100B or DRC-240B (DIN rail) | VITA 62 to OpenVPX |
-| Radio module ×3 | 2 m / 70 cm / 23 cm SDR TX/RX | VITA 46 edgecard; RP-SMA default, Type-N optional (preferred at fixed sites when panel allows) |
+| Radio module ×3 | 2 m / 70 cm / 23 cm SDR TX/RX | VITA 46 edgecard, RP-SMA front panel |
 | Expansion slot | Spare (4th module or switch card) | VITA 46 edgecard |
-| Compute | SpacemiT K3 Pico-ITX or K3-CoM260 SoM | PCIe Gen3, GbE RJ45, USB 3.2; 8 × A100 @ 60 TOPS (optional ML — see [AI acceleration](#ai-acceleration-a100-cores)) |
+| Compute | SpacemiT K3 Pico-ITX or K3-CoM260 SoM | PCIe Gen3, GbE RJ45, USB 3.2 |
 | Module daemon | `ht-module-daemon` (Rust, libzmq) | ZMQ IPC under `/run/ht-module/` — see [docs/repo-map.md](docs/repo-map.md) |
 | Repeater control | `repeater-control` repo: `repeater-supervisord` + `repeater-authd` (Rust) | [docs/runtime/repeater-control.md](docs/runtime/repeater-control.md) |
 | Storage | 2 × 240 GB M.2 NVMe SSD, mdadm RAID 1 | M-Key + B-Key on K3 board |
@@ -798,6 +803,3 @@ The battery bus is always live. The DRC module and MPPT controller both float-ch
 | OpenPGP / RFC 4880 | GnuPG key format, Web of Trust, digital signatures |
 | IEC 62619 | Battery safety standard for lithium systems |
 | IPC-2141 | PCB design reference for edgecard connectors |
-
----
-
