@@ -1,6 +1,6 @@
 # SDR Multiband Repeater System Design
 
-**Revision:** 1.3  
+**Revision:** 1.4  
 **Date:** June 2026  
 **Architecture:** Open Silicon · Linux · Modular OpenVPX  
 
@@ -402,12 +402,28 @@ SDRangel is a Qt5/OpenGL SDR frontend. It includes decoders and channel plugins 
 - **Limitations:** Steep learning curve; resource-intensive on lower-end hardware; no native ZMQ IQ path until a plugin or bridge is added
 - **RISC-V status:** Confirmed running on Banana Pi BPI-F3 (SpacemiT K1, RISC-V)
 
-#### QRadioLink
+#### QRadioLink and gr-qradiolink
 
 QRadioLink is a multimode SDR transceiver application built directly on top of GNU Radio, specifically designed for Linux and repeater/VOIP bridging use cases. It supports radio-over-IP (ROIP) bridging using Internet protocols, making it useful for linking the repeater to EchoLink, AllStar, or similar networks. It supports analog and digital modes and uses a Qt5 UI.
 
-- **Best for:** Repeater linking, radio-over-IP, GNU Radio-backed transceiver operation
-- **Limitations:** Smaller community than GQRX or SDRangel; less polished UI
+**[gr-qradiolink](https://github.com/Supermagnum/gr-qradiolink)** is a companion GNU Radio out-of-tree (OOT) module that extracts the QRadioLink signal processing blocks into reusable GNU Radio components, making the full QRadioLink modulation and digital voice suite available in any GNU Radio flowgraph — including this repeater system — independently of the QRadioLink application itself.
+
+The module provides a comprehensive set of validated blocks covering:
+
+**Modulation/demodulation:** 2FSK, 4FSK, 8FSK, CPM-4FSK, GMSK, BPSK, QPSK, SOQPSK, AM, SSB (USB/LSB), NBFM, WBFM — all validated against the upstream QRadioLink source.
+
+**Digital voice:** FreeDV, M17, DMR (Tier I/II/III), dPMR (ETSI TS 102 658, 6.25 kHz), NXDN (NXDN48 and NXDN96), and MMDVM-compatible protocols including POCSAG, D-STAR, YSF, and P25 Phase 1 C4FM.
+
+**Spread spectrum:** DSSS with enhanced timing recovery, soft-decision metrics, AFC, adaptive correlation threshold, and coarse-to-fine acquisition; DSSS-CDMA with multi-user support and configurable spreading factors (32–512); GDSS (Gaussian-Distributed Spread-Spectrum, implementing Shakeel et al., *Sensors* 2023) with equivalent enhancements. GDSS is also used as the spreading layer in **[GR-K-GDSS](https://github.com/Supermagnum/GR-K-GDSS)** when combined with `gr-linux-crypto` for cryptographically keyed spread-spectrum operation.
+
+**FEC:** Soft-decision LDPC encoder/decoder with configurable code rates (1/2, 2/3, 3/4) and block lengths (576, 1152, 2304 bits); HF burst interleaver.
+
+The module has been fuzz-tested with over 104 million executions across all blocks with zero crashes or memory leaks. All C++ unit tests pass (100%), and 41 MMDVM protocol tests pass (100%).
+
+For this repeater system, `gr-qradiolink` provides the signal processing blocks for any mode not covered by SDRangel's built-in plugins, and is the natural choice when building GNU Radio 4.0 flowgraphs that need DMR, dPMR, NXDN, P25, or spread-spectrum operation.
+
+- **Best for:** Repeater linking, radio-over-IP, multimode digital voice flowgraphs, spread-spectrum operation
+- **Limitations:** Smaller community than GQRX or SDRangel; QRadioLink application UI less polished than SDRangel
 
 #### SDR++ (SDRPlusPlus)
 
@@ -430,11 +446,11 @@ OpenWebRX+ is a multi-user SDR receiver with a browser-based interface. Once run
 | GNU Radio 4.0 (GRC) | ✓ | ✓ | Native | Via blocks | Via blocks | ✓ |
 | GQRX | ✗ | ✓ | Built on GR | Limited | TCP server | ✓ |
 | SDRangel | ✓ | ✓ | Compatible | Extensive built-in | REST API | ✓ |
-| QRadioLink | ✓ | ✓ | Built on GR | Analog + digital | ROIP/EchoLink | ✓ |
+| QRadioLink + gr-qradiolink | ✓ | ✓ | Built on GR / OOT blocks | Extensive (DMR, dPMR, NXDN, P25, M17, DSSS, GDSS) | ROIP/EchoLink | ✓ |
 | SDR++ | ✗ | ✓ | SoapySDR | Via plugins | Network source | ✓ |
 | OpenWebRX+ | ✗ | ✓ | Compatible | FT8, APRS, ADS-B | Browser-based | ✓ |
 
-**Recommended combination for a repeater:** Fork and extend [f4exb/sdrangel](https://github.com/f4exb/sdrangel) for TX/RX and digital modes; use GNU Radio 4.0 + [gr-ident](#74-gr-ident--radio-mode-identification) + [gr-linux-crypto](#8-authenticated-remote-control) for flowgraph-centric logic and authenticated control; run OpenWebRX+ in parallel for browser-based spectrum monitoring. Use QRadioLink only if ROIP/EchoLink-style linking is required alongside SDRangel.
+**Recommended combination for a repeater:** Fork and extend [f4exb/sdrangel](https://github.com/f4exb/sdrangel) for TX/RX and digital modes; use GNU Radio 4.0 + [gr-ident](#74-gr-ident--radio-mode-identification) + [gr-linux-crypto](#8-authenticated-remote-control) for flowgraph-centric logic and authenticated control; use **[gr-qradiolink](https://github.com/Supermagnum/gr-qradiolink)** for DMR, dPMR, NXDN, P25, and spread-spectrum GNU Radio blocks; run OpenWebRX+ in parallel for browser-based spectrum monitoring. Use QRadioLink application only if ROIP/EchoLink-style linking is required alongside SDRangel.
 
 ---
 
@@ -777,7 +793,8 @@ The open nature of the hardware and software stack facilitates regulatory compli
 | Mode identification | [gr-ident](https://github.com/Supermagnum/gr-ident) preamble (optional automatic mode switching) |
 | Repeater application (fork upstream) | [f4exb/sdrangel](https://github.com/f4exb/sdrangel) — TX/RX, plugins, server/REST |
 | Remote monitoring | OpenWebRX+ (browser-based, multi-user) |
-| Supplementary SDR tools | GQRX, QRadioLink (ROIP/linking), SDR++ |
+| Supplementary SDR tools | GQRX, QRadioLink application (ROIP/linking), SDR++ |
+| Digital voice / spread-spectrum blocks | [gr-qradiolink](https://github.com/Supermagnum/gr-qradiolink) — DMR, dPMR, NXDN, P25, M17, DSSS, GDSS, LDPC FEC as GNU Radio OOT blocks |
 | GNSS daemon | gpsd (NMEA/UBX parsing, shared memory) |
 | Time discipline | chrony (GNSS SHM + PPS → Stratum 1 NTP) |
 | Frequency correction | Software PPM in GNU Radio / SDRangel (standard); hardware 10 MHz ref (optional) |
