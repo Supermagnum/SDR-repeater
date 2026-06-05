@@ -25,7 +25,7 @@
 10. [Optional Solar Power](#10-optional-solar-power)
 11. [Commercial and Licensed Private Network Applications](#11-commercial-and-licensed-private-network-applications)
 12. [System Integration Summary](#12-system-integration-summary)
-13. [ZeroMQ transport security (general reference)](ZMQ_TRANSPORT_SECURITY.md)
+13. [ZeroMQ transport security (general reference)](docs/ZMQ_TRANSPORT_SECURITY.md)
 
 **Wire formats:** [docs/zeromq-messages.md](docs/zeromq-messages.md) — canonical ZeroMQ message reference (repeater IQ/control, gr-ident, LinHT).
 
