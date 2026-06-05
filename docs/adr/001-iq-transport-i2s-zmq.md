@@ -12,7 +12,7 @@ The system overview mentions **PCIe Gen 3** on the module data bus. The RF modul
 1. **Production IQ path:** RFIC -> **I2S** (per module SAI on K3) -> kernel DMA ring buffer -> **`ht-module-daemon`** (Rust) -> **ZeroMQ** `ipc:///run/ht-module/iq_*` and `tx_*`.
 2. **J1 PCIe / GbE** on the module edgecard is **reserved** for future wideband variants; it is **not** used for the baseline 500 kHz repeater IQ plane.
 3. **Backplane "data fabric"** PCIe/Ethernet between slots serves **chassis management, expansion, or switching** — not replacement of per-module I2S IQ into the compute slot.
-4. **Consumers** (GNU Radio, SDRangel, recorders) attach only to ZMQ endpoints documented in [zeromq-messages.md](../../zeromq-messages.md).
+4. **Consumers** (GNU Radio, SDRangel, recorders) attach only to ZMQ endpoints documented in [zeromq-messages.md](../zeromq-messages.md).
 
 ## Consequences
 
@@ -31,5 +31,5 @@ The system overview mentions **PCIe Gen 3** on the module data bus. The RF modul
 
 ## References
 
-- [RF-modules.md](../../RF-modules.md) Sections 9.1, 10
-- [zeromq-messages.md](../../zeromq-messages.md) Sections 2–3
+- [RF-modules.md](../RF-modules.md) Sections 9.1, 10
+- [zeromq-messages.md](../zeromq-messages.md) Sections 2–3

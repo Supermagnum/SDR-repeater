@@ -7,11 +7,11 @@ Normative requirements for **implementation repositories** (source code lives ou
 
 | Repository spec | Language | Primary spec links |
 |-----------------|----------|-------------------|
-| [ht-module-daemon.md](ht-module-daemon.md) | Rust | [zeromq-messages.md](../../zeromq-messages.md), [RF-modules.md](../../RF-modules.md) Section 10 |
+| [ht-module-daemon.md](ht-module-daemon.md) | Rust | [zeromq-messages.md](../zeromq-messages.md), [RF-modules.md](../RF-modules.md) Section 10 |
 | [repeater-control.md](repeater-control.md) | Rust | [repeater-logic.md](../repeater-logic.md), [ota-remote-control.md](../ota-remote-control.md) |
-| [gr-ht13g.md](gr-ht13g.md) | C++ / Python | [zeromq-messages.md](../../zeromq-messages.md) Sections 3–4 |
-| [sdrangel-fork.md](sdrangel-fork.md) | C++ | [zeromq-messages.md](../../zeromq-messages.md) Section 3, upstream [f4exb/sdrangel](https://github.com/f4exb/sdrangel) |
-| [sdr-repeater-flowgraphs.md](sdr-repeater-flowgraphs.md) | GNU Radio 4 | [zeromq-messages.md](../../zeromq-messages.md) Section 8, [gr-ident](https://github.com/Supermagnum/gr-ident) |
+| [gr-ht13g.md](gr-ht13g.md) | C++ / Python | [zeromq-messages.md](../zeromq-messages.md) Sections 3–4 |
+| [sdrangel-fork.md](sdrangel-fork.md) | C++ | [zeromq-messages.md](../zeromq-messages.md) Section 3, upstream [f4exb/sdrangel](https://github.com/f4exb/sdrangel) |
+| [sdr-repeater-flowgraphs.md](sdr-repeater-flowgraphs.md) | GNU Radio 4 | [zeromq-messages.md](../zeromq-messages.md) Section 8, [gr-ident](https://github.com/Supermagnum/gr-ident) |
 
 ## Creation order
 

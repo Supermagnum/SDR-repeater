@@ -101,4 +101,4 @@ Operators need both trustworthy **install media** (this document) and trustworth
 - [ota-remote-control.md](ota-remote-control.md)
 - [implementation-language.md](implementation-language.md)
 - [runtime/README.md](runtime/README.md)
-- [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md)

@@ -7,17 +7,17 @@
 
 ## Purpose
 
-GNU Radio 4 out-of-tree module that connects flowgraphs to the repeater native ZMQ plane: int16 framed IQ on `iq_*` / `tx_*`, and optional `ctrl` REQ helper. Specified in [zeromq-messages.md](../../zeromq-messages.md) Sections 3–4 and 8.
+GNU Radio 4 out-of-tree module that connects flowgraphs to the repeater native ZMQ plane: int16 framed IQ on `iq_*` / `tx_*`, and optional `ctrl` REQ helper. Specified in [zeromq-messages.md](../zeromq-messages.md) Sections 3–4 and 8.
 
 ## Normative specifications
 
 | Topic | Document |
 |-------|----------|
-| IQ frame layout | [zeromq-messages.md Section 3](../../zeromq-messages.md#3-iq-data-plane) |
-| `ctrl` commands | [zeromq-messages.md Section 4](../../zeromq-messages.md#4-control-plane-ctrl) |
-| Flowgraph examples | [zeromq-messages.md Section 8](../../zeromq-messages.md#8-repeater-flowgraph-wiring) |
+| IQ frame layout | [zeromq-messages.md Section 3](../zeromq-messages.md#3-iq-data-plane) |
+| `ctrl` commands | [zeromq-messages.md Section 4](../zeromq-messages.md#4-control-plane-ctrl) |
+| Flowgraph examples | [zeromq-messages.md Section 8](../zeromq-messages.md#8-repeater-flowgraph-wiring) |
 | PTT / lease | [repeater-logic.md](../repeater-logic.md) — flowgraphs must hold lease before `ht13g_ctrl` sends `PTT` |
-| gr-ident adapter note | [zeromq-messages.md Section 3.4](../../zeromq-messages.md#34-gr-ident-iq-note) |
+| gr-ident adapter note | [zeromq-messages.md Section 3.4](../zeromq-messages.md#34-gr-ident-iq-note) |
 
 ## Repository layout (expected)
 
@@ -116,7 +116,7 @@ Parameters exposed: endpoint, module address dropdown (`A` / `B` / `C` / `D`), s
 | Approach | Blocks |
 |----------|--------|
 | Native repeater IQ | `ht13g_source` → detect chain |
-| gr-ident distributed IQ | Separate adapter block (not in gr-ht13g): int16 framed → `complex<float>` PUSH — see [zeromq-messages Section 6.3](../../zeromq-messages.md#63-distributed-iq-push--pull) |
+| gr-ident distributed IQ | Separate adapter block (not in gr-ht13g): int16 framed → `complex<float>` PUSH — see [zeromq-messages Section 6.3](../zeromq-messages.md#63-distributed-iq-push--pull) |
 
 gr-ident blocks to reference by name from upstream:
 

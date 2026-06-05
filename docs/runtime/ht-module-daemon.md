@@ -7,14 +7,14 @@
 
 ## Purpose
 
-Long-running site service on the SpacemiT K3 that owns RF module hardware (SPI, I2C, GPIO, I2S/DMA), publishes RX IQ, consumes TX IQ, and serves the `ctrl` / `status` ZeroMQ planes defined in [zeromq-messages.md](../../zeromq-messages.md).
+Long-running site service on the SpacemiT K3 that owns RF module hardware (SPI, I2C, GPIO, I2S/DMA), publishes RX IQ, consumes TX IQ, and serves the `ctrl` / `status` ZeroMQ planes defined in [zeromq-messages.md](../zeromq-messages.md).
 
 ## Normative specifications (read-only links)
 
 | Topic | Document |
 |-------|----------|
-| ZMQ sockets, IQ frame layout, `ctrl` commands | [zeromq-messages.md](../../zeromq-messages.md) Sections 2–5 |
-| RFIC init, PTT order, EEPROM, I2S | [RF-modules.md](../../RF-modules.md) Sections 9–10 |
+| ZMQ sockets, IQ frame layout, `ctrl` commands | [zeromq-messages.md](../zeromq-messages.md) Sections 2–5 |
+| RFIC init, PTT order, EEPROM, I2S | [RF-modules.md](../RF-modules.md) Sections 9–10 |
 | IQ transport decision (I2S, not PCIe DMA) | [adr/001-iq-transport-i2s-zmq.md](../adr/001-iq-transport-i2s-zmq.md) |
 | PTT policy (lease before keying) | [repeater-logic.md](../repeater-logic.md) — daemon enforces `ERR no_lease` when supervisor enabled |
 | Bench reference bridge | [M17-Project/LinHT-utils](https://github.com/M17-Project/LinHT-utils) — study `tests/zmq_proxy/main.c` for ALSA↔ZMQ and PTT timing only; repeater endpoints use `/run/ht-module/` |
@@ -56,7 +56,7 @@ Optional: ship `repeater-supervisord` and `repeater-authd` in a sibling crate �
 | Connect SUB | `tx_A`, `tx_B`, `tx_C`, `tx_D` — single logical publisher per module enforced at policy layer |
 | Bind PUB | `ipc:///run/ht-module/status` — periodic JSON plus alert events |
 
-Reference: ZeroMQ guide REQ/REP semantics; match reply strings `OK` and `ERR <reason>` from [zeromq-messages.md Section 4](../../zeromq-messages.md#4-control-plane-ctrl).
+Reference: ZeroMQ guide REQ/REP semantics; match reply strings `OK` and `ERR <reason>` from [zeromq-messages.md Section 4](../zeromq-messages.md#4-control-plane-ctrl).
 
 ### IQ framing (`src/iq/`)
 
@@ -82,7 +82,7 @@ Phase B: mirror behaviours described for OpenHT-DB `ht13g-spi` CLI (not public);
 
 ### PTT hardware (`src/ptt/`)
 
-Enforce order from [RF-modules.md Section 10.5](../../RF-modules.md#105-ht-module-daemon-functions):
+Enforce order from [RF-modules.md Section 10.5](../RF-modules.md#105-ht-module-daemon-functions):
 
 1. RFIC PTT assert  
 2. T/R switch  
@@ -93,7 +93,7 @@ Reverse order on unkey. Reject `PTT` if `repeater-supervisord` lease check fails
 
 ### EEPROM (`src/eeprom/`)
 
-Read layout [RF-modules.md Section 9.4](../../RF-modules.md) utility EEPROM map; populate calibration and module ID at startup.
+Read layout [RF-modules.md Section 9.4](../RF-modules.md) utility EEPROM map; populate calibration and module ID at startup.
 
 ### GNSS discipline (`src/gnss/`)
 

@@ -7,13 +7,13 @@
 
 ## Purpose
 
-Version-controlled GNU Radio 4 flowgraphs for repeater signal paths: analog FM repeat, gr-ident mode routing, OTA control byte delivery to `repeater-authd`, and cross-band examples from [zeromq-messages.md Section 8](../../zeromq-messages.md#8-repeater-flowgraph-wiring). **No daemon or kernel code** — depends on [gr-ht13g](gr-ht13g.md), [ht-module-daemon](ht-module-daemon.md), and [repeater-control](repeater-control.md).
+Version-controlled GNU Radio 4 flowgraphs for repeater signal paths: analog FM repeat, gr-ident mode routing, OTA control byte delivery to `repeater-authd`, and cross-band examples from [zeromq-messages.md Section 8](../zeromq-messages.md#8-repeater-flowgraph-wiring). **No daemon or kernel code** — depends on [gr-ht13g](gr-ht13g.md), [ht-module-daemon](ht-module-daemon.md), and [repeater-control](repeater-control.md).
 
 ## Normative specifications
 
 | Topic | Document |
 |-------|----------|
-| Wiring diagrams | [zeromq-messages.md Section 8](../../zeromq-messages.md#8-repeater-flowgraph-wiring) |
+| Wiring diagrams | [zeromq-messages.md Section 8](../zeromq-messages.md#8-repeater-flowgraph-wiring) |
 | gr-ident ZMQ | [gr-ident docs/zeromq-protocol.md](https://github.com/Supermagnum/gr-ident/blob/main/docs/zeromq-protocol.md) |
 | OTA bytes to authd | [ota-remote-control.md](../ota-remote-control.md) |
 | Lease before PTT | [repeater-logic.md](../repeater-logic.md) |

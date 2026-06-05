@@ -47,7 +47,7 @@ adds gr-ident blocks (or bridges) when automatic mode identification is enabled.
 
 ## 2. Repeater native (`ht-module-daemon`)
 
-> **Implementation:** [`ht-module-daemon`](docs/repo-map.md) in **Rust** (not shipped in this spec repo). Companion processes: [`repeater-supervisord`](docs/repeater-logic.md), [`repeater-authd`](docs/ota-remote-control.md).
+> **Implementation:** [`ht-module-daemon`](repo-map.md) in **Rust** (not shipped in this spec repo). Companion processes: [`repeater-supervisord`](repeater-logic.md), [`repeater-authd`](ota-remote-control.md).
 
 ### 2.1 Data flow
 
@@ -162,7 +162,7 @@ The control plane is **separate** from IQ sockets. Sending IQ to `tx_*` does not
 transmitter; issue `PTT B on` on `ctrl` as well.
 
 Over-the-air remote control uses the **same command text** inside signed frames
-([README.md Section 8](README.md#8-authenticated-remote-control)); only the transport
+([README.md Section 8](../README.md#8-authenticated-remote-control)); only the transport
 differs (RF + GnuPG vs local ZMQ).
 
 ### 4.2 Module addresses
@@ -507,8 +507,8 @@ status SUB: monitor swr on B during TX; alert on swr_high
 | Process | Sockets used |
 |---------|----------------|
 | `ht-module-daemon` (Rust) | Binds `iq_*`, `status`, `ctrl` REP; connects `tx_*` SUB |
-| `repeater-supervisord` (Rust) | REQ `ctrl` (lease holder); policy per [docs/repeater-logic.md](docs/repeater-logic.md) |
-| `repeater-authd` (Rust) | OTA bytes in; verified commands to supervisor/`ctrl` per [docs/ota-remote-control.md](docs/ota-remote-control.md) |
+| `repeater-supervisord` (Rust) | REQ `ctrl` (lease holder); policy per [repeater-logic.md](repeater-logic.md) |
+| `repeater-authd` (Rust) | OTA bytes in; verified commands to supervisor/`ctrl` per [ota-remote-control.md](ota-remote-control.md) |
 | GNU Radio repeater | SUB `iq_*`, PUB `tx_*` (with lease), optional SUB `grident`, SUB `status` (SWR monitoring) |
 | gr-ident detect (optional) | SUB IQ, PUB `tcp://127.0.0.1:5560` |
 | OpenWebRX+ / recorder | SUB `iq_*` only |
@@ -532,13 +532,13 @@ status SUB: monitor swr on B during TX; alert on swr_high
 
 | Document | Content |
 |----------|---------|
-| [README.md](README.md) | System overview; [Section 7.5](README.md#75-zeromq-ipc) summary |
+| [README.md](../README.md) | System overview; [Section 7.5](../README.md#75-zeromq-ipc) summary |
 | [RF-modules.md](RF-modules.md) | RFIC, backplane, daemon context (Section 10) |
-| [docs/repo-map.md](docs/repo-map.md) | Where runtime code lives |
-| [docs/runtime/README.md](docs/runtime/README.md) | Per-repository implementation specs |
-| [docs/repeater-logic.md](docs/repeater-logic.md) | Supervisor and PTT lease |
-| [docs/ota-remote-control.md](docs/ota-remote-control.md) | Signed OTA frames |
-| [docs/implementation-language.md](docs/implementation-language.md) | Rust policy |
+| [repo-map.md](repo-map.md) | Where runtime code lives |
+| [runtime/README.md](runtime/README.md) | Per-repository implementation specs |
+| [repeater-logic.md](repeater-logic.md) | Supervisor and PTT lease |
+| [ota-remote-control.md](ota-remote-control.md) | Signed OTA frames |
+| [implementation-language.md](implementation-language.md) | Rust policy |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to change specs |
 | [gr-ident README](https://github.com/Supermagnum/gr-ident/blob/main/README.md) | Preamble specification, mode ID table |
 | [gr-ident zeromq-protocol.md](https://github.com/Supermagnum/gr-ident/blob/main/docs/zeromq-protocol.md) | Full gr-ident and LinHT wire formats |

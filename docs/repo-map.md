@@ -16,14 +16,15 @@ Where specification ends and implementation repositories begin. Update this tabl
 | Document | Contents |
 |----------|----------|
 | [README.md](../README.md) | System architecture |
-| [RF-modules.md](../RF-modules.md) | RFIC, PCB, backplane, daemon responsibilities |
-| [zeromq-messages.md](../zeromq-messages.md) | ZMQ endpoints and payloads |
-| [docs/repeater-logic.md](repeater-logic.md) | Supervisor state machine, TX lease |
-| [docs/ota-remote-control.md](ota-remote-control.md) | Signed OTA frames, audit log |
-| [docs/implementation-language.md](implementation-language.md) | Rust vs GR vs SDRangel |
-| [docs/adr/001-iq-transport-i2s-zmq.md](adr/001-iq-transport-i2s-zmq.md) | I2S + ZMQ production IQ path |
-| [docs/runtime/](runtime/README.md) | Per-repo implementation contracts (no source here) |
-| [docs/release-integrity.md](release-integrity.md) | SHA-256 + GPG detached signatures for release artifacts |
+| [RF-modules.md](RF-modules.md) | RFIC, PCB, backplane, daemon responsibilities |
+| [zeromq-messages.md](zeromq-messages.md) | ZMQ endpoints and payloads |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to change specifications |
+| [repeater-logic.md](repeater-logic.md) | Supervisor state machine, TX lease |
+| [ota-remote-control.md](ota-remote-control.md) | Signed OTA frames, audit log |
+| [implementation-language.md](implementation-language.md) | Rust vs GR vs SDRangel |
+| [adr/001-iq-transport-i2s-zmq.md](adr/001-iq-transport-i2s-zmq.md) | I2S + ZMQ production IQ path |
+| [runtime/](runtime/README.md) | Per-repo implementation contracts (no source here) |
+| [release-integrity.md](release-integrity.md) | SHA-256 + GPG detached signatures for release artifacts |
 
 ## Runtime repositories (to be created by implementers)
 

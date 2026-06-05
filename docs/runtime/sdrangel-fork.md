@@ -14,8 +14,8 @@ Maintained fork of SDRangel for repeater site operation: headless `sdrsrv`, digi
 
 | Topic | Document |
 |-------|----------|
-| IQ frame layout | [zeromq-messages.md Section 3](../../zeromq-messages.md#3-iq-data-plane) |
-| Do not key PA from IQ alone | [zeromq-messages.md Section 4](../../zeromq-messages.md#4-control-plane-ctrl) |
+| IQ frame layout | [zeromq-messages.md Section 3](../zeromq-messages.md#3-iq-data-plane) |
+| Do not key PA from IQ alone | [zeromq-messages.md Section 4](../zeromq-messages.md#4-control-plane-ctrl) |
 | System role of SDRangel | [README.md Section 7.3](../../README.md#73-user-friendly-frontends-gnu-radio-based-or-gnu-radio-compatible) |
 
 ## Fork policy
@@ -71,7 +71,7 @@ New plugin directory parallel to existing sample sources (e.g. `remoteinput`, `l
 | Repeater ZMQ | Optional future `htzmq` sink plugin or continue using GNU Radio `ht13g_sink` for TX IQ |
 | PTT | **Never** auto-key from sample source; invoke `ctrl` through supervisor |
 
-If TX IQ via SDRangel is required later, add `plugins/samplesink/htzmq/` mirroring frame pack in [zeromq-messages Section 3](../../zeromq-messages.md#3-iq-data-plane) — Phase B optional.
+If TX IQ via SDRangel is required later, add `plugins/samplesink/htzmq/` mirroring frame pack in [zeromq-messages Section 3](../zeromq-messages.md#3-iq-data-plane) — Phase B optional.
 
 ### 3. Headless server profile
 

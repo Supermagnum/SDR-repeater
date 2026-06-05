@@ -4,7 +4,7 @@
 **Date:** May 2026  
 **Status:** Normative specification (implementation in `repeater-supervisord`, Rust)
 
-Defines behaviour between demodulators, **`repeater-supervisord`**, **`ht-module-daemon`**, and ZMQ consumers. Wire formats remain in [zeromq-messages.md](../zeromq-messages.md).
+Defines behaviour between demodulators, **`repeater-supervisord`**, **`ht-module-daemon`**, and ZMQ consumers. Wire formats remain in [zeromq-messages.md](zeromq-messages.md).
 
 ## 1. Goals
 
@@ -107,7 +107,7 @@ ID audio is **not** sent on `tx_*` IQ unless the flowgraph explicitly maps it; p
 When gr-ident preamble is enabled:
 
 1. On COR rise, detect chain may emit preamble on TX (gr-ident `PTT` / `PreambleOnPtt` profile).
-2. Mode router selects demod from `grident` JSON ([zeromq-messages.md Section 6](../zeromq-messages.md#6-gr-ident-integration)).
+2. Mode router selects demod from `grident` JSON ([zeromq-messages.md Section 6](zeromq-messages.md#6-gr-ident-integration)).
 3. Encrypted preamble with no key: remain in `RX_ACTIVE`, no audio to speaker chain; no repeat.
 
 ## 8. `tx_*` ZMQ rules
@@ -129,4 +129,4 @@ When gr-ident preamble is enabled:
 
 - [ota-remote-control.md](ota-remote-control.md)
 - [implementation-language.md](implementation-language.md)
-- [zeromq-messages.md](../zeromq-messages.md) Section 8 (flowgraph examples)
+- [zeromq-messages.md](zeromq-messages.md) Section 8 (flowgraph examples)

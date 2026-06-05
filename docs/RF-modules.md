@@ -863,7 +863,7 @@ The 64-bit nanosecond timestamp uses the system clock disciplined by chrony + GN
 
 ### 10.5 `ht-module-daemon` Functions
 
-> **Implementation status:** Specified here and in [zeromq-messages.md](zeromq-messages.md). Source code is **not** in the SDR-repeater repository; implement in a separate **Rust** repo per [docs/implementation-language.md](docs/implementation-language.md) and [docs/repo-map.md](docs/repo-map.md).
+> **Implementation status:** Specified here and in [zeromq-messages.md](zeromq-messages.md). Source code is **not** in the SDR-repeater repository; implement in a separate **Rust** repo per [implementation-language.md](implementation-language.md) and [repo-map.md](repo-map.md).
 
 The `ht-module-daemon` is a single Rust daemon responsible for:
 

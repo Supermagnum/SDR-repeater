@@ -27,7 +27,7 @@ This document orders work for developers and RF engineers. **No implementation c
 | Milestone | Deliverable | Owner skill |
 |-----------|-------------|-------------|
 | B1 | Kernel SAI/DMA driver or validated ALSA-DMA path | Software / kernel |
-| B2 | `ht-module-daemon` production: SPI, EEPROM, PTT sequence per [RF-modules.md](../RF-modules.md) Section 10 | Software + RF |
+| B2 | `ht-module-daemon` production: SPI, EEPROM, PTT sequence per [RF-modules.md](RF-modules.md) Section 10 | Software + RF |
 | B3 | `gr-ht13g` OOT: `ht13g_source` / `ht13g_sink` (C++/Python) | Software |
 | B4 | Three-band `status` and per-band `ctrl` | Software |
 | B5 | chrony + 1PPS VCTCXO trim closed loop | RF + software |
@@ -45,7 +45,7 @@ This document orders work for developers and RF engineers. **No implementation c
 
 ## Phase D — Custom RFIC (parallel track)
 
-Per [RF-modules.md](../RF-modules.md) Section 11 (MPW). Does not block Phase A software.
+Per [RF-modules.md](RF-modules.md) Section 11 (MPW). Does not block Phase A software.
 
 | Milestone | Deliverable |
 |-----------|-------------|

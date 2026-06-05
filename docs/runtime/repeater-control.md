@@ -22,7 +22,7 @@ Alternative: separate git repos `repeater-supervisord` and `repeater-authd` shar
 |--------|----------|
 | `repeater-supervisord` | [repeater-logic.md](../repeater-logic.md) — TX lease, per-band FSM, cross-band policy |
 | `repeater-authd` | [ota-remote-control.md](../ota-remote-control.md) — canonical payload, OTA frame, audit log |
-| Shared `ctrl` vocabulary | [zeromq-messages.md Section 4](../../zeromq-messages.md#4-control-plane-ctrl) |
+| Shared `ctrl` vocabulary | [zeromq-messages.md Section 4](../zeromq-messages.md#4-control-plane-ctrl) |
 | Crypto alignment | [gr-linux-crypto](https://github.com/Supermagnum/gr-linux-crypto) — `CallsignKeyStore`, Brainpool profiles, Nitrokey operator workflow |
 
 ## Repository layout (expected)

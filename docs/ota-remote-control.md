@@ -4,7 +4,7 @@
 **Date:** May 2026  
 **Status:** Normative specification (implementation in `repeater-authd`, Rust)
 
-Companion to [README.md Section 8](../README.md#8-authenticated-remote-control) and [zeromq-messages.md Section 4](../zeromq-messages.md#4-control-plane-ctrl).
+Companion to [README.md Section 8](../README.md#8-authenticated-remote-control) and [zeromq-messages.md Section 4](zeromq-messages.md#4-control-plane-ctrl).
 
 ## 1. Purpose
 
@@ -23,7 +23,7 @@ Local operators use the same command text on `ipc:///run/ht-module/ctrl` without
 
 ## 3. Command vocabulary
 
-Command text is **identical** to [zeromq-messages.md Section 4.3](../zeromq-messages.md#43-command-reference). Examples:
+Command text is **identical** to [zeromq-messages.md Section 4.3](zeromq-messages.md#43-command-reference). Examples:
 
 - `SET_SQUELCH B -120`
 - `PTT B on`
@@ -170,4 +170,4 @@ Distribution of `repeater-authd`, `ht-module-daemon`, and other installable buil
 
 - [repeater-logic.md](repeater-logic.md) — PTT and supervisor interaction
 - [implementation-language.md](implementation-language.md) — Rust components
-- [zeromq-messages.md](../zeromq-messages.md) — `ctrl` command reference
+- [zeromq-messages.md](zeromq-messages.md) — `ctrl` command reference

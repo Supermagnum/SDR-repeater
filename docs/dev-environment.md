@@ -54,7 +54,7 @@ Created by systemd or installer scripts (not committed here):
 
 With a Phase A daemon binary (external repo):
 
-1. Confirm socket `ipc:///run/ht-module/ctrl` answers `GET_STATUS all` with `OK` or structured reply per [zeromq-messages.md](../zeromq-messages.md).
+1. Confirm socket `ipc:///run/ht-module/ctrl` answers `GET_STATUS all` with `OK` or structured reply per [zeromq-messages.md](zeromq-messages.md).
 2. SUB to `ipc:///run/ht-module/iq_B` and verify frame size `16 + sample_count * 4`.
 3. SUB to `ipc:///run/ht-module/status` and parse JSON schema Section 5.
 
@@ -63,7 +63,7 @@ No test scripts are maintained in this repository.
 ## GNU Radio
 
 - Flowgraphs live in **`sdr-repeater-flowgraphs`** (to be created) — see [runtime/sdr-repeater-flowgraphs.md](runtime/sdr-repeater-flowgraphs.md).
-- Use `gr-zeromq` or `gr-ht13g` for IQ; gr-ident for preamble per [zeromq-messages.md Section 6](../zeromq-messages.md#6-gr-ident-integration).
+- Use `gr-zeromq` or `gr-ht13g` for IQ; gr-ident for preamble per [zeromq-messages.md Section 6](zeromq-messages.md#6-gr-ident-integration).
 - Validate modulator OOT blocks with [radio-modulation-validator](https://github.com/Supermagnum/radio-modulation-validator) (IQ classification against expected modulation types).
 - Point `ctrl` at the daemon; do not bypass supervisor in production tests without documenting `local_ctrl_trust`.
 
@@ -82,5 +82,5 @@ No test scripts are maintained in this repository.
 ## References
 
 - [roadmap.md](roadmap.md)
-- [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md)
 - [adr/001-iq-transport-i2s-zmq.md](adr/001-iq-transport-i2s-zmq.md)

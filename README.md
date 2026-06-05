@@ -27,9 +27,11 @@
 12. [System Integration Summary](#12-system-integration-summary)
 13. [ZeroMQ transport security (general reference)](ZMQ_TRANSPORT_SECURITY.md)
 
-**Wire formats:** [zeromq-messages.md](zeromq-messages.md) — canonical ZeroMQ message reference (repeater IQ/control, gr-ident, LinHT).
+**Wire formats:** [docs/zeromq-messages.md](docs/zeromq-messages.md) — canonical ZeroMQ message reference (repeater IQ/control, gr-ident, LinHT).
 
-**Developer documentation:** [CONTRIBUTING.md](CONTRIBUTING.md) · [docs/repo-map.md](docs/repo-map.md) · [docs/runtime/](docs/runtime/README.md) (per-repo specs) · [docs/roadmap.md](docs/roadmap.md) · [docs/dev-environment.md](docs/dev-environment.md) · [docs/repeater-logic.md](docs/repeater-logic.md) · [docs/ota-remote-control.md](docs/ota-remote-control.md) · [docs/release-integrity.md](docs/release-integrity.md) · [docs/implementation-language.md](docs/implementation-language.md) · [ADR 001: I2S + ZMQ](docs/adr/001-iq-transport-i2s-zmq.md)
+**RF hardware:** [docs/RF-modules.md](docs/RF-modules.md) — RFIC, module PCB, backplane, daemon integration.
+
+**Developer documentation:** [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) · [docs/repo-map.md](docs/repo-map.md) · [docs/runtime/](docs/runtime/README.md) (per-repo specs) · [docs/roadmap.md](docs/roadmap.md) · [docs/dev-environment.md](docs/dev-environment.md) · [docs/repeater-logic.md](docs/repeater-logic.md) · [docs/ota-remote-control.md](docs/ota-remote-control.md) · [docs/release-integrity.md](docs/release-integrity.md) · [docs/implementation-language.md](docs/implementation-language.md) · [ADR 001: I2S + ZMQ](docs/adr/001-iq-transport-i2s-zmq.md)
 
 ---
 
@@ -78,7 +80,7 @@ This document describes a modular, Linux-based, software-defined radio (SDR) rep
 
 ## 2. Radio Modules
 
-The system supports up to four pluggable radio modules on the backplane. Three bands are defined; the fourth slot is spare or expansion.
+The system supports up to four pluggable radio modules on the backplane. Three bands are defined; the fourth slot is spare or expansion. Full RFIC, PCB, and backplane detail is in **[docs/RF-modules.md](docs/RF-modules.md)**.
 
 ### Module specifications
 
@@ -499,13 +501,13 @@ gr-ident is designed to work alongside **[gr-linux-crypto](https://github.com/Su
 | Control | `ctrl` (REQ/REP) | Per-module PTT, frequency, squelch, TX timeout, gain, attenuator |
 | Telemetry | `status` (PUB) | JSON: RSSI, PLL lock, temperature, SWR, alerts |
 
-**Canonical wire formats, command tables, gr-ident preamble JSON, and LinHT compatibility** are documented in **[zeromq-messages.md](zeromq-messages.md)**.
+**Canonical wire formats, command tables, gr-ident preamble JSON, and LinHT compatibility** are documented in **[docs/zeromq-messages.md](docs/zeromq-messages.md)**.
 
-When [gr-ident](https://github.com/Supermagnum/gr-ident) mode identification is enabled, a detect flowgraph publishes preamble decode JSON (for example `{"mode_id":20,"digital":false,...}`) so the repeater can route to the correct demodulator before audio is output — see [zeromq-messages.md Section 6](zeromq-messages.md#6-gr-ident-integration).
+When [gr-ident](https://github.com/Supermagnum/gr-ident) mode identification is enabled, a detect flowgraph publishes preamble decode JSON (for example `{"mode_id":20,"digital":false,...}`) so the repeater can route to the correct demodulator before audio is output — see [docs/zeromq-messages.md Section 6](docs/zeromq-messages.md#6-gr-ident-integration).
 
 Local ZMQ `ctrl` commands use the same text as signed over-the-air frames in [Section 8](#8-authenticated-remote-control); only the transport differs.
 
-Hardware daemon details: **[RF-modules.md](RF-modules.md)**, [Section 10](RF-modules.md#10-software-interface-zeromq-ipc). Packages: **`libzmq3-dev`**, **`libzmq5`** on Ubuntu 26.04.
+Hardware daemon details: **[docs/RF-modules.md](docs/RF-modules.md)**, [Section 10](docs/RF-modules.md#10-software-interface-zeromq-ipc). Packages: **`libzmq3-dev`**, **`libzmq5`** on Ubuntu 26.04.
 
 ---
 
@@ -529,7 +531,7 @@ Remote management of the repeater over the air replaces DTMF entirely. For **loc
 | Full status report | `GET_STATUS all` or `GET_STATUS 70cm` |
 | Graceful reboot | `REBOOT` (elevated trust required) |
 
-Per-module addressing uses the same band tokens as the ZeroMQ `ctrl` socket ([zeromq-messages.md Section 4](zeromq-messages.md#4-control-plane-ctrl)). A command without a band is rejected unless the command is inherently global (`GET_BATTERY`, `REBOOT`).
+Per-module addressing uses the same band tokens as the ZeroMQ `ctrl` socket ([docs/zeromq-messages.md Section 4](docs/zeromq-messages.md#4-control-plane-ctrl)). A command without a band is rejected unless the command is inherently global (`GET_BATTERY`, `REBOOT`).
 
 ### 8.2 How it works — summary
 
@@ -812,7 +814,7 @@ The open nature of the hardware and software stack facilitates regulatory compli
 |-------|-----------|
 | OS | Ubuntu 26.04 LTS (RISC-V RVA23) |
 | SDR framework | GNU Radio 4.0 + VOLK 3.3 (RISC-V vector optimised) |
-| IQ transport | [ZeroMQ](https://zeromq.org/) — see [zeromq-messages.md](zeromq-messages.md) |
+| IQ transport | [ZeroMQ](https://zeromq.org/) — see [docs/zeromq-messages.md](docs/zeromq-messages.md) |
 | Mode identification | [gr-ident](https://github.com/Supermagnum/gr-ident) preamble (optional automatic mode switching) |
 | Repeater application (fork upstream) | [f4exb/sdrangel](https://github.com/f4exb/sdrangel) — TX/RX, plugins, server/REST |
 | Remote monitoring | OpenWebRX+ (browser-based, multi-user) |

@@ -19,7 +19,7 @@
 
 The following **must** be implemented in Rust in production deployments:
 
-1. **`ht-module-daemon`** — RFIC init, DMA/I2S IQ pack/unpack, ZMQ PUB/SUB/REP per [zeromq-messages.md](../zeromq-messages.md), hardware PTT order, VCTCXO trim from 1PPS, `status` JSON publisher.
+1. **`ht-module-daemon`** — RFIC init, DMA/I2S IQ pack/unpack, ZMQ PUB/SUB/REP per [zeromq-messages.md](zeromq-messages.md), hardware PTT order, VCTCXO trim from 1PPS, `status` JSON publisher.
 2. **`repeater-authd`** — OpenPGP / Brainpool verification per [ota-remote-control.md](ota-remote-control.md); replay suppression; mapping verified commands to `ctrl` REQ; audit log writes.
 3. **`repeater-supervisord`** — Logic in [repeater-logic.md](repeater-logic.md); grants TX lease; forwards allowed PTT to daemon; refuses conflicting `tx_*` consumers.
 
