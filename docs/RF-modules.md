@@ -7,6 +7,9 @@
 
 **Status:** This document records **design ideas and a target architecture** — not committed tapeout data, BOMs, or shipping hardware. Numbers, block diagrams, and MPW plans may change as bench results and shuttle runs inform later revisions.
 
+The linHT projects banwith target is currently up to 500 kHz IQ, that has a rf spectrum coverage of 0.5 MHz.
+It can be found here: 
+https://linux-radio.eu/
 ---
 
 ## Table of Contents
