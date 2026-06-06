@@ -1,10 +1,10 @@
 # SDR Multiband Repeater System Design
 
-**Revision:** 1.5  
+**Revision:** 1.8  
 **Date:** June 2026  
 **Architecture:** Open Silicon · Linux · Modular Eurocard  
 
-> **Revision 1.5 changes:** Backplane connector changed from VITA 46 / OpenVPX to DIN 41612 Eurocard; IQ bandwidth increased to 1 MHz maximum; PCB design standards (via fences, thermal ground pours) added.  
+> **Revision 1.8 changes:** Primary compute platform changed from Milk-V Titan to Milk-V Megrez (ESWIN EIC7700X, 19.95 TOPS NPU); SpacemiT K3 Pico-ITX designated secondary platform; full compute board comparison table added; computational overhead estimate updated for Megrez 4-core SiFive P550 with NPU offload; 5-slot operation confirmed within compute budget.  
 
 ---
 
@@ -78,11 +78,35 @@ This document describes a modular, Linux-based, software-defined radio (SDR) rep
 - Optional GNSS-disciplined frequency reference for SDR oscillator correction
 - IQ data between hardware drivers and signal processing over **ZeroMQ** IPC (see [Section 7.5](#75-zeromq-ipc))
 
+### System architecture
+
+```
+Milk-V Megrez (Mini-ITX)
+├── ESWIN EIC7700X SoC
+│   ├── 4× SiFive P550 CPU cores
+│   └── 19.95 TOPS NPU (AI-assisted squelch / interference detection)
+├── 32 GB LPDDR5 RAM (soldered)
+├── NVMe SSD (M.2 M-Key)
+├── PCIe Gen3 ×4 slot
+│   └── ECP5-25F PCIe backplane interface card
+│       └── DIN 41612 backplane (ribbon cable / header)
+│           ├── Slot A — RF module (2 m)
+│           ├── Slot B — RF module (70 cm)
+│           ├── Slot C — RF module (23 cm)
+│           ├── Slot D — spare / expansion
+│           └── Slot E — spare / expansion
+├── 2× GbE — site network / management
+├── Wi-Fi 6 / BT — optional wireless management
+└── USB — peripheral / debug
+```
+
+The **Milk-V Megrez** Mini-ITX host runs Linux and all repeater application software. All backplane signal interfacing (I2S, SPI, I²C, GPIO, PWM) is handled by the **ECP5-25F PCIe interface card** in the Megrez PCIe Gen3 ×4 slot — the Megrez motherboard does not route these signals directly.
+
 ---
 
 ## 2. Radio Modules
 
-The system supports up to four pluggable radio modules on the backplane. Three bands are defined; the fourth slot is spare or expansion. Full RFIC, PCB, and backplane detail is in **[docs/RF-modules.md](docs/RF-modules.md)**.
+The system supports up to five pluggable radio modules on the backplane. Three bands are defined by default; remaining slots are spare or expansion. Full RFIC, PCB, and backplane detail is in **[docs/RF-modules.md](docs/RF-modules.md)**.
 
 ### Module specifications
 
@@ -105,9 +129,9 @@ Each module connects to the backplane via:
 - **Power:** +12 V PA rail via dedicated **har-bus 64** high-current power contacts (6–15 A per slot); logic rails (+3.3 V, +5 V, +1.8 V) on standard 2 A signal contacts
 - **Temperature monitoring:** I²C on the shared backplane bus (per-slot sensor readable by the chassis manager and Linux `hwmon`)
 - **RF antenna port:** RP-SMA on the module front panel for the antenna connection. IQ data is transported digitally over the DIN 41612 backplane; the RP-SMA is the antenna interface only, not a backplane RF path.
-- **Userspace IQ:** The **`ht-module-daemon`** (Rust; specified, see [docs/repo-map.md](docs/repo-map.md)) on the K3 publishes per-band RX IQ and accepts TX IQ over **ZeroMQ** sockets (see [Section 7.5](#75-zeromq-ipc))
+- **Userspace IQ:** The **`ht-module-daemon`** (Rust; specified, see [docs/repo-map.md](docs/repo-map.md)) on the Linux host publishes per-band RX IQ and accepts TX IQ over **ZeroMQ** sockets (see [Section 7.5](#75-zeromq-ipc))
 
-The DIN 41612 architecture is sized for the actual signal requirements of this repeater. High-speed differential signalling, backplane PCIe, and backplane GbE are not planned — all module interconnect is carried on the DIN 41612 signal and power contacts described above.
+The DIN 41612 architecture is sized for the actual signal requirements of this repeater. Module interconnect is carried on DIN 41612 signal and power contacts; the host connects to the backplane only through the **ECP5-25F PCIe interface card** (see [Section 4](#4-compute-module)). High-speed differential fabric or PCIe on the module backplane itself is not used.
 
 > **Note on analog RF through the backplane:** RF is digitised at each module; analog RF exits only through the front-panel RP-SMA (or optional Type-N) connector. At 144–1258 MHz with up to 1 MHz IQ bandwidth, digital I2S transport over DIN 41612 is the preferred and simpler approach.
 
@@ -127,17 +151,44 @@ Mandatory layout standards apply to all module PCBs. Full detail is in **[docs/R
 
 ### Standard: 3U Eurocard (IEC 60297)
 
-The backplane uses a **3U Eurocard** modular architecture with **DIN 41612** connectors. Module slots **A–D** accept 100 × 160 mm PCBs per IEC 60297. Chassis and card guides are standard 3U Eurocard rack hardware (Schroff, Elma, Pico, or equivalent) — widely available and significantly cheaper than VPX chassis hardware.
+The backplane uses a **3U Eurocard** modular architecture with **DIN 41612** connectors. Module slots **A–E** accept 100 × 160 mm PCBs per IEC 60297. Chassis and card guides are standard 3U Eurocard rack hardware (Schroff, Elma, Pico, or equivalent) — widely available and significantly cheaper than VPX chassis hardware.
 
 Key characteristics:
 
 - **Form factor:** 3U Eurocard (100 mm × 160 mm module PCB)
-- **Module slots:** A–D — four pluggable radio module slots
+- **Module slots:** A–E — five pluggable radio module slots
 - **Signal connector:** DIN 41612 Type C, 96-pin (Harting or equivalent), 2.54 mm pitch, 2 A per signal contact, gold over nickel mating surface
 - **Power connector:** Harting har-bus 64 hybrid power contacts, 5.08 mm pitch, 6–15 A per contact for the +12 V PA rail; logic rails (+3.3 V, +5 V, +1.8 V) carried on standard signal contacts
-- **Interconnect:** I2S (up to 32 MHz bit clock), SPI (10 MHz), I²C utility bus, GPIO — all on DIN 41612 signal contacts; no high-speed differential fabric or backplane PCIe/GbE
+- **Interconnect:** I2S (up to 32 MHz bit clock), SPI (10 MHz), I²C utility bus, GPIO — all on DIN 41612 signal contacts, driven by the ECP5 interface card
 - **Power distribution:** External PSU (Mean Well DRC series or equivalent) feeds a 24 V DC bus; backplane distributes +12 V PA (har-bus), +5 V, +3.3 V, and +1.8 V per slot
 - **KiCad:** Standard library includes DIN 41612 footprints; no custom connector footprint required for the backplane interface
+
+### Backplane signal summary
+
+**Serial buses (shared across all modules):**
+
+- **SPI** — CLK, MOSI, MISO, plus individual CS lines per module (RFIC and SWR ADC)
+- **I²C** — SCL, SDA (shared utility bus — temperature sensors, EEPROMs, ADS1015 ADC variant)
+
+**Per-module I2S (one set per slot):**
+
+- BCLK, LRCLK, DOUT, DIN — four lines per module, 20 lines total across five slots
+
+**Per-module GPIO (one set per slot):**
+
+- PTT, TR_SW, PA_EN, ATT_LE, RFIC_RESET_N — control outputs from ECP5 interface card
+- RFIC_IRQ_N, MOD_PRESENT, MOD_ID0, MOD_ID1 — status inputs to ECP5 interface card
+- VCTCXO_TUNE — analog 0–1.8 V per module
+- PPS_REF — optional 1PPS reference
+- ANT_SW — HT13G-M modules only
+
+**Power rails:**
+
+- +12 V PA (high current, 6 A per slot)
+- +5 V, +3.3 V, +1.8 V
+- GND (multiple pins)
+
+Rough total: approximately 75–85 lines across five populated slots, comfortably within the 96-pin DIN 41612 Type C budget with pins to spare for ground and future expansion.
 
 ### Recommended chassis
 
@@ -172,69 +223,151 @@ Standard 3U Eurocard subracks from **Schroff**, **Elma**, **Pico**, or equivalen
 
 ## 4. Compute Module
 
-### CPU: SpacemiT K3 (RISC-V, RVA23)
+### Host board: Milk-V Megrez (Mini-ITX)
 
-The main compute module is based on the **SpacemiT Key Stone K3** SoC, an 8-core RVA23-compliant RISC-V processor. This is the recommended single-chip solution — no separate security coprocessor is needed because the K3 provides hardware cryptographic acceleration consumed directly by the Linux kernel and GnuPG in userspace.
+The main compute platform is the **Milk-V Megrez** Mini-ITX motherboard (170 × 170 mm), based on the **ESWIN EIC7700X** SoC. The Megrez provides PCIe, NVMe, dual GbE, Wi-Fi, and a 19.95 TOPS on-chip NPU suitable for AI-assisted squelch and signal classification at the repeater site without cloud dependency. Like other Mini-ITX RISC-V boards in this class, it does **not** expose I2S/SAI peripherals on standard external headers. All module backplane signalling is handled by the ECP5 PCIe interface card described below.
 
-#### Processor specifications
+#### Processor and board specifications
 
 | Parameter | Value |
 |-----------|-------|
-| CPU cores | 8 × X100 RISC-V (RVA23 compliant) |
-| Clock speed | Up to 2.4 GHz |
-| AI cores | 8 × A100 (60 TOPS, RVV 1.0 up to 1024-bit) |
-| Memory | Up to 32 GB LPDDR5-6400 |
-| Linux kernel | Mainline support from kernel 7.0 |
-| OS support | Ubuntu 26.04 LTS (RVA23 required), Bianbu 3.0 (Ubuntu-based), Fedora, Deepin 25 |
+| SoC | ESWIN EIC7700X |
+| CPU | 4× SiFive P550 cores, up to 1.8 GHz, RV64GCH, 13-stage out-of-order triple-issue pipeline |
+| AI / NPU | 19.95 TOPS INT8 — on-chip neural processing unit; available for AI-assisted squelch, interference detection, and signal classification directly on the repeater without cloud dependency |
+| GPU | Imagination AXM-8-256; OpenGL ES 3.2, OpenCL 1.2/2.1, Vulkan 1.2 |
+| RAM | 16 GB or 32 GB LPDDR5-6400 — soldered, not user-upgradeable; **32 GB variant specified for production builds** |
+| Storage | M.2 M-Key NVMe (PCIe 2.0 ×2); eMMC connector; microSD slot |
+| PCIe | 1× PCIe Gen3 ×4 slot (tested with AMD Radeon RX 7900 XTX; adequate for ECP5-25F backplane interface card) |
+| Networking | 2× GbE RJ45; onboard Wi-Fi and Bluetooth |
+| USB | Multiple USB 3.0 and USB 2.0 ports |
+| Power | ATX 24-pin or DC 12 V input |
+| Form factor | Mini-ITX, 170 × 170 mm |
+| OS | Ubuntu 24.04 LTS, Fedora, Debian; mainline Linux support in progress |
+| Price | $199 (16 GB) / $269 (32 GB) |
 
-#### Hardware cryptography
+The EIC7700X, like the UR-DP1000 on the Milk-V Titan, does not expose I2S/SAI on accessible headers. **All backplane signal interfacing remains via the ECP5-25F PCIe interface card.** The PCIe Gen3 ×4 slot provides far more bandwidth than the ECP5 IQ data rate requires — the interface is not a bottleneck.
 
-The K3 SoC provides hardware-accelerated cryptographic primitives exposed to the Linux kernel's crypto API (`/proc/crypto`):
+### ECP5-25F PCIe backplane interface card
 
-- AES (128/256-bit, CBC/GCM/CTR)
-- SHA-256 / SHA-512
-- RSA
-- SM2, SM3, SM4 (Chinese national standards)
-- Hardware TRNG
+A custom PCIe card plugs into the Megrez PCIe Gen3 ×4 slot and provides all backplane signal interfacing between the Linux host and the DIN 41612 module backplane.
 
-These are consumed transparently by GnuPG, OpenSSL, dm-crypt/LUKS, and the kernel keyring — no separate secure element or coprocessor is needed. GPG keys live in kernel keyring and user keyring as standard Linux practice.
+| Parameter | Value |
+|-----------|-------|
+| FPGA | Lattice ECP5-25F (~$15–25 in singles); open source toolchain — Yosys, nextpnr, Project Trellis |
+| Host interface (primary) | PCIe Gen1 ×1 hard IP in ECP5 — plugs into Megrez PCIe Gen3 ×4 slot; ×1 card is electrically compatible |
+| Host interface (fallback/debug) | USB 2.0 high-speed via LUNA gateware framework and external USB3343 PHY (~$2); connects to Megrez USB port; fully open source stack |
+| Backplane connector | Ribbon cable or direct header to DIN 41612 backplane |
+| Power | From PCIe slot (3.3 V and 12 V available on PCIe connector) |
+| Gateware license | Apache 2.0 / open hardware, consistent with project licensing |
+| Toolchain | Fully open source — no proprietary tools required |
 
-#### I/O peripherals (K3 Pico-ITX board)
+**Backplane signals handled by ECP5 fabric:**
 
-| Interface | Detail |
-|-----------|--------|
-| USB | 2 × USB 3.2 Gen1 Type-C + 4 × USB 2.0 (system installation, peripherals) |
-| Wired LAN | 1 × GbE RJ45 + 1 × 10GbE SFP+ |
-| Wireless | Wi-Fi 6 + Bluetooth 5.2 (onboard) |
-| Temperature | EC controller on I²C/UART/GPIO expansion (FPC connector) |
-| Battery status | I²C via EC-IO connector — see Section 8 |
-| Storage | 1 × M.2 M-Key 2280 (PCIe Gen3 ×4) + 1 × M.2 B-Key 2242/3052 (PCIe Gen3 ×2 + USB) |
-| Debug | UART, JTAG, serial console header |
+- **I2S × 5** (one per module slot) — BCLK, LRCLK, DOUT, DIN per slot
+- **SPI** — CLK, MOSI, MISO, CS lines per module (RFIC and SWR ADC)
+- **I²C** — SCL, SDA utility bus
+- **GPIO** — PTT, TR_SW, PA_EN, ATT_LE, RFIC_RESET_N, IRQ, MOD_PRESENT, MOD_ID per slot
+- **PWM** — VCTCXO_TUNE analog output (PWM + RC filter on module PCB) per slot
 
-#### Available board variants (same K3 SoC, same design)
+The ECP5-25F is chosen for cost, open toolchain, proven PCIe hard IP, and widespread use in open SDR and open hardware projects. PCIe Gen1 ×1 provides ~250 MB/s — five modules at 1 MHz IQ, 16-bit stereo is less than 2.5 MB/s total, so the interface is massively over-provisioned relative to actual data rate, which is intentional for low-risk implementation.
 
-| Vendor | Product name | Notes |
-|--------|-------------|-------|
-| SpacemiT / Sipeed | K3 Pico-ITX | Reference design, $299–$399 |
-| Milk-V | Jupiter 2 | Same board in chassis, $300–$575 |
-| Banana Pi | BPI-SM10 (K3-CoM260) | SoM form factor for carrier board integration |
+The Linux driver stack reads IQ samples from the ECP5 card over PCIe (or USB in debug mode) and feeds **`ht-module-daemon`**, which publishes ZeroMQ IQ streams to GNU Radio and other consumers (see [Section 7.5](#75-zeromq-ipc)).
 
-For integration into the Eurocard backplane, the **K3-CoM260 SoM** (260-pin SO-DIMM, compatible with Jetson Orin Nano/NX carrier boards) is the cleanest path, enabling a custom 3U Eurocard carrier board design.
+### Computational overhead estimate
+
+The following estimates cover **5-slot operation** with frame signing and optional encryption on the Milk-V Megrez (ESWIN EIC7700X, 4× SiFive P550 @ 1.8 GHz, 19.95 TOPS NPU).
+
+#### IQ data throughput
+
+- Per slot at 1 MHz IQ bandwidth: **32 Mbps** (1 MHz × 2 channels × 16 bits)
+- 5 slots aggregate: **160 Mbps = 20 MB/s** total IQ throughput into the host via ECP5 PCIe interface card
+
+#### GNU Radio / signal processing (CPU cores)
+
+- Cross-band repeat path per slot (demodulate + re-encode): approximately **50–100 MFLOPS** on a modern RISC-V core
+- 5 simultaneous slots: **~250–500 MFLOPS** total
+- SiFive P550 at 1.8 GHz, triple-issue out-of-order: approximately **3–5 GFLOPS** sustained on general DSP workloads
+- 4 cores total available: **~12–20 GFLOPS** aggregate capacity
+- **Estimated CPU load for IQ processing:** well under 2 cores for all 5 slots
+
+#### NPU — AI-assisted processing
+
+- The EIC7700X **19.95 TOPS NPU** is available for signal classification, interference detection, and AI-assisted squelch entirely independently of the CPU cores
+- NPU load for 5-slot monitoring at 1 MHz IQ bandwidth: **low** — the NPU is designed for INT8 neural network inference; signal classification models for amateur radio are small (well under 1M parameters) and run at a fraction of NPU capacity
+- NPU and CPU operate concurrently — AI inference does not compete with GNU Radio processing for CPU resources
+- **Estimated NPU utilisation** for signal classification across 5 slots: **less than 10% of 19.95 TOPS**
+
+#### ZeroMQ IPC
+
+- Sub-millisecond latency at localhost; negligible CPU at 20 MB/s aggregate
+- **Estimated CPU load:** less than 0.5 core
+
+#### Frame signing (Ed25519, mandatory)
+
+- Ed25519 on RV64GCH RISC-V software (OpenSSL 3.x): **~50,000–100,000 signatures/second** per core
+- At typical ZMQ frame rates (one frame per 10 ms per slot at 1 MHz IQ), signing cost is microseconds per frame
+- **Estimated CPU load:** less than 0.1 core across all 5 slots
+
+#### Optional encryption (AES-256-GCM)
+
+- EIC7700X implements the RISC-V **Zkn** scalar cryptography extension (part of RVA22 / RV64GCH); OpenSSL on Linux uses Zkn instructions automatically for AES and SHA acceleration
+- Software AES-256-GCM throughput on RV64GCH with Zkn: approximately **400–600 MB/s** per core
+- 5 slots at 20 MB/s total IQ: well under 5% of one core for encryption
+- **Estimated CPU load:** less than 0.5 core
+
+#### Aggregate estimate — 5 slots, signing enabled, encryption enabled, AI classification enabled
+
+| Task | Estimated load |
+|------|----------------|
+| IQ processing — GNU Radio, 5 slots | ~1–2 CPU cores |
+| ZeroMQ IPC | < 0.5 CPU core |
+| Ed25519 frame signing | < 0.1 CPU core |
+| AES-256-GCM encryption (optional) | < 0.5 CPU core |
+| ht-module-daemon, SWR monitoring, housekeeping | < 0.5 CPU core |
+| AI signal classification / squelch (5 slots) | < 10% of 19.95 TOPS NPU |
+| **Total CPU** | **~2–3 cores of 4** |
+| **Total NPU** | **< 10% of 19.95 TOPS** |
+
+The SiFive P550's 4 cores leave approximately **1–2 cores free** at full 5-slot operation with all security features and AI classification enabled. This headroom accommodates logging, remote SSH access, web management, and modest additional processing. Builds requiring more CPU headroom should consider the **K3 Pico-ITX** (8 cores, 60 TOPS) or **DC-ROMA** (8 cores, 50 TOPS) as compute platforms.
+
+> **Note on Megrez RAM:** The **32 GB LPDDR5** variant is strongly recommended for production builds. At 5-slot operation with GNU Radio flowgraphs, ZMQ ring buffers, AI model loading, and OS overhead, 16 GB is workable but leaves little margin for logging or future expansion. 32 GB is comfortable.
+
+### Compute board comparison
+
+The following boards were seriously evaluated for the repeater host role:
+
+| Board | SoC | CPU | AI / NPU | PCIe slot | RAM | Price | Form factor | Status |
+|-------|-----|-----|----------|-----------|-----|-------|-------------|--------|
+| Milk-V Megrez | ESWIN EIC7700X | 4× SiFive P550 @ 1.8 GHz | 19.95 TOPS | Gen3 ×4 | 16–32 GB LPDDR5 soldered | $199–$269 | Mini-ITX | **Primary — selected** |
+| SpacemiT K3 Pico-ITX | SpacemiT K3 | 8× X100 @ 2.4 GHz | 60 TOPS | Gen3 ×4 (M.2) | Up to 32 GB LPDDR5 | $299–$399 | Pico-ITX Plus | Secondary — preferred if I2S access confirmed |
+| Milk-V Titan | UltraRISC UR-DP1000 | 8× UR-CP100 @ 2.0 GHz | None | Gen4 ×16 | Up to 64 GB DDR4 ECC DIMM | $329 | Mini-ITX | Alternative — highest CPU performance; no NPU |
+| DeepComputing DC-ROMA | ESWIN EIC7702X | 8× SiFive P550 @ 2.0 GHz | 50 TOPS | Framework mainboard | 32–64 GB LPDDR5 | $349 | Framework / Cooler Master | Noted — strongest NPU; non-standard chassis |
+
+**Notes:**
+
+- The **K3 Pico-ITX** remains the preferred secondary platform due to its 60 TOPS NPU and native I2S/SAI peripherals which could eliminate the need for the ECP5 PCIe interface card entirely. It is listed as secondary rather than primary because the SAI pin accessibility on the Pico-ITX board has not yet been confirmed from publicly available hardware documentation as of June 2026. If SpacemiT or Sipeed publish a full pinout confirming SAI is accessible on the RTI FPC connector, the K3 Pico-ITX should be re-evaluated as primary.
+- The **Milk-V Titan** is retained as an alternative for builds prioritising raw CPU performance, ECC memory, and PCIe Gen4 bandwidth over NPU capability. It has no AI cores and is not recommended for builds where on-device signal classification is desired.
+- The **DC-ROMA** is noted for completeness. Its Framework laptop chassis form factor is incompatible with a rack-mounted repeater enclosure without significant mechanical adaptation.
+- All K3 Pico-ITX board variants (SpacemiT/Sipeed K3 Pico-ITX, Milk-V Jupiter 2, Banana Pi BPI-SM10) share the same SoC and are software-compatible with each other.
 
 ---
 
 ## 5. Storage
 
-### Configuration: 2 × 240 GB NVMe SSD in Linux software RAID 1 (mirror)
+### Configuration: NVMe SSD on onboard M.2
 
-Both M.2 slots on the K3 board are populated with 240 GB M.2 NVMe SSDs:
+The Megrez provides an **M.2 M-Key NVMe** slot (PCIe 2.0 ×2), plus eMMC and microSD connectors. A 240 GB or larger NVMe SSD is the primary system drive. Specify the **32 GB RAM** Megrez variant for production builds (see [Section 4](#4-compute-module)).
 
-- **Slot 1:** M.2 M-Key 2280, PCIe Gen3 ×4 (full bandwidth when slot 2 is empty)
-- **Slot 2:** M.2 B-Key 2242/3052, PCIe Gen3 ×2 (bandwidth shared with slot 1 when both populated)
+For sites requiring drive redundancy, options include:
 
-When both slots are in use, the M-Key slot runs at PCIe Gen3 ×2. For a mirrored pair this is entirely acceptable — RAID 1 reads from one drive and writes to both; sustained throughput around 1.5–2 GB/s per slot is far more than any GNU Radio or repeater workload requires.
+- Scheduled backup to a USB-attached SSD or network storage
+- microSD or eMMC as a secondary boot/recovery medium
 
-#### RAID setup
+Sustained NVMe throughput on PCIe 2.0 ×2 far exceeds any GNU Radio or repeater workload.
+
+#### Optional RAID setup (two-drive configuration)
+
+If a second NVMe drive is added (for example via USB enclosure or future PCIe storage adapter), Linux software RAID 1 remains supported:
 
 ```bash
 mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/nvme0n1 /dev/nvme1n1
@@ -247,7 +380,7 @@ cat /proc/mdstat
 mdadm --detail /dev/md0
 ```
 
-Systemd monitors the array and alerts on drive failure. The mirrored configuration ensures the repeater keeps running if one SSD fails, with the faulty drive replaceable after halting the array.
+Systemd monitors the array and alerts on drive failure.
 
 ---
 
@@ -363,9 +496,8 @@ DEVICES="/dev/ttyACM0"       # USB CDC ACM for u-blox USB
 GPSD_OPTIONS="-n"            # No-wait — start without client
 START_DAEMON="true"
 
-# Enable PPS discipline (1PPS GPIO wired to K3 EC-IO GPIO pin)
-# Add to /boot/firmware/config.txt or device tree:
-# dtoverlay=pps-gpio,gpiopin=<pin>
+# Enable PPS discipline (1PPS wired to GPIO — ECP5 card or USB GPIO adapter)
+# Platform-specific device tree or pps-gpio overlay as required
 ```
 
 #### Verifying GNSS lock and time quality
@@ -426,13 +558,13 @@ For most repeater deployments, Approach A (software PPM correction) is sufficien
 
 ### 7.1 Operating system
 
-**Ubuntu 26.04 LTS** (or Bianbu 3.0, its Ubuntu-based derivative pre-installed on K3 hardware). Ubuntu 26.04 requires RVA23 compliance, which the K3 satisfies — it is one of the first RISC-V platforms to qualify.
+**Ubuntu 24.04 LTS**, **Debian**, or **Fedora** on the Milk-V Megrez (ESWIN EIC7700X, RV64GCH). Mainline Linux support for the EIC7700X is in progress; vendor or distribution images are used until then. Dual **GbE** ports and onboard **Wi-Fi 6 / Bluetooth** support site networking and optional wireless management.
 
 ### 7.2 GNU Radio 4.0
 
 GNU Radio 4.0 reached Release Candidate 1 in March 2026. The core architecture is stable, the execution model is well-defined, and the API is no longer expected to undergo major breaking changes. It is the signal processing foundation of the repeater — handling IQ data ingestion from modules, filtering, demodulation, repeater logic (CTCSS/DCS detection, squelch, crossband linking), and re-modulation.
 
-**VOLK 3.3.0** (February 2026) added specific RISC-V vector optimisations. The K3's X100 cores support RVV 1.0 up to 1024-bit wide vector operations, which VOLK uses for SIMD-accelerated kernels — filters, FFTs, correlators — without any manual tuning.
+**VOLK 3.3.0** (February 2026) added RISC-V vector optimisations. Where the host CPU supports RVV, VOLK uses SIMD-accelerated kernels — filters, FFTs, correlators — without manual tuning.
 
 GNU Radio is the most powerful and flexible option but has a steep learning curve due to its flowgraph / block-programming paradigm. For operators who prefer a more direct interface, the following GNU Radio-based frontends are available.
 
@@ -527,7 +659,7 @@ gr-ident is designed to work alongside **[gr-linux-crypto](https://github.com/Su
 
 ### 7.5 ZeroMQ IPC
 
-**[ZeroMQ](https://zeromq.org/)** (ZMQ) is the inter-process communication layer between the radio module hardware path and signal processing on the K3. Raw IQ from each band's RFIC is delivered over I2S on the DIN 41612 backplane (up to 32 MHz bit clock at 1 MHz IQ bandwidth) into **`ht-module-daemon`**, which publishes framed RX IQ on per-band PUB sockets. GNU Radio (`gr-ht13g`), SDRangel, and recorders connect as SUB clients. TX IQ and hardware control use separate sockets.
+**[ZeroMQ](https://zeromq.org/)** (ZMQ) is the inter-process communication layer between the radio module hardware path and signal processing on the Linux host. Raw IQ from each band's RFIC is delivered over I2S on the DIN 41612 backplane (via the ECP5 PCIe interface card, up to 32 MHz bit clock at 1 MHz IQ bandwidth) into **`ht-module-daemon`**, which publishes framed RX IQ on per-band PUB sockets. GNU Radio (`gr-ht13g`), SDRangel, and recorders connect as SUB clients. TX IQ and hardware control use separate sockets.
 
 | Plane | Sockets | Purpose |
 |-------|---------|---------|
@@ -547,7 +679,7 @@ Hardware daemon details: **[docs/RF-modules.md](docs/RF-modules.md)**, [Section 
 
 ## 8. Authenticated Remote Control
 
-Remote management of the repeater over the air replaces DTMF entirely. For **local** TX/RX switching, frequency, and gain on the K3, applications use the ZeroMQ `ctrl` socket described in [Section 7.5](#75-zeromq-ipc); Section 8 is the signed RF command channel for remote operators. All control commands are cryptographically signed using GnuPG-compatible keys. The repeater authenticates every command in **`repeater-authd`** (Rust) before acting on it and logs every accepted change with a complete audit trail.
+Remote management of the repeater over the air replaces DTMF entirely. For **local** TX/RX switching, frequency, and gain on the Linux host, applications use the ZeroMQ `ctrl` socket described in [Section 7.5](#75-zeromq-ipc); Section 8 is the signed RF command channel for remote operators. All control commands are cryptographically signed using GnuPG-compatible keys. The repeater authenticates every command in **`repeater-authd`** (Rust) before acting on it and logs every accepted change with a complete audit trail.
 
 **Normative specifications:** [docs/ota-remote-control.md](docs/ota-remote-control.md) (OTA frame format and verification), [docs/repeater-logic.md](docs/repeater-logic.md) (supervisor and PTT policy), [docs/implementation-language.md](docs/implementation-language.md) (Rust daemons).
 
@@ -657,15 +789,15 @@ The BMS inside the battery pack provides cell balancing, over-charge protection,
 
 | Component | Typical draw |
 |-----------|-------------|
-| SpacemiT K3 SBC (idle–load) | 10–20 W |
-| 4 × radio modules (RX only) | ~8 W |
-| 4 × radio modules (1 active TX at 5 W RF) | ~15–20 W additional |
+| Milk-V Megrez host + ECP5 interface card (idle–load) | 15–30 W |
+| 5 × radio modules (RX only) | ~10 W |
+| 5 × radio modules (1 active TX at 5 W RF) | ~15–20 W additional |
 | GNSS receiver | ~0.1–0.3 W |
 | Backplane, regulators, fans | ~5–10 W |
-| **Total typical** | **~40–60 W** |
-| **Total peak (all TX)** | **~80 W** |
+| **Total typical** | **~50–70 W** |
+| **Total peak (all TX)** | **~90 W** |
 
-The DRC-100B at 100 W provides comfortable headroom for typical operation. The DRC-240B is recommended if all four modules may transmit simultaneously or if a larger battery requires faster recharge.
+The DRC-100B at 100 W provides comfortable headroom for typical operation. The DRC-240B is recommended if all five modules may transmit simultaneously or if a larger battery requires faster recharge.
 
 ### 9.4 Battery status monitoring in Linux
 
@@ -673,14 +805,14 @@ Battery state is exposed to Linux through two complementary paths.
 
 #### Path 1 — DRC alarm GPIO signals
 
-The DRC module's `AC OK` and `Battery Low` pins connect to two GPIO inputs on the K3's EC-IO FPC connector. A systemd service monitors these signals:
+The DRC module's `AC OK` and `Battery Low` pins connect to GPIO inputs readable by the Linux host — via a USB GPIO adapter, or optional chassis-management GPIO on the ECP5 interface card. A systemd service monitors these signals:
 
 - `AC OK` low → mains has failed, system is on battery
 - `Battery Low` low → battery voltage below 22 V (24 V nominal system), initiate graceful shutdown
 
 #### Path 2 — TI BQ27xxx fuel gauge (I²C)
 
-A **TI BQ27427** or **BQ27441** fuel gauge IC wires to the K3's I²C bus (available on the EC-IO connector). The Linux mainline driver `bq27xxx_battery_i2c` exposes the following to userspace via `/sys/class/power_supply/battery/`:
+A **TI BQ27427** or **BQ27441** fuel gauge IC on the battery pack connects to the Linux host over **I²C** (USB-I²C adapter or optional I²C on the ECP5 card). The Linux mainline driver `bq27xxx_battery_i2c` exposes the following to userspace via `/sys/class/power_supply/battery/`:
 
 - `capacity` — state of charge in percent
 - `voltage_now` — real-time battery terminal voltage
@@ -735,10 +867,10 @@ Without a generator, battery capacity and panel sizing together determine winter
                                                              │
                                                [24 V LiFePO4 battery + BMS]
                                                              │
-                                               [BQ27xxx I²C fuel gauge] ──► [K3 EC-IO I²C]
-                                               [DRC AC OK / Bat Low pins] ─► [K3 EC-IO GPIO]
-                                               [GNSS receiver] ─────────────► [K3 USB / UART]
-                                               [GNSS 1PPS output] ──────────► [K3 EC-IO GPIO]
+                                               [BQ27xxx I²C fuel gauge] ──► [Linux host I²C]
+                                               [DRC AC OK / Bat Low pins] ─► [Linux host GPIO]
+                                               [GNSS receiver] ─────────────► [Megrez USB / UART]
+                                               [GNSS 1PPS output] ──────────► [ECP5 or GPIO adapter]
 ```
 
 The battery bus is always live. The DRC module and MPPT controller both float-charge the battery and power the bus simultaneously. Priority management is automatic — each unit regulates to its output voltage setpoint and the higher-voltage source contributes more current naturally.
@@ -765,7 +897,7 @@ The hardware does not distinguish between amateur and commercial allocations. A 
 
 Encryption of voice and data is legally permitted — and often required — on commercial and private PMR allocations in most jurisdictions. The cryptographic infrastructure already present in this system (see [Section 8.3](#83-gr-linux-crypto)) is fully capable of supporting encrypted operation:
 
-- **AES-256-GCM** authenticated encryption via the Linux kernel crypto API, hardware-accelerated on the K3 SoC
+- **AES-256-GCM** authenticated encryption via the Linux kernel crypto API
 - **Brainpool P-256/P-384 ECC** for key exchange and digital signatures — chosen specifically to avoid algorithm monoculture and NSA-influenced curve parameters
 - **Multi-recipient ECIES** allowing a single transmission to be decrypted by up to 25 independent key holders — useful for fleet or group communications
 - **Nitrokey hardware token** support ensuring private keys never exist in software-accessible memory; removing the token immediately clears all cached key material
@@ -830,24 +962,26 @@ The open nature of the hardware and software stack facilitates regulatory compli
 | Backplane | 3U Eurocard subrack with DIN 41612 backplane | IEC 60297; DIN 41612 Type C + har-bus 64 |
 | Power supply | Mean Well DRC-100B or DRC-240B (DIN rail) | 24 V DC bus to backplane |
 | Radio module ×3 | 2 m / 70 cm / 23 cm SDR TX/RX | DIN 41612 Eurocard (100 × 160 mm), RP-SMA front panel |
-| Expansion slot | Spare (4th module) | DIN 41612 Eurocard |
-| Compute | SpacemiT K3 Pico-ITX or K3-CoM260 SoM | On-board PCIe Gen3, GbE RJ45, USB 3.2 (local to compute board) |
+| Expansion slots | Spare (slots D–E) | DIN 41612 Eurocard |
+| Compute host | Milk-V Megrez Mini-ITX (ESWIN EIC7700X) | 32 GB LPDDR5 soldered; M.2 NVMe; 2× GbE; Wi-Fi 6 |
+| Backplane interface | ECP5-25F PCIe card | PCIe Gen1 ×1 (in Megrez Gen3 ×4 slot); USB fallback |
 | Module daemon | `ht-module-daemon` (Rust, libzmq) | ZMQ IPC under `/run/ht-module/` — see [docs/repo-map.md](docs/repo-map.md) |
 | Repeater control | `repeater-control` repo: `repeater-supervisord` + `repeater-authd` (Rust) | [docs/runtime/repeater-control.md](docs/runtime/repeater-control.md) |
-| Storage | 2 × 240 GB M.2 NVMe SSD, mdadm RAID 1 | M-Key + B-Key on K3 board |
-| GNSS receiver | u-blox NEO-M9N (standard) or ZED-F9T (precision) | USB or UART to K3; 1PPS to GPIO |
+| Storage | NVMe SSD (240 GB+), M.2 M-Key on Megrez | PCIe 2.0 ×2 |
+| GNSS receiver | u-blox NEO-M9N (standard) or ZED-F9T (precision) | USB or UART to Megrez; 1PPS to ECP5 or GPIO adapter |
 | GNSS antenna | Active multi-band patch, roof/mast mount | SMA / TNC coaxial |
 | Battery | 24 V / 20–40 Ah LiFePO4 with BMS | 24 V DC bus |
-| Battery monitor | TI BQ27427 / BQ27441 fuel gauge | I²C → K3 EC-IO |
-| AC alarm signals | DRC `AC OK` + `Battery Low` pins | GPIO → K3 EC-IO |
+| Battery monitor | TI BQ27427 / BQ27441 fuel gauge | I²C → Linux host (USB-I²C or ECP5) |
+| AC alarm signals | DRC `AC OK` + `Battery Low` pins | GPIO → Linux host (USB GPIO or ECP5) |
 | Solar (optional) | MPPT 24 V / 20–30 A controller + panel array | 24 V DC bus |
 
 ### Software stack summary
 
 | Layer | Component |
 |-------|-----------|
-| OS | Ubuntu 26.04 LTS (RISC-V RVA23) |
-| SDR framework | GNU Radio 4.0 + VOLK 3.3 (RISC-V vector optimised) |
+| OS | Ubuntu 24.04 LTS, Debian, or Fedora on Milk-V Megrez (EIC7700X) |
+| SDR framework | GNU Radio 4.0 + VOLK 3.3 (RISC-V vector where supported) |
+| AI / NPU | EIC7700X 19.95 TOPS INT8 — signal classification, AI squelch (optional) |
 | IQ transport | [ZeroMQ](https://zeromq.org/) — see [docs/zeromq-messages.md](docs/zeromq-messages.md) |
 | Mode identification | [gr-ident](https://github.com/Supermagnum/gr-ident) preamble (optional automatic mode switching) |
 | Repeater application (fork upstream) | [f4exb/sdrangel](https://github.com/f4exb/sdrangel) — TX/RX, plugins, server/REST |
@@ -859,16 +993,17 @@ The open nature of the hardware and software stack facilitates regulatory compli
 | Frequency correction | Software PPM in GNU Radio / SDRangel (standard); hardware 10 MHz ref (optional) |
 | Remote control | `repeater-authd` (Rust) + gr-linux-crypto (Brainpool, CallsignKeyStore, Nitrokey) |
 | Audit log | `/var/log/repeater/audit.log` — append-only JSON, daily repeater-signed rotation |
-| Crypto | Linux kernel crypto API (K3 hardware AES/SHA/RSA) + GnuPG userspace + gr-linux-crypto |
+| Crypto | Linux kernel crypto API + GnuPG userspace + gr-linux-crypto |
 | Battery monitoring | `bq27xxx_battery_i2c` → `/sys/class/power_supply/battery/` |
-| RAID | mdadm RAID 1 on two NVMe SSDs |
+| RAID | Optional mdadm RAID 1 if second NVMe added |
 | UPS signalling | systemd service on DRC GPIO alarm pins |
+| Site management | Dual GbE; optional Wi-Fi 6 / SSH remote access |
 
 ### Key standards used
 
 | Standard | Description |
 |----------|-------------|
-| RISC-V RVA23 | Open CPU instruction set architecture |
+| RISC-V RV64GCH | Host CPU ISA (ESWIN EIC7700X, SiFive P550) |
 | IEC 60297 | 3U Eurocard mechanical form factor |
 | DIN 41612 / IEC 60603-2 | Backplane signal connector (96-pin Type C) |
 | DIN 41612 har-bus 64 | High-current power contacts (+12 V PA rail) |
