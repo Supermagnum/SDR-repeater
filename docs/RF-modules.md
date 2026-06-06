@@ -3,7 +3,7 @@
 **Document:** Module RF Hardware Design Specification  
 **Revision:** 0.2  
 **Date:** June 2026  
-**Relates to:** SDR Multiband Repeater System Design v1.4  
+**Relates to:** SDR Multiband Repeater System Design v1.5  
 
 **Status:** This document records **design ideas and a target architecture** — not committed tapeout data, BOMs, or shipping hardware. Numbers, block diagrams, and MPW plans may change as bench results and shuttle runs inform later revisions.
 
@@ -31,7 +31,7 @@
 
 ## 1. Design Context and Rationale
 
-The repeater system described in the companion document uses up to four pluggable radio modules on a 3U OpenVPX backplane, in slots **A** through **D**. Each slot has a fixed **module address** (letter). The band a module covers comes from the module PCB and EEPROM, not from the slot letter — two slots can hold the same band (for example 70 cm in B and 70 cm in C).
+The repeater system described in the companion document uses up to four pluggable radio modules on a 3U Eurocard backplane (IEC 60297), in slots **A** through **D**. Each slot has a fixed **module address** (letter). The band a module covers comes from the module PCB and EEPROM, not from the slot letter — two slots can hold the same band (for example 70 cm in B and 70 cm in C).
 
 Example default install:
 
@@ -40,7 +40,7 @@ Example default install:
 - Slot C — 23 cm: 1240–1258 MHz, 500 kHz IQ bandwidth, 5 W TX (or a second 70 cm link module)
 - Slot D — spare or expansion
 
-Each module is a self-contained PCB that plugs into a VITA 46 edgecard slot on the backplane. It carries its own RFIC, RF front end, power amplifier, band-pass filter, T/R switch, variable attenuator, SWR bridge, and external LNA. IQ data is transported digitally over the backplane data bus. The default antenna interface is front-panel **RP-SMA**; optional **Type-N** jacks are preferred where panel space and the site coax plan allow (see [Section 9.5](#95-antenna-connector-options-rp-sma-or-type-n)).
+Each module is a self-contained PCB that plugs into a DIN 41612 Eurocard connector slot on the backplane. It carries its own RFIC, RF front end, power amplifier, band-pass filter, T/R switch, variable attenuator, SWR bridge, and external LNA. IQ data is transported digitally over the backplane data bus. The default antenna interface is front-panel **RP-SMA**; optional **Type-N** jacks are preferred where panel space and the site coax plan allow (see [Section 9.6](#96-antenna-connector-options-rp-sma-or-type-n)).
 
 This document specifies the RFIC(s) for these modules and the surrounding RF signal chain.
 
@@ -50,12 +50,12 @@ The repeater module context differs from a handheld transceiver in several impor
 
 | Parameter | OpenHT-DB handheld | Repeater module |
 |-----------|-------------------|-----------------|
-| Form factor | Single PCB, battery-powered | VITA 46 edgecard, backplane-powered |
-| IQ interface | I2S to iMX93 SoM on same PCB | I2S over backplane VITA 46 to SpacemiT K3 |
+| Form factor | Single PCB, battery-powered | 3U Eurocard (100 × 160 mm), DIN 41612 backplane connector, backplane-powered |
+| IQ interface | I2S to iMX93 SoM on same PCB | I2S over backplane DIN 41612 to SpacemiT K3 |
 | Audio hardware | Codec, mic, headphone | Present on module PCB — used for bench test and optional monitoring |
 | Display / keypad | On chassis | Not on module — on chassis manager or remote |
 | ALSA | Required (audio output to user) | Available; used for bench testing and optional direct monitoring |
-| Battery / charging | On-board BMS + USB-C PD | External DC from backplane VITA 62 rails |
+| Battery / charging | On-board BMS + USB-C PD | External DC from backplane PSU rails (+12 V PA, +5 V, +3.3 V, +1.8 V) |
 | USB-A (security token) | On-board | On main SBC via backplane; Nitrokey token plugged into K3 USB-A |
 | Bands per PCB | Dual (VHF + UHF) | Single band per module |
 | GNSS on module | No — on main SBC | No — on main SBC |
@@ -149,7 +149,7 @@ Two RFIC variants are specified, covering all three repeater bands:
 | **HT13G-M** | 130–175 MHz (VHF) + 400–480 MHz (UHF) — dual chain | 2 m module + 70 cm module (one chip, two independent chains) |
 | **HT13G-S** | 1200–1300 MHz (L-band / 23 cm) — single chain | 23 cm module |
 
-The HT13G-M is the dual-chain variant adapted from the OpenHT-DB handheld specification, with the handheld-specific interfaces (audio codec, display, battery management) removed and the backplane interfaces (I2S over VITA 46, SPI configuration, ZeroMQ IPC) substituted.
+The HT13G-M is the dual-chain variant adapted from the OpenHT-DB handheld specification, with the handheld-specific interfaces (audio codec, display, battery management) removed and the backplane interfaces (I2S over DIN 41612, SPI configuration, ZeroMQ IPC) substituted.
 
 The HT13G-S is a new single-chain design targeting the 23 cm band. The SiGe HBT process easily covers 1.2–1.3 GHz; this is well within the transistor's capabilities at fT of 300 GHz.
 
@@ -439,7 +439,7 @@ P_fwd  = calibrated from V_fwd using factory calibration table in module EEPROM
 P_ref  = calibrated from V_ref using factory calibration table in module EEPROM
 ```
 
-Factory calibration maps detector voltage to power in dBm at three reference points per band (stored in module EEPROM at offset 0x18 onwards — see [Section 9.4](#94-vita-46-connector-pin-assignment)). This allows accurate absolute power reporting without requiring the 3.3 V ADC reference to be a precision source.
+Factory calibration maps detector voltage to power in dBm at three reference points per band (stored in module EEPROM at offset 0x18 onwards — see [Section 9.5](#95-din-41612-connector-pin-assignment)). This allows accurate absolute power reporting without requiring the 3.3 V ADC reference to be a precision source.
 
 **Automatic protection:** If SWR > 3.0 is measured during transmit, `ht-module-daemon` immediately:
 
@@ -543,7 +543,7 @@ A 7-element Chebyshev band-pass filter is placed between the PA output and the S
 
 ## 8. Module PCB Architecture
 
-Each module is a single PCB on a 3U OpenVPX edgecard form factor (~100 × 100 mm usable area, 160 mm pitch per VITA 46 standard). The module is self-contained: all RF components, RFIC, SWR bridge, power conditioning, and backplane interface logic are on-board.
+Each module is a single PCB on a **3U Eurocard form factor (100 × 160 mm per IEC 60297)**. The module is self-contained: all RF components, RFIC, SWR bridge, power conditioning, and backplane interface logic are on-board. The backplane interface uses a **Harting DIN 41612 Type C 96-pin connector** (2.54 mm pitch) plus **har-bus 64 hybrid power contacts** for the +12 V PA rail. KiCad standard library includes DIN 41612 footprints; no custom footprint is required.
 
 ### 8.1 Layer Stack (6-layer, identical for all three modules)
 
@@ -554,29 +554,32 @@ Each module is a single PCB on a 3U OpenVPX edgecard form factor (~100 × 100 mm
 | L3 | Power distribution — 3.3 V, 5 V, 12 V PA rail |
 | L4 | Secondary power + slow signals — SPI, I2S, GPIO, I²C, SWR ADC signals |
 | L5 | Solid ground plane — shielding between digital and RF |
-| L6 bottom | Backplane interface — VITA 46 connector signals, PCIe/GbE routing |
+| L6 bottom | Backplane interface — DIN 41612 connector signals and power distribution |
 
 ### 8.2 Board Zoning
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  RF ZONE (L1, via-fence boundary)                           │
+│  RF ZONE (L1, double-row via-fence boundary)                │
 │  RFIC · External LNA · PA (5W) · BPF · SWR Bridge          │
 │  Detector diodes · T/R Switch · Variable Attenuator         │
-│  50 Ω microstrip L1                                         │
+│  50 Ω microstrip L1 · mandatory shield cans (Würth/Laird)   │
 ├────────────────────────────────────┬────────────────────────┤
 │  MIXED ZONE                        │  DIGITAL ZONE          │
-│  VCTCXO 32 MHz                     │  VITA 46 edgecard      │
-│  VCTCXO_TUNE RC filter             │  connector area        │
-│  SWR ADC (MCP3202 / ADS1015)       │  PCIe / GbE PHY        │
+│  VCTCXO 32 MHz                     │  DIN 41612 connector   │
+│  VCTCXO_TUNE RC filter             │  area (96-pin + har-bus)│
+│  SWR ADC (MCP3202 / ADS1015)       │  power contacts)       │
 │  SPI / I2S traces (short,          │  Power conditioning    │
-│  series-terminated 33 Ω)           │  Module control FPGA   │
-│  RP-SMA / Type-N (front panel)     │  (optional, per rev)   │
+│  series-terminated 33 Ω,            │  Module control logic  │
+│  via-fenced both sides)            │  (optional FPGA per rev)│
+│  RP-SMA / Type-N (front panel)     │                        │
 │  Power regulators                  │                        │
 └────────────────────────────────────┴────────────────────────┘
-│  VITA 46 EDGECARD CONNECTOR (bottom edge)                   │
+│  DIN 41612 CONNECTOR + har-bus POWER (bottom edge)          │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+The RF zone perimeter is enclosed by a **double row of vias** connecting L2 to L5 at the boundary shown above. Via fences on I2S and SPI traces continue to within **2 mm** of the DIN 41612 connector footprint pads at the bottom edge.
 
 ### 8.3 RF Signal Routing Rules
 
@@ -594,7 +597,11 @@ Each module is a single PCB on a 3U OpenVPX edgecard form factor (~100 × 100 mm
 | SWR ADC traces | L4, below L5 ground plane | Isolate from RF zone |
 | RP-SMA connector | Front-panel edge mount; coax land on L1 (default `-SMA` variant) | Use when panel space is tight or cables are short RP-SMA patches |
 | Type-N connector | Front-panel bulkhead; same coax land (`-N` variant) | **Preferred when it fits** — fixed sites, outdoor enclosures, large coax |
-| Shield cans | Press-fit SMD cans over RF zone (Würth or Laird) | Strongly recommended for production |
+| **Via fence — RF and high-speed data** | **Mandatory continuous via fences on both sides of the trace for the full routed length** | All RF signal paths and high-speed data lanes (I2S, SPI) must be enclosed; complements but does not replace shield cans |
+| Via spacing (fence / stitch array) | ≤ λ/20 at highest operating frequency (12 mm @ 1240 MHz); **2–3 mm in practice** | Adequate isolation; via fences must connect L2 ground plane to L5 ground plane at regular intervals, stitching all ground layers together |
+| RF zone perimeter via fence | **Double row** of vias at RF zone boundary (see Section 8.2) | RF isolation from digital and mixed zones |
+| I2S / SPI via fence at connector | Continue to within **2 mm** of DIN 41612 connector footprint pads | Prevent backplane-edge coupling on high-speed lanes |
+| Shield cans | **Mandatory** press-fit SMD cans over RF zone (Würth or Laird) | Physical shielding required; via fences complement but do not replace shield cans |
 
 ### 8.4 Test Points and Audio Monitoring
 
@@ -608,15 +615,38 @@ Every module exposes the following test points for bench characterisation and au
 - I2S header (1×6, 2.54 mm) for direct audio capture during testing
 - **3.5 mm TRRS audio jack (populated on all variants)** — carries stereo IQ (I = Left, Q = Right) at baseband; allows direct monitoring or capture via any PC soundcard without the full backplane. Pinout follows Kenwood convention for compatibility with existing test equipment. In repeater operation, this port is available as a live audio monitoring tap.
 
+### 8.5 Ground Plane and Copper Pour Thermal Policy
+
+All ground copper pours on L1 (top) and L6 (bottom) serve a dual purpose: RF/signal reference and thermal mass/heatspreading.
+
+- **L1 and L6 ground pours** must be thermally and electrically tied together through a regular array of thermal vias across the full board area (not only the RF zone).
+- **L2 and L5 solid ground planes** must also be interconnected to L1 and L6 pours via the same via array — all six layers share a common ground with low thermal impedance between them.
+- The **PA copper pour** (5 W output, ~7.5 W dissipation at 40% efficiency) immediately beneath and surrounding the PA footprint must be a **dedicated high-density via array** (minimum 3×3, 0.4 mm drill, 1 mm pitch) connecting L1 through to L2 and L3 to spread heat into the power plane.
+- The module PCB must be designed to conduct heat **laterally to the card guide rails and chassis wall** — do not rely solely on convection. Copper pour continuity to the PCB edges (within DRC rules) is required.
+- **KiCad thermal relief settings:** disable thermal relief spokes on all ground pour connections in the RF zone and PA area; use solid fills only — spokes increase thermal and RF impedance.
+
 ---
 
 ## 9. Backplane Interface
 
-Each module communicates with the SpacemiT K3 compute module over the VITA 46 backplane fabric.
+Each module communicates with the SpacemiT K3 compute module over the backplane via a **DIN 41612 Eurocard connector system**. The module PCB retains the 3U Eurocard form factor (100 × 160 mm per IEC 60297).
 
-### 9.1 Data Transport: I2S over VITA 46
+### 9.1 Connector System
 
-The RFIC produces IQ samples as I2S audio streams (I = Left, Q = Right, 16-bit signed). At 500 kHz IQ bandwidth, the I2S bit clock is 16 MHz (500 kHz × 2 channels × 16 bits). This is a slow, deterministic serial bus — entirely compatible with routing over the VITA 46 utility plane or a dedicated serial lane.
+| Connector | Type | Pitch | Rating | Function |
+|-----------|------|-------|--------|----------|
+| **J_BACKPLANE** | Harting DIN 41612 Type C, 96-pin (3-row: a/b/c) | 2.54 mm | 2 A per signal contact; gold over nickel mating surface | I2S, SPI, GPIO, I²C, VCTCXO_TUNE, and low-current power rails (+3.3 V, +1.8 V, +5 V) |
+| **J_POWER** | Harting har-bus 64 hybrid power contacts | 5.08 mm | 6–15 A per contact | +12 V PA rail — minimum one dedicated power contact per module slot, rated comfortably above the 6 A (72 W) per-slot budget |
+
+Where dedicated har-bus power contacts are not used for a high-current rail, a **minimum of four signal pins in parallel** per rail is required, with matched trace widths on the module PCB.
+
+The 96-pin DIN 41612 connector provides sufficient capacity for all current and future module signals within the pin budget. No separate data-plane connector (equivalent to the former VITA 46 J1) is required or populated.
+
+KiCad standard library includes DIN 41612 footprints; no custom footprint is required.
+
+### 9.2 Data Transport: I2S over Backplane
+
+The RFIC produces IQ samples as I2S audio streams (I = Left, Q = Right, 16-bit signed). At 500 kHz IQ bandwidth, the I2S bit clock is 16 MHz (500 kHz × 2 channels × 16 bits). This is a slow, deterministic serial bus — entirely compatible with routing over the DIN 41612 signal connector.
 
 On the SpacemiT K3, each I2S stream maps to one SAI (Synchronous Audio Interface) peripheral:
 
@@ -628,11 +658,11 @@ On the SpacemiT K3, each I2S stream maps to one SAI (Synchronous Audio Interface
 
 For the production repeater, the I2S streams are not presented to userspace via ALSA. Instead, a kernel driver or DMA path feeds the raw IQ samples directly into the ZeroMQ IPC layer (see Section 10). ALSA mapping is used only during bench testing.
 
-### 9.2 Configuration: SPI over VITA 46
+### 9.3 Configuration: SPI over Backplane
 
-Each module's RFIC is configured via SPI. The SPI bus is carried over the VITA 46 utility plane (J0). Each module has a unique chip-select line, allowing all three modules to share a single SPI bus from the K3.
+Each module's RFIC is configured via SPI. The SPI bus is carried over the DIN 41612 signal connector. Each module has a unique chip-select line, allowing all three modules to share a single SPI bus from the K3.
 
-The SWR ADC (MCP3202) shares the same SPI bus with a dedicated chip-select line per module, or uses I²C (ADS1015 variant) on the shared I²C utility plane bus.
+The SWR ADC (MCP3202) shares the same SPI bus with a dedicated chip-select line per module, or uses I²C (ADS1015 variant) on the shared I²C backplane bus.
 
 | Signal | Direction | Notes |
 |--------|-----------|-------|
@@ -646,7 +676,7 @@ The SWR ADC (MCP3202) shares the same SPI bus with a dedicated chip-select line 
 | SPI_CS_ADC_70CM | K3 → 70 cm module | same |
 | SPI_CS_ADC_23CM | K3 → 23 cm module | same |
 
-### 9.3 Control Signals over VITA 46
+### 9.4 Control Signals over Backplane
 
 | Signal | Direction | Function |
 |--------|-----------|----------|
@@ -668,72 +698,86 @@ The SWR ADC (MCP3202) shares the same SPI bus with a dedicated chip-select line 
 | VCTCXO_TUNE_2M | K3 → module | PWM + RC filter → 0–1.8 V analog |
 | VCTCXO_TUNE_70CM | K3 → module | same |
 | VCTCXO_TUNE_23CM | K3 → module | same |
-| TEMP_2M | module → K3 | I²C temperature sensor (per slot, VITA 46 J0 utility plane) |
+| TEMP_2M | module → K3 | I²C temperature sensor (per slot, shared I²C backplane bus) |
 | TEMP_70CM | module → K3 | same |
 | TEMP_23CM | module → K3 | same |
 
-### 9.4 VITA 46 Connector Pin Assignment
+### 9.5 DIN 41612 Connector Pin Assignment
 
-The OpenVPX VITA 46 edgecard connector on each module has three physical connectors: **J0** (utility plane, power, slow signals), **J1** (data plane, primary high-speed fabric), and optionally **J2** (secondary fabric or expansion). Pin designations follow the VITA 46.0 standard naming convention: row letters A–Z (component side) and rows a–z (solder side), columns 1 onward.
+Pin designations follow the DIN 41612 / IEC 60603-2 naming convention: **rows a, b, c** (component side, viewed from the mating face); **columns 1–32**. The 96-pin Type C connector occupies columns 1–32 on all three rows.
 
-**J0 — Utility plane, power, and module control signals**
+**har-bus power contacts (J_POWER) — +12 V PA rail**
 
-J0 carries power rails, I²C, SPI configuration, GPIO control signals, I2S IQ streams, and GNSS discipline. All signals here are low-frequency or quasi-static.
+| Contact | Signal | Direction | Description |
+|---------|--------|-----------|-------------|
+| P1 | +12V_PA | PWR in | PA supply rail (direct backplane bus, decoupled on module); minimum one contact per slot, rated > 6 A |
+| P2 | +12V_PA_RET | PWR return | PA return; paired with P1 |
 
-| J0 Pin | Signal | Direction | Description |
-|--------|--------|-----------|-------------|
-| A1 | GND | — | Ground |
-| A2 | GND | — | Ground |
-| A3 | +12V_PA | PWR in | PA supply rail (direct battery bus, decoupled on module) |
-| A4 | +12V_PA | PWR in | PA supply rail (second pin for current capacity) |
-| A5 | +5V | PWR in | 5 V from VITA 62 PSU |
-| A6 | +3V3 | PWR in | 3.3 V from VITA 62 PSU |
-| A7 | +1V8 | PWR in | 1.8 V from VITA 62 PSU |
-| A8 | GND | — | Ground |
-| B1 | SPI_CLK | In | Shared SPI clock from K3 (up to 10 MHz) |
-| B2 | SPI_MOSI | In | SPI data from K3 to RFIC and SWR ADC |
-| B3 | SPI_MISO | Out | SPI data from RFIC / SWR ADC to K3 (tri-state when CS inactive) |
-| B4 | SPI_CS_N | In | Active-low chip select for RFIC (unique per module) |
-| B5 | SPI_CS_ADC_N | In | Active-low chip select for SWR ADC (unique per module; NC if I²C ADC variant fitted) |
-| B6 | ATT_LE | In | Attenuator latch enable (PE4312 parallel mode LE pin) |
-| B7 | RFIC_RESET_N | In | Active-low RFIC reset from K3 |
-| B8 | GND | — | Ground |
-| C1 | RFIC_IRQ_N | Out | Active-low IRQ: PLL unlock, AGC threshold, RSSI update |
-| C2 | PTT | In | TX enable from K3 (step 1 in PTT sequence) |
-| C3 | TR_SW | In | T/R switch control from K3 (step 2 in PTT sequence) |
-| C4 | PA_EN | In | PA enable from K3 (step 3, after 1 ms delay) |
-| C5 | ANT_SW | In | Shared/independent antenna mode select (HT13G-M only; NC on HT13G-S module) |
-| C6 | MOD_PRESENT | Out | Module presence detect — pulled low on module, open on empty slot |
-| C7 | MOD_ID0 | Out | Module type ID bit 0 (resistor-coded: 00=2m, 01=70cm, 10=23cm, 11=spare) |
-| C8 | MOD_ID1 | Out | Module type ID bit 1 |
-| D1 | GND | — | Ground |
-| D2 | I2C_SCL | In | I²C clock — VITA 46 J0 utility plane bus (shared, 100 kHz); temperature sensor, EEPROM, SWR ADC (ADS1015 variant) |
-| D3 | I2C_SDA | Bidir | I²C data |
-| D4 | VCTCXO_TUNE | In | Analog 0–1.8 V GNSS frequency discipline (from K3 PWM + RC filter) |
-| D5 | PPS_REF | In | Optional 1PPS reference input for module-local timestamp (not required for basic operation) |
-| D6 | I2S_BCLK | In | I2S bit clock from K3 SAI peripheral |
-| D7 | I2S_LRCLK | In | I2S left/right clock (500 kHz IQ sample rate word select) |
-| D8 | I2S_DOUT | Out | I2S data out from RFIC to K3 (RX IQ: I=Left, Q=Right, 16-bit) |
-| E1 | I2S_DIN | In | I2S data in to RFIC from K3 (TX IQ) |
-| E2–E8 | GND | — | Ground (via-fence reference, RF zone boundary) |
+A second har-bus contact pair may be populated for redundancy or current sharing on high-duty-cycle installs. If har-bus contacts are unavailable on a prototype backplane, use **four or more paralleled signal pins** on J_BACKPLANE with matched PCB trace widths (see paralleling note in Section 9.1).
 
-**Notes on J0:**
+**J_BACKPLANE — 96-pin signal connector (columns 1–16 assigned; 17–32 GND fence / reserved)**
+
+Columns 1–8 carry power (low-current), SPI, and GPIO. Columns 9–16 carry I²C, VCTCXO, and I2S. Columns 17–32 are tied to GND on the module PCB (via-fence reference and reserved capacity).
+
+| Pin | Signal | Direction | Description |
+|-----|--------|-----------|-------------|
+| a1 | GND | — | Ground |
+| a2 | GND | — | Ground |
+| a3 | +5V | PWR in | 5 V from backplane PSU |
+| a4 | +3V3 | PWR in | 3.3 V from backplane PSU |
+| a5 | +1V8 | PWR in | 1.8 V from backplane PSU |
+| a6 | +3V3 | PWR in | 3.3 V (second pin for current capacity) |
+| a7 | GND | — | Ground |
+| a8 | GND | — | Ground |
+| b1 | SPI_CLK | In | Shared SPI clock from K3 (up to 10 MHz) |
+| b2 | SPI_MOSI | In | SPI data from K3 to RFIC and SWR ADC |
+| b3 | SPI_MISO | Out | SPI data from RFIC / SWR ADC to K3 (tri-state when CS inactive) |
+| b4 | SPI_CS_N | In | Active-low chip select for RFIC (unique per module) |
+| b5 | SPI_CS_ADC_N | In | Active-low chip select for SWR ADC (unique per module; NC if I²C ADC variant fitted) |
+| b6 | ATT_LE | In | Attenuator latch enable (PE4312 parallel mode LE pin) |
+| b7 | RFIC_RESET_N | In | Active-low RFIC reset from K3 |
+| b8 | GND | — | Ground |
+| c1 | RFIC_IRQ_N | Out | Active-low IRQ: PLL unlock, AGC threshold, RSSI update |
+| c2 | PTT | In | TX enable from K3 (step 1 in PTT sequence) |
+| c3 | TR_SW | In | T/R switch control from K3 (step 2 in PTT sequence) |
+| c4 | PA_EN | In | PA enable from K3 (step 3, after 1 ms delay) |
+| c5 | ANT_SW | In | Shared/independent antenna mode select (HT13G-M only; NC on HT13G-S module) |
+| c6 | MOD_PRESENT | Out | Module presence detect — pulled low on module, open on empty slot |
+| c7 | MOD_ID0 | Out | Module type ID bit 0 (resistor-coded: 00=2m, 01=70cm, 10=23cm, 11=spare) |
+| c8 | MOD_ID1 | Out | Module type ID bit 1 |
+| a9 | GND | — | Ground |
+| a10 | I2C_SCL | In | I²C clock — shared backplane bus (100 kHz); temperature sensor, EEPROM, SWR ADC (ADS1015 variant) |
+| a11 | I2C_SDA | Bidir | I²C data |
+| a12 | VCTCXO_TUNE | In | Analog 0–1.8 V GNSS frequency discipline (from K3 PWM + RC filter) |
+| a13 | PPS_REF | In | Optional 1PPS reference input for module-local timestamp (not required for basic operation) |
+| a14 | GND | — | Ground |
+| a15 | GND | — | Ground |
+| a16 | GND | — | Ground |
+| b9 | GND | — | Ground |
+| b10 | GND | — | Ground |
+| b11 | GND | — | Ground |
+| b12 | GND | — | Ground |
+| b13 | GND | — | Ground |
+| b14 | I2S_BCLK | In | I2S bit clock from K3 SAI peripheral |
+| b15 | I2S_LRCLK | In | I2S left/right clock (500 kHz IQ sample rate word select) |
+| b16 | GND | — | Ground |
+| c9 | I2S_DOUT | Out | I2S data out from RFIC to K3 (RX IQ: I=Left, Q=Right, 16-bit) |
+| c10 | I2S_DIN | In | I2S data in to RFIC from K3 (TX IQ) |
+| c11–c16 | GND | — | Ground (via-fence reference) |
+| a17–a32 | GND | — | Ground / reserved |
+| b17–b32 | GND | — | Ground / reserved |
+| c17–c32 | GND | — | Ground / reserved |
+
+**Notes on J_BACKPLANE:**
 
 - `MOD_PRESENT` allows the K3 to detect which slots are populated at boot. The K3 reads `MOD_ID[1:0]` and module EEPROM to learn each module's band type. An empty slot presents high-impedance on all lines.
-- `I2C_SDA/SCL` are shared across all module slots on the J0 utility plane bus. Each module has a unique I²C address for its temperature sensor, EEPROM, and (if the ADS1015 ADC variant is fitted) SWR ADC. Temperature sensors use the LM75 / TMP102 family (7-bit address set by address pins on the module).
+- `I2C_SDA/SCL` are shared across all module slots on the backplane I²C bus. Each module has a unique I²C address for its temperature sensor, EEPROM, and (if the ADS1015 ADC variant is fitted) SWR ADC. Temperature sensors use the LM75 / TMP102 family (7-bit address set by address pins on the module).
 - `VCTCXO_TUNE` is a per-module signal — each module has its own RC-filtered PWM input from a separate K3 PWM channel, allowing independent VCTCXO discipline per band.
 - `I2S_BCLK`, `I2S_LRCLK`, `I2S_DOUT`, `I2S_DIN` are per slot — each populated module occupies one SAI peripheral on the K3 (SAI mapping: slot A, B, C, D).
 - All GPIO signals (PTT, TR_SW, PA_EN, ATT_LE, RFIC_RESET_N) are 1.8 V logic driven by the K3 EC-IO GPIO. The RFIC `VDD_IO` must be configured to 1.8 V on all modules to match. No level translation is required.
 - `RFIC_IRQ_N` is an open-drain output from the module; a 10 kΩ pull-up to 1.8 V is on the module PCB.
 - `SPI_CS_ADC_N` is a separate chip-select for the SWR ADC (MCP3202 variant). If the I²C ADC variant (ADS1015) is fitted instead, this pin is NC and the ADC is addressed via `I2C_SDA/SCL`.
-
-**J1 — Data plane (reserved for future high-speed expansion)**
-
-J1 is reserved. In the current design, all IQ data is carried over J0 I2S at 500 kHz bandwidth — well within the J0 signal routing capability. J1 is not connected at this time. If a future module variant requires higher IQ bandwidth (e.g. wideband monitoring beyond 500 kHz), J1 provides PCIe Gen 3 × 1 or GbE lanes per the VITA 65 slot profile.
-
-| J1 Pins | Signal | Notes |
-|---------|--------|-------|
-| All | NC | Not connected in current revision. PCB pads present; VITA 46 connector populated for mechanical retention. |
+- I2S and SPI traces require continuous via fences on both sides for their full routed length, extending to within 2 mm of the connector pads (see Section 8.3).
 
 **Module identity EEPROM**
 
@@ -752,7 +796,7 @@ Each module carries a small I²C EEPROM (24C02 or equivalent, 256 bytes) at a un
 
 The `ht-module-daemon` reads this EEPROM at startup to identify each installed module, load its calibration constants, and set the correct VCTCXO trim starting point before GNSS discipline takes over. The SWR detector calibration tables are loaded into the daemon's memory and used for all subsequent SWR computations during TX.
 
-### 9.5 Antenna connector options — RP-SMA or Type-N
+### 9.6 Antenna connector options — RP-SMA or Type-N
 
 Analog RF leaves the module T/R switch through one front-panel coax jack. The PCB layout supports **RP-SMA** (default) or **Type-N** on the same 50 Ω microstrip land. This choice affects only the faceplate RF port.
 
@@ -780,7 +824,7 @@ T/R switch ── SWR Bridge ── BPF ── Type-N (front panel) ── coax 
 
 Order **`-N`** per module when the panel cutout and enclosure depth accommodate a Type-N bulkhead and the antenna run justifies it. **23 cm** modules at permanent sites should default to Type-N unless panel constraints forbid it. **2 m** modules may remain RP-SMA on compact builds.
 
-Type-N does **not** replace the VITA 46 edgecard connector.
+Type-N does **not** replace the DIN 41612 backplane connector.
 
 **Module PCB variants:**
 
@@ -789,7 +833,7 @@ Type-N does **not** replace the VITA 46 edgecard connector.
 | `-SMA` (default) | RP-SMA populated | Compact panel, indoor/cabinet, short patches |
 | `-N` | Type-N populated | Type-N fits the panel and site coax — preferred for fixed outdoor repeaters |
 
-One connector type per module at assembly. IQ (I2S on J0), SPI, GPIO, EEPROM, SWR monitoring, and ZeroMQ are unchanged between variants.
+One connector type per module at assembly. IQ (I2S on J_BACKPLANE), SPI, GPIO, EEPROM, SWR monitoring, and ZeroMQ are unchanged between variants.
 
 **Layout:** Type-N bulkheads need a larger panel opening and slightly more depth than RP-SMA. If the cutout cannot be made without violating the Section 8.3 λ/10 trace-length rule, stay on `-SMA` rather than forcing Type-N.
 
@@ -868,7 +912,7 @@ The 64-bit nanosecond timestamp uses the system clock disciplined by chrony + GN
 The `ht-module-daemon` is a single Rust daemon responsible for:
 
 - Initialising all three module RFICs via SPI on startup; loading SWR calibration tables from each module's EEPROM
-- Reading module temperature sensors via I²C (VITA 46 utility plane) and publishing via status socket
+- Reading module temperature sensors via I²C (backplane bus) and publishing via status socket
 - Managing the PTT sequence (hardware-enforced order: RFIC PTT → T/R switch → 1 ms delay → PA enable) in response to `ctrl` socket commands
 - Setting attenuator values via SPI in response to `ctrl` socket commands
 - **Polling the SWR ADC on each transmitting module** at regular intervals during TX (recommended: every 100 ms); computing SWR from forward and reflected detector voltages using the EEPROM calibration table; publishing `swr`, `fwd_w`, and `ref_w` in the `status` JSON
@@ -930,11 +974,11 @@ A Phase 1 (VHF RX chain) submission targeting the October 2026 run would receive
 | DC offset in zero-IF VHF chain | Medium–High | Standard direct-conversion challenge; digital feedback loop in spec; calibrate on startup via `ht-module-daemon` |
 | IQ imbalance at 1240 MHz (HT13G-S) | Medium–High | L-band IQ balance harder than VHF/UHF; on-chip IQ calibration registers; measured and corrected at startup |
 | IHP MPW 2 mm² area insufficient for full HT13G-M die | High | Planned; individual chain validation in community slots before commercial MPW submission |
-| 5 W PA thermal dissipation on module | Medium | 40% efficiency → 7.5 W total at full power; module PCB copper pour to chassis wall; duty-cycle limiting in firmware; module slot pitch provides ventilation |
+| 5 W PA thermal dissipation on module | Medium | 40% efficiency → 7.5 W total at full power; dedicated PA copper pour with high-density via array (3×3 minimum, 0.4 mm drill, 1 mm pitch, L1–L3); L1/L6 ground pour heatspreading to card guides and chassis wall per Section 8.5; duty-cycle limiting in firmware; module slot pitch provides ventilation |
 | SWR bridge directivity at VHF (144 MHz) | Medium | Toroidal transformer couplers at VHF can exhibit reduced directivity below 150 MHz; validate directivity at 144 MHz on bench; adjust winding ratio or use transmission-line coupler if directivity < 20 dB |
 | SWR detector calibration drift with temperature | Low–Medium | Schottky detector diodes have temperature-dependent characteristics; three-point calibration table in EEPROM covers nominal temperature; consider two-temperature calibration table in future EEPROM revision |
 | PE4312 insertion loss at 1240 MHz | Low | Rated to 4 GHz; at 1.24 GHz insertion loss rises slightly but remains < 2 dB; acceptable for system NF budget |
-| VITA 46 I2S signal integrity over backplane | Low | I2S at 16 MHz bit clock is well within VITA 46 bandwidth; series termination 33 Ω |
+| DIN 41612 I2S signal integrity over backplane | Low | I2S at 16 MHz bit clock is well within DIN 41612 routing capability; series termination 33 Ω; mandatory via fences on I2S and SPI traces per Section 8.3 |
 | ZMQ IPC latency causing TX audio artefacts | Low | ZMQ PUB/SUB is sub-millisecond at localhost; hardware PTT sequencing (1 ms delay) already dominates latency |
 | SG13G2Cu BEOL availability for 23 cm VCO inductors | Medium | Standard Al BEOL thick layer may suffice; Cu BEOL option available from IHP at additional cost if Q is insufficient |
 | SKY13351 availability (supply chain) | Low | Multiple equivalent SPDT RF switches available (pSemi, MACOM); footprint-compatible alternatives exist |

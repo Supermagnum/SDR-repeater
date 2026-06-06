@@ -1,8 +1,10 @@
 # SDR Multiband Repeater System Design
 
-**Revision:** 1.4  
+**Revision:** 1.5  
 **Date:** June 2026  
-**Architecture:** Open Silicon · Linux · Modular OpenVPX  
+**Architecture:** Open Silicon · Linux · Modular Eurocard  
+
+> **Revision 1.5 changes:** Backplane connector changed from VITA 46 / OpenVPX to DIN 41612 Eurocard; IQ bandwidth increased to 1 MHz maximum; PCB design standards (via fences, thermal ground pours) added.  
 
 ---
 
@@ -63,7 +65,7 @@ This document describes a modular, Linux-based, software-defined radio (SDR) rep
 
 ### Design principles
 
-- All hardware uses open or openly-documented standards (RISC-V ISA, OpenVPX/VITA 65, VITA 46, VITA 67)
+- All hardware uses open or openly-documented standards (RISC-V ISA, IEC 60297 Eurocard, DIN 41612 / IEC 60603-2)
 - All software is free and open source (Linux, GNU Radio ecosystem)
 - All schematics, PCB layouts, and enclosure designs produced in KiCad and publicly available
 - Pluggable modular architecture — radio modules are field-replaceable
@@ -86,53 +88,85 @@ The system supports up to four pluggable radio modules on the backplane. Three b
 
 | Module | Band | Frequency Range | IQ Bandwidth | TX Power | Antenna |
 |--------|------|-----------------|--------------|----------|---------|
-| 2 metre | VHF | 144–146 MHz | 500 kHz | 5 W | RP-SMA (front panel) |
-| 70 cm | UHF | 432–438 MHz | 500 kHz | 5 W | RP-SMA (front panel) |
-| 23 cm | UHF/SHF | 1240–1258 MHz | 500 kHz | 5 W | RP-SMA (front panel) |
+| 2 metre | VHF | 144–146 MHz | 1 MHz max | 5 W | RP-SMA (front panel) |
+| 70 cm | UHF | 432–438 MHz | 1 MHz max | 5 W | RP-SMA (front panel) |
+| 23 cm | UHF/SHF | 1240–1258 MHz | 1 MHz max | 5 W | RP-SMA (front panel) |
 | Expansion | — | User-defined | — | — | RP-SMA (front panel) |
+
+Sample rates of 25 / 50 / 100 / 200 / 500 kHz / 1 MHz are selectable per module via SPI register. At the maximum 1 MHz IQ bandwidth, the I2S bit clock is 32 MHz (1 MHz × 2 channels × 16 bits).
 
 ### Module interface
 
 Each module connects to the backplane via:
 
-- **Edge connector:** VITA 46 high-speed serial connector (Eurocard edgecard)
-- **Data bus:** VITA 46 utility plane (**I2S** IQ per module into the compute slot) and optional chassis PCIe/GbE for expansion — see [ADR 001](docs/adr/001-iq-transport-i2s-zmq.md). Baseline repeater IQ is **not** carried as raw PCIe DMA from RF modules.
-- **Power:** +12 V, +5 V, +3.3 V from backplane VITA 62 power rails
-- **Temperature monitoring:** I²C on the VITA 46 J0 utility plane (per-slot sensor readable by the chassis manager and Linux `hwmon`)
-- **RF antenna port:** RP-SMA on the module front panel for the antenna connection. IQ data is transported digitally over the VITA 46 data bus; the RP-SMA is the antenna interface only, not a backplane RF path.
+- **Backplane connector:** DIN 41612 Type C, 96-pin (Harting or equivalent), 2.54 mm pitch — standard Eurocard backplane interface replacing all former VITA 46 edgecard references
+- **IQ data:** **I2S** at up to 32 MHz bit clock (1 MHz IQ bandwidth maximum) over DIN 41612 signal contacts — well within the connector's signal bandwidth capability; see [ADR 001](docs/adr/001-iq-transport-i2s-zmq.md)
+- **Configuration:** SPI at 10 MHz, I²C utility bus, GPIO control signals — all carried on standard DIN 41612 signal contacts
+- **Power:** +12 V PA rail via dedicated **har-bus 64** high-current power contacts (6–15 A per slot); logic rails (+3.3 V, +5 V, +1.8 V) on standard 2 A signal contacts
+- **Temperature monitoring:** I²C on the shared backplane bus (per-slot sensor readable by the chassis manager and Linux `hwmon`)
+- **RF antenna port:** RP-SMA on the module front panel for the antenna connection. IQ data is transported digitally over the DIN 41612 backplane; the RP-SMA is the antenna interface only, not a backplane RF path.
 - **Userspace IQ:** The **`ht-module-daemon`** (Rust; specified, see [docs/repo-map.md](docs/repo-map.md)) on the K3 publishes per-band RX IQ and accepts TX IQ over **ZeroMQ** sockets (see [Section 7.5](#75-zeromq-ipc))
 
-> **Note on VITA 67:** VITA 67 RF backplane connectors (SMPM/SMPS blind-mate coaxial) are available as an option if RF signals ever need to be routed through the backplane rather than digitised at the module. At 144–1258 MHz with 500 kHz IQ bandwidth, digital transport over VITA 46 is the preferred and simpler approach, making front-panel RP-SMA the natural choice.
+The DIN 41612 architecture is sized for the actual signal requirements of this repeater. High-speed differential signalling, backplane PCIe, and backplane GbE are not planned — all module interconnect is carried on the DIN 41612 signal and power contacts described above.
+
+> **Note on analog RF through the backplane:** RF is digitised at each module; analog RF exits only through the front-panel RP-SMA (or optional Type-N) connector. At 144–1258 MHz with up to 1 MHz IQ bandwidth, digital I2S transport over DIN 41612 is the preferred and simpler approach.
+
+### Module PCB design standards
+
+Mandatory layout standards apply to all module PCBs. Full detail is in **[docs/RF-modules.md](docs/RF-modules.md)** Sections 8.3 and 8.5; summary:
+
+- **Via fences:** All RF paths and high-speed data lanes (I2S, SPI) are enclosed by continuous via fences for their full routed length; maximum via spacing 2–3 mm; fences stitch L2 and L5 ground planes at regular intervals; double-row via fence at RF zone perimeter
+- **Ground planes:** All ground copper pours on all layers are interconnected via a regular thermal/ground via array (5 mm grid minimum) across the full board area; solid fill only in RF and PA zones — no thermal relief spokes
+- **Thermal management:** Ground and power copper pours serve dual RF reference and heatspreading roles; thermal path is PA junction → L1 copper → thermal vias → inner planes → PCB edge → card guide → chassis wall; PA area uses minimum 3×3 high-density via array (0.4 mm drill, 1 mm pitch) beneath the package connecting L1 through L3
+- **Shield cans:** Press-fit SMD shield cans (Würth or Laird) over the RF zone on all module variants; via fences complement but do not replace physical shielding
+- **Impedance:** 50 Ω microstrip on L1 throughout RF zone; all RF routing rules from the RF Module Hardware Design Specification apply
 
 ---
 
 ## 3. Backplane Architecture
 
-### Standard: 3U OpenVPX (VITA 65)
+### Standard: 3U Eurocard (IEC 60297)
 
-The backplane follows the VITA 65 OpenVPX standard, the dominant open modular standard for SDR and embedded computing systems. It uses Eurocard edgecard connectors (VITA 46) as required.
+The backplane uses a **3U Eurocard** modular architecture with **DIN 41612** connectors. Module slots **A–D** accept 100 × 160 mm PCBs per IEC 60297. Chassis and card guides are standard 3U Eurocard rack hardware (Schroff, Elma, Pico, or equivalent) — widely available and significantly cheaper than VPX chassis hardware.
 
 Key characteristics:
 
-- **Form factor:** 3U (Eurocard height), pluggable card architecture
-- **Edge connector:** VITA 46 multi-gigabit serial connector — the edgecard interface for all modules
-- **Slot count:** 5 slots minimum — 4 × payload (radio modules) + 1 × VITA 62 power supply
-- **Data fabric:** PCIe Gen 3 or Ethernet switch topology connecting all payload slots
-- **Utility plane (J0):** I²C / SMBus for temperature monitoring, chassis management, and per-slot health signals
-- **Power distribution:** VITA 62 pluggable PSU — provides +24 V bus, with per-slot regulation to +12 V, +5 V, +3.3 V
+- **Form factor:** 3U Eurocard (100 mm × 160 mm module PCB)
+- **Module slots:** A–D — four pluggable radio module slots
+- **Signal connector:** DIN 41612 Type C, 96-pin (Harting or equivalent), 2.54 mm pitch, 2 A per signal contact, gold over nickel mating surface
+- **Power connector:** Harting har-bus 64 hybrid power contacts, 5.08 mm pitch, 6–15 A per contact for the +12 V PA rail; logic rails (+3.3 V, +5 V, +1.8 V) carried on standard signal contacts
+- **Interconnect:** I2S (up to 32 MHz bit clock), SPI (10 MHz), I²C utility bus, GPIO — all on DIN 41612 signal contacts; no high-speed differential fabric or backplane PCIe/GbE
+- **Power distribution:** External PSU (Mean Well DRC series or equivalent) feeds a 24 V DC bus; backplane distributes +12 V PA (har-bus), +5 V, +3.3 V, and +1.8 V per slot
+- **KiCad:** Standard library includes DIN 41612 footprints; no custom connector footprint required for the backplane interface
 
-### Recommended chassis: Pixus Technologies 3U OpenVPX Cube
+### Recommended chassis
 
-The Pixus 3U OpenVPX Cube chassis is only 42 HP (8.4 inches) wide and accommodates four to five OpenVPX boards in the 3U form factor with a compact power supply. Various VITA 65 backplane profiles are available with options for VITA 66 or 67 interfaces, and pluggable VITA 62 or fixed ATX power supply units are supported.
+Standard 3U Eurocard subracks from **Schroff**, **Elma**, **Pico**, or equivalent vendors, with card guides and a custom or off-the-shelf DIN 41612 backplane. These are widely stocked by industrial distributors at substantially lower cost than OpenVPX/VPX enclosures.
+
+### Backplane interconnect summary
+
+| Signal class | Transport | Detail |
+|--------------|-----------|--------|
+| IQ data | I2S over DIN 41612 | Up to 32 MHz bit clock (1 MHz IQ × 2 channels × 16 bits) |
+| Configuration | SPI @ 10 MHz | Shared bus, per-module chip select |
+| Management | I²C @ 100 kHz | Temperature sensor, EEPROM, optional SWR ADC |
+| Control | GPIO | PTT, T/R switch, PA enable, attenuator |
+| Power (PA) | har-bus 64 contacts | +12 V, 6–15 A per slot |
+| Power (logic) | DIN 41612 signal contacts | +3.3 V, +5 V, +1.8 V at 2 A per contact |
+
+### Open hardware and connector sourcing
+
+- DIN 41612 connectors conform to **IEC 60603-2** — a mature, widely sourced open standard with no licensing encumbrances
+- **KiCad** standard libraries include DIN 41612 footprints; no proprietary or custom footprints are required for the backplane interface
+- Compatible parts are available from Harting, TE Connectivity, Molex, Amphenol, and many other manufacturers — no single-source dependency
 
 ### Backplane standards reference
 
 | Standard | Role |
 |----------|------|
-| VITA 46 | Base VPX connector and signalling |
-| VITA 65 (OpenVPX) | System-level interoperability profiles |
-| VITA 62 | Power supply form factor and rails |
-| VITA 67 | Optional RF coaxial backplane connectors (SMPM/SMPS) |
+| IEC 60297 | 3U Eurocard mechanical dimensions and rack practice |
+| DIN 41612 / IEC 60603-2 | 96-pin Type C backplane signal connector |
+| DIN 41612 har-bus 64 | Hybrid high-current power contacts (+12 V PA rail) |
 
 ---
 
@@ -185,7 +219,7 @@ These are consumed transparently by GnuPG, OpenSSL, dm-crypt/LUKS, and the kerne
 | Milk-V | Jupiter 2 | Same board in chassis, $300–$575 |
 | Banana Pi | BPI-SM10 (K3-CoM260) | SoM form factor for carrier board integration |
 
-For integration into the OpenVPX backplane, the **K3-CoM260 SoM** (260-pin SO-DIMM, compatible with Jetson Orin Nano/NX carrier boards) is the cleanest path, enabling a custom 3U VPX carrier board design.
+For integration into the Eurocard backplane, the **K3-CoM260 SoM** (260-pin SO-DIMM, compatible with Jetson Orin Nano/NX carrier boards) is the cleanest path, enabling a custom 3U Eurocard carrier board design.
 
 ---
 
@@ -493,7 +527,7 @@ gr-ident is designed to work alongside **[gr-linux-crypto](https://github.com/Su
 
 ### 7.5 ZeroMQ IPC
 
-**[ZeroMQ](https://zeromq.org/)** (ZMQ) is the inter-process communication layer between the radio module hardware path and signal processing on the K3. Raw IQ from each band's RFIC is delivered over I2S/DMA into **`ht-module-daemon`**, which publishes framed RX IQ on per-band PUB sockets. GNU Radio (`gr-ht13g`), SDRangel, and recorders connect as SUB clients. TX IQ and hardware control use separate sockets.
+**[ZeroMQ](https://zeromq.org/)** (ZMQ) is the inter-process communication layer between the radio module hardware path and signal processing on the K3. Raw IQ from each band's RFIC is delivered over I2S on the DIN 41612 backplane (up to 32 MHz bit clock at 1 MHz IQ bandwidth) into **`ht-module-daemon`**, which publishes framed RX IQ on per-band PUB sockets. GNU Radio (`gr-ht13g`), SDRangel, and recorders connect as SUB clients. TX IQ and hardware control use separate sockets.
 
 | Plane | Sockets | Purpose |
 |-------|---------|---------|
@@ -696,8 +730,8 @@ Without a generator, battery capacity and panel sizing together determine winter
 
 ```
 [230 V AC mains] ──► [Mean Well DRC-100B/240B] ──┐
-                                                   ├──► [24 V DC bus] ──► [OpenVPX VITA 62 PSU]
-[Solar panels] ──► [MPPT charge controller] ──────┘         │
+                                                   ├──► [24 V DC bus] ──► [Backplane power distribution]
+[solar panels] ──► [MPPT charge controller] ──────┘         │
                                                              │
                                                [24 V LiFePO4 battery + BMS]
                                                              │
@@ -793,11 +827,11 @@ The open nature of the hardware and software stack facilitates regulatory compli
 
 | Category | Component | Standard / Interface |
 |----------|-----------|---------------------|
-| Backplane | Pixus 3U OpenVPX Cube, 5-slot | VITA 65, VITA 46 edgecard |
-| Power supply slot | Mean Well DRC-100B or DRC-240B (DIN rail) | VITA 62 to OpenVPX |
-| Radio module ×3 | 2 m / 70 cm / 23 cm SDR TX/RX | VITA 46 edgecard, RP-SMA front panel |
-| Expansion slot | Spare (4th module or switch card) | VITA 46 edgecard |
-| Compute | SpacemiT K3 Pico-ITX or K3-CoM260 SoM | PCIe Gen3, GbE RJ45, USB 3.2 |
+| Backplane | 3U Eurocard subrack with DIN 41612 backplane | IEC 60297; DIN 41612 Type C + har-bus 64 |
+| Power supply | Mean Well DRC-100B or DRC-240B (DIN rail) | 24 V DC bus to backplane |
+| Radio module ×3 | 2 m / 70 cm / 23 cm SDR TX/RX | DIN 41612 Eurocard (100 × 160 mm), RP-SMA front panel |
+| Expansion slot | Spare (4th module) | DIN 41612 Eurocard |
+| Compute | SpacemiT K3 Pico-ITX or K3-CoM260 SoM | On-board PCIe Gen3, GbE RJ45, USB 3.2 (local to compute board) |
 | Module daemon | `ht-module-daemon` (Rust, libzmq) | ZMQ IPC under `/run/ht-module/` — see [docs/repo-map.md](docs/repo-map.md) |
 | Repeater control | `repeater-control` repo: `repeater-supervisord` + `repeater-authd` (Rust) | [docs/runtime/repeater-control.md](docs/runtime/repeater-control.md) |
 | Storage | 2 × 240 GB M.2 NVMe SSD, mdadm RAID 1 | M-Key + B-Key on K3 board |
@@ -835,13 +869,11 @@ The open nature of the hardware and software stack facilitates regulatory compli
 | Standard | Description |
 |----------|-------------|
 | RISC-V RVA23 | Open CPU instruction set architecture |
-| VITA 46 | VPX base connector and signalling |
-| VITA 65 (OpenVPX) | Backplane and module interoperability profiles |
-| VITA 62 | Power supply interface for VPX chassis |
-| VITA 67 | Optional RF coaxial backplane connectors |
+| IEC 60297 | 3U Eurocard mechanical form factor |
+| DIN 41612 / IEC 60603-2 | Backplane signal connector (96-pin Type C) |
+| DIN 41612 har-bus 64 | High-current power contacts (+12 V PA rail) |
 | NMEA 0183 | GNSS serial data protocol |
 | UBX | u-blox binary GNSS protocol |
 | RFC 5905 | NTP v4 (chrony implementation) |
 | OpenPGP / RFC 4880 | GnuPG key format, Web of Trust, digital signatures |
 | IEC 62619 | Battery safety standard for lithium systems |
-| IPC-2141 | PCB design reference for edgecard connectors |
