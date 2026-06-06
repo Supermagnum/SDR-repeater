@@ -11,9 +11,11 @@
 ## Table of Contents
 
 1. [System Overview](#1-system-overview)
+   - [Inter-rack and inter-site communication](#inter-rack-and-inter-site-communication)
 2. [Radio Modules](#2-radio-modules)
 3. [Backplane Architecture](#3-backplane-architecture)
 4. [Compute Module](#4-compute-module)
+   - [Computational overhead estimate](#computational-overhead-estimate)
 5. [Storage](#5-storage)
 6. [GNSS Timing and Frequency Reference](#6-gnss-timing-and-frequency-reference)
 7. [Software Stack](#7-software-stack)
@@ -46,6 +48,34 @@ A radio repeater receives a signal on one frequency and simultaneously retransmi
 ### What is a repeater network?
 
 A repeater network links multiple repeater sites together, so that a transmission into any one site is relayed across all of them simultaneously. This extends coverage across large geographic areas — across a county, a mountain range, or an entire country — while allowing users anywhere on the network to communicate with each other.
+
+### Inter-rack and inter-site communication
+
+Each 3U Eurocard rack unit is a self-contained repeater chassis: RF modules in slots A–E connect to the local compute host only through the **internal DIN 41612 backplane** and **ECP5 PCIe interface card**. That backplane does **not** extend between rack units — it is not a site-to-site link.
+
+**Rack unit to rack unit** communication uses standard **IP networking**:
+
+| Link scope | Transport | Purpose |
+|------------|-----------|---------|
+| Within one rack unit | DIN 41612 backplane + ECP5 card | I2S IQ, SPI, I²C, GPIO between RF modules and local host |
+| Between rack units / sites | **GbE RJ45** (primary) | Inter-site audio linking, ZeroMQ IQ/control over TCP, EchoLink/AllStar/VoIP, simulcast coordination, remote management, NTP |
+| Between rack units / sites | **Fiber** (optional) | Long cable runs, tower-to-shack links, or electrically isolated paths where copper is impractical |
+
+The Milk-V Megrez provides **two GbE RJ45 ports**. Typical site wiring:
+
+- **Port 1** — local site LAN (management, SSH, OpenWebRX+, operator access)
+- **Port 2** — dedicated inter-site link to another repeater rack, a hub switch, or a WAN router
+
+For fiber, use a **managed switch with SFP/SFP+ uplinks** between buildings or compounds, **fiber media converters** on an existing copper run, or a **PCIe fiber NIC** in the host where direct attachment is preferred. Fiber is optional — most linked repeater networks operate entirely over copper GbE within a few hundred metres, or over GbE to an IP router for wider-area links.
+
+Software transport on the LAN includes:
+
+- **ZeroMQ** `tcp://` bindings for IQ streaming and control between sites (same frame format as local IPC; see [Section 7.5](#75-zeromq-ipc))
+- **QRadioLink / EchoLink / AllStar** and similar ROIP stacks for voice linking
+- **Authenticated remote control** ([Section 8](#8-authenticated-remote-control)) — signed commands propagate across linked sites on the IP network
+- **GNSS time discipline** ([Section 6](#6-gnss-timing-and-frequency-reference)) — common UTC reference at each site independent of network latency; required for simulcast and coordinated transmit scheduling
+
+No proprietary inter-rack bus is defined. Any two rack units that can reach each other on IP — copper GbE or fiber — can participate in the same repeater network.
 
 ### Who uses repeaters?
 
@@ -95,7 +125,7 @@ Milk-V Megrez (Mini-ITX)
 │           ├── Slot C — RF module (23 cm)
 │           ├── Slot D — spare / expansion
 │           └── Slot E — spare / expansion
-├── 2× GbE — site network / management
+├── 2× GbE — site LAN + inter-rack / inter-site link (optional fiber via switch or media converter)
 ├── Wi-Fi 6 / BT — optional wireless management
 └── USB — peripheral / debug
 ```
@@ -159,7 +189,7 @@ Key characteristics:
 - **Module slots:** A–E — five pluggable radio module slots
 - **Signal connector:** DIN 41612 Type C, 96-pin (Harting or equivalent), 2.54 mm pitch, 2 A per signal contact, gold over nickel mating surface
 - **Power connector:** Harting har-bus 64 hybrid power contacts, 5.08 mm pitch, 6–15 A per contact for the +12 V PA rail; logic rails (+3.3 V, +5 V, +1.8 V) carried on standard signal contacts
-- **Interconnect:** I2S (up to 32 MHz bit clock), SPI (10 MHz), I²C utility bus, GPIO — all on DIN 41612 signal contacts, driven by the ECP5 interface card
+- **Interconnect:** I2S (up to 32 MHz bit clock), SPI (10 MHz), I²C utility bus, GPIO — all on DIN 41612 signal contacts, driven by the ECP5 interface card; **internal to one rack unit only** (see [Inter-rack and inter-site communication](#inter-rack-and-inter-site-communication))
 - **Power distribution:** External PSU (Mean Well DRC series or equivalent) feeds a 24 V DC bus; backplane distributes +12 V PA (har-bus), +5 V, +3.3 V, and +1.8 V per slot
 - **KiCad:** Standard library includes DIN 41612 footprints; no custom connector footprint required for the backplane interface
 
@@ -997,6 +1027,7 @@ The open nature of the hardware and software stack facilitates regulatory compli
 | Battery monitoring | `bq27xxx_battery_i2c` → `/sys/class/power_supply/battery/` |
 | RAID | Optional mdadm RAID 1 if second NVMe added |
 | UPS signalling | systemd service on DRC GPIO alarm pins |
+| Inter-site linking | GbE RJ45 (primary); optional fiber — ZeroMQ TCP, ROIP, simulcast, remote control |
 | Site management | Dual GbE; optional Wi-Fi 6 / SSH remote access |
 
 ### Key standards used
