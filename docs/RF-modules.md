@@ -110,7 +110,7 @@ The approach taken — **one dedicated RFIC per module**, each covering one amat
 
 ## 3. Fabrication Process: IHP SG13G2
 
-**IHP Microelectronics, Frankfurt (Oder), Germany** provides the only open-source PDK for a production-grade SiGe BiCMOS process. All three module RFICs are targeted to this process.
+**IHP Microelectronics, Frankfurt (Oder), Germany** provides the only open-source PDK for a production-grade SiGe BiCMOS process. All three module RFICs are targeted to this process. **IHP SG13CMOS5L** and **GlobalFoundries 8XP** are documented as alternatives in [Alternative processes](#alternative-processes).
 
 ### Process characteristics
 
@@ -130,13 +130,26 @@ The SiGe HBT's fT of 300+ GHz means the transistors are operating well below the
 
 ### OpenMPW shuttle program
 
-IHP runs regular OpenMPW shuttle batches for the SG13G2 process. Each community slot is 2 mm². Based on the published 2025–2026 schedule, shuttles have run approximately every 1–2 months with tapeout deadlines in April, May, July, and September 2025, and an SG13G2 MPW run scheduled for October 2026. Turn-around time is approximately 8 months for SG13G2.
+IHP runs regular OpenMPW shuttle batches for the SG13G2 and SG13CMOS5L processes. Each community slot is 2 mm². Based on the published 2025–2026 schedule, shuttles have run approximately every 1–2 months with tapeout deadlines in April, May, July, and September 2025, and an SG13G2 MPW run scheduled for October 2026. Turn-around time is approximately 8 months for SG13G2.
 
 The single-chain die for each band (Section 11 tapeout strategy) is sized to fit within the 2 mm² community slot, making the design accessible to independent validation before any commercial production run.
 
-### Fallback process
+### Alternative processes
 
-The design is intended to be portable to **GlobalFoundries 8XP** (commercial 130 nm SiGe BiCMOS) should production volume require it. The device models at this frequency are comparable, and the circuit topology is not process-specific at sub-1.5 GHz.
+The primary RFIC blocks (LNA, mixer, VCO, PA driver) depend on the SiGe HBT devices available only in SG13G2. Two additional processes are documented as alternatives for production scaling or OpenMPW prototyping where SG13G2 slots are unavailable.
+
+**GlobalFoundries 8XP** (commercial 130 nm SiGe BiCMOS) is the production-volume fallback. The device models at sub-1.5 GHz are comparable to SG13G2, and the circuit topology is not process-specific at the target bands.
+
+**IHP SG13CMOS5L** is a CMOS-only variant derived from the SG13 front-end, offered by IHP for open-source educational and prototyping runs. It shares the 130 nm CMOS core (1.2 V logic, 3.3 V I/O) but omits the SiGe HBT, MIM capacitors, and the upper metal layers present in SG13G2. The metal stack is four thin layers plus one 2 µm thick TopMetal (M1–M4 + TM1). An Apache 2.0 PDK is available in the IHP-Open-PDK repository (`ihp-sg13cmos5l`). Shuttle runs are scheduled more frequently and at lower cost than SG13G2.
+
+SG13CMOS5L cannot implement the full HT13G-M or HT13G-S RFIC as specified — the noise figure, IIP3, and VCO phase noise targets require SiGe HBT performance. It remains a viable alternative for:
+
+- Digital control logic, SPI/I2S interface blocks, and configuration registers that do not need RF devices
+- Early tapeout of ADC/DAC digital back-end stubs before committing an SG13G2 RF front-end run
+- Independent validation of non-RF die area and pad-frame layout within the 2 mm² OpenMPW community slot
+- Designs that accept reduced RF performance using CMOS-only circuit techniques at VHF/UHF
+
+Designs targeting SG13CMOS5L should be maintained as a separate PDK variant (`$PDK=ihp-sg13cmos5l`) alongside the primary SG13G2 netlist.
 
 ---
 
@@ -954,13 +967,13 @@ Full dual-band or triple-band integration on a single die would require approxim
 
 Phases 1–5 each fit within the 2 mm² community slot and can be submitted to the IHP OpenMPW program at no cost. Phases 6–7 require either a commercial MPW slot or a larger-area community allocation.
 
-### 11.2 Current MPW Schedule (SG13G2)
+### 11.2 Current MPW Schedule (SG13G2 / SG13CMOS5L)
 
 Based on the published IHP schedule as of May 2026:
 
 - **Next SG13G2 MPW run:** October 4, 2026 (tapeout deadline approximately August 2026)
-- **Following run:** November 15, 2026 (SG13CMOS5L — not applicable)
-- Turn-around time for SG13G2: approximately 8 months from tapeout to die delivery
+- **Next SG13CMOS5L MPW run:** November 15, 2026 (tapeout deadline approximately May 2026) — alternative for digital/control blocks or CMOS-only prototypes; see [Alternative processes](#alternative-processes)
+- Turn-around time for SG13G2: approximately 8 months from tapeout to die delivery; SG13CMOS5L runs typically have shorter turn-around
 
 A Phase 1 (VHF RX chain) submission targeting the October 2026 run would receive silicon approximately June 2027. All measurement results must be published open-source per the OpenMPW program requirements.
 
