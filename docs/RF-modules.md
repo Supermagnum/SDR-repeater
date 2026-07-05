@@ -1,11 +1,18 @@
 # SDR Repeater — RF Module and RFIC Specification
 
 **Document:** Module RF Hardware Design Specification  
-**Revision:** 0.2  
+**Revision:** 0.3  
 **Date:** June 2026  
 **Relates to:** SDR Multiband Repeater System Design v1.5  
 
 **Status:** This document records **design ideas and a target architecture** — not committed tapeout data, BOMs, or shipping hardware. Numbers, block diagrams, and MPW plans may change as bench results and shuttle runs inform later revisions.
+
+**Change summary (r0.2 → r0.3):** PA output power updated to 5 W standard / 20 W maximum across all bands. PA candidate parts, harmonic filter component ratings, +12 V PA rail current budget, duty cycle firmware limit, and risk register updated accordingly.
+
+**Note:**
+The linHT projects bandwidth target is currently up to 500 kHz IQ, that has a rf spectrum coverage of 0.5 MHz.
+It can be found here: 
+https://linux-radio.eu/
 
 ---
 
@@ -35,14 +42,23 @@ The repeater system described in the companion document uses up to four pluggabl
 
 Example default install:
 
-- Slot A — 2 metre: 144–146 MHz, 500 kHz IQ bandwidth, 5 W TX
-- Slot B — 70 cm: 432–438 MHz, 500 kHz IQ bandwidth, 5 W TX
-- Slot C — 23 cm: 1240–1258 MHz, 500 kHz IQ bandwidth, 5 W TX (or a second 70 cm link module)
+- Slot A — 2 metre: 144–146 MHz, 500 kHz IQ bandwidth, 5 W TX standard / 20 W TX maximum
+- Slot B — 70 cm: 432–438 MHz, 500 kHz IQ bandwidth, 5 W TX standard / 20 W TX maximum
+- Slot C — 23 cm: 1240–1258 MHz, 500 kHz IQ bandwidth, 5 W TX standard / 20 W TX maximum (or a second 70 cm link module)
 - Slot D — spare or expansion
 
 Each module is a self-contained PCB that plugs into a DIN 41612 Eurocard connector slot on the backplane. It carries its own RFIC, RF front end, power amplifier, band-pass filter, T/R switch, variable attenuator, SWR bridge, and external LNA. IQ data is transported digitally over the backplane data bus. The default antenna interface is front-panel **RP-SMA**; optional **Type-N** jacks are preferred where panel space and the site coax plan allow (see [Section 9.6](#96-antenna-connector-options-rp-sma-or-type-n)).
 
-This document specifies the RFIC(s) for these modules and the surrounding RF signal chain.
+### PA output power levels
+
+Two PA output power levels are defined for all module variants:
+
+| Level | RF output power | Typical use |
+|-------|----------------|-------------|
+| **Standard** | 5 W (37 dBm) | Indoor cabinets, low-interference sites, battery-backed installs |
+| **Maximum** | 20 W (43 dBm) | Hilltop sites, portable deployments, secondary links requiring range |
+
+The standard 5 W level is the default factory configuration. The 20 W level is selected by operator command via the `ctrl` ZMQ socket and stored in the module EEPROM. A firmware-enforced 50% duty cycle limit applies at all times when operating at 20 W output (see [Section 10.5](#105-ht-module-daemon-functions)). Forced-air cooling (120 mm fan beneath the module card cage) is required for sustained 20 W operation; see [Section 8.5](#85-ground-plane-and-copper-pour-thermal-policy).
 
 ### Key differences from the OpenHT-DB handheld design
 
@@ -225,7 +241,7 @@ Both RX and TX chains use direct-conversion (zero-IF) IQ architecture. Each chai
 | Architecture | Direct IQ upconversion | same | |
 | DAC architecture | 1-bit Σ-Δ interpolating | same | |
 | Input sample rates | 25 / 50 / 100 / 200 / 500 kHz | same | |
-| Output power (chip) | 0 ± 2 dBm into 50 Ω | same | External 5 W PA on module PCB |
+| Output power (chip) | 0 ± 2 dBm into 50 Ω | same | External PA on module PCB (see Section 7.3) |
 | Harmonic suppression | > 25 dBc | > 25 dBc | Module PCB band filter brings this to > 60 dBc |
 | TX/RX isolation | > 40 dB | > 40 dB | On-chip switch + external T/R switch on module |
 | PA driver current | Programmable 0 / 50 / 100% via SPI | same | |
@@ -326,7 +342,7 @@ Single-chain, single-band. Zero-IF direct conversion with on-chip LNA, IQ mixer,
 | Architecture | Direct IQ upconversion | |
 | DAC architecture | 1-bit Σ-Δ interpolating | |
 | Input sample rates | 25 / 50 / 100 / 200 / 500 kHz | |
-| Output power (chip) | 0 ± 2 dBm into 50 Ω | External 5 W PA on module PCB |
+| Output power (chip) | 0 ± 2 dBm into 50 Ω | External PA on module PCB (see Section 7.3) |
 | Harmonic suppression | > 25 dBc on-chip | PCB BPF brings to > 60 dBc |
 | TX/RX isolation | > 40 dB | On-chip switch + external T/R switch |
 
@@ -386,7 +402,7 @@ Variable Attenuator      SWR Bridge (directional coupler)
 External LNA       (7-element Chebyshev, > 60 dBc)
 (NF < 0.8 dB)           │
     │                    ▼
-    ▼              Power Amplifier (5 W)
+    ▼              Power Amplifier (5 W standard / 20 W maximum)
   [RFIC RX input]        │
                          ▲
                    [RFIC TX output]
@@ -398,7 +414,7 @@ The SWR bridge is placed **between the PA output and the T/R switch**, after the
 
 #### 7.2.1 Directional Coupler / Bridge
 
-A small-format directional coupler is placed in the TX path between the harmonic filter output and the T/R switch antenna port. At 5 W output power the coupler must handle full PA output continuously.
+A small-format directional coupler is placed in the TX path between the harmonic filter output and the T/R switch antenna port. At 20 W maximum output power the coupler must handle full PA output continuously at the standard 5 W level and at the maximum 20 W level under the 50% duty cycle firmware constraint.
 
 | Parameter | VHF (144 MHz) | UHF (432 MHz) | 23 cm (1240 MHz) |
 |-----------|:-------------:|:-------------:|:----------------:|
@@ -406,7 +422,7 @@ A small-format directional coupler is placed in the TX path between the harmonic
 | Coupling factor | 20 dB (forward), 20 dB (reflected) | same | same |
 | Directivity | > 20 dB | > 20 dB | > 18 dB |
 | Insertion loss | < 0.3 dB | < 0.3 dB | < 0.5 dB |
-| Power rating | > 10 W continuous | > 10 W continuous | > 10 W continuous |
+| Power rating | > 25 W continuous | > 25 W continuous | > 25 W continuous |
 | Implementation | SMD toroidal transformer (e.g. Coilcraft WBC series) | same | Hairpin microstrip on L1 |
 | Termination | 50 Ω load on isolated port (forward detector); 50 Ω on through port (reflected detector) | same | same |
 
@@ -419,7 +435,7 @@ Each coupler output (forward and reflected) drives an RF power detector diode. T
 | Parameter | Value |
 |-----------|-------|
 | Detector diode | Skyworks SMS7630 or equivalent zero-bias Schottky |
-| Detection range | −20 dBm to +10 dBm at detector input (20 dB coupling factor → 5 W = +37 dBm forward → +17 dBm at detector) |
+| Detection range | −20 dBm to +10 dBm at detector input (20 dB coupling factor → 20 W = +43 dBm forward → +23 dBm at detector) |
 | Output voltage range | ~50 mV to ~800 mV DC (log-linear characteristic) |
 | Low-pass filter | 10 kΩ + 100 nF RC after each detector (3 dB at ~160 Hz — envelope following for CW/FM; not audio-following) |
 | Supply | No supply required — zero-bias detector |
@@ -483,11 +499,11 @@ The module will not transmit again until an operator issues `MOD_CLEAR_FAULT` af
 | Frequency | DC–3 GHz | DC–3 GHz | DC–3 GHz |
 | Insertion loss | < 0.5 dB | < 0.5 dB | < 0.6 dB |
 | TX→RX isolation | > 30 dB | > 30 dB | > 28 dB |
-| Power handling | > 1 W continuous | > 1 W continuous | > 1 W continuous |
+| Power handling | > 25 W continuous | > 25 W continuous | > 25 W continuous |
 | Switching time | < 1 µs | < 1 µs | < 1 µs |
 | Control | 2 GPIO from SpacemiT K3 (via backplane) | same | same |
 
-The T/R switch is a key reliability element. Solid-state (PIN diode or CMOS SOI) switching is mandatory — no mechanical relays. All three bands can use the SKY13351 or its equivalent; at 1240 MHz insertion loss is slightly higher but remains acceptable.
+The T/R switch is a key reliability element. Solid-state (PIN diode or CMOS SOI) switching is mandatory — no mechanical relays. All three bands can use the SKY13351 or its equivalent; at 1240 MHz insertion loss is slightly higher but remains acceptable. **Power handling must be verified against the 20 W maximum level at the selected part's rated continuous power; derate to 50% duty cycle where continuous rating is marginal.**
 
 **PTT sequencing is hardware-enforced:**
 
@@ -523,24 +539,38 @@ The PE4312 covers DC–4 GHz, making it suitable for all three bands with a sing
 
 The external LNA defines the system noise figure, which is dominated by the first active stage. Placing the LNA before the attenuator means the attenuator's insertion loss and the RFIC's noise figure are both divided by the LNA gain when referred to the input — a critical system noise figure improvement.
 
-#### Power Amplifier (TX path, per band, 5 W output)
+#### Power Amplifier (TX path, per band)
+
+Two PA configurations are supported. Both share the same PCB footprint family where possible. The 20 W parts are assembled when the operator orders the **`-20W`** module variant; the 5 W parts are fitted by default.
 
 | Parameter | VHF | UHF | 23 cm |
 |-----------|-----|-----|-------|
+| **Standard output (5 W)** | | | |
 | Target output | 5 W (37 dBm) | 5 W (37 dBm) | 5 W (37 dBm) |
-| Input power | 0 dBm from RFIC | same | same |
+| Candidate IC | RA07H1317M | RA07H4047M | RA07H1213M or MAAMSS0060 |
 | Required gain | ~37 dB (two-stage) | ~37 dB | ~37 dB |
-| Architecture | Driver + GaAs or LDMOS final | same | GaAs MMIC |
-| Supply | 3.3–5 V from module power rail (regulated) | same | same |
+| PA supply | 3.3–5 V regulated | same | same |
 | Efficiency | > 40% Class AB | > 40% | > 35% |
-| Candidate ICs | VHF: RA07H1317M | UHF: RA07H4047M | 23 cm: RA07H1213M or MAAMSS0060 |
+| Heat dissipation at 5 W TX | ~7.5 W at 40% efficiency | same | ~8.6 W at 37% |
+| **Maximum output (20 W)** | | | |
+| Target output | 20 W (43 dBm) | 20 W (43 dBm) | 20 W (43 dBm) |
+| Candidate IC | RA30H1317M | RA30H4047M | MAAMSS0060 or equivalent GaAs MMIC |
+| Required gain | ~43 dB (two-stage) | ~43 dB | ~43 dB |
+| PA supply | +12 V from backplane (direct, no linear regulator in series) | same | same |
+| Efficiency | > 40% Class AB | > 40% | > 35% |
+| Heat dissipation at 20 W TX | ~30 W at 40% efficiency; **15 W average at 50% duty cycle** | same | ~34 W at 37%; **17 W average** |
+| **Common** | | | |
+| Input power | 0 dBm from RFIC | same | same |
+| Architecture | Driver + GaAs or LDMOS final | same | GaAs MMIC |
 | Enable | GPIO from SpacemiT K3 via backplane, sequenced after T/R switch | same | same |
 
-At 5 W output with 40% efficiency, the PA draws approximately 3.4 A at its supply voltage. The PA supply is provided directly from the backplane +12 V rail with no linear regulator in series — a linear regulator at this current would dissipate > 1.5 W as heat. Decoupling immediately at the PA supply pin: 220 µF electrolytic + 100 µF ceramic + 100 nF ceramic, placed within 2 mm of the supply pin.
+> **Thermal note (20 W variant):** At 20 W output with 40% efficiency the PA dissipates ~30 W instantaneously and ~15 W average at 50% duty cycle. This exceeds the passive cooling capacity of the 100 × 160 mm module PCB (~5 W passively). A 120 mm fan mounted below the card cage is **required** for sustained 20 W operation. The copper pour and via array described in Section 8.5 conduct heat from the PA package to the board surface; forced air removes it from there. The per-card temperature sensors (LM75/TMP102, Section 9.4) feed the fan controller; fan speed should begin ramping at 35°C board temperature and reach full speed by 45°C. A firmware transmit inhibit triggers at 55°C regardless of PA level.
+
+> **Supply current note (20 W variant):** At 20 W output with 40% efficiency, PA supply current at +12 V is approximately 4.2 A instantaneous, 2.1 A average at 50% duty cycle — well within the har-bus 64 contact rating. At full-load peak the slot draws ~50 W; the per-slot budget of 72 W (6 A × 12 V) provides adequate headroom. If two 20 W modules transmit simultaneously, verify total PSU capacity against the populated slot count.
 
 #### Band-Pass / Harmonic Filter (TX path, per band)
 
-A 7-element Chebyshev band-pass filter is placed between the PA output and the SWR bridge. It carries full TX power; component ratings must reflect this.
+A 7-element Chebyshev band-pass filter is placed between the PA output and the SWR bridge. It carries full TX power; component ratings must reflect the **20 W maximum** level.
 
 | Parameter | VHF filter | UHF filter | 23 cm filter |
 |-----------|-----------|-----------|-------------|
@@ -549,8 +579,11 @@ A 7-element Chebyshev band-pass filter is placed between the PA output and the S
 | Harmonic rejection (2nd) | > 60 dBc | > 60 dBc | > 60 dBc |
 | Harmonic rejection (3rd+) | > 70 dBc | > 70 dBc | > 65 dBc |
 | Implementation | SMD LC, 0402, tuned at assembly | same | same; consider hairpin microstrip at 1.24 GHz |
-| Component ratings | Inductor > 1 A; capacitor > 30 V | same | same |
+| Inductor rating | > 2 A continuous | > 2 A continuous | > 2 A continuous |
+| Capacitor voltage rating | ≥ 100 V | ≥ 100 V | ≥ 100 V |
 | PCB footprint | ~25 × 8 mm | ~20 × 8 mm | ~15 × 6 mm |
+
+> **Rating note:** At 20 W into 50 Ω the peak voltage across filter components is approximately 45 V and peak current approximately 900 mA. Capacitors rated at 30 V (adequate for 5 W) are insufficient at 20 W — 100 V rated parts are required. Inductors must be rated above 2 A with adequate core saturation margin. Verify component ratings at the selected 20 W PA output level before assembly.
 
 ---
 
@@ -574,8 +607,9 @@ Each module is a single PCB on a **3U Eurocard form factor (100 × 160 mm per IE
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  RF ZONE (L1, double-row via-fence boundary)                │
-│  RFIC · External LNA · PA (5W) · BPF · SWR Bridge          │
-│  Detector diodes · T/R Switch · Variable Attenuator         │
+│  RFIC · External LNA · PA (5W std / 20W max) · BPF         │
+│  SWR Bridge · Detector diodes · T/R Switch                  │
+│  Variable Attenuator                                        │
 │  50 Ω microstrip L1 · mandatory shield cans (Würth/Laird)   │
 ├────────────────────────────────────┬────────────────────────┤
 │  MIXED ZONE                        │  DIGITAL ZONE          │
@@ -634,9 +668,10 @@ All ground copper pours on L1 (top) and L6 (bottom) serve a dual purpose: RF/sig
 
 - **L1 and L6 ground pours** must be thermally and electrically tied together through a regular array of thermal vias across the full board area (not only the RF zone).
 - **L2 and L5 solid ground planes** must also be interconnected to L1 and L6 pours via the same via array — all six layers share a common ground with low thermal impedance between them.
-- The **PA copper pour** (5 W output, ~7.5 W dissipation at 40% efficiency) immediately beneath and surrounding the PA footprint must be a **dedicated high-density via array** (minimum 3×3, 0.4 mm drill, 1 mm pitch) connecting L1 through to L2 and L3 to spread heat into the power plane.
-- The module PCB must be designed to conduct heat **laterally to the card guide rails and chassis wall** — do not rely solely on convection. Copper pour continuity to the PCB edges (within DRC rules) is required.
+- The **PA copper pour** immediately beneath and surrounding the PA footprint must be a **dedicated high-density via array** (minimum 3×3, 0.4 mm drill, 1 mm pitch) connecting L1 through to L2 and L3 to spread heat into the power plane. At the 20 W maximum level this pour is the primary path for removing heat from the PA package; it must extend to cover the full PA thermal pad area and continue at least 10 mm beyond the package boundary on all sides where board space allows.
+- The module PCB must be designed to conduct heat **laterally to the card guide rails and chassis wall** — do not rely solely on convection. Copper pour continuity to the PCB edges (within DRC rules) is required on all layers connected by the via array.
 - **KiCad thermal relief settings:** disable thermal relief spokes on all ground pour connections in the RF zone and PA area; use solid fills only — spokes increase thermal and RF impedance.
+- **Forced-air cooling:** a 120 mm fan mounted below the card cage (e.g. Noctua NF-A12x25 or equivalent) is **required for sustained 20 W operation** and is recommended for all installations. The fan provides approximately 50–80 W/m²·K convective cooling across the module surface at moderate speed, sufficient to handle the 15 W average dissipation of the 20 W PA at 50% duty cycle with margin. At the standard 5 W level passive cooling is sufficient, but the fan extends operating temperature margin and component life. Fan speed is controlled by the chassis manager via PWM using the hottest reported module temperature sensor reading.
 
 ---
 
@@ -649,11 +684,11 @@ Each module communicates with the SpacemiT K3 compute module over the backplane 
 | Connector | Type | Pitch | Rating | Function |
 |-----------|------|-------|--------|----------|
 | **J_BACKPLANE** | Harting DIN 41612 Type C, 96-pin (3-row: a/b/c) | 2.54 mm | 2 A per signal contact; gold over nickel mating surface | I2S, SPI, GPIO, I²C, VCTCXO_TUNE, and low-current power rails (+3.3 V, +1.8 V, +5 V) |
-| **J_POWER** | Harting har-bus 64 hybrid power contacts | 5.08 mm | 6–15 A per contact | +12 V PA rail — minimum one dedicated power contact per module slot, rated comfortably above the 6 A (72 W) per-slot budget |
+| **J_POWER** | Harting har-bus 64 hybrid power contacts | 5.08 mm | 6–15 A per contact | +12 V PA rail — minimum one dedicated power contact per module slot; at 20 W maximum output verify contact current against peak draw (see Section 7.3 supply current note) |
 
 Where dedicated har-bus power contacts are not used for a high-current rail, a **minimum of four signal pins in parallel** per rail is required, with matched trace widths on the module PCB.
 
-The 96-pin DIN 41612 connector provides sufficient capacity for all current and future module signals within the pin budget. No separate data-plane connector (equivalent to the former VITA 46 J1) is required or populated.
+The 96-pin DIN 41612 connector provides sufficient capacity for all current and future module signals within the pin budget. No separate data-plane connector is required or populated.
 
 KiCad standard library includes DIN 41612 footprints; no custom footprint is required.
 
@@ -723,7 +758,7 @@ Pin designations follow the DIN 41612 / IEC 60603-2 naming convention: **rows a,
 
 | Contact | Signal | Direction | Description |
 |---------|--------|-----------|-------------|
-| P1 | +12V_PA | PWR in | PA supply rail (direct backplane bus, decoupled on module); minimum one contact per slot, rated > 6 A |
+| P1 | +12V_PA | PWR in | PA supply rail (direct backplane bus, decoupled on module); minimum one contact per slot, rated > 6 A; verify against 20 W PA peak draw per Section 7.3 |
 | P2 | +12V_PA_RET | PWR return | PA return; paired with P1 |
 
 A second har-bus contact pair may be populated for redundancy or current sharing on high-duty-cycle installs. If har-bus contacts are unavailable on a prototype backplane, use **four or more paralleled signal pins** on J_BACKPLANE with matched PCB trace widths (see paralleling note in Section 9.1).
@@ -783,7 +818,7 @@ Columns 1–8 carry power (low-current), SPI, and GPIO. Columns 9–16 carry I²
 
 **Notes on J_BACKPLANE:**
 
-- `MOD_PRESENT` allows the K3 to detect which slots are populated at boot. The K3 reads `MOD_ID[1:0]` and module EEPROM to learn each module's band type. An empty slot presents high-impedance on all lines.
+- `MOD_PRESENT` allows the K3 to detect which slots are populated at boot. The K3 reads `MOD_ID[1:0]` and module EEPROM to learn each module's band type and PA level variant. An empty slot presents high-impedance on all lines.
 - `I2C_SDA/SCL` are shared across all module slots on the backplane I²C bus. Each module has a unique I²C address for its temperature sensor, EEPROM, and (if the ADS1015 ADC variant is fitted) SWR ADC. Temperature sensors use the LM75 / TMP102 family (7-bit address set by address pins on the module).
 - `VCTCXO_TUNE` is a per-module signal — each module has its own RC-filtered PWM input from a separate K3 PWM channel, allowing independent VCTCXO discipline per band.
 - `I2S_BCLK`, `I2S_LRCLK`, `I2S_DOUT`, `I2S_DIN` are per slot — each populated module occupies one SAI peripheral on the K3 (SAI mapping: slot A, B, C, D).
@@ -801,13 +836,14 @@ Each module carries a small I²C EEPROM (24C02 or equivalent, 256 bytes) at a un
 | 0x00–0x01 | Module type (0x0001 = 2 m, 0x0002 = 70 cm, 0x0003 = 23 cm) |
 | 0x02–0x03 | Hardware revision |
 | 0x04–0x13 | Serial number (16 ASCII bytes) |
-| 0x14–0x17 | Factory calibration: VCTCXO trim offset (int32, ppb) |
+| 0x14–0x15 | PA level variant (0x0001 = 5 W standard, 0x0002 = 20 W maximum) |
+| 0x16–0x17 | Factory calibration: VCTCXO trim offset (int16, ppb) |
 | 0x18–0x1F | Factory calibration: SWR forward detector — 3-point table (voltage → dBm), 3 × int16 pairs |
 | 0x20–0x27 | Factory calibration: SWR reflected detector — 3-point table (voltage → dBm), 3 × int16 pairs |
 | 0x28–0x2B | Factory calibration: PA output power calibration point (uint32, dBm × 100) |
 | 0x2C–0xFF | Reserved |
 
-The `ht-module-daemon` reads this EEPROM at startup to identify each installed module, load its calibration constants, and set the correct VCTCXO trim starting point before GNSS discipline takes over. The SWR detector calibration tables are loaded into the daemon's memory and used for all subsequent SWR computations during TX.
+The `ht-module-daemon` reads this EEPROM at startup to identify each installed module, load its calibration constants, PA level variant, and VCTCXO trim starting point before GNSS discipline takes over.
 
 ### 9.6 Antenna connector options — RP-SMA or Type-N
 
@@ -834,6 +870,7 @@ T/R switch ── SWR Bridge ── BPF ── Type-N (front panel) ── coax 
 | Coax compatibility | Natural mate to LMR-400, LMR-600, and other site feedline used on repeaters |
 | Loss | Lower contribution from the connector interface at 432 MHz and 1240 MHz than RP-SMA, especially with large cable |
 | Site practice | Common on commercial and amateur repeater hardware at UHF and above |
+| Power handling | At 20 W output Type-N's higher power rating provides additional margin over RP-SMA |
 
 Order **`-N`** per module when the panel cutout and enclosure depth accommodate a Type-N bulkhead and the antenna run justifies it. **23 cm** modules at permanent sites should default to Type-N unless panel constraints forbid it. **2 m** modules may remain RP-SMA on compact builds.
 
@@ -841,12 +878,14 @@ Type-N does **not** replace the DIN 41612 backplane connector.
 
 **Module PCB variants:**
 
-| Variant | Front-panel RF | When to order |
-|---------|----------------|---------------|
-| `-SMA` (default) | RP-SMA populated | Compact panel, indoor/cabinet, short patches |
-| `-N` | Type-N populated | Type-N fits the panel and site coax — preferred for fixed outdoor repeaters |
+| Variant | Front-panel RF | PA level | When to order |
+|---------|----------------|----------|---------------|
+| `-SMA` (default) | RP-SMA populated | 5 W standard | Compact panel, indoor/cabinet, short patches |
+| `-N` | Type-N populated | 5 W standard | Type-N fits the panel and site coax — preferred for fixed outdoor repeaters |
+| `-SMA-20W` | RP-SMA populated | 20 W maximum | As `-SMA` but with 20 W PA fitted; forced-air cooling required |
+| `-N-20W` | Type-N populated | 20 W maximum | Preferred variant for hilltop, portable, and high-power fixed sites |
 
-One connector type per module at assembly. IQ (I2S on J_BACKPLANE), SPI, GPIO, EEPROM, SWR monitoring, and ZeroMQ are unchanged between variants.
+One connector type and one PA level per module at assembly. IQ (I2S on J_BACKPLANE), SPI, GPIO, EEPROM, SWR monitoring, and ZeroMQ are unchanged between variants.
 
 **Layout:** Type-N bulkheads need a larger panel opening and slightly more depth than RP-SMA. If the cutout cannot be made without violating the Section 8.3 λ/10 trace-length rule, stay on `-SMA` rather than forcing Type-N.
 
@@ -875,6 +914,7 @@ RFIC (I2S) → DMA → ring buffer in kernel driver
                     │ reads ring buffer
                     │ packs IQ frames (interleaved int16 I, int16 Q)
                     │ polls SWR ADC during TX; computes SWR; auto-disables on SWR > 3.0
+                    │ enforces 50% duty cycle limit at 20 W PA level
                     │ publishes on ZMQ PUB socket
                               │
                     ┌─────────┼─────────────────────────────┐
@@ -897,14 +937,14 @@ RFIC (I2S) → DMA → ring buffer in kernel driver
 | `ipc:///run/ht-module/tx_B` | SUB | local | GNU Radio -> module B | TX IQ data stream |
 | `ipc:///run/ht-module/tx_C` | SUB | local | GNU Radio -> module C | TX IQ data stream |
 | `ipc:///run/ht-module/tx_D` | SUB | local | GNU Radio -> module D | TX IQ data stream |
-| `ipc:///run/ht-module/ctrl` | REQ/REP | local | Any process -> daemon | Per-module: frequency, gain, PTT, squelch, TX timeout, attenuator, SWR query, fault clear ([zeromq-messages.md](zeromq-messages.md)) |
-| `ipc:///run/ht-module/status` | PUB | local | Daemon -> consumers | RSSI, AGC state, PLL lock, temperature, SWR, forward/reflected power, fault state |
+| `ipc:///run/ht-module/ctrl` | REQ/REP | local | Any process -> daemon | Per-module: frequency, gain, PTT, squelch, TX timeout, attenuator, PA level, duty cycle watchdog, SWR query, fault clear ([zeromq-messages.md](zeromq-messages.md)) |
+| `ipc:///run/ht-module/status` | PUB | local | Daemon -> consumers | RSSI, AGC state, PLL lock, temperature, SWR, forward/reflected power, PA level, duty cycle, fault state |
 
 For remote monitoring or distributed processing, IPC sockets can be exposed as TCP sockets by changing the address to `tcp://0.0.0.0:<port>` — no other code changes required.
 
 ### 10.4 Frame Format
 
-Full binary layout, control commands, status JSON (including SWR fields), and gr-ident integration:
+Full binary layout, control commands, status JSON (including SWR and PA level fields), and gr-ident integration:
 **[zeromq-messages.md](zeromq-messages.md)**.
 
 IQ frames are published as length-prefixed binary messages:
@@ -924,10 +964,12 @@ The 64-bit nanosecond timestamp uses the system clock disciplined by chrony + GN
 
 The `ht-module-daemon` is a single Rust daemon responsible for:
 
-- Initialising all three module RFICs via SPI on startup; loading SWR calibration tables from each module's EEPROM
-- Reading module temperature sensors via I²C (backplane bus) and publishing via status socket
+- Initialising all three module RFICs via SPI on startup; loading SWR calibration tables and PA level variant from each module's EEPROM
+- Reading module temperature sensors via I²C (backplane bus) and publishing via status socket; forwarding temperature readings to the chassis fan controller
 - Managing the PTT sequence (hardware-enforced order: RFIC PTT → T/R switch → 1 ms delay → PA enable) in response to `ctrl` socket commands
 - Setting attenuator values via SPI in response to `ctrl` socket commands
+- **Enforcing 50% duty cycle at 20 W PA level:** tracking cumulative TX time per module within a rolling 10-second window; refusing PTT assert if the duty cycle limit would be exceeded; publishing `duty_cycle_limit` alert on the `status` socket when the limit is approached or reached; logging the event. This limit is active regardless of mode or signal type.
+- **Enforcing transmit inhibit at 55°C board temperature:** immediately de-asserting PA_EN, TR_SW, and PTT on any module whose temperature sensor exceeds 55°C; setting `fault_reason: "over_temp"`; blocking PTT until temperature drops below 50°C and the operator clears the fault via `MOD_CLEAR_FAULT`
 - **Polling the SWR ADC on each transmitting module** at regular intervals during TX (recommended: every 100 ms); computing SWR from forward and reflected detector voltages using the EEPROM calibration table; publishing `swr`, `fwd_w`, and `ref_w` in the `status` JSON
 - **Auto-disabling any module whose SWR exceeds 3.0:** immediately de-asserting PA_EN, TR_SW, and PTT in that order; setting the module's fault state; publishing a `swr_high` alert; blocking subsequent PTT commands until `MOD_CLEAR_FAULT` is received
 - Managing VCTCXO frequency discipline: reading GNSS 1PPS interrupt from K3 GPIO, computing correction, updating PWM duty cycle for each module's VCTCXO_TUNE input
@@ -942,10 +984,10 @@ A GNU Radio OOT (out-of-tree) module `gr-ht13g` provides:
 
 - `ht13g_source` — ZMQ SUB block; receives IQ from `ht-module-daemon`; outputs `complex float` stream
 - `ht13g_sink` — ZMQ PUB block; accepts `complex float` TX stream; sends to daemon
-- `ht13g_ctrl` — Python block; sends control commands (frequency, PTT, gain, fault clear) via `ctrl` REQ/REP socket
-- `ht13g_monitor` — Python block; subscribes to `status` PUB socket; exposes RSSI, SWR, PLL lock, and fault state as GRC variables for flowgraph-level monitoring and alerting
+- `ht13g_ctrl` — Python block; sends control commands (frequency, PTT, gain, PA level, fault clear) via `ctrl` REQ/REP socket
+- `ht13g_monitor` — Python block; subscribes to `status` PUB socket; exposes RSSI, SWR, PLL lock, PA level, duty cycle, and fault state as GRC variables for flowgraph-level monitoring and alerting
 
-For cross-band repeat (e.g. receive on module A, 2 m, retransmit on module B, 70 cm), a single GNU Radio flowgraph subscribes to `iq_A`, demodulates, re-encodes, and publishes to `tx_B`. The daemon handles T/R switching and SWR protection for each module independently, with no coordination required between modules in the flowgraph.
+For cross-band repeat (e.g. receive on module A, 2 m, retransmit on module B, 70 cm), a single GNU Radio flowgraph subscribes to `iq_A`, demodulates, re-encodes, and publishes to `tx_B`. The daemon handles T/R switching, duty cycle enforcement, and SWR protection for each module independently, with no coordination required between modules in the flowgraph.
 
 ---
 
@@ -987,7 +1029,11 @@ A Phase 1 (VHF RX chain) submission targeting the October 2026 run would receive
 | DC offset in zero-IF VHF chain | Medium–High | Standard direct-conversion challenge; digital feedback loop in spec; calibrate on startup via `ht-module-daemon` |
 | IQ imbalance at 1240 MHz (HT13G-S) | Medium–High | L-band IQ balance harder than VHF/UHF; on-chip IQ calibration registers; measured and corrected at startup |
 | IHP MPW 2 mm² area insufficient for full HT13G-M die | High | Planned; individual chain validation in community slots before commercial MPW submission |
-| 5 W PA thermal dissipation on module | Medium | 40% efficiency → 7.5 W total at full power; dedicated PA copper pour with high-density via array (3×3 minimum, 0.4 mm drill, 1 mm pitch, L1–L3); L1/L6 ground pour heatspreading to card guides and chassis wall per Section 8.5; duty-cycle limiting in firmware; module slot pitch provides ventilation |
+| 20 W PA thermal dissipation on module | Medium–High | 40% efficiency → ~30 W instantaneous, ~15 W average at 50% duty cycle; dedicated PA copper pour with high-density via array (3×3 minimum, 0.4 mm drill, 1 mm pitch, L1–L3); L1/L6 ground pour heatspreading to card guides and chassis wall per Section 8.5; 120 mm fan below card cage required for 20 W operation; firmware transmit inhibit at 55°C board temperature; 50% duty cycle enforced by daemon |
+| 5 W PA thermal dissipation on module | Low | 40% efficiency → ~7.5 W; within passive cooling budget with copper pour heatspreading; fan extends margin |
+| 20 W filter and coupler component ratings | Medium | Peak voltage ~45 V and peak current ~900 mA at 20 W; 30 V capacitors (adequate at 5 W) insufficient — 100 V rated capacitors required; inductor current rating > 2 A; coupler power rating > 25 W; verify all TX-path passive component ratings before assembly |
+| 20 W PA supply current on har-bus contacts | Low | Peak ~4.2 A per slot at +12 V; within har-bus 64 contact rating; verify PSU total capacity when multiple 20 W modules transmit simultaneously |
+| T/R switch power handling at 20 W | Low–Medium | SKY13351 and equivalents must be verified at 20 W; derate to 50% duty cycle if continuous rating is marginal; multiple equivalent SPDT RF switches available (pSemi, MACOM) as footprint-compatible alternatives |
 | SWR bridge directivity at VHF (144 MHz) | Medium | Toroidal transformer couplers at VHF can exhibit reduced directivity below 150 MHz; validate directivity at 144 MHz on bench; adjust winding ratio or use transmission-line coupler if directivity < 20 dB |
 | SWR detector calibration drift with temperature | Low–Medium | Schottky detector diodes have temperature-dependent characteristics; three-point calibration table in EEPROM covers nominal temperature; consider two-temperature calibration table in future EEPROM revision |
 | PE4312 insertion loss at 1240 MHz | Low | Rated to 4 GHz; at 1.24 GHz insertion loss rises slightly but remains < 2 dB; acceptable for system NF budget |
@@ -1012,5 +1058,3 @@ All design work produced for this project follows the same licensing as the Open
 | Documentation | CC-BY-SA 4.0 |
 
 RFIC measurement results from OpenMPW submissions are published as open data per the IHP OpenMPW program participation agreement.
-
----

@@ -35,6 +35,12 @@
 
 **RF hardware:** [docs/RF-modules.md](docs/RF-modules.md) — RFIC, module PCB, backplane, daemon integration.
 
+
+**Note:**
+The linHT projects bandwidth target is currently up to 500 kHz IQ, that has a rf spectrum coverage of 0.5 MHz.
+It can be found here: 
+https://linux-radio.eu/
+
 **Developer documentation:** [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) · [docs/repo-map.md](docs/repo-map.md) · [docs/runtime/](docs/runtime/README.md) (per-repo specs) · [docs/roadmap.md](docs/roadmap.md) · [docs/dev-environment.md](docs/dev-environment.md) · [docs/repeater-logic.md](docs/repeater-logic.md) · [docs/ota-remote-control.md](docs/ota-remote-control.md) · [docs/release-integrity.md](docs/release-integrity.md) · [docs/implementation-language.md](docs/implementation-language.md) · [ADR 001: I2S + ZMQ](docs/adr/001-iq-transport-i2s-zmq.md)
 
 ---
