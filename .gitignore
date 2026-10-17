@@ -8,3 +8,4 @@ sim/em/**/vendor/
 *.vcd
 *.fst
 rtl/cocotb/sim_build/
+rtl/digital/runs/

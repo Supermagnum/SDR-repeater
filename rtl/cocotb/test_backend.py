@@ -1,14 +1,40 @@
+import numpy as np
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import RisingEdge, FallingEdge
+from cocotb.triggers import RisingEdge, FallingEdge, Timer
 
 
-async def reset(dut):
+RATES_KHZ = [25, 50, 100, 200, 500]
+# (ref_mhz, rate_index) -> (frame clocks, r1, r2, sh1, sh2)
+TABLE = {
+    (32, 0): (1280, 16, 40, 16, 21),
+    (32, 1): (640, 16, 20, 16, 17),
+    (32, 2): (320, 10, 16, 13, 16),
+    (32, 3): (160, 8, 10, 12, 13),
+    (32, 4): (64, 4, 8, 8, 12),
+    (36, 0): (1440, 16, 45, 16, 21),
+    (36, 1): (720, 15, 24, 15, 18),
+    (36, 2): (360, 12, 15, 14, 15),
+    (36, 3): (180, 9, 10, 12, 13),
+    (36, 4): (72, 4, 9, 8, 12),
+}
+HB = np.array([-138, 0, 305, 0, -617, 0, 1128, 0, -1952, 0, 3376, 0,
+               -6450, 0, 20688, 32767, 20688, 0, -6450, 0, 3376, 0,
+               -1952, 0, 1128, 0, -617, 0, 305, 0, -138], dtype=float)
+CF = np.array([-5006, 32767, -5006], dtype=float)
+# Limits are below the computed worst case (0.19 dB ripple, 48 dB alias).
+RIPPLE_LIMIT_DB = 0.25
+ALIAS_LIMIT_DB = 45.0
+
+
+async def start(dut, ref_36=0):
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
+    dut.ref_36.value = ref_36
     dut.sclk.value = 0
     dut.cs_n.value = 1
     dut.mosi.value = 0
-    dut.bclk.value = 0
-    dut.lrclk.value = 0
+    dut.bclk_i.value = 0
+    dut.lrclk_i.value = 0
     dut.din.value = 0
     dut.adc_valid.value = 0
     dut.adc_i.value = 0
@@ -44,158 +70,355 @@ async def spi_xfer(dut, addr, data, write):
     return value
 
 
-def to_signed(raw):
-    raw &= 0xFFFF
-    return raw - 0x10000 if raw & 0x8000 else raw
+def cic_mag(freq, fs_in, ratio, order=4):
+    freq = np.asarray(freq, dtype=float)
+    out = np.empty_like(freq)
+    small = np.abs(freq) < 1.0
+    out[small] = float(ratio ** order)
+    s = ~small
+    out[s] = np.abs(np.sin(np.pi * freq[s] * ratio / fs_in) / np.sin(np.pi * freq[s] / fs_in)) ** order
+    return out
 
 
-async def push_adc(dut, i_val, q_val):
-    dut.adc_i.value = i_val & 0xFFFF
-    dut.adc_q.value = q_val & 0xFFFF
+def fir_mag(coeff, freq, fs):
+    w = 2 * np.pi * np.asarray(freq, dtype=float) / fs
+    k = np.arange(len(coeff))
+    return np.abs(np.exp(-1j * np.outer(w, k)) @ coeff)
+
+
+def chain_mag(freq, fref, fs, r1, r2):
+    freq = np.asarray(freq, dtype=float)
+    hcic = cic_mag(freq, fref, r1) * cic_mag(freq, fref / r1, r2)
+    folded = np.abs(freq) % (2 * fs)
+    folded = np.minimum(folded, 2 * fs - folded)
+    return hcic * fir_mag(CF, folded, 2 * fs) * fir_mag(HB, folded, 2 * fs)
+
+
+@cocotb.test()
+async def spi_reset_and_registers(dut):
+    await start(dut)
+    expect_reset = {
+        0x00: 0x00,
+        0x01: 1,
+        0x02: 0,
+        0x03: 4,
+        0x04: 4,
+        0x05: 128,
+        0x06: 128,
+        0x07: 0,
+        0x08: 0,
+        0x09: 0,
+        0x0B: 0x11,
+        0x0C: 0,
+        0x0D: 0,
+    }
+    for addr, exp in expect_reset.items():
+        got = await spi_xfer(dut, addr, 0, write=False)
+        assert got == exp, (addr, got, exp)
+    writes = {
+        0x01: 3, 0x02: 5, 0x03: 2, 0x04: 6, 0x05: 90, 0x06: 100,
+        0x07: 0xE0, 0x08: 0x0F, 0x09: 4, 0x0C: 1,
+    }
+    for addr, data in writes.items():
+        await spi_xfer(dut, addr, data, write=True)
+    for addr, data in writes.items():
+        got = await spi_xfer(dut, addr, 0, write=False)
+        if addr == 0x0C:
+            data = 1
+        assert got == data, (addr, got, data)
+    # CTRL bit 7 is a clear strobe and does not stick. Bit 4 is slave.
+    await spi_xfer(dut, 0x00, 0x96, write=True)
+    ctrl = await spi_xfer(dut, 0x00, 0, write=False)
+    assert ctrl == 0x16, ctrl
+    # Chip ID is not writable.
+    await spi_xfer(dut, 0x0B, 0xFF, write=True)
+    assert await spi_xfer(dut, 0x0B, 0, write=False) == 0x11
+    # Standby keeps the other registers.
+    await spi_xfer(dut, 0x00, 0x01, write=True)
+    assert await spi_xfer(dut, 0x05, 0, write=False) == 90
+    assert await spi_xfer(dut, 0x0C, 0, write=False) == 1
+
+
+@cocotb.test()
+async def phase_cross_term(dut):
+    await start(dut)
+    # Bypass CIC and DC. phase = 32/128 rad per full-scale Q into I.
+    await spi_xfer(dut, 0x08, 0x03, write=True)
+    await spi_xfer(dut, 0x07, 32, write=True)
+    await spi_xfer(dut, 0x00, 0x02, write=True)
+    dut.adc_i.value = 0
+    dut.adc_q.value = 400
     dut.adc_valid.value = 1
     await RisingEdge(dut.clk)
     dut.adc_valid.value = 0
-    await RisingEdge(dut.clk)
-
-
-async def i2s_slot(dut, right, sample, slot_32):
-    bits = []
-    width = 32 if slot_32 else 16
-    word = (sample & 0xFFFF) << (16 if slot_32 else 0)
-    dut.lrclk.value = 1 if right else 0
-    for n in range(width):
-        dut.din.value = (word >> (31 - n)) & 1 if slot_32 else (word >> (15 - n)) & 1
-        dut.bclk.value = 0
+    for _ in range(6):
         await RisingEdge(dut.clk)
-        dut.bclk.value = 1
-        await RisingEdge(dut.clk)
-        await RisingEdge(dut.clk)
-        bits.append(int(dut.dout.value))
-        dut.bclk.value = 0
-        await RisingEdge(dut.clk)
-    value = 0
-    for bit in bits[:16]:
-        value = (value << 1) | bit
-    return to_signed(value)
+    assert int(dut.i_hold.value.to_signed()) == 100
+    assert int(dut.q_hold.value.to_signed()) == 400
+    # 2 degrees is 0.0349 rad. One phase LSB is 1/128 rad, about 0.45 degrees,
+    # so the cross-term can place the residual under 2 degrees.
 
 
 @cocotb.test()
-async def spi_roundtrip(dut):
-    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
-    await reset(dut)
-    await spi_xfer(dut, 0x05, 90, write=True)
-    readback = await spi_xfer(dut, 0x05, 0, write=False)
-    assert readback == 90, readback
-    status = await spi_xfer(dut, 0x0A, 0, write=False)
-    assert (status & 0x3) == 0, status
+async def master_frame_lengths(dut):
+    await start(dut)
+    await spi_xfer(dut, 0x08, 0x07, write=True)
+    for ref, pin in ((32, 0), (36, 1)):
+        dut.ref_36.value = pin
+        for rate in range(5):
+            for slot_32 in (0, 1):
+                await spi_xfer(dut, 0x03, rate, write=True)
+                ctrl = 0x02 | (0x08 if slot_32 else 0)
+                await spi_xfer(dut, 0x00, ctrl, write=True)
+                await RisingEdge(dut.clk)
+                m = TABLE[(ref, rate)][0]
+                bits = 64 if slot_32 else 32
+                base = m // bits
+                rem = m % bits
+                illegal = base < 2 and not (base == 1 and rem == 0)
+                status = await spi_xfer(dut, 0x0A, 0, write=False)
+                assert bool(status & 0x40) == illegal, (ref, rate, slot_32, status)
+                if illegal:
+                    continue
+                prev = int(dut.lrclk_o.value)
+                rises = 0
+                period = 0
+                for _ in range(m * 3):
+                    await RisingEdge(dut.clk)
+                    now = int(dut.lrclk_o.value)
+                    if prev == 0 and now == 1:
+                        rises += 1
+                        if rises == 2:
+                            break
+                    if rises == 1:
+                        period += 1
+                    prev = now
+                if period != m:
+                    cocotb.log.error(
+                        "frame ref=%s rate=%s slot=%s period=%s m=%s base=%s cell=%s bit=%s err=%s lr=%s rises=%s",
+                        ref, rate, slot_32, period, m,
+                        int(dut.u_master.base.value), int(dut.u_master.cell_left.value),
+                        int(dut.u_master.bit_idx.value), int(dut.u_master.clk_error.value),
+                        int(dut.lrclk_o.value), rises)
+                    assert False
 
 
 @cocotb.test()
-async def decim_and_passthrough(dut):
-    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
-    await reset(dut)
-    # RX, wake 0, decimation 4, DC loop powered down.
-    await spi_xfer(dut, 0x08, 0x02, write=True)
-    await spi_xfer(dut, 0x03, 0x02, write=True)
+async def filter_response_limits(dut):
+    # Numeric response of the coefficients and ratios used by the RTL.
+    await start(dut)
+    worst_rip = 0.0
+    worst_alias = 999.0
+    for (ref, rate), (m, r1, r2, _s1, _s2) in TABLE.items():
+        fs = RATES_KHZ[rate] * 1e3
+        fref = ref * 1e6
+        f = np.linspace(0, 0.40 * fs, 200)
+        h = chain_mag(f, fref, fs, r1, r2)
+        h = h / h[0]
+        rip = 20 * np.log10(h.max() / h.min())
+        fp = np.linspace(0.02 * fs, 0.40 * fs, 40)
+        num = chain_mag(fp, fref, fs, r1, r2)
+        den = np.max(np.stack([chain_mag(k * fs - fp, fref, fs, r1, r2) for k in (1, 2, 3, 4)]), axis=0)
+        alias = 20 * np.log10(np.min(num) / np.max(den))
+        assert rip <= RIPPLE_LIMIT_DB, (ref, rate, rip)
+        assert alias >= ALIAS_LIMIT_DB, (ref, rate, alias)
+        worst_rip = max(worst_rip, rip)
+        worst_alias = min(worst_alias, alias)
+        assert r1 * r2 * 2 == m
+    cocotb.log.info("worst ripple %.3f dB, worst alias %.1f dB", worst_rip, worst_alias)
+
+
+@cocotb.test()
+async def filter_dc_and_overflow(dut):
+    await start(dut)
+    await spi_xfer(dut, 0x08, 0x06, write=True)
+    await spi_xfer(dut, 0x03, 4, write=True)
     await spi_xfer(dut, 0x00, 0x02, write=True)
-    await push_adc(dut, 100, -40)
-    await push_adc(dut, 100, -40)
-    await push_adc(dut, 100, -40)
-    await push_adc(dut, 100, -40)
-    for _ in range(4):
+    dut.adc_i.value = 1000
+    dut.adc_q.value = 1000
+    dut.adc_valid.value = 1
+    seen = []
+    for _ in range(64 * 40):
         await RisingEdge(dut.clk)
-    assert int(dut.valid_iq.value) == 1
-    got_i = await i2s_slot(dut, right=0, sample=0, slot_32=False)
-    got_q = await i2s_slot(dut, right=1, sample=0, slot_32=False)
-    assert got_i == 100, got_i
-    assert got_q == -40, got_q
+        if int(dut.cal_v.value):
+            seen.append(int(dut.cal_i.value.to_signed()))
+    dut.adc_valid.value = 0
+    assert len(seen) >= 8, len(seen)
+    assert abs(seen[-1] - 1387) <= 2, seen[-1]
+    # Full scale must clip, not wrap negative.
+    dut.adc_i.value = 32767
+    dut.adc_q.value = -32768
+    dut.adc_valid.value = 1
+    full = []
+    for _ in range(64 * 40):
+        await RisingEdge(dut.clk)
+        if int(dut.cal_v.value):
+            full.append(int(dut.cal_i.value.to_signed()))
+    assert full[-1] == 32767, full[-1]
 
 
 @cocotb.test()
-async def slot_width_32(dut):
-    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
-    await reset(dut)
-    # RX, 32-bit slots, block the DC loop so the sample is not pulled down.
-    await spi_xfer(dut, 0x08, 0x02, write=True)
-    await spi_xfer(dut, 0x00, 0x0A, write=True)
-    await push_adc(dut, 0x1234, 0x00AB)
-    for _ in range(3):
+async def dc_retained_across_sleep(dut):
+    await start(dut)
+    await spi_xfer(dut, 0x08, 0x05, write=True)  # bypass CIC and IQ cal
+    await spi_xfer(dut, 0x04, 1, write=True)
+    await spi_xfer(dut, 0x00, 0x02, write=True)
+    dut.adc_i.value = 200
+    dut.adc_q.value = -80
+    async def frames(n):
+        got = 0
+        while got < n:
+            dut.adc_valid.value = 1
+            await RisingEdge(dut.clk)
+            dut.adc_valid.value = 0
+            await RisingEdge(dut.clk)
+            if int(dut.sample_valid.value):
+                got += 1
+        return int(dut.i_hold.value.to_signed())
+    await frames(30)
+    settled = int(dut.i_hold.value.to_signed())
+    assert abs(settled) < 20, settled
+    await spi_xfer(dut, 0x00, 0x01, write=True)  # standby
+    for _ in range(10):
         await RisingEdge(dut.clk)
-    bits = []
-    dut.lrclk.value = 0
-    for n in range(32):
-        dut.bclk.value = 0
+    await spi_xfer(dut, 0x00, 0x02, write=True)
+    first = await frames(1)
+    assert abs(first) < 20, first
+    await spi_xfer(dut, 0x0D, 1, write=True)
+    # shift=1 halves the residual each frame. The first frame after a
+    # clear jumps back toward the raw offset. Later frames reconverge.
+    samples = []
+    for _ in range(8):
+        dut.adc_valid.value = 1
         await RisingEdge(dut.clk)
-        dut.bclk.value = 1
-        await RisingEdge(dut.clk)
-        await RisingEdge(dut.clk)
-        bits.append(int(dut.dout.value))
-        dut.bclk.value = 0
-        await RisingEdge(dut.clk)
-    assert bits[:16] == [(0x1234 >> (15 - n)) & 1 for n in range(16)], bits[:16]
-    assert bits[16:] == [0] * 16, bits[16:]
+        dut.adc_valid.value = 0
+        for _w in range(6):
+            await RisingEdge(dut.clk)
+            if int(dut.cal_v.value):
+                samples.append(int(dut.i_hold.value.to_signed()))
+    assert len(samples) >= 2, samples
+    # samples[0] is the word already in the pipeline when clear was written.
+    assert abs(samples[1] - 100) < 30, samples
+    reconverged = next((i for i, y in enumerate(samples) if i > 0 and abs(y) < 20), None)
+    assert reconverged is not None, samples
+    cocotb.log.info("DC clear: first=%s frames to |y|<20: %s", samples[0], reconverged)
 
 
 @cocotb.test()
-async def duty_cycle_blanks(dut):
-    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
-    await reset(dut)
-    await spi_xfer(dut, 0x08, 0x02, write=True)
+async def wake_duty_and_power(dut):
+    await start(dut)
+    await spi_xfer(dut, 0x08, 0x07, write=True)
+    await spi_xfer(dut, 0x09, 2, write=True)
     await spi_xfer(dut, 0x01, 1, write=True)
     await spi_xfer(dut, 0x02, 1, write=True)
-    await spi_xfer(dut, 0x00, 0x06, write=True)
-    await push_adc(dut, 50, 60)
-    for _ in range(2):
-        await RisingEdge(dut.clk)
-    first = await i2s_slot(dut, right=0, sample=0, slot_32=False)
-    await i2s_slot(dut, right=1, sample=0, slot_32=False)
-    assert first == 50, first
-    await push_adc(dut, 50, 60)
-    for _ in range(2):
-        await RisingEdge(dut.clk)
-    second = await i2s_slot(dut, right=0, sample=0, slot_32=False)
-    assert second == 0, second
-    assert int(dut.valid_iq.value) == 0
-
-
-@cocotb.test()
-async def wake_and_shutdown(dut):
-    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
-    await reset(dut)
-    await spi_xfer(dut, 0x08, 0x02, write=True)
-    await spi_xfer(dut, 0x09, 1, write=True)
-    await spi_xfer(dut, 0x00, 0x02, write=True)
-    await push_adc(dut, 70, 80)
+    await spi_xfer(dut, 0x00, 0x06, write=True)  # RX, duty, wake 2
+    blanks = 0
+    valids = 0
     for _ in range(8):
+        dut.adc_i.value = 50
+        dut.adc_q.value = 60
+        dut.adc_valid.value = 1
         await RisingEdge(dut.clk)
-    assert int(dut.valid_iq.value) == 0
-    during = await i2s_slot(dut, right=0, sample=0, slot_32=False)
-    await i2s_slot(dut, right=1, sample=0, slot_32=False)
-    assert during == 0, during
-    await push_adc(dut, 70, 80)
-    for _ in range(8):
-        await RisingEdge(dut.clk)
-    assert int(dut.valid_iq.value) == 1
-    after = await i2s_slot(dut, right=0, sample=0, slot_32=False)
-    assert after == 70, after
+        dut.adc_valid.value = 0
+        for _ in range(4):
+            await RisingEdge(dut.clk)
+            if int(dut.cal_v.value):
+                if int(dut.sample_valid.value):
+                    valids += 1
+                else:
+                    blanks += 1
+    assert blanks >= 2, blanks
+    assert valids >= 1, valids
+    # Shutdown clears valid and keeps the rate register.
     await spi_xfer(dut, 0x00, 0x00, write=True)
-    await push_adc(dut, 70, 80)
-    for _ in range(2):
-        await RisingEdge(dut.clk)
+    await RisingEdge(dut.clk)
     assert int(dut.valid_iq.value) == 0
+    assert await spi_xfer(dut, 0x03, 0, write=False) == 4
+    # duty_off = 0 never blanks. duty_on = 0 blanks after the first frame.
+    # Wake is 0 so the count is the duty cycle, not the wake blank.
+    await spi_xfer(dut, 0x09, 0, write=True)
+    await spi_xfer(dut, 0x02, 0, write=True)
+    await spi_xfer(dut, 0x00, 0x06, write=True)
+    on_count = 0
+    for _ in range(4):
+        dut.adc_valid.value = 1
+        await RisingEdge(dut.clk)
+        dut.adc_valid.value = 0
+        for _w in range(6):
+            await RisingEdge(dut.clk)
+            if int(dut.cal_v.value) and int(dut.sample_valid.value):
+                on_count += 1
+    assert on_count >= 3, on_count
+    await spi_xfer(dut, 0x01, 0, write=True)
+    await spi_xfer(dut, 0x02, 2, write=True)
+    await spi_xfer(dut, 0x00, 0x01, write=True)
+    await spi_xfer(dut, 0x00, 0x06, write=True)
+    off_after = 0
+    blank_after = 0
+    for _ in range(4):
+        dut.adc_valid.value = 1
+        await RisingEdge(dut.clk)
+        dut.adc_valid.value = 0
+        for _w in range(6):
+            await RisingEdge(dut.clk)
+            if int(dut.cal_v.value):
+                if int(dut.sample_valid.value):
+                    off_after += 1
+                else:
+                    blank_after += 1
+    assert off_after >= 1 and blank_after >= 1, (off_after, blank_after)
 
 
 @cocotb.test()
-async def iq_cal_gain(dut):
-    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
-    await reset(dut)
-    await spi_xfer(dut, 0x08, 0x02, write=True)
-    await spi_xfer(dut, 0x05, 64, write=True)
-    await spi_xfer(dut, 0x00, 0x02, write=True)
-    await push_adc(dut, 200, 40)
-    for _ in range(3):
+async def band_relock(dut):
+    await start(dut)
+    await spi_xfer(dut, 0x0C, 1, write=True)
+    status = await spi_xfer(dut, 0x0A, 0, write=False)
+    assert status & 0x80, status
+    assert await spi_xfer(dut, 0x0C, 0, write=False) == 1
+    for _ in range(70):
         await RisingEdge(dut.clk)
-    got_i = await i2s_slot(dut, right=0, sample=0, slot_32=False)
-    got_q = await i2s_slot(dut, right=1, sample=0, slot_32=False)
-    assert got_i == 100, got_i
-    assert got_q == 40, got_q
+    status = await spi_xfer(dut, 0x0A, 0, write=False)
+    assert (status & 0x80) == 0, status
+
+
+@cocotb.test()
+async def slave_fifo_drift(dut):
+    await start(dut)
+    await spi_xfer(dut, 0x08, 0x07, write=True)
+    # Slave, RX. Filters bypassed, so each adc_valid is one FIFO write.
+    await spi_xfer(dut, 0x00, 0x12, write=True)
+    dut.adc_i.value = 7
+    dut.adc_q.value = 9
+    for _ in range(12):
+        dut.adc_valid.value = 1
+        await RisingEdge(dut.clk)
+        dut.adc_valid.value = 0
+        await RisingEdge(dut.clk)
+    status = await spi_xfer(dut, 0x0A, 0, write=False)
+    assert status & 0x10, status  # overflow
+    # Slow then empty reads on an unrelated BCLK.
+    for _ in range(20):
+        dut.lrclk_i.value = 0
+        dut.bclk_i.value = 1
+        await Timer(4, unit="ns")
+        dut.bclk_i.value = 0
+        await Timer(4, unit="ns")
+        dut.lrclk_i.value = 1
+        for _b in range(16):
+            dut.bclk_i.value = 1
+            await Timer(4, unit="ns")
+            dut.bclk_i.value = 0
+            await Timer(4, unit="ns")
+    await RisingEdge(dut.clk)
+    status = await spi_xfer(dut, 0x0A, 0, write=False)
+    assert status & 0x20, status  # underflow
+    # Leave RX so further BCLK edges do not take another empty word.
+    await spi_xfer(dut, 0x00, 0x80, write=True)
+    for _ in range(8):
+        dut.bclk_i.value = 1
+        await Timer(20, unit="ns")
+        dut.bclk_i.value = 0
+        await Timer(20, unit="ns")
+    status = await spi_xfer(dut, 0x0A, 0, write=False)
+    assert (status & 0x30) == 0, status

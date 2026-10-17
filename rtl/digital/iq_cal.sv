@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 // IQ calibration. gain 128 means 1.0. phase is a signed cross term
 // in the same units: yI = (gain_i * xI + phase * xQ) / 128,
 // yQ = (gain_q * xQ) / 128. Results saturate to signed 16 bit.
@@ -27,8 +28,8 @@ module iq_cal (
     logic signed [24:0] si, sq, yi, yq;
 
     always_comb begin
-        si = i_in;
-        sq = q_in;
+        si = 25'(i_in);
+        sq = 25'(q_in);
         yi = (si * $signed({1'b0, gain_i}) + sq * phase) >>> 7;
         yq = (sq * $signed({1'b0, gain_q})) >>> 7;
     end

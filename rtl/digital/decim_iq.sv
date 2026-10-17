@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 // Power-of-two boxcar decimator for one I/Q stream.
 // ratio_sel 0, 1, 2, 3 selects N = 1, 2, 4, 8.
 // When en is low the block is powered down and samples pass through.

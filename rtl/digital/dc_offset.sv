@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 // First-order DC loop. dc <= dc + ((x - dc) >>> shift).
 // y = x - dc. shift is clipped to 1..7. en low bypasses the loop.
 
@@ -5,6 +6,7 @@ module dc_offset (
     input  logic               clk,
     input  logic               rst_n,
     input  logic               en,
+    input  logic               clear,
     input  logic [2:0]         shift,
     input  logic               valid_in,
     input  logic signed [15:0] i_in,
@@ -28,7 +30,10 @@ module dc_offset (
             q_out <= 16'sd0;
         end else begin
             valid_out <= 1'b0;
-            if (valid_in) begin
+            if (clear) begin
+                dc_i <= 16'sd0;
+                dc_q <= 16'sd0;
+            end else if (valid_in) begin
                 valid_out <= 1'b1;
                 if (!en) begin
                     i_out <= i_in;

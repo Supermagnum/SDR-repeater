@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 // SPI register file for the digital back end.
 // Mode 0, host is master. One CS assertion carries 16 bits:
 //   [15]    1 = write, 0 = read
@@ -18,20 +19,24 @@ module spi_regs (
     output logic [7:0] ctrl,
     output logic [7:0] duty_on,
     output logic [7:0] duty_off,
-    output logic [7:0] decim,
+    output logic [7:0] rate,
     output logic [7:0] dc_shift,
     output logic [7:0] gain_i,
     output logic [7:0] gain_q,
     output logic [7:0] phase,
     output logic [7:0] block_pd,
-    output logic [7:0] wake_cycles
+    output logic [7:0] wake_cycles,
+    output logic [7:0] band,
+    output logic       flag_clear,
+    output logic       dc_clear,
+    output logic       band_write
 );
 
     localparam logic [7:0] CTRL_RST = 8'h00;
     localparam logic [7:0] GAIN_RST = 8'd128;
 
-    logic [7:0] ctrl_q, duty_on_q, duty_off_q, decim_q, dc_shift_q;
-    logic [7:0] gain_i_q, gain_q_q, phase_q, block_pd_q, wake_cycles_q;
+    logic [7:0] ctrl_q, duty_on_q, duty_off_q, rate_q, dc_shift_q;
+    logic [7:0] gain_i_q, gain_q_q, phase_q, block_pd_q, wake_cycles_q, band_q;
 
     logic sclk_q, cs_q;
     logic [15:0] shreg;
@@ -41,7 +46,8 @@ module spi_regs (
     assign ctrl = ctrl_q;
     assign duty_on = duty_on_q;
     assign duty_off = duty_off_q;
-    assign decim = decim_q;
+    assign rate = rate_q;
+    assign band = band_q;
     assign dc_shift = dc_shift_q;
     assign gain_i = gain_i_q;
     assign gain_q = gain_q_q;
@@ -54,7 +60,7 @@ module spi_regs (
             7'h00: read_reg = ctrl_q;
             7'h01: read_reg = duty_on_q;
             7'h02: read_reg = duty_off_q;
-            7'h03: read_reg = decim_q;
+            7'h03: read_reg = rate_q;
             7'h04: read_reg = dc_shift_q;
             7'h05: read_reg = gain_i_q;
             7'h06: read_reg = gain_q_q;
@@ -62,6 +68,9 @@ module spi_regs (
             7'h08: read_reg = block_pd_q;
             7'h09: read_reg = wake_cycles_q;
             7'h0A: read_reg = status;
+            7'h0B: read_reg = 8'h11;
+            7'h0C: read_reg = band_q;
+            7'h0D: read_reg = 8'h00;
             default: read_reg = 8'h00;
         endcase
     endfunction
@@ -77,7 +86,11 @@ module spi_regs (
             ctrl_q <= CTRL_RST;
             duty_on_q <= 8'd1;
             duty_off_q <= 8'd0;
-            decim_q <= 8'd0;
+            rate_q <= 8'd4;
+            band_q <= 8'd0;
+            flag_clear <= 1'b0;
+            dc_clear <= 1'b0;
+            band_write <= 1'b0;
             dc_shift_q <= 8'd4;
             gain_i_q <= GAIN_RST;
             gain_q_q <= GAIN_RST;
@@ -87,21 +100,32 @@ module spi_regs (
         end else begin
             sclk_q <= sclk;
             cs_q <= cs_n;
+            flag_clear <= 1'b0;
+            dc_clear <= 1'b0;
+            band_write <= 1'b0;
             if (cs_n) begin
                 nbits <= 5'd0;
                 miso <= 1'b0;
                 if (!cs_q && shreg[15] && nbits == 5'd16) begin
                     case (shreg[14:8])
-                        7'h00: ctrl_q <= shreg[7:0];
+                        7'h00: begin
+                            ctrl_q <= {1'b0, shreg[6:0]};
+                            flag_clear <= shreg[7];
+                        end
                         7'h01: duty_on_q <= shreg[7:0];
                         7'h02: duty_off_q <= shreg[7:0];
-                        7'h03: decim_q <= shreg[7:0];
+                        7'h03: rate_q <= shreg[7:0];
                         7'h04: dc_shift_q <= shreg[7:0];
                         7'h05: gain_i_q <= shreg[7:0];
                         7'h06: gain_q_q <= shreg[7:0];
                         7'h07: phase_q <= shreg[7:0];
                         7'h08: block_pd_q <= shreg[7:0];
                         7'h09: wake_cycles_q <= shreg[7:0];
+                        7'h0C: begin
+                            band_q <= {7'b0, shreg[0]};
+                            band_write <= 1'b1;
+                        end
+                        7'h0D: dc_clear <= shreg[0];
                         default: ;
                     endcase
                 end

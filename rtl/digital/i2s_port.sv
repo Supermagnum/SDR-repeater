@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 // I2S slave, MSB-justified. The host owns bclk and lrclk.
 // lrclk 0 is Left / I, lrclk 1 is Right / Q.
 // The bclk rise on which lrclk changes is bit 0 and carries the MSB.

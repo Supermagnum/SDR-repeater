@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 // Power mode and RX duty cycle.
 // mode: 00 shutdown, 01 standby, 10 RX, 11 TX.
 // Leaving shutdown or standby starts a wake count of wake_cycles

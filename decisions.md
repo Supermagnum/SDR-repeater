@@ -33,3 +33,15 @@ Approved:
 - Matched mesh, shared port de-embedding, and a comparison to a compact model or IHP measured data are required before Phase 2. They are not a Phase 1 blocker. No compact model and no `L2n0` measured file were found in this PDK commit.
 - Provisional tank Q is the openEMS value: 11.8 at 2.4 GHz and 14.9 at 3.5 GHz. See `spec/provisional-tank-q.md`.
 - Phase 1 digital back end may start. Analog topology is still not approved.
+
+## 2026-10-17 — Phase 1 review, not approved
+
+The first Phase 1 submission was not approved. The resubmission is on `phase1/digital` and is waiting for review. It is not an approval and it is not a topology decision.
+
+Recorded in `reports/phase1-review/summary.md`, still open:
+
+- The register map and the SPI frame are proposed, not frozen.
+- The RFIC is the I2S master by default. Slave mode keeps an asynchronous FIFO. The b14/b15 direction change is only a proposed note in `spec/i2s-clocking.md`.
+- LinHT IQ is provisional until the Rev C wiring is read.
+- Pre-place timing at 36 MHz does not meet the slow or typical corner.
+- The matched-mesh inductor study is still required before Phase 2. It has not been started. Phase 2 has not been started.
