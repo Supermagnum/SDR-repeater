@@ -3,7 +3,7 @@
 // Phase 1 digital back end for one RX/TX chain.
 // clk is the reference, 32 MHz or 36 MHz. ref_36 selects the divider table.
 // I2S master is the default: the chip drives BCLK and LRCLK.
-// Slave mode is ctrl[4]. The register map is proposed, not frozen.
+// Slave mode is ctrl[4]. The register map is frozen at this gate.
 // Tank Q is not an input.
 
 module digital_backend #(
@@ -30,7 +30,10 @@ module digital_backend #(
     input  logic        [15:0] adc_q,
     output logic               dac_valid,
     output logic        [15:0] dac_i,
-    output logic        [15:0] dac_q
+    output logic        [15:0] dac_q,
+    output logic               dac_bit_i,
+    output logic               dac_bit_q,
+    output logic               dac_bit_valid
 );
 
     // Register bytes are wider than the fields the back end decodes.
@@ -40,6 +43,7 @@ module digital_backend #(
     /* verilator lint_off UNUSEDSIGNAL */
     logic [7:0] ctrl, duty_on, duty_off, rate, dc_shift;
     logic [7:0] gain_i, gain_q, phase, block_pd, wake_cycles, band, status;
+    logic [7:0] tx_dc_i, tx_dc_q, tx_gain_i, tx_gain_q, tx_phase, clk_gate;
     /* verilator lint_on UNUSEDSIGNAL */
     logic flag_clear, dc_clear, band_write;
     logic rx_en, tx_en, blank;
@@ -47,6 +51,7 @@ module digital_backend #(
     logic [10:0] frame_clks;
     logic [5:0] r1, r2;
     logic [4:0] sh1, sh2;
+    logic signed [15:0] norm;
     logic decim_v, dc_v, cal_v;
     logic signed [15:0] decim_i, decim_q, dc_i, dc_q, cal_i, cal_q;
     logic signed [15:0] i_hold, q_hold;
@@ -76,36 +81,63 @@ module digital_backend #(
         .status(status), .ctrl(ctrl), .duty_on(duty_on), .duty_off(duty_off),
         .rate(rate), .dc_shift(dc_shift), .gain_i(gain_i), .gain_q(gain_q),
         .phase(phase), .block_pd(block_pd), .wake_cycles(wake_cycles), .band(band),
-        .flag_clear(flag_clear), .dc_clear(dc_clear), .band_write(band_write)
+        .flag_clear(flag_clear), .dc_clear(dc_clear), .band_write(band_write),
+        .tx_dc_i(tx_dc_i), .tx_dc_q(tx_dc_q), .tx_gain_i(tx_gain_i),
+        .tx_gain_q(tx_gain_q), .tx_phase(tx_phase), .clk_gate(clk_gate)
     );
 
     rate_table u_rate (
         .ref_36(ref_36), .rate(rate[2:0]), .frame_clks(frame_clks),
-        .r1(r1), .r2(r2), .sh1(sh1), .sh2(sh2)
+        .r1(r1), .r2(r2), .sh1(sh1), .sh2(sh2), .norm(norm)
     );
 
     power_ctrl u_pwr (
         .clk(clk), .rst_n(rst_n), .mode(ctrl[1:0]), .duty_en(ctrl[2]),
         .duty_on(duty_on), .duty_off(duty_off), .wake_cycles(wake_cycles),
-        .frame_tick(cal_v), .rx_en(rx_en), .tx_en(tx_en), .blank(blank),
+        .frame_tick(slave_mode ? cal_v : frame_done),
+        .rx_en(rx_en), .tx_en(tx_en), .blank(blank),
         .status_mode(status_mode)
     );
 
+    // Enables are registered on the free clock. The latch inside
+    // clk_gate samples them while clk is low.
+    logic rx_run, i2s_run, tx_run;
+    logic clk_rx, clk_i2s, clk_tx;
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            rx_run <= 1'b0;
+            i2s_run <= 1'b0;
+            tx_run <= 1'b0;
+        end else begin
+            // During a duty-cycled off frame the CIC and FIR stop.
+            // Bypass (block_pd[0]) keeps the clock so the bypass
+            // register still passes samples. SPI is not gated.
+            // clk_gate[0] is the CIC allow, [1] is the FIR allow.
+            // They share one clock, so either bit stops the chain.
+            rx_run <= clk_gate[0] && clk_gate[1] && rx_en && (block_pd[0] || !(ctrl[2] && blank));
+            i2s_run <= clk_gate[3] && (rx_en || tx_en);
+            tx_run <= clk_gate[4] && tx_en && !block_pd[4];
+        end
+    end
+    clk_gate u_g_rx (.clk(clk), .en(rx_run), .gclk(clk_rx));
+    clk_gate u_g_i2s (.clk(clk), .en(i2s_run), .gclk(clk_i2s));
+    clk_gate u_g_tx (.clk(clk), .en(tx_run), .gclk(clk_tx));
+
     decim_chain u_decim (
-        .clk(clk), .rst_n(rst_n), .en(!block_pd[0]),
-        .r1(r1), .r2(r2), .sh1(sh1), .sh2(sh2),
+        .clk(clk_rx), .rst_n(rst_n), .en(!block_pd[0]),
+        .r1(r1), .r2(r2), .sh1(sh1), .sh2(sh2), .norm(norm),
         .valid_in(adc_valid && rx_en), .i_in(adc_i), .q_in(adc_q),
         .valid_out(decim_v), .i_out(decim_i), .q_out(decim_q)
     );
 
     dc_offset u_dc (
-        .clk(clk), .rst_n(rst_n), .en(!block_pd[1]), .clear(dc_clear),
+        .clk(clk_rx), .rst_n(rst_n), .en(!block_pd[1] && clk_gate[2]), .clear(dc_clear),
         .shift(dc_shift[2:0]), .valid_in(decim_v), .i_in(decim_i), .q_in(decim_q),
         .valid_out(dc_v), .i_out(dc_i), .q_out(dc_q)
     );
 
     iq_cal u_cal (
-        .clk(clk), .rst_n(rst_n), .en(!block_pd[2]),
+        .clk(clk_rx), .rst_n(rst_n), .en(!block_pd[2] && clk_gate[2]),
         .gain_i(gain_i), .gain_q(gain_q), .phase(phase),
         .valid_in(dc_v), .i_in(dc_i), .q_in(dc_q),
         .valid_out(cal_v), .i_out(cal_i), .q_out(cal_q)
@@ -136,7 +168,7 @@ module digital_backend #(
     end
 
     i2s_master u_master (
-        .clk(clk), .rst_n(rst_n), .en(!slave_mode && !block_pd[3] && (rx_en || tx_en)),
+        .clk(clk_i2s), .rst_n(rst_n), .en(!slave_mode && !block_pd[3] && (rx_en || tx_en)),
         .slot_32(ctrl[3]), .frame_clks(frame_clks),
         .i_out(i_hold), .q_out(q_hold), .din(din),
         .bclk(m_bclk), .lrclk(m_lrclk), .dout(m_dout),
@@ -151,6 +183,16 @@ module digital_backend #(
         .bclk(bclk_i), .lrclk(lrclk_i), .din(din),
         .dout(s_dout), .overflow(fifo_over), .underflow(fifo_under),
         .i_in(s_i_in), .q_in(s_q_in)
+    );
+
+    tx_chain u_tx (
+        .clk(clk_tx), .rst_n(rst_n), .en(tx_en && !blank && !block_pd[4]),
+        .valid_in(dac_valid),
+        .i_in(dac_i), .q_in(dac_q),
+        .dc_i(tx_dc_i), .dc_q(tx_dc_q),
+        .gain_i(tx_gain_i), .gain_q(tx_gain_q), .phase(tx_phase),
+        .frame_clks(frame_clks),
+        .dac_bit_i(dac_bit_i), .dac_bit_q(dac_bit_q), .dac_bit_valid(dac_bit_valid)
     );
 
 endmodule

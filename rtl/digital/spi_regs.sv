@@ -29,7 +29,13 @@ module spi_regs (
     output logic [7:0] band,
     output logic       flag_clear,
     output logic       dc_clear,
-    output logic       band_write
+    output logic       band_write,
+    output logic [7:0] tx_dc_i,
+    output logic [7:0] tx_dc_q,
+    output logic [7:0] tx_gain_i,
+    output logic [7:0] tx_gain_q,
+    output logic [7:0] tx_phase,
+    output logic [7:0] clk_gate
 );
 
     localparam logic [7:0] CTRL_RST = 8'h00;
@@ -37,6 +43,7 @@ module spi_regs (
 
     logic [7:0] ctrl_q, duty_on_q, duty_off_q, rate_q, dc_shift_q;
     logic [7:0] gain_i_q, gain_q_q, phase_q, block_pd_q, wake_cycles_q, band_q;
+    logic [7:0] tx_dc_i_q, tx_dc_q_q, tx_gain_i_q, tx_gain_q_q, tx_phase_q, clk_gate_q;
 
     logic sclk_q, cs_q;
     logic [15:0] shreg;
@@ -54,6 +61,12 @@ module spi_regs (
     assign phase = phase_q;
     assign block_pd = block_pd_q;
     assign wake_cycles = wake_cycles_q;
+    assign tx_dc_i = tx_dc_i_q;
+    assign tx_dc_q = tx_dc_q_q;
+    assign tx_gain_i = tx_gain_i_q;
+    assign tx_gain_q = tx_gain_q_q;
+    assign tx_phase = tx_phase_q;
+    assign clk_gate = clk_gate_q;
 
     function automatic logic [7:0] read_reg(input logic [6:0] addr);
         case (addr)
@@ -71,6 +84,12 @@ module spi_regs (
             7'h0B: read_reg = 8'h11;
             7'h0C: read_reg = band_q;
             7'h0D: read_reg = 8'h00;
+            7'h0E: read_reg = tx_dc_i_q;
+            7'h0F: read_reg = tx_dc_q_q;
+            7'h10: read_reg = tx_gain_i_q;
+            7'h11: read_reg = tx_gain_q_q;
+            7'h12: read_reg = tx_phase_q;
+            7'h13: read_reg = clk_gate_q;
             default: read_reg = 8'h00;
         endcase
     endfunction
@@ -97,6 +116,13 @@ module spi_regs (
             phase_q <= 8'd0;
             block_pd_q <= 8'd0;
             wake_cycles_q <= 8'd0;
+            tx_dc_i_q <= 8'd0;
+            tx_dc_q_q <= 8'd0;
+            tx_gain_i_q <= GAIN_RST;
+            tx_gain_q_q <= GAIN_RST;
+            tx_phase_q <= 8'd0;
+            // 1 = clock allowed. Mode and block power-down still gate.
+            clk_gate_q <= 8'h1F;
         end else begin
             sclk_q <= sclk;
             cs_q <= cs_n;
@@ -126,6 +152,12 @@ module spi_regs (
                             band_write <= 1'b1;
                         end
                         7'h0D: dc_clear <= shreg[0];
+                        7'h0E: tx_dc_i_q <= shreg[7:0];
+                        7'h0F: tx_dc_q_q <= shreg[7:0];
+                        7'h10: tx_gain_i_q <= shreg[7:0];
+                        7'h11: tx_gain_q_q <= shreg[7:0];
+                        7'h12: tx_phase_q <= shreg[7:0];
+                        7'h13: clk_gate_q <= shreg[7:0];
                         default: ;
                     endcase
                 end

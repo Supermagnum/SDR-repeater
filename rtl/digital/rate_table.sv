@@ -12,7 +12,11 @@ module rate_table (
     output logic [5:0]  r1,
     output logic [5:0]  r2,
     output logic [4:0]  sh1,
-    output logic [4:0]  sh2
+    output logic [4:0]  sh2,
+    // Q15 multiplier that brings the chain DC gain to 1.
+    // The raw gain is the product of the two CIC stage gains
+    // (each R^4/2^shift) and the FIR DC sums.
+    output logic signed [15:0] norm
 );
 
     always_comb begin
@@ -21,21 +25,22 @@ module rate_table (
         r2 = 6'd8;
         sh1 = 5'd8;
         sh2 = 5'd12;
+        norm = 16'sd23626;
         if (!ref_36) begin
             case (rate)
-                3'd0: begin frame_clks = 11'd1280; r1 = 6'd16; r2 = 6'd40; sh1 = 5'd16; sh2 = 5'd21; end
-                3'd1: begin frame_clks = 11'd640;  r1 = 6'd16; r2 = 6'd20; sh1 = 5'd16; sh2 = 5'd17; end
-                3'd2: begin frame_clks = 11'd320;  r1 = 6'd10; r2 = 6'd16; sh1 = 5'd13; sh2 = 5'd16; end
-                3'd3: begin frame_clks = 11'd160;  r1 = 6'd8;  r2 = 6'd10; sh1 = 5'd12; sh2 = 5'd13; end
-                default: begin frame_clks = 11'd64; r1 = 6'd4; r2 = 6'd8; sh1 = 5'd8; sh2 = 5'd12; end
+                3'd0: begin frame_clks = 11'd1280; r1 = 6'd16; r2 = 6'd40; sh1 = 5'd16; sh2 = 5'd21; norm = 16'sd19354; end
+                3'd1: begin frame_clks = 11'd640;  r1 = 6'd16; r2 = 6'd20; sh1 = 5'd16; sh2 = 5'd17; norm = 16'sd19354; end
+                3'd2: begin frame_clks = 11'd320;  r1 = 6'd10; r2 = 6'd16; sh1 = 5'd13; sh2 = 5'd16; norm = 16'sd19354; end
+                3'd3: begin frame_clks = 11'd160;  r1 = 6'd8;  r2 = 6'd10; sh1 = 5'd12; sh2 = 5'd13; norm = 16'sd19354; end
+                default: begin frame_clks = 11'd64; r1 = 6'd4; r2 = 6'd8; sh1 = 5'd8; sh2 = 5'd12; norm = 16'sd23626; end
             endcase
         end else begin
             case (rate)
-                3'd0: begin frame_clks = 11'd1440; r1 = 6'd16; r2 = 6'd45; sh1 = 5'd16; sh2 = 5'd21; end
-                3'd1: begin frame_clks = 11'd720;  r1 = 6'd15; r2 = 6'd24; sh1 = 5'd15; sh2 = 5'd18; end
-                3'd2: begin frame_clks = 11'd360;  r1 = 6'd12; r2 = 6'd15; sh1 = 5'd14; sh2 = 5'd15; end
-                3'd3: begin frame_clks = 11'd180;  r1 = 6'd9;  r2 = 6'd10; sh1 = 5'd12; sh2 = 5'd13; end
-                default: begin frame_clks = 11'd72; r1 = 6'd4; r2 = 6'd9; sh1 = 5'd8; sh2 = 5'd12; end
+                3'd0: begin frame_clks = 11'd1440; r1 = 6'd16; r2 = 6'd45; sh1 = 5'd16; sh2 = 5'd21; norm = 16'sd12083; end
+                3'd1: begin frame_clks = 11'd720;  r1 = 6'd15; r2 = 6'd24; sh1 = 5'd15; sh2 = 5'd18; norm = 16'sd12083; end
+                3'd2: begin frame_clks = 11'd360;  r1 = 6'd12; r2 = 6'd15; sh1 = 5'd14; sh2 = 5'd15; norm = 16'sd12083; end
+                3'd3: begin frame_clks = 11'd180;  r1 = 6'd9;  r2 = 6'd10; sh1 = 5'd12; sh2 = 5'd13; norm = 16'sd12083; end
+                default: begin frame_clks = 11'd72; r1 = 6'd4; r2 = 6'd9; sh1 = 5'd8; sh2 = 5'd12; norm = 16'sd14749; end
             endcase
         end
     end

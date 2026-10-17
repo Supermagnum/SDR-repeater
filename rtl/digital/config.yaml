@@ -1,11 +1,11 @@
-# Synthesis and pre-place timing for the digital back end.
-# The clock is the faster reference, 36 MHz. 32 MHz is a longer period.
+# Synthesis, placement and clock-tree synthesis for the digital back end.
+# The clock is the faster reference, 36 MHz (27.778 ns). 32 MHz is a longer period.
 DESIGN_NAME: digital_backend
 VERILOG_FILES:
   - dir::spi_regs.sv
   - dir::rate_table.sv
   - dir::cic4.sv
-  - dir::fir_mac.sv
+  - dir::fir_seq.sv
   - dir::decim_chain.sv
   - dir::dc_offset.sv
   - dir::iq_cal.sv
@@ -13,9 +13,13 @@ VERILOG_FILES:
   - dir::i2s_master.sv
   - dir::sample_fifo.sv
   - dir::i2s_slave.sv
+  - dir::clk_gate.sv
+  - dir::tx_chain.sv
   - dir::digital_backend.sv
 CLOCK_PORT: clk
 CLOCK_PERIOD: 27.778
+FP_CORE_UTIL: 55
+PL_TARGET_DENSITY: 0.6
 pdk::ihp-sg13g2:
   STD_CELL_LIBRARY: sg13g2_stdcell
   CLOCK_PERIOD: 27.778

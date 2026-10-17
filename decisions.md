@@ -38,10 +38,13 @@ Approved:
 
 The first Phase 1 submission was not approved. The resubmission is on `phase1/digital` and is waiting for review. It is not an approval and it is not a topology decision.
 
-Recorded in `reports/phase1-review/summary.md`, still open:
+Recorded in `reports/phase1-review/summary.md`:
 
-- The register map and the SPI frame are proposed, not frozen.
-- The RFIC is the I2S master by default. Slave mode keeps an asynchronous FIFO. The b14/b15 direction change is only a proposed note in `spec/i2s-clocking.md`.
-- LinHT IQ is provisional until the Rev C wiring is read.
-- Pre-place timing at 36 MHz does not meet the slow or typical corner.
-- The matched-mesh inductor study is still required before Phase 2. It has not been started. Phase 2 has not been started.
+- SPI frame approved. Register map frozen at this gate, addresses `0x00` through `0x13`.
+- I2S master by default, and the b14/b15 direction change, approved as a proposal. 16-bit slots at 500 kHz are the repeater recommendation. The 36 MHz three-clock BCLK cells miss the i.MX93 S12 pulse-width window. The K3 datasheet publishes no slave pulse-width limit.
+- Proposed signoff junction temperature is 100 °C. The PDK liberty has no 85 °C or 100 °C corner. The 125 °C slow corner is reported from the post-CTS database.
+- The 45 dB alias limit stays provisional pending Phase 3 modulator co-design.
+- LinHT IQ stays provisional.
+- Placed area is above the 0.25 mm² target. See the review for the measured core and cell area.
+- The matched-mesh inductor study may run in parallel. It has not been started. Phase 2 has not been started and still needs approval.
+

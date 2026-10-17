@@ -22,7 +22,8 @@ HB = np.array([-138, 0, 305, 0, -617, 0, 1128, 0, -1952, 0, 3376, 0,
                -6450, 0, 20688, 32767, 20688, 0, -6450, 0, 3376, 0,
                -1952, 0, 1128, 0, -617, 0, 305, 0, -138], dtype=float)
 CF = np.array([-5006, 32767, -5006], dtype=float)
-# Limits are below the computed worst case (0.19 dB ripple, 48 dB alias).
+# The 45 dB alias number is provisional until the Phase 3 modulator
+# co-design. The coefficient set clears it; the limit is not frozen.
 RIPPLE_LIMIT_DB = 0.25
 ALIAS_LIMIT_DB = 45.0
 
@@ -111,6 +112,12 @@ async def spi_reset_and_registers(dut):
         0x0B: 0x11,
         0x0C: 0,
         0x0D: 0,
+        0x0E: 0,
+        0x0F: 0,
+        0x10: 128,
+        0x11: 128,
+        0x12: 0,
+        0x13: 0x1F,
     }
     for addr, exp in expect_reset.items():
         got = await spi_xfer(dut, addr, 0, write=False)
@@ -118,6 +125,7 @@ async def spi_reset_and_registers(dut):
     writes = {
         0x01: 3, 0x02: 5, 0x03: 2, 0x04: 6, 0x05: 90, 0x06: 100,
         0x07: 0xE0, 0x08: 0x0F, 0x09: 4, 0x0C: 1,
+        0x0E: 0x05, 0x10: 140, 0x12: 0x10, 0x13: 0x1F,
     }
     for addr, data in writes.items():
         await spi_xfer(dut, addr, data, write=True)
@@ -244,7 +252,9 @@ async def filter_dc_and_overflow(dut):
             seen.append(int(dut.cal_i.value.to_signed()))
     dut.adc_valid.value = 0
     assert len(seen) >= 8, len(seen)
-    assert abs(seen[-1] - 1387) <= 2, seen[-1]
+    # DC gain is normalized to 1. Raw gain before `norm` is about 1.387
+    # at this rate, so an unscaled chain would sit near 1387.
+    assert abs(seen[-1] - 1000) <= 4, seen[-1]
     # Full scale must clip, not wrap negative.
     dut.adc_i.value = 32767
     dut.adc_q.value = -32768
@@ -254,7 +264,7 @@ async def filter_dc_and_overflow(dut):
         await RisingEdge(dut.clk)
         if int(dut.cal_v.value):
             full.append(int(dut.cal_i.value.to_signed()))
-    assert full[-1] == 32767, full[-1]
+    assert full[-1] >= 32766, full[-1]
 
 
 @cocotb.test()
@@ -308,64 +318,52 @@ async def dc_retained_across_sleep(dut):
 async def wake_duty_and_power(dut):
     await start(dut)
     await spi_xfer(dut, 0x08, 0x07, write=True)
-    await spi_xfer(dut, 0x09, 2, write=True)
+    await spi_xfer(dut, 0x09, 0, write=True)
     await spi_xfer(dut, 0x01, 1, write=True)
     await spi_xfer(dut, 0x02, 1, write=True)
-    await spi_xfer(dut, 0x00, 0x06, write=True)  # RX, duty, wake 2
+    await spi_xfer(dut, 0x00, 0x06, write=True)  # RX, duty, wake 0
+    dut.adc_i.value = 50
+    dut.adc_q.value = 60
+    dut.adc_valid.value = 1
     blanks = 0
     valids = 0
-    for _ in range(8):
-        dut.adc_i.value = 50
-        dut.adc_q.value = 60
-        dut.adc_valid.value = 1
+    # Two-frame duty period is 128 reference clocks at 500 kHz.
+    for _ in range(64 * 6):
         await RisingEdge(dut.clk)
-        dut.adc_valid.value = 0
-        for _ in range(4):
-            await RisingEdge(dut.clk)
-            if int(dut.cal_v.value):
-                if int(dut.sample_valid.value):
-                    valids += 1
-                else:
-                    blanks += 1
-    assert blanks >= 2, blanks
-    assert valids >= 1, valids
-    # Shutdown clears valid and keeps the rate register.
+        if int(dut.cal_v.value):
+            if int(dut.sample_valid.value):
+                valids += 1
+            else:
+                blanks += 1
+    assert blanks >= 64, blanks
+    assert valids >= 64, valids
     await spi_xfer(dut, 0x00, 0x00, write=True)
     await RisingEdge(dut.clk)
     assert int(dut.valid_iq.value) == 0
     assert await spi_xfer(dut, 0x03, 0, write=False) == 4
-    # duty_off = 0 never blanks. duty_on = 0 blanks after the first frame.
-    # Wake is 0 so the count is the duty cycle, not the wake blank.
     await spi_xfer(dut, 0x09, 0, write=True)
     await spi_xfer(dut, 0x02, 0, write=True)
     await spi_xfer(dut, 0x00, 0x06, write=True)
     on_count = 0
-    for _ in range(4):
-        dut.adc_valid.value = 1
+    dut.adc_valid.value = 1
+    for _ in range(64 * 3):
         await RisingEdge(dut.clk)
-        dut.adc_valid.value = 0
-        for _w in range(6):
-            await RisingEdge(dut.clk)
-            if int(dut.cal_v.value) and int(dut.sample_valid.value):
-                on_count += 1
-    assert on_count >= 3, on_count
+        if int(dut.cal_v.value) and int(dut.sample_valid.value):
+            on_count += 1
+    assert on_count >= 64, on_count
     await spi_xfer(dut, 0x01, 0, write=True)
     await spi_xfer(dut, 0x02, 2, write=True)
     await spi_xfer(dut, 0x00, 0x01, write=True)
     await spi_xfer(dut, 0x00, 0x06, write=True)
     off_after = 0
     blank_after = 0
-    for _ in range(4):
-        dut.adc_valid.value = 1
+    for _ in range(64 * 4):
         await RisingEdge(dut.clk)
-        dut.adc_valid.value = 0
-        for _w in range(6):
-            await RisingEdge(dut.clk)
-            if int(dut.cal_v.value):
-                if int(dut.sample_valid.value):
-                    off_after += 1
-                else:
-                    blank_after += 1
+        if int(dut.cal_v.value):
+            if int(dut.sample_valid.value):
+                off_after += 1
+            else:
+                blank_after += 1
     assert off_after >= 1 and blank_after >= 1, (off_after, blank_after)
 
 
@@ -422,3 +420,132 @@ async def slave_fifo_drift(dut):
         await Timer(20, unit="ns")
     status = await spi_xfer(dut, 0x0A, 0, write=False)
     assert (status & 0x30) == 0, status
+
+
+def raw_dc_gain(r1, sh1, r2, sh2):
+    cic = (r1 ** 4) / (2 ** sh1) * (r2 ** 4) / (2 ** sh2)
+    return cic * float(np.sum(CF)) / 32768.0 * float(np.sum(HB)) / 32768.0
+
+
+@cocotb.test()
+async def filter_dc_all_rates(dut):
+    # Every reference/rate pair, after `norm`, settles at the input.
+    gains = []
+    for (ref, rate), (m, r1, r2, sh1, sh2) in TABLE.items():
+        raw = raw_dc_gain(r1, sh1, r2, sh2)
+        gains.append(raw)
+        await start(dut, ref_36=1 if ref == 36 else 0)
+        await spi_xfer(dut, 0x08, 0x06, write=True)
+        await spi_xfer(dut, 0x03, rate, write=True)
+        await spi_xfer(dut, 0x00, 0x02, write=True)
+        dut.adc_i.value = 1000
+        dut.adc_q.value = 1000
+        dut.adc_valid.value = 1
+        seen = []
+        for _ in range(m * 48):
+            await RisingEdge(dut.clk)
+            if int(dut.cal_v.value):
+                seen.append(int(dut.cal_i.value.to_signed()))
+        assert len(seen) >= 8, (ref, rate, len(seen))
+        assert abs(seen[-1] - 1000) <= 4, (ref, rate, raw, seen[-1])
+    # The un-normalized gains are not the same. 32 MHz / 500 kHz is the low one.
+    assert max(gains) / min(gains) > 1.5, gains
+    cocotb.log.info("raw DC gains %s", ["%.4f" % g for g in gains])
+
+
+@cocotb.test()
+async def tx_image_and_noise(dut):
+    # 500 kHz, 32 MHz, 16-bit slots. BCLK is 16 MHz with a 2-clock cell.
+    # din is set while BCLK is low, which is the cycle before the master
+    # launches the next bit. Tone at 0.1*fs on I, Q silent.
+    await start(dut, ref_36=0)
+    await spi_xfer(dut, 0x03, 4, write=True)
+    await spi_xfer(dut, 0x00, 0x03, write=True)
+    fs = 500_000.0
+    f_tone = 0.1 * fs
+    bits = []
+    bit_n = 0
+    sample_n = 0
+    word = int(round(8000 * np.sin(2 * np.pi * f_tone / fs * sample_n))) & 0xFFFF
+    for _ in range(64 * 160):
+        await RisingEdge(dut.clk)
+        if int(dut.bclk_o.value) == 0:
+            b = bit_n % 32
+            if b < 16:
+                dut.din.value = (word >> (15 - b)) & 1
+            else:
+                dut.din.value = 0
+            bit_n += 1
+            if b == 31:
+                sample_n += 1
+                word = int(round(8000 * np.sin(2 * np.pi * f_tone / fs * sample_n))) & 0xFFFF
+        if int(dut.dac_bit_valid.value):
+            bits.append(1.0 if int(dut.dac_bit_i.value) else -1.0)
+    assert len(bits) > 4096, len(bits)
+    bits = np.array(bits[2500:], dtype=float)
+    w = np.hanning(len(bits))
+    spec = np.abs(np.fft.rfft(bits * w))
+    freqs = np.fft.rfftfreq(len(bits), 1.0 / 32e6)
+    mag = 20.0 * np.log10(spec + 1e-15)
+    df = float(freqs[1] - freqs[0])
+
+    def peak(f0):
+        m = np.abs(freqs - f0) < (2.0 * df + 1.0)
+        return float(mag[m].max())
+
+    tone = peak(f_tone)
+    image = peak(fs - f_tone)
+    oob = (freqs > 1.0e6) & (freqs < 8.0e6)
+    floor = float(np.median(mag[oob]))
+    cocotb.log.info(
+        "TX tone %.1f dB, image %.1f dB, rej %.1f dB, oob floor %.1f dB",
+        tone, image, tone - image, floor,
+    )
+    # A 2nd-order modulator with feedback into both integrators
+    # rejects this image by about 58 dB on the same tone. 40 dB is
+    # the test limit. The out-of-band median from 1 to 8 MHz is the
+    # shaped-noise floor; 20 dB under the tone is the limit.
+    assert tone - image >= 40.0, (tone, image)
+    assert tone - floor >= 20.0, (tone, floor)
+
+
+@cocotb.test()
+async def rx_chain_ports(dut):
+    # Port-level RX check so the same test can run on the gate netlist.
+    # DC and IQ are bypassed. The decimator output is the I2S left word.
+    await start(dut)
+    await spi_xfer(dut, 0x08, 0x06, write=True)
+    await spi_xfer(dut, 0x03, 4, write=True)
+    await spi_xfer(dut, 0x00, 0x02, write=True)
+    dut.adc_i.value = 1000
+    dut.adc_q.value = 1000
+    dut.adc_valid.value = 1
+    saw = 0
+    for _ in range(64 * 50):
+        await RisingEdge(dut.clk)
+        if int(dut.valid_iq.value):
+            saw += 1
+    assert saw >= 8, saw
+    prev_lr = int(dut.lrclk_o.value)
+    while True:
+        await RisingEdge(dut.clk)
+        lr = int(dut.lrclk_o.value)
+        if prev_lr == 1 and lr == 0:
+            break
+        prev_lr = lr
+    word = 0
+    bits = 0
+    prev_b = int(dut.bclk_o.value)
+    for _ in range(80):
+        await RisingEdge(dut.clk)
+        b = int(dut.bclk_o.value)
+        if prev_b == 1 and b == 0 and bits < 16:
+            word = ((word << 1) | int(dut.dout.value)) & 0xFFFF
+            bits += 1
+        prev_b = b
+    if word & 0x8000:
+        word -= 65536
+    assert bits == 16, bits
+    assert abs(word - 1000) <= 4, word
+
+

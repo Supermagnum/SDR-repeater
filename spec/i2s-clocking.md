@@ -1,6 +1,6 @@
 # I2S clocking (proposed)
 
-This note is a proposed change to the repeater backplane in `docs/RF-modules.md` revision 0.3. That file is not edited here.
+This note is a proposed change to the repeater backplane in `docs/RF-modules.md` revision 0.3. That file is not edited here. The master-mode default and the b14/b15 direction change are approved as a proposal. They are not a change to the board document.
 
 ## Default: the RFIC is the I2S master
 
@@ -18,6 +18,34 @@ Proposed direction change on J_BACKPLANE:
 Slave mode remains available (`CTRL[4] = 1`). In that mode b14 and b15 would be inputs again, and the words cross an asynchronous FIFO. Overflow and underflow are sticky status bits. A board that wires the host as master has to strap slave mode before the clocks are used. The default strap is master.
 
 LinHT Rev C wiring has not been read from the board files. Which mode that host needs stays provisional. See the Phase 1 review.
+
+## Recommendation for the repeater backplane
+
+Use 16-bit slots at 500 kHz. That keeps BCLK at or under 16 MHz on both references.
+
+| Reference | Slots | M | B | Cell lengths | BCLK high / low |
+|---|---|---|---|---|---|
+| 32 MHz | 16-bit | 64 | 32 | every cell is 2 clocks | 31.25 ns / 31.25 ns (50 percent), period 62.5 ns, BCLK = 16 MHz |
+| 36 MHz | 16-bit | 72 | 32 | 24 cells of 2 clocks, 8 cells of 3 | 2-clock cell: 27.778 ns / 27.778 ns. 3-clock cell: high 55.556 ns, low 27.778 ns (67 / 33 percent) |
+
+32-bit slots at 500 kHz on a 32 MHz reference forward the reference as BCLK (32 MHz). That is above 16 MHz, so it is not the repeater-backplane choice. It remains a legal mode. 36 MHz with 32-bit slots at 500 kHz stays illegal.
+
+## Host slave timing
+
+i.MX 93, industrial datasheet Rev. 3, 12/2023, Table 48, "Slave mode SAI timing (25 MHz)":
+
+- S11, SAI_BCLK cycle time, minimum 40 ns. The published slave table stops at 25 MHz.
+- S12, SAI_BCLK pulse width high and low, 40 to 60 percent of the BCLK period.
+- S13 / S14, frame-sync setup / hold, 3 ns / 2 ns.
+- S17 / S18, RXD setup / hold, 3 ns / 2 ns.
+
+The 50 MHz table in that datasheet is master mode. It is not used as the slave limit here.
+
+32 MHz, 16-bit, 500 kHz meets S11 (62.5 ns > 40 ns) and S12 (50 percent).
+
+36 MHz, 16-bit, 500 kHz: the 2-clock cells are 55.556 ns and 50 percent, which meets S11 and S12. The 3-clock cells are 83.333 ns, so S11 is met, but the high/low split is 67 / 33 percent of that cell. S12 is 40 to 60 percent of the period. Those cells do not meet S12. An integer split of three reference clocks cannot land inside 40 to 60 percent. The absolute low pulse is 27.778 ns, which is longer than 40 percent of the 40 ns minimum cycle (16 ns), but the datasheet states the limit as a fraction of the period.
+
+SpacemiT Key Stone K3, public datasheet: the audio block is listed as standard I2S, fixed 48 kHz, 16-bit, stereo, with sysclk of 64/128/256 times fs. That datasheet does not publish a slave BCLK minimum high time or low time. No K3 pulse-width limit is claimed here. The 48 kHz feature line does not describe this IQ rate.
 
 ## Exact sample rates
 
