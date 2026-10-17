@@ -1,0 +1,91 @@
+# Phase 0 lock, accepted 2026-10-17.
+# No previous lock existed.
+# Do not use this file to submit, upload, or register a shuttle.
+
+schema: sdr-repeater-rfic-tool-manifest-lock/1
+checked_at: "2026-10-17T04:39:00+02:00"
+status: approved-2026-10-17
+previous_lock: null
+
+container:
+  image: hpretl/iic-osic-tools
+  tag: "2026.10"
+  digest: sha256:306585de35d19
+  published: "2026-10-15T13:11:30Z"
+  source_repo: https://github.com/iic-jku/IIC-OSIC-TOOLS
+  source_release: "2026.10"
+  source_published: "2026-10-15T14:02:05Z"
+  ams_template_minimum: "2026.09"
+  host_daemon: running
+  note: digest prefix is the Docker Hub tag listing prefix. image_digest under pdk is the local image id.
+
+pdk:
+  repo: https://github.com/IHP-GmbH/IHP-Open-PDK
+  release_tag: v0.3.0
+  release_commit: 5cccb161f7492697cfa52eb14dc03beb00bdca9e
+  release_date: "2026-03-11T13:53:59Z"
+  pinned_commit: a49358cc0b20635fcb53c0940505e3563763fc7a
+  pinned_commit_date: "2026-10-15T09:06:19Z"
+  pinned_source: COMMIT file in hpretl/iic-osic-tools:2026.10 at /foss/pdks/ihp-sg13g2/COMMIT
+  image_digest: sha256:306585de35d198e70ea58950f77147c86f56c698726a19afea9f1c83009557be
+  not_pinned: 89d42ee6d2fd9b50b86a1aada6fee6673c3e6008
+  hours_before_89d42ee: 26.0
+  contains_rf_mos_lvs_pr_1246: true
+  rf_mos_lvs_merge: f7bca32694fe3d58be0cc7d9df4b9f5db7161a14
+  history_vs_89d42ee: diverged
+  commits_on_dev_not_in_image: 43
+  commits_in_image_not_on_dev: 48
+  openems_submodule:
+    repo: https://github.com/VolkerMuehlhaus/gds2openEMS
+    image_commit: e29417aa1e5fb97b4ebd27dd1e4fcf043f97ef63
+    image_commit_date: "2025-05-23T12:34:17Z"
+    workflow_tag: v0.5.0
+    workflow_commit: 99d8bd18d2dc8bc2feb947b80cb67a00aa36f2c4
+    upstream_latest_tag_date: "2026-09-28T19:08:20Z"
+  palace_submodule:
+    repo: https://github.com/VolkerMuehlhaus/gds2palace_ihp_sg13g2
+    image_commit: a904bc0896d1b0dfb6f7f13eb10af6ecee047149
+    dev_pointer_not_used: df29aa608be858f53fbce46f81238b5534812d9b
+    workflow_tag: v0.8.2
+    workflow_commit: ed063dc97993eefcd32aa7c4fba22b866d00fd0b
+    workflow_package_version_string: "0.8.1"
+    upstream_latest_tag_date: "2026-10-12T08:30:00Z"
+
+python:
+  cace: "2.13.0"
+  cace_uploaded: "2026-09-23T16:36:22Z"
+  cace_repo: https://github.com/fossi-foundation/cace
+  cace_commit: dedb5e0d30f5c286d36a1511b61fc81795bd24cf
+  cace_commit_date: "2026-09-24T11:47:42Z"
+  cace_decision: approved
+  cocotb: "2.1.0"
+  cocotb_location: /usr/local/lib/python3.12/dist-packages/cocotb/__init__.py
+  cocotb_in_image: true
+  cocotb_venv: not-required
+  klayout_pex: "0.6.10"
+  klayout_pex_repo: https://github.com/iic-jku/klayout-pex
+  klayout_pex_published: "2026-10-16T22:09:32Z"
+
+container_tool_metadata_2026_10:
+  ngspice: ngspice-47
+  klayout: v0.30.12
+  xschem: d76e6cc74fdfa5de573a8ba14124ef00c611a9b6
+  xyce: Release-7.10.0
+  openems: 974294ba7d812ef5a46a4760593057aee7ce6866
+  palace: 1fa13c9d995abd1cc24c98067ddc3485a08d3d7a
+  vacask: fb8cc2055a4f10cff1de8017b554d22ea57ce448
+  qucs_s: "26.1.1"
+  yosys: v0.70
+  verilator: v5.052
+  magic: "8.3.685"
+  netgen: "1.5.324"
+  iverilog: 15d870a5207b7156571baf3e4e9f241858bccd16
+  cocotb: "2.1.0-installed-but-absent-from-tool_metadata.yml"
+
+rejected:
+  - repo: https://github.com/efabless/cace
+    reason: superseded; last commit 2025-02-07
+  - repo: https://github.com/AliSahafi/Analog_OpenSource_ihp
+    reason: README pins hpretl/iic-osic-tools:2026.07; not verified against 2026.10
+  - name: QUCS-COPEN
+    reason: papers only; no maintained public repository found on 2026-10-17

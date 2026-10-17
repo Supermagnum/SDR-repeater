@@ -1,0 +1,9 @@
+# Regenerated simulation and extraction output. Keep decks and scripts.
+out/
+**/out/
+sim/em/**/output/
+sim/em/**/palace_model/
+sim/em/**/vendor/
+*.raw
+*.vcd
+*.fst
