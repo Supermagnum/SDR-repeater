@@ -1,9 +1,10 @@
 # Two-port SG13_Octagon L_2n0 model for Palace.
 # Workflow code: gds2palace_ihp_sg13g2 tag v0.8.2.
-# Stack-up XML and the GDS path are passed on the command line.
-# The GDS used for this regression is the v0.8.2 workflow file
-# L_2n0_twoport.gds. The gds2openEMS v0.5.0 file of the same name
-# has a different hash and is not used.
+# The GDS and the stack-up XML are passed on the command line.
+# Both solvers use the openEMS v0.5.0 L_2n0 GDS (valid port
+# rectangles, substrate ground on layer 210) and the pinned-PDK
+# file SG13G2_200um.xml from libs.tech/openems. The Palace workflow
+# XML in the same PDK commit is a different stack-up and is not used.
 
 import os
 import sys

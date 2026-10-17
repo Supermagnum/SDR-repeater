@@ -13,30 +13,29 @@ Date: 2026-10-17. Scope: toolchain pin, LinHT host re-read, and one inductor EM 
 ## Pins
 
 - Container `hpretl/iic-osic-tools:2026.10`, local image `sha256:306585de35d198e70ea58950f77147c86f56c698726a19afea9f1c83009557be`.
-- PDK `a49358cc0b20635fcb53c0940505e3563763fc7a` from that image. It includes RF MOSFET LVS pull request 1246 and is 26 hours before `dev` `89d42ee`. The histories have diverged: 43 commits are only on `dev`, and 48 are only in the image. `89d42ee` is not pinned.
+- PDK `a49358cc0b20635fcb53c0940505e3563763fc7a` from that image. Confirmed in the image: `rfmos_extraction.lvs` extracts `rfnmos`, and `rfmos_model_mapping.lvs` is absent, so the RF MOSFET LVS change is present. `dev` is not followed. The pin is reconsidered only at a phase review gate.
 - DRC flag `--minimum_drc`.
 - EM workflows `gds2palace` `v0.8.2` and `gds2openEMS` `v0.5.0`. Stack-up XML only from the pinned PDK. cocotb 2.1.0 is in the image. No project venv.
 - Rejected: `efabless/cace`, `AliSahafi/Analog_OpenSource_ihp`, QUCS-COPEN. ngspice 47 PSS may be used; phase-noise results stay lower confidence.
 
 ## Key result
 
-At 2.4 GHz, Palace reports 1.642 nH and Q 14.2. openEMS reports 1.631 nH and Q 11.8. At 3.5 GHz, Palace reports 1.658 nH and Q 18.8. openEMS reports 1.641 nH and Q 14.9. Inductance agrees to about 1%. Q differs by 20% and 26%. The meshes, the frequency methods, and the stack-up files are not the same, so that Q gap is not a pure solver comparison. Full figures are in `reports/phase0-review/em-l2n0.md`.
+Both solvers now read the same pinned-PDK stack-up, sha256 `5d4529432b38d7996814f5096af2173d96e8ad5ff84c73ebb57904f1faf03bdf`, and the same port geometry. At 2.4 GHz, Palace reports 1.648 nH and Q 14.2. openEMS reports 1.631 nH and Q 11.8. At 3.5 GHz, Palace reports 1.664 nH and Q 18.7. openEMS reports 1.641 nH and Q 14.9. Inductance agrees to about 1.4%. Q still differs by about 20% and 26%. The meshes are not matched. The provisional tank Q is the openEMS pair. Full figures are in `reports/phase0-review/em-l2n0.md`.
 
 The host was rebooted during the first openEMS attempt. systemd-resolved and Docker were already running afterward, so neither was restarted. That first openEMS file used the Palace GDS and is discarded. The numbers above are from the rerun on the openEMS GDS.
 
 ## Open risks
 
-- The pinned PDK commit and current `dev` have diverged. A later move to `dev` HEAD needs a new decision.
-- Palace port polygons in the v0.8.2 example GDS have zero height. Palace still showed a connected 2-port. openEMS does not accept that GDS with the openEMS stack-up.
-- openEMS warned that its timestep is very small. Palace's mesh still contains 5 ill-shaped tetrahedra.
+- `dev` is not followed. The pin stays at `a49358cc` until a later phase review gate.
+- The v0.8.2 example GDS has zero-height ports. The shared baseline uses the openEMS GDS instead.
+- openEMS warned that its timestep is very small. The shared-stack Palace mesh reported no ill-shaped tetrahedra. The meshes are still not refined to the 2% step.
 - LinHT Rev C is not validated. Supply, 36 MHz reference, and I2S facts stay provisional. USB-A connector part numbers are not chosen.
-- Neither Q value is ready to use as a design target until the meshes are converged.
+- Provisional tank Q is the openEMS result. It is not a converged design target.
 
 ## Decisions still needed
 
-1. Whether to follow `dev` past `a49358cc` once the image catches up.
-2. Whether to spend another EM run on a matched mesh and one shared stack-up before trusting Q.
-3. Approval to start Phase 1 RTL. Topology approval is still required before any analog schematic.
+1. Matched-mesh comparison before Phase 2: same stack-up (done), same ports (done), port de-embedding, refine until L and Q each change by less than 2% between steps, then compare with a compact model and with IHP measured data if a later PDK or a cited measurement provides either. This PDK commit has neither for `L2n0`.
+2. Analog topology, before any schematic.
 
 ## Dual-use table
 

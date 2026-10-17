@@ -31,6 +31,15 @@ pdk:
   not_pinned: 89d42ee6d2fd9b50b86a1aada6fee6673c3e6008
   hours_before_89d42ee: 26.0
   contains_rf_mos_lvs_pr_1246: true
+  rf_mos_lvs_evidence: libs.tech/klayout/tech/lvs/rule_decks/rfmos_extraction.lvs extracts mos4 rfnmos; rfmos_model_mapping.lvs is absent
+  follow_dev: false
+  reconsider_only_at: phase-review-gates
+  shared_stackup:
+    path: libs.tech/openems/openems_ihp_sg13g2/workflow/SG13G2_200um.xml
+    sha256: 5d4529432b38d7996814f5096af2173d96e8ad5ff84c73ebb57904f1faf03bdf
+  palace_workflow_stackup_not_used:
+    path: libs.tech/palace/workflow/SG13G2_200um.xml
+    sha256: 2615d4d75d6d81e0314b42ecdedf754b9e856d826bf829cb7e14081d8fb1b044
   rf_mos_lvs_merge: f7bca32694fe3d58be0cc7d9df4b9f5db7161a14
   history_vs_89d42ee: diverged
   commits_on_dev_not_in_image: 43
