@@ -60,7 +60,7 @@ The model of the ideal decimator response is in the table below. It covers a blo
 | Output rate | 600 kHz (2 m) | 2 MHz (70 cm) |
 |---|---|---|
 | 25 / 50 / 100 kHz | aliases on-channel, ≥ 162 dB (lands in a CIC null) | on-channel, ≥ 203 dB |
-| 200 kHz | on-channel, 48 dB from bit_front+CIC+comp; **needs ≥ 52 dB from the half-band at fs_in/2** | on-channel, ≥ 203 dB |
+| 200 kHz | on-channel, 106 dB (48 dB bit_front+CIC+comp, 58 dB half-band at fs_in/2): meets R5 | on-channel, ≥ 203 dB |
 | 500 kHz | lands at −100 kHz, off-channel. The host must reject it by ≥ 100 dB. 16-bit IQ is enough: the blocker is 75 dB above the floor in 500 kHz. | on-channel, ≥ 203 dB |
 
 How this behaves:
@@ -69,7 +69,7 @@ How this behaves:
 - **Consequence:** the repeater must keep the channel at DC. With offset tuning the null protection disappears.
 - The ideal-response numbers are not the real limit. The 16-bit output floor (≈ −98 dBFS) and the analog front end (R4, R6, R7) are.
 
-Open check: run `tools/derive_limits.py --hb <31 taps>` with the half-band coefficients to close the 200 kHz row.
+Half-band (31 taps from `fir_seq.sv`): 57 dB stopband from 0.30·fs_in, 57.5 dB at fs_in/2. **R5 is met at every rate.** Reproduce with `python3 tools/derive_limits.py --no-tx` (the RTL taps are built in).
 
 ### TX: R3
 
@@ -98,7 +98,7 @@ Decision recorded: **500 kHz TX is for simplex/LinHT use only.** A repeater tran
 |---|---|---|---|
 | RX alias, duplex offset (tone at 600 kHz + 3 kHz and 2 MHz + 3 kHz, ≤ 200 kHz rates) | — | alias product ≥ 90 dB below an equal in-band tone | 90 dB rather than 100 dB because of the 16-bit output floor; R5 is shown by the model in §4 |
 | RX alias, wideband (whole delivered band, host-side multichannel/LinHT) | 45 dB (provisional) | **45 dB, confirmed as the wideband limit** | not on-channel, so R5 does not apply |
-| RX alias, on-channel from fs_out ± 5.5 kHz | — | ≥ 70 dB | blocking target for other-site signals |
+| RX alias, on-channel from fs_out ± 5.5 kHz | — | ≥ 65 dB | model 68–71 dB (ideal arithmetic); 70 dB would need a longer half-band, not worth the area (open item 1) |
 | TX bitstream noise at 600 kHz | provisional | ≤ −95 dBc/Hz | model −102; the rest is the Phase 3 filter |
 | TX bitstream noise at 2 MHz | provisional | ≤ −75 dBc/Hz | model −81 |
 | Phase 3 analog | — | R4, R6, R7, reconstruction filter per §4 | go into `spec/` for the analog phase |

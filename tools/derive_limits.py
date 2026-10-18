@@ -10,15 +10,17 @@ and reports the noise at the duplex offsets. Replace this with a bitstream
 captured from tx_image_and_noise when it becomes available.
 
 Usage:
-  python3 tools/derive_limits.py [--hb c0,c1,...]   # half-band taps (integers, full 31-tap list)
-Without --hb, the half-band is left out. The RX numbers are then a lower bound,
-except at the 200 kHz rate, where the half-band is what matters.
+  python3 tools/derive_limits.py [--no-tx] [--hb=c0,c1,...] [--no-hb]
+The half-band taps from fir_seq.sv are built in. --hb= overrides them (use the '='
+form, because the first tap is negative). --no-hb leaves the half-band out.
 """
 import argparse
 import numpy as np
 
 BF = np.array([1, 4, 8, 12, 12, 8, 4, 1], float)
 COMP = np.array([-5006, 32767, -5006], float)
+_HB_HALF = [-138, 0, 305, 0, -617, 0, 1128, 0, -1952, 0, 3376, 0, -6450, 0, 20688]  # fir_seq.sv hb_c
+HB_RTL = np.array(_HB_HALF + [32767] + _HB_HALF[::-1], float)
 PAIRS = {  # name: (clk, frame_clks, r0, r1, r2) -- from rate_table.sv
     "32M r0": (32e6, 1280, 4, 10, 16), "32M r1": (32e6, 640, 4, 8, 10),
     "32M r2": (32e6, 320, 4, 5, 8), "32M r3": (32e6, 160, 4, 4, 5),
@@ -98,10 +100,11 @@ def tx_noise(fs=32e6, amp=0.5, n=1 << 21):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--hb", help="comma-separated half-band taps")
+    ap.add_argument("--hb", help="comma-separated half-band taps (use --hb=...)")
+    ap.add_argument("--no-hb", action="store_true")
     ap.add_argument("--no-tx", action="store_true")
     a = ap.parse_args()
-    hb = np.array([float(v) for v in a.hb.split(",")]) if a.hb else None
+    hb = None if a.no_hb else (np.array([float(v) for v in a.hb.split(",")]) if a.hb else HB_RTL)
     rx_table(hb)
     if not a.no_tx:
         tx_noise()
