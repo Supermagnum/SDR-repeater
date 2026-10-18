@@ -35,6 +35,8 @@
 
 **RF hardware:** [docs/RF-modules.md](docs/RF-modules.md) — RFIC, module PCB, backplane, daemon integration.
 
+**RFIC design status and handoff:** [docs/HANDOFF.md](docs/HANDOFF.md) — current state of the open RFIC on IHP SG13G2, how to reproduce all results, verified sign-off numbers, open items and lessons learned.
+
 
 **Note:**
 The linHT projects bandwidth target is currently up to 500 kHz IQ, that has a rf spectrum coverage of 0.5 MHz.
