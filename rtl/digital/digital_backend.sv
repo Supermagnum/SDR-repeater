@@ -96,6 +96,21 @@ module digital_backend #(
     assign dac_i = slave_mode ? s_i_in : m_i_in;
     assign dac_q = slave_mode ? s_q_in : m_q_in;
 
+    // Reset synchroniser: rst_n asserts asynchronously and is released
+    // two clk cycles after it rises, so all clk-domain flops leave reset
+    // on the same edge. SPI (SCLK domain) keeps the raw rst_n: SCLK must
+    // stay idle for at least 1 us after rst_n rises (board requirement).
+    logic rst_s1, rst_core_n;
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            rst_s1 <= 1'b0;
+            rst_core_n <= 1'b0;
+        end else begin
+            rst_s1 <= 1'b1;
+            rst_core_n <= rst_s1;
+        end
+    end
+
     spi_regs u_spi (
         .sclk(sclk), .rst_n(rst_n), .cs_n(cs_n), .mosi(mosi), .miso(miso),
         .status(status), .ctrl(ctrl), .duty_on(duty_on), .duty_off(duty_off),
@@ -109,8 +124,8 @@ module digital_backend #(
 
     // Bundled-data copy. The toggle is synchronized, then the bytes,
     // which have been stable since that same SCLK edge, are sampled.
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+    always_ff @(posedge clk or negedge rst_core_n) begin
+        if (!rst_core_n) begin
             cfg_t1 <= 1'b0; cfg_t2 <= 1'b0;
             flag_t1 <= 1'b0; flag_t2 <= 1'b0;
             dc_t1 <= 1'b0; dc_t2 <= 1'b0;
@@ -173,8 +188,8 @@ module digital_backend #(
 
     // Gate enables are flopped on the free-running reference so the
     // latch samples them while clk is low. One gate per running mode.
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+    always_ff @(posedge clk or negedge rst_core_n) begin
+        if (!rst_core_n) begin
             run_en <= 1'b0;
             rx_run <= 1'b0;
             tx_run <= 1'b0;
@@ -189,7 +204,7 @@ module digital_backend #(
     clk_gate u_g_tx (.clk(clk), .en(tx_run), .gclk(clk_tx));
 
     power_ctrl u_pwr (
-        .clk(clk_run), .rst_n(rst_n), .mode(ctrl_c[1:0]), .duty_en(ctrl_c[2]),
+        .clk(clk_run), .rst_n(rst_core_n), .mode(ctrl_c[1:0]), .duty_en(ctrl_c[2]),
         .duty_on(duty_on_c), .duty_off(duty_off_c), .wake_cycles(wake_c),
         .frame_tick(slave_mode ? cal_v : frame_done),
         .rx_en(rx_en), .tx_en(tx_en), .blank(blank),
@@ -197,13 +212,13 @@ module digital_backend #(
     );
 
     bit_front u_front (
-        .clk(clk_rx), .rst_n(rst_n), .en(!block_pd_c[0] && rx_en),
+        .clk(clk_rx), .rst_n(rst_core_n), .en(!block_pd_c[0] && rx_en),
         .ratio(r0), .valid_in(adc_valid), .bit_i(adc_bit_i), .bit_q(adc_bit_q),
         .valid_out(front_v), .i_out(front_i), .q_out(front_q)
     );
 
     decim_chain u_decim (
-        .clk(clk_rx), .rst_n(rst_n), .en(!block_pd_c[0]),
+        .clk(clk_rx), .rst_n(rst_core_n), .en(!block_pd_c[0]),
         .r1(r1), .r2(r2), .sh1(sh1), .sh2(sh2),
         .valid_in(block_pd_c[0] ? adc_valid : front_v),
         .i_in(block_pd_c[0] ? adc_i : 16'(front_i)),
@@ -218,7 +233,7 @@ module digital_backend #(
     // One multiplier and one delay memory for RX and TX.
     // clk_run is open in both modes; the RX and TX gates are not.
     fir_seq u_fir (
-        .clk(clk_run), .rst_n(rst_n),
+        .clk(clk_run), .rst_n(rst_core_n),
         .en((rx_en && !block_pd_c[0]) || tx_en),
         .tx_mode(tx_en),
         .valid_in(tx_en ? tx_mac_v : decim_v),
@@ -231,7 +246,7 @@ module digital_backend #(
     );
 
     dc_offset u_dc (
-        .clk(clk_rx), .rst_n(rst_n), .en(!block_pd_c[1] && clk_gate_c[2]), .clear(dc_clear),
+        .clk(clk_rx), .rst_n(rst_core_n), .en(!block_pd_c[1] && clk_gate_c[2]), .clear(dc_clear),
         .shift(dc_shift_c[2:0]),
         .valid_in(filt_rx ? fir_v : decim_v),
         .i_in(filt_rx ? fir_i : decim_i),
@@ -240,14 +255,14 @@ module digital_backend #(
     );
 
     iq_cal u_cal (
-        .clk(clk_rx), .rst_n(rst_n), .en(!block_pd_c[2] && clk_gate_c[2]),
+        .clk(clk_rx), .rst_n(rst_core_n), .en(!block_pd_c[2] && clk_gate_c[2]),
         .gain_i(gain_i_c), .gain_q(gain_q_c), .phase(phase_c),
         .valid_in(dc_v), .i_in(dc_i), .q_in(dc_q),
         .valid_out(cal_v), .i_out(cal_i), .q_out(cal_q)
     );
 
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+    always_ff @(posedge clk or negedge rst_core_n) begin
+        if (!rst_core_n) begin
             relock_cnt <= '0;
             relock_busy <= 1'b0;
         end else if (band_write) begin
@@ -259,8 +274,8 @@ module digital_backend #(
         end
     end
 
-    always_ff @(posedge clk_run or negedge rst_n) begin
-        if (!rst_n) begin
+    always_ff @(posedge clk_run or negedge rst_core_n) begin
+        if (!rst_core_n) begin
             i_hold <= '0;
             q_hold <= '0;
             sample_valid <= 1'b0;
@@ -274,7 +289,7 @@ module digital_backend #(
     end
 
     i2s_master u_master (
-        .clk(clk_run), .rst_n(rst_n),
+        .clk(clk_run), .rst_n(rst_core_n),
         .en(!slave_mode && !block_pd_c[3] && clk_gate_c[3] && (rx_en || tx_en)),
         .slot(slot), .bit_cell(bit_cell), .frame_clks(frame_clks), .clk_bad(rate_error),
         .i_out(i_hold), .q_out(q_hold), .din(din),
@@ -284,7 +299,7 @@ module digital_backend #(
     );
 
     i2s_slave u_slave (
-        .clk(clk_run), .rst_n(rst_n),
+        .clk(clk_run), .rst_n(rst_core_n),
         .en(slave_mode && !block_pd_c[3] && (rx_en || tx_en)),
         .slot(slot), .sample_valid(cal_v && !blank),
         .i_out(cal_i), .q_out(cal_q), .clr_flags(flag_clear),
@@ -294,7 +309,7 @@ module digital_backend #(
     );
 
     tx_chain u_tx (
-        .clk(clk_tx), .rst_n(rst_n), .en(tx_en && !blank && !block_pd_c[4]),
+        .clk(clk_tx), .rst_n(rst_core_n), .en(tx_en && !blank && !block_pd_c[4]),
         .valid_in(dac_valid),
         .i_in(dac_i), .q_in(dac_q),
         .dc_i(tx_dc_i_c), .dc_q(tx_dc_q_c),
