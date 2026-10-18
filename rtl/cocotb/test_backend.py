@@ -556,3 +556,48 @@ async def rx_chain_ports(dut):
     assert abs(word - 64) <= 4, word
 
 
+
+
+@cocotb.test()
+async def rx_tone_rtl(dut):
+    """Real tones through the RTL RX chain: passband gain and alias rejection."""
+    await start(dut)
+    await spi_xfer(dut, 0x08, 0x06, write=True)   # bypass DC loop and IQ cal
+    await spi_xfer(dut, 0x03, 4, write=True)      # 500 kHz
+    await spi_xfer(dut, 0x00, 0x02, write=True)   # RX
+    fref, fs, n = 32e6, 500e3, 512
+    k_sig, k_alias = 41, 97
+    a_sig, a_int = 0.2, 0.3
+    f_sig = k_sig * fs / n                 # ~40 kHz, in band
+    f_int = fs - k_alias * fs / n          # ~405 kHz, folds to bin 97
+    skip = 96
+    clocks = int((n + skip + 8) * fref / fs)
+    t = np.arange(clocks) / fref
+    x = a_sig * np.sin(2 * np.pi * f_sig * t) + a_int * np.sin(2 * np.pi * f_int * t)
+    # 2nd-order 1-bit modulator (Boser-Wooley, 0.5 gains)
+    bits = np.empty(clocks, dtype=int)
+    i1 = i2 = 0.0
+    for idx, xv in enumerate(x):
+        y = 1.0 if i2 >= 0 else -1.0
+        i1 += 0.5 * (xv - y)
+        i2 += 0.5 * (i1 - y)
+        bits[idx] = 1 if y > 0 else 0
+    out = []
+    dut.adc_valid.value = 1
+    for b in bits:
+        dut.adc_bit_i.value = int(b)
+        dut.adc_bit_q.value = int(b)
+        await RisingEdge(dut.clk)
+        if int(dut.cal_v.value):
+            out.append(int(dut.cal_i.value.to_signed()))
+    dut.adc_valid.value = 0
+    assert len(out) >= n + skip, len(out)
+    seg = np.array(out[skip:skip + n], dtype=float)
+    spec = np.abs(np.fft.rfft(seg - seg.mean())) * 2 / n
+    gain_db = 20 * np.log10(spec[k_sig] / (a_sig * 64))
+    rej_db = 20 * np.log10((spec[k_sig] / a_sig) / (spec[k_alias] / a_int))
+    cocotb.log.info(
+        "RX tone %.2f codes, gain %.2f dB vs 64-code full scale, alias rejection %.1f dB, peak %d",
+        spec[k_sig], gain_db, rej_db, int(np.max(np.abs(seg))))
+    assert abs(gain_db) <= 1.0, gain_db
+    assert rej_db >= ALIAS_LIMIT_DB, rej_db
