@@ -105,3 +105,8 @@ Accepted and documented; LinHT should prefer 100 kHz or 500 kHz.
 - **Other reductions.** `sample_fifo` depth 8 → 4. TX integrators and the shared `cic4` adders 40 → 28 bits (maximum value 32767 × 720 < 2²⁵). One RAM address generator in `fir_seq` (bit-identical: 0 mismatches over 120 000 random cycles against the old module). `relock_cnt` sized from `RELOCK_CYCLES`.
 - **Not done.** 0.30 mm² is not reachable without removing functions. CIC1 narrowing (bypass path uses 16-bit input) and reserved-bit trimming were judged not worth the risk.
 - **Tests.** `phase_cross_term` and `dc_retained_across_sleep` removed with the blocks they tested. `filter_response_limits` now also checks the duplex-offset (≥ 100 dB) and on-channel (≥ 65 dB) alias limits; `tx_image_and_noise` checks the bitstream noise at 600 kHz and 2 MHz against `spec/derived-limits.md`.
+
+## 2026-10-19 — Timing-driven placement and post-route setup repair
+
+- Phase1j missed setup by 0.050 ns (slow corner, 4 endpoints: SRAM `A_DOUT` → half-band MAC). The same path had +0.80 ns in phase1i; the difference is placement and routing, not the RTL. Everything else in phase1j passed (LVS, DRC, antenna, max-cap 0; gate-level 5/5; Magic 7 818, all inside the SRAM).
+- Setup was never repaired with real routing loads (`RUN_POST_GRT_RESIZER_TIMING` false, `PL_TIMING_DRIVEN` false). Both are now on, with a 0.1 ns setup margin and a 0.1 ns post-route hold margin (keeps the 0.08 ns hold guard).
