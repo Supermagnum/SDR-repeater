@@ -150,19 +150,19 @@ The system supports up to five pluggable radio modules on the backplane. Three b
 
 | Module | Band | Frequency Range | IQ Bandwidth | TX Power | Antenna |
 |--------|------|-----------------|--------------|----------|---------|
-| 2 metre | VHF | 144–146 MHz | 1 MHz max | 5 W | RP-SMA (front panel) |
-| 70 cm | UHF | 432–438 MHz | 1 MHz max | 5 W | RP-SMA (front panel) |
-| 23 cm | UHF/SHF | 1240–1258 MHz | 1 MHz max | 5 W | RP-SMA (front panel) |
+| 2 metre | VHF | 144–146 MHz | 500 kHz max | 5 W | RP-SMA (front panel) |
+| 70 cm | UHF | 432–438 MHz | 500 kHz max | 5 W | RP-SMA (front panel) |
+| 23 cm | UHF/SHF | 1240–1258 MHz | 500 kHz max | 5 W | RP-SMA (front panel) |
 | Expansion | — | User-defined | — | — | RP-SMA (front panel) |
 
-Sample rates of 25 / 50 / 100 / 200 / 500 kHz / 1 MHz are selectable per module via SPI register. At the maximum 1 MHz IQ bandwidth, the I2S bit clock is 32 MHz (1 MHz × 2 channels × 16 bits).
+Sample rates of 25 / 50 / 100 / 200 / 500 kHz are selectable per module via SPI register. At the maximum 500 kHz IQ bandwidth, the I2S bit clock is about 16 MHz (500 kHz × 2 channels × 16 bits). The RFIC is the I2S master; slot width per reference clock is defined in [spec/i2s-clocking.md](spec/i2s-clocking.md).
 
 ### Module interface
 
 Each module connects to the backplane via:
 
 - **Backplane connector:** DIN 41612 Type C, 96-pin (Harting or equivalent), 2.54 mm pitch — standard Eurocard backplane interface replacing all former VITA 46 edgecard references
-- **IQ data:** **I2S** at up to 32 MHz bit clock (1 MHz IQ bandwidth maximum) over DIN 41612 signal contacts — well within the connector's signal bandwidth capability; see [ADR 001](docs/adr/001-iq-transport-i2s-zmq.md)
+- **IQ data:** **I2S** at up to about 16 MHz bit clock (500 kHz IQ bandwidth maximum) over DIN 41612 signal contacts — well within the connector's signal bandwidth capability; see [ADR 001](docs/adr/001-iq-transport-i2s-zmq.md)
 - **Configuration:** SPI at 10 MHz, I²C utility bus, GPIO control signals — all carried on standard DIN 41612 signal contacts
 - **Power:** +12 V PA rail via dedicated **har-bus 64** high-current power contacts (6–15 A per slot); logic rails (+3.3 V, +5 V, +1.8 V) on standard 2 A signal contacts
 - **Temperature monitoring:** I²C on the shared backplane bus (per-slot sensor readable by the chassis manager and Linux `hwmon`)
@@ -171,7 +171,7 @@ Each module connects to the backplane via:
 
 The DIN 41612 architecture is sized for the actual signal requirements of this repeater. Module interconnect is carried on DIN 41612 signal and power contacts; the host connects to the backplane only through the **ECP5-25F PCIe interface card** (see [Section 4](#4-compute-module)). High-speed differential fabric or PCIe on the module backplane itself is not used.
 
-> **Note on analog RF through the backplane:** RF is digitised at each module; analog RF exits only through the front-panel RP-SMA (or optional Type-N) connector. At 144–1258 MHz with up to 1 MHz IQ bandwidth, digital I2S transport over DIN 41612 is the preferred and simpler approach.
+> **Note on analog RF through the backplane:** RF is digitised at each module; analog RF exits only through the front-panel RP-SMA (or optional Type-N) connector. At 144–1258 MHz with up to 500 kHz IQ bandwidth, digital I2S transport over DIN 41612 is the preferred and simpler approach.
 
 ### Module PCB design standards
 
@@ -197,7 +197,7 @@ Key characteristics:
 - **Module slots:** A–E — five pluggable radio module slots
 - **Signal connector:** DIN 41612 Type C, 96-pin (Harting or equivalent), 2.54 mm pitch, 2 A per signal contact, gold over nickel mating surface
 - **Power connector:** Harting har-bus 64 hybrid power contacts, 5.08 mm pitch, 6–15 A per contact for the +12 V PA rail; logic rails (+3.3 V, +5 V, +1.8 V) carried on standard signal contacts
-- **Interconnect:** I2S (up to 32 MHz bit clock), SPI (10 MHz), I²C utility bus, GPIO — all on DIN 41612 signal contacts, driven by the ECP5 interface card; **internal to one rack unit only** (see [Inter-rack and inter-site communication](#inter-rack-and-inter-site-communication))
+- **Interconnect:** I2S (up to about 16 MHz bit clock), SPI (10 MHz), I²C utility bus, GPIO — all on DIN 41612 signal contacts, driven by the ECP5 interface card; **internal to one rack unit only** (see [Inter-rack and inter-site communication](#inter-rack-and-inter-site-communication))
 - **Power distribution:** External PSU (Mean Well DRC series or equivalent) feeds a 24 V DC bus; backplane distributes +12 V PA (har-bus), +5 V, +3.3 V, and +1.8 V per slot
 - **KiCad:** Standard library includes DIN 41612 footprints; no custom connector footprint required for the backplane interface
 
@@ -236,7 +236,7 @@ Standard 3U Eurocard subracks from **Schroff**, **Elma**, **Pico**, or equivalen
 
 | Signal class | Transport | Detail |
 |--------------|-----------|--------|
-| IQ data | I2S over DIN 41612 | Up to 32 MHz bit clock (1 MHz IQ × 2 channels × 16 bits) |
+| IQ data | I2S over DIN 41612 | Up to about 16 MHz bit clock (500 kHz IQ × 2 channels × 16 bits) |
 | Configuration | SPI @ 10 MHz | Shared bus, per-module chip select |
 | Management | I²C @ 100 kHz | Temperature sensor, EEPROM, optional SWR ADC |
 | Control | GPIO | PTT, T/R switch, PA enable, attenuator |
@@ -312,6 +312,8 @@ The ECP5-25F is chosen for cost, open toolchain, proven PCIe hard IP, and widesp
 The Linux driver stack reads IQ samples from the ECP5 card over PCIe (or USB in debug mode) and feeds **`ht-module-daemon`**, which publishes ZeroMQ IQ streams to GNU Radio and other consumers (see [Section 7.5](#75-zeromq-ipc)).
 
 ### Computational overhead estimate
+
+> **Note:** The figures below assume 1 MHz IQ per slot, twice the RFIC's 500 kHz maximum, and are therefore conservative upper bounds.
 
 The following estimates cover **5-slot operation** with frame signing and optional encryption on the Milk-V Megrez (ESWIN EIC7700X, 4× SiFive P550 @ 1.8 GHz, 19.95 TOPS NPU).
 
@@ -697,7 +699,7 @@ gr-ident is designed to work alongside **[gr-linux-crypto](https://github.com/Su
 
 ### 7.5 ZeroMQ IPC
 
-**[ZeroMQ](https://zeromq.org/)** (ZMQ) is the inter-process communication layer between the radio module hardware path and signal processing on the Linux host. Raw IQ from each band's RFIC is delivered over I2S on the DIN 41612 backplane (via the ECP5 PCIe interface card, up to 32 MHz bit clock at 1 MHz IQ bandwidth) into **`ht-module-daemon`**, which publishes framed RX IQ on per-band PUB sockets. GNU Radio (`gr-ht13g`), SDRangel, and recorders connect as SUB clients. TX IQ and hardware control use separate sockets.
+**[ZeroMQ](https://zeromq.org/)** (ZMQ) is the inter-process communication layer between the radio module hardware path and signal processing on the Linux host. Raw IQ from each band's RFIC is delivered over I2S on the DIN 41612 backplane (via the ECP5 PCIe interface card, up to about 16 MHz bit clock at 500 kHz IQ bandwidth) into **`ht-module-daemon`**, which publishes framed RX IQ on per-band PUB sockets. GNU Radio (`gr-ht13g`), SDRangel, and recorders connect as SUB clients. TX IQ and hardware control use separate sockets.
 
 | Plane | Sockets | Purpose |
 |-------|---------|---------|

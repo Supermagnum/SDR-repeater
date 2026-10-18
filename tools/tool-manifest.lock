@@ -61,7 +61,7 @@ pdk:
     upstream_latest_tag_date: "2026-10-12T08:30:00Z"
 
 python:
-  cace: "2.13.0"
+  cace: "2.11.0"
   cace_uploaded: "2026-09-23T16:36:22Z"
   cace_repo: https://github.com/fossi-foundation/cace
   cace_commit: dedb5e0d30f5c286d36a1511b61fc81795bd24cf
