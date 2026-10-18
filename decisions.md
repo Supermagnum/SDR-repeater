@@ -66,3 +66,11 @@ CACE: use 2.11.0, the version in hpretl/iic-osic-tools:2026.10 (manifest updated
 Maximum RFIC IQ sample rate: 500 kHz (25/50/100/200/500 kHz). README updated from 1 MHz /
 32 MHz BCLK to 500 kHz / about 16 MHz BCLK. Matches the LinHT 500 kHz target, keeps BCLK
 within the i.MX93 SAI slave limits, and keeps the Sigma-Delta oversampling ratio at 64/72.
+
+## 2026-10-18 — I2S format: Philips (standard I2S)
+Master and slave use Philips I2S: LRCLK low = left (I), high = right (Q), changing one bit
+before each MSB; data and LRCLK change on the BCLK falling edge, sampled on the rising edge.
+Previously data changed on the rising edge (the host's sampling edge) in both modes.
+Reset: clk domain released through a 2-flop synchroniser; SCLK must stay idle >= 1 us after rst_n rises.
+Test note: logic on gated clocks updates after clk's rising edge in RTL simulation, so
+testbenches drive inputs on clk's falling edge.

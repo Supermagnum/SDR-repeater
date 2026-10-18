@@ -470,29 +470,42 @@ async def filter_dc_all_rates(dut):
 @cocotb.test()
 async def tx_image_and_noise(dut):
     # 500 kHz, 32 MHz, 16-bit slots. BCLK is 16 MHz with a 2-clock cell.
-    # din is set while BCLK is low, which is the cycle before the master
-    # launches the next bit. Tone at 0.1*fs on I, Q silent.
+    # A Philips I2S host: DIN changes on the BCLK falling edge, cells are
+    # counted from the LRCLK falling edge, and I bit e sits in cell e+1.
+    # Tone at 0.1*fs on I, Q silent.
     await start(dut, ref_36=0)
     await spi_xfer(dut, 0x03, 4, write=True)
     await spi_xfer(dut, 0x00, 0x03, write=True)
     fs = 500_000.0
     f_tone = 0.1 * fs
     bits = []
-    bit_n = 0
     sample_n = 0
     word = int(round(8000 * np.sin(2 * np.pi * f_tone / fs * sample_n))) & 0xFFFF
+    cell = None
+    prev_b = int(dut.bclk_o.value)
+    prev_lr = int(dut.lrclk_o.value)
     for _ in range(64 * 160):
-        await RisingEdge(dut.clk)
-        if int(dut.bclk_o.value) == 0:
-            b = bit_n % 32
-            if b < 16:
-                dut.din.value = (word >> (15 - b)) & 1
+        # Observe and drive on clk's falling edge: the I2S master runs on a
+        # gated clock that settles after clk's rising edge in RTL simulation.
+        await FallingEdge(dut.clk)
+        b_now = int(dut.bclk_o.value)
+        lr = int(dut.lrclk_o.value)
+        if prev_b == 1 and b_now == 0:
+            # BCLK falling edge: the host changes DIN here.
+            if prev_lr == 1 and lr == 0:
+                cell = 0
+            elif cell is not None:
+                cell += 1
+            e = None if cell is None else cell - 1
+            if e is not None and 0 <= e < 16:
+                dut.din.value = (word >> (15 - e)) & 1
+                if e == 15:
+                    sample_n += 1
+                    word = int(round(8000 * np.sin(2 * np.pi * f_tone / fs * sample_n))) & 0xFFFF
             else:
                 dut.din.value = 0
-            bit_n += 1
-            if b == 31:
-                sample_n += 1
-                word = int(round(8000 * np.sin(2 * np.pi * f_tone / fs * sample_n))) & 0xFFFF
+        prev_b = b_now
+        prev_lr = lr
         if int(dut.dac_bit_valid.value):
             bits.append(1.0 if int(dut.dac_bit_i.value) else -1.0)
     assert len(bits) > 4096, len(bits)
@@ -548,15 +561,21 @@ async def rx_chain_ports(dut):
         if prev_lr == 1 and lr == 0:
             break
         prev_lr = lr
+    # Philips I2S: sample DOUT on BCLK rising edges, as a host does.
+    # The first rising edge after LRCLK falls (cell 0) carries the previous
+    # right-channel bit; the left MSB is in the next cell.
     word = 0
     bits = 0
+    rises = 0
     prev_b = int(dut.bclk_o.value)
-    for _ in range(80):
+    for _ in range(200):
         await RisingEdge(dut.clk)
         b = int(dut.bclk_o.value)
-        if prev_b == 1 and b == 0 and bits < 16:
-            word = ((word << 1) | int(dut.dout.value)) & 0xFFFF
-            bits += 1
+        if prev_b == 0 and b == 1:
+            rises += 1
+            if rises >= 2 and bits < 16:
+                word = ((word << 1) | int(dut.dout.value)) & 0xFFFF
+                bits += 1
         prev_b = b
     if word & 0x8000:
         word -= 65536
@@ -609,3 +628,42 @@ async def rx_tone_rtl(dut):
         spec[k_sig], gain_db, rej_db, int(np.max(np.abs(seg))))
     assert abs(gain_db) <= 1.0, gain_db
     assert rej_db >= ALIAS_LIMIT_DB, rej_db
+
+
+@cocotb.test()
+async def i2s_slave_philips(dut):
+    """Slave mode: a host drives Philips I2S from its own clock; check both words."""
+    await start(dut)
+    await spi_xfer(dut, 0x08, 0x06, write=True)    # bypass DC loop and IQ cal
+    await spi_xfer(dut, 0x03, 4, write=True)       # 500 kHz
+    await spi_xfer(dut, 0x00, 0x12, write=True)    # RX, I2S slave
+    dut.adc_bit_i.value = 1                        # I = +full scale
+    dut.adc_bit_q.value = 0                        # Q = -full scale
+    dut.adc_valid.value = 1
+    for _ in range(64 * 50):
+        await RisingEdge(dut.clk)
+    half = 31.2                                    # host BCLK ~16.03 MHz, not locked to clk
+    samples = []
+    for frame in range(24):
+        for cell in range(32):
+            dut.bclk_i.value = 0                   # falling edge: host changes LRCLK and DIN
+            dut.lrclk_i.value = 0 if cell < 16 else 1
+            dut.din.value = 0
+            await Timer(half, unit="ns")
+            samples.append(int(dut.dout.value))    # host samples at the rising edge
+            dut.bclk_i.value = 1
+            await Timer(half, unit="ns")
+    dut.adc_valid.value = 0
+
+    def word(bits):
+        w = 0
+        for b in bits:
+            w = (w << 1) | b
+        return w - 65536 if w & 0x8000 else w
+
+    f = 20 * 32
+    left = word(samples[f + 1:f + 17])
+    right = word(samples[f + 17:f + 33])
+    cocotb.log.info("slave left %d right %d", left, right)
+    assert abs(left - FS) <= FS_TOL, left
+    assert abs(right + FS) <= FS_TOL, right
