@@ -48,3 +48,9 @@ Recorded in `reports/phase1-review/summary.md`:
 - Placed area is above the 0.25 mm² target. See the review for the measured core and cell area.
 - The matched-mesh inductor study may run in parallel. It has not been started. Phase 2 has not been started and still needs approval.
 
+
+## 2026-10-18 — Hold clock uncertainty
+Setup uncertainty stays at CLOCK_UNCERTAINTY_CONSTRAINT (0.25 ns). Hold uncertainty is 0.05 ns
+(`set_clock_uncertainty -hold 0.05`), because clocks are propagated after CTS and the
+TCXO/VCTCXO reference jitter is in the picosecond range. The previous 0.25 ns on hold, plus
+the 0.1 ns resizer margin and 5 % derate, drove 6,449 hold buffers.
