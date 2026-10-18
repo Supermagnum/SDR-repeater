@@ -1,6 +1,8 @@
 # Project handoff — SDR repeater / LinHT RFIC
 
-**State as of:** 18 October 2026, branch `phase1/wip-sram`, run `phase1g`
+**State as of:** 18 October 2026, branch `phase1/wip-sram` (pushed), last physical run `phase1g`
+
+> **Note:** `phase1g` was built from the RTL **before** the SPI mode-0 fix (section 10). The RTL is ahead of the layout; the next flow run must include that fix before any gate-level simulation.
 **Purpose:** let an RF/IC engineer (or an AI agent under human review) pick up the work, reproduce every result, and see what is solid, what is provisional and what is open.
 
 > **Nothing in this repository has been submitted for fabrication.** Submission to any MPW shuttle or foundry is a deliberate human decision and is out of scope for all automated work.
@@ -28,7 +30,7 @@ The only layout today is the **digital block**. It contains no RF circuitry.
 - **LO plan:** one LC VCO ≈3.44–3.52 GHz; 70 cm = ÷8, 2 m = ÷24 (÷3 then ÷8); quadrature from the final ÷2 stages.
 - **Reference:** 32 MHz or 36 MHz (`ref_36` board strap). The Σ-Δ modulator clock is the reference, so every output rate (25, 50, 100, 200, 500 kHz) is an exact integer ratio.
 - **IQ interface:** I2S, RFIC is **master** by default (BCLK/LRCLK from the reference); slave mode with an 8-deep async FIFO. Slot width is chosen per rate. Proposed backplane change for pins b14/b15 is in `spec/i2s-clocking.md` (the RF-modules document itself was not edited).
-- **Hosts:** repeater modules (SpacemiT K3 backplane) **and** the LinHT handheld (CompuLab MCM-iMX93, 2S battery, 5 V buck rail, SX1255 at 36 MHz). LinHT facts are provisional: Rev C boards were not yet validated when read. The LinHT repository is treated as read-only reference.
+- **Hosts:** repeater modules (DIN 41612 backplane driven by the ECP5-25F PCIe interface card in the Milk-V Megrez host; SpacemiT K3 is the secondary platform — see README rev 1.8) **and** the LinHT handheld (CompuLab MCM-iMX93, 2S battery, 5 V buck rail, SX1255 at 36 MHz). LinHT facts are provisional: Rev C boards were not yet validated when read. The LinHT repository is treated as read-only reference.
 - **Process:** IHP SG13G2 130 nm SiGe BiCMOS, open PDK.
 
 Decisions and their reasons are recorded in `decisions.md` and `spec/baseline-decisions.md`.
@@ -36,6 +38,8 @@ Decisions and their reasons are recorded in `decisions.md` and `spec/baseline-de
 ---
 
 ## 3. Repository map
+
+Paths are relative to the repository root. This file lives in `docs/`.
 
 | Path | Content |
 |---|---|
@@ -62,7 +66,7 @@ Decisions and their reasons are recorded in `decisions.md` and `spec/baseline-de
 | ngspice / Xschem | 47 / 3.4.8RC |
 | Verilator / Icarus | 5.052 / 14.0 (devel) |
 | cocotb | 2.1.0 |
-| CACE | 2.11.0 in the image — the Phase 0 manifest names 2.13.0; **resolve this mismatch** |
+| CACE | 2.11.0 (the version in the container; decided 2026-10-18, manifest updated) |
 | EM | gds2palace v0.8.2, gds2openEMS v0.5.0, stack-up `libs.tech/openems/openems_ihp_sg13g2/workflow/SG13G2_200um.xml` (sha256 `5d4529432b38d7996814f5096af2173d96e8ad5ff84c73ebb57904f1faf03bdf`) |
 
 DRC flag name in this PDK: `--minimum_drc` (the old `--precheck_drc` is deprecated).
@@ -101,7 +105,8 @@ The flow exits with "Magic DRC errors found". That is expected and waived (secti
 
 ## 6. Digital back end — current architecture
 
-- **SPI** (mode 0, 16-bit frame) clocked by SCLK; configuration crosses into the core clock by toggle synchronisation, so the reference may be stopped in shutdown.
+- **SPI** (mode 0, 16-bit frame) clocked by SCLK; MOSI sampled on the rising edge, **MISO driven on the falling edge**. Configuration crosses into the core clock by toggle synchronisation, so the reference may be stopped in shutdown.
+- **Reset:** asynchronous, active-low. Board requirement: `rst_n` held low at power-up until supplies and the reference clock are stable.
 - **RX:** multiplier-free 1-bit front end (8-tap FIR), two order-4 CIC stages per channel, compensation FIR and 31-tap half-band.
 - **Shared filter engine:** one multiplier and **one** `RM_IHPSG13_1P_64x16_c2` SRAM hold the RX compensation FIR, the RX half-band and the TX half-band (the chain is half-duplex). I and Q delay lines use words 0–30 and 32–62.
 - **TX:** I2S input, DC and IQ correction, half-band interpolate-by-2 (shared engine), order-2 CIC interpolator (shares the first CIC integrator adders), 2nd-order 1-bit Σ-Δ modulator.
@@ -114,7 +119,7 @@ The flow exits with "Magic DRC errors found". That is expected and waived (secti
 ## 7. Verified results
 
 ### Simulation (`run_sim.py`, this tree)
-13/13 tests pass, including:
+13/13 tests pass on **both Icarus and Verilator** (`SIM=verilator python3 run_sim.py`), including:
 
 | Test | Result | Limit |
 |---|---|---|
@@ -123,7 +128,7 @@ The flow exits with "Magic DRC errors found". That is expected and waived (secti
 | `tx_image_and_noise` — image rejection | 64.3 dB | ≥ 40 dB |
 | `filter_response_limits` (model) | ripple 0.189 dB, alias 48.1 dB worst case | 0.25 dB / 45 dB |
 
-Verilator and gate-level simulation were run on earlier trees (12/12); **re-run them on this tree**.
+Gate-level simulation is pending: the `phase1g` netlist predates the SPI fix. `gate_sim.py` must point at the next run's netlist and include the SRAM models `RM_IHPSG13_1P_64x16_c2.v` and `RM_IHPSG13_1P_core_behavioral.v` from `libs.ref/sg13g2_sram/verilog/`.
 
 ### Physical (`phase1g`)
 
@@ -150,9 +155,10 @@ Density rules are **not** checked at block level. They must be checked at chip l
 2. **Output scale:** a full-scale 1-bit input gives about **64 codes** out of ±32767. Rescale `norm`/CIC shifts so full scale lands near ±16 000–32 000. This currently limits RX dynamic range.
 3. **I/O constraints:** SPI pins must be timed against `sclk` and I2S-slave pins against `bclk_i`, not `clk`.
 4. **`ref_36`:** declared a false path (static board strap). Also enforce in RTL that changes only take effect under reset, and state it in the spec.
-5. **Clean-up:** debug `$display` in `fir_seq.sv`; unused `band_c` and `bitn`; width warnings in `i2s_master.sv`; deprecated `PL_TARGET_DENSITY`; 127 lint warnings to triage.
-6. **Re-run** Verilator and gate-level simulation on this tree.
+5. **Clean-up:** done — debug `$display` removed, `bitn` removed, `i2s_master.sv` width warnings fixed, `PL_TARGET_DENSITY_PCT: 60`. Remaining: `band_c` is unused (the BAND register drives nothing yet), and the lint warnings need triage.
+6. **Gate-level simulation** on the next run's netlist (see section 7). Verilator: done, 13/13.
 7. **Hold margin** of 50 ps: re-check after every change.
+8. **README section 11.1** still describes the dual-chain HT13G-M, which the single-chain baseline replaces. (The IQ-rate mismatch is resolved: the RFIC maximum is 500 kHz and the README now says so; its 1 MHz compute figures are kept as conservative upper bounds.)
 
 ---
 
@@ -177,6 +183,9 @@ Density rules are **not** checked at block level. They must be checked at chip l
 | Setup fail −0.68 ns at 125 °C | `ref_36` timed as a per-cycle input | False path (static strap) |
 | 4 × `NW.d` in IHP full deck | Standard-cell rows cut by the SRAM keep-out on N-well (power) boundaries | `FP_MACRO_VERTICAL_HALO: 13.78` (one row) |
 | Lint stop in `hb_sram.sv` | `dout` assigned in `initial` and `always_ff` | Simulation model uses plain `always` |
+| SPI reads would be shifted one bit on a real host | MISO changed on the SCLK **rising** edge, the same edge a mode-0 host samples | MISO driven from a `negedge sclk` process with its own shift register |
+| Same bug invisible in tests | Testbench sampled MISO two clocks after the rising edge | `spi_xfer` samples at the rising edge, like a real host |
+| Verilator read every register as 0 | Verilator starts signals at 0, so setting `rst_n = 0` produced no edge and async reset never ran | Tests drive `rst_n` high, then low. Silicon is unaffected (async reset is level-sensitive) |
 
 ---
 
