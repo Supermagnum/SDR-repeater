@@ -223,13 +223,13 @@ module fir_seq (
                 end else if (step == 6'd4 || step == 6'd10) begin
                     ram_men <= 1'b1;
                     ram_wen <= 1'b1;
-                    ram_addr <= haddr(1'b0, newest());
+                    ram_addr <= haddr(1'b0, tx_mode ? 5'd15 : 5'd30);
                     ram_din <= yi;
                     step <= step + 6'd1;
                 end else if (step == 6'd5 || step == 6'd11) begin
                     ram_men <= 1'b1;
                     ram_wen <= 1'b1;
-                    ram_addr <= haddr(1'b1, newest());
+                    ram_addr <= haddr(1'b1, tx_mode ? 5'd15 : 5'd30);
                     ram_din <= yq_w;
                     wp <= newest();
                     if (!tx_mode && !keep) active <= 1'b0;
