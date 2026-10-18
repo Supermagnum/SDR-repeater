@@ -1,0 +1,56 @@
+./rtl/digital/runs/phase1b/32-openroad-repairdesignpostgpl/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1b/34-openroad-detailedplacement/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1b/power.tcl:4:create_clock -name clk -period 27.78 [get_ports clk]
+./rtl/digital/runs/phase1b/37-openroad-resizertimingpostcts/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1b/35-openroad-cts/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1b/21-openroad-generatepdn/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1b/13-openroad-floorplan/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1b/19-openroad-tapendcapinsertion/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1b/24-openroad-globalplacementskipio/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1b/28-openroad-globalplacement/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1b/final/sdc/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1b/25-openroad-ioplacement/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1c/32-openroad-repairdesignpostgpl/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1c/32-openroad-repairdesignpostgpl/digital_backend.sdc:11:create_clock -name sclk -period 40.0000 [get_ports {sclk}]
+./rtl/digital/runs/phase1c/32-openroad-repairdesignpostgpl/digital_backend.sdc:14:create_clock -name bclk_i -period 62.5000 [get_ports {bclk_i}]
+./rtl/digital/runs/phase1c/32-openroad-repairdesignpostgpl/digital_backend.sdc:17:set_clock_groups -name group1 -asynchronous \
+./rtl/digital/runs/phase1c/34-openroad-detailedplacement/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1c/34-openroad-detailedplacement/digital_backend.sdc:12:create_clock -name sclk -period 40.0000 [get_ports {sclk}]
+./rtl/digital/runs/phase1c/34-openroad-detailedplacement/digital_backend.sdc:16:create_clock -name bclk_i -period 62.5000 [get_ports {bclk_i}]
+./rtl/digital/runs/phase1c/34-openroad-detailedplacement/digital_backend.sdc:20:set_clock_groups -name group1 -asynchronous \
+./rtl/digital/runs/phase1c/37-openroad-resizertimingpostcts/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1c/37-openroad-resizertimingpostcts/digital_backend.sdc:12:create_clock -name sclk -period 40.0000 [get_ports {sclk}]
+./rtl/digital/runs/phase1c/37-openroad-resizertimingpostcts/digital_backend.sdc:16:create_clock -name bclk_i -period 62.5000 [get_ports {bclk_i}]
+./rtl/digital/runs/phase1c/37-openroad-resizertimingpostcts/digital_backend.sdc:20:set_clock_groups -name group1 -asynchronous \
+./rtl/digital/runs/phase1c/35-openroad-cts/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1c/35-openroad-cts/digital_backend.sdc:12:create_clock -name sclk -period 40.0000 [get_ports {sclk}]
+./rtl/digital/runs/phase1c/35-openroad-cts/digital_backend.sdc:16:create_clock -name bclk_i -period 62.5000 [get_ports {bclk_i}]
+./rtl/digital/runs/phase1c/35-openroad-cts/digital_backend.sdc:20:set_clock_groups -name group1 -asynchronous \
+./rtl/digital/runs/phase1c/21-openroad-generatepdn/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1c/21-openroad-generatepdn/digital_backend.sdc:12:create_clock -name sclk -period 40.0000 [get_ports {sclk}]
+./rtl/digital/runs/phase1c/21-openroad-generatepdn/digital_backend.sdc:16:create_clock -name bclk_i -period 62.5000 [get_ports {bclk_i}]
+./rtl/digital/runs/phase1c/21-openroad-generatepdn/digital_backend.sdc:20:set_clock_groups -name group1 -asynchronous \
+./rtl/digital/runs/phase1c/13-openroad-floorplan/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1c/13-openroad-floorplan/digital_backend.sdc:11:create_clock -name sclk -period 40.0000 [get_ports {sclk}]
+./rtl/digital/runs/phase1c/13-openroad-floorplan/digital_backend.sdc:14:create_clock -name bclk_i -period 62.5000 [get_ports {bclk_i}]
+./rtl/digital/runs/phase1c/13-openroad-floorplan/digital_backend.sdc:17:set_clock_groups -name group1 -asynchronous \
+./rtl/digital/runs/phase1c/19-openroad-tapendcapinsertion/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1c/19-openroad-tapendcapinsertion/digital_backend.sdc:12:create_clock -name sclk -period 40.0000 [get_ports {sclk}]
+./rtl/digital/runs/phase1c/19-openroad-tapendcapinsertion/digital_backend.sdc:16:create_clock -name bclk_i -period 62.5000 [get_ports {bclk_i}]
+./rtl/digital/runs/phase1c/19-openroad-tapendcapinsertion/digital_backend.sdc:20:set_clock_groups -name group1 -asynchronous \
+./rtl/digital/runs/phase1c/24-openroad-globalplacementskipio/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1c/24-openroad-globalplacementskipio/digital_backend.sdc:12:create_clock -name sclk -period 40.0000 [get_ports {sclk}]
+./rtl/digital/runs/phase1c/24-openroad-globalplacementskipio/digital_backend.sdc:16:create_clock -name bclk_i -period 62.5000 [get_ports {bclk_i}]
+./rtl/digital/runs/phase1c/24-openroad-globalplacementskipio/digital_backend.sdc:20:set_clock_groups -name group1 -asynchronous \
+./rtl/digital/runs/phase1c/28-openroad-globalplacement/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1c/28-openroad-globalplacement/digital_backend.sdc:12:create_clock -name sclk -period 40.0000 [get_ports {sclk}]
+./rtl/digital/runs/phase1c/28-openroad-globalplacement/digital_backend.sdc:16:create_clock -name bclk_i -period 62.5000 [get_ports {bclk_i}]
+./rtl/digital/runs/phase1c/28-openroad-globalplacement/digital_backend.sdc:20:set_clock_groups -name group1 -asynchronous \
+./rtl/digital/runs/phase1c/25-openroad-ioplacement/digital_backend.sdc:8:create_clock -name clk -period 27.7780 [get_ports {clk}]
+./rtl/digital/runs/phase1c/25-openroad-ioplacement/digital_backend.sdc:12:create_clock -name sclk -period 40.0000 [get_ports {sclk}]
+./rtl/digital/runs/phase1c/25-openroad-ioplacement/digital_backend.sdc:16:create_clock -name bclk_i -period 62.5000 [get_ports {bclk_i}]
+./rtl/digital/runs/phase1c/25-openroad-ioplacement/digital_backend.sdc:20:set_clock_groups -name group1 -asynchronous \
+./rtl/digital/constraints.sdc:9:create_clock {*}$port_args -name $clock_port -period $::env(CLOCK_PERIOD)
+./rtl/digital/constraints.sdc:11:create_clock [get_ports sclk] -name sclk -period 40.0
+./rtl/digital/constraints.sdc:13:create_clock [get_ports bclk_i] -name bclk_i -period 62.5
+./rtl/digital/constraints.sdc:14:set_clock_groups -asynchronous \

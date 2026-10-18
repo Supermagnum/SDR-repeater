@@ -4,7 +4,9 @@ DESIGN_NAME: digital_backend
 VERILOG_FILES:
   - dir::spi_regs.sv
   - dir::rate_table.sv
+  - dir::bit_front.sv
   - dir::cic4.sv
+  - dir::hb_sram.sv
   - dir::fir_seq.sv
   - dir::decim_chain.sv
   - dir::dc_offset.sv
@@ -18,6 +20,7 @@ VERILOG_FILES:
   - dir::digital_backend.sv
 CLOCK_PORT: clk
 CLOCK_PERIOD: 27.778
+FALLBACK_SDC: dir::constraints.sdc
 FP_CORE_UTIL: 55
 PL_TARGET_DENSITY: 0.6
 pdk::ihp-sg13g2:

@@ -14,11 +14,15 @@ The single-cell 3.0-4.2 V assumption is withdrawn.
 
 - The PLL must lock from either a 32 MHz or a 36 MHz reference.
 - Integer-boundary locations for both references are in `spec/integer-boundary-spurs.md` ([HAND]).
-- I2S slot width is configurable, 16 or 32 bits per channel, MSB-justified. 16-bit data is the baseline. The 32-bit slot exists so a LinHT-style SX1255 mode B port can be matched. The SX1255 wiring on Rev C was not confirmed from KiCad.
+- I2S bit cells are an even number of reference clocks. The slot width is chosen per rate from 16 to 32 bits. 16-bit data is MSB-justified. The 32 MHz BCLK case is not generated. The table is in `spec/i2s-clocking.md`. `CTRL[3]` is reserved. The register map is not frozen.
 
 ## DRC
 
 KLayout DRC invocations in this project use `--minimum_drc`. `--precheck_drc` is not used.
+
+## TX out-of-band limit
+
+The 1 to 8 MHz floor used by the Phase 1 modulator test is provisional. Phase 4 has to derive the limit from the emission mask. The expected mask is at least 60 to 70 dB below the carrier near the carrier. That derivation includes the analogue reconstruction filter and the modulator order.
 
 ## Phase noise
 

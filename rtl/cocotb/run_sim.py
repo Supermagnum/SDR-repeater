@@ -10,7 +10,9 @@ def main():
     sources = [
         root / "spi_regs.sv",
         root / "rate_table.sv",
+        root / "bit_front.sv",
         root / "cic4.sv",
+        root / "hb_sram.sv",
         root / "fir_seq.sv",
         root / "decim_chain.sv",
         root / "dc_offset.sv",

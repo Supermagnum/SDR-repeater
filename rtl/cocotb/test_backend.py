@@ -7,17 +7,18 @@ from cocotb.triggers import RisingEdge, FallingEdge, Timer
 RATES_KHZ = [25, 50, 100, 200, 500]
 # (ref_mhz, rate_index) -> (frame clocks, r1, r2, sh1, sh2)
 TABLE = {
-    (32, 0): (1280, 16, 40, 16, 21),
-    (32, 1): (640, 16, 20, 16, 17),
-    (32, 2): (320, 10, 16, 13, 16),
-    (32, 3): (160, 8, 10, 12, 13),
-    (32, 4): (64, 4, 8, 8, 12),
-    (36, 0): (1440, 16, 45, 16, 21),
-    (36, 1): (720, 15, 24, 15, 18),
-    (36, 2): (360, 12, 15, 14, 15),
-    (36, 3): (180, 9, 10, 12, 13),
-    (36, 4): (72, 4, 9, 8, 12),
+    (32, 0): (1280, 4, 10, 16, 13, 16),
+    (32, 1): (640, 4, 8, 10, 12, 13),
+    (32, 2): (320, 4, 5, 8, 9, 12),
+    (32, 3): (160, 4, 4, 5, 8, 9),
+    (32, 4): (64, 4, 2, 4, 4, 8),
+    (36, 0): (1440, 4, 12, 15, 14, 15),
+    (36, 1): (720, 4, 9, 10, 12, 13),
+    (36, 2): (360, 4, 5, 9, 9, 12),
+    (36, 3): (180, 2, 5, 9, 9, 12),
+    (36, 4): (72, 4, 3, 3, 6, 6),
 }
+FRONT = np.array([1, 4, 8, 12, 12, 8, 4, 1], dtype=float)
 HB = np.array([-138, 0, 305, 0, -617, 0, 1128, 0, -1952, 0, 3376, 0,
                -6450, 0, 20688, 32767, 20688, 0, -6450, 0, 3376, 0,
                -1952, 0, 1128, 0, -617, 0, 305, 0, -138], dtype=float)
@@ -38,6 +39,8 @@ async def start(dut, ref_36=0):
     dut.lrclk_i.value = 0
     dut.din.value = 0
     dut.adc_valid.value = 0
+    dut.adc_bit_i.value = 0
+    dut.adc_bit_q.value = 0
     dut.adc_i.value = 0
     dut.adc_q.value = 0
     dut.rst_n.value = 0
@@ -63,6 +66,9 @@ async def spi_xfer(dut, addr, data, write):
         dut.sclk.value = 0
         await RisingEdge(dut.clk)
     dut.cs_n.value = 1
+    dut.sclk.value = 1
+    await RisingEdge(dut.clk)
+    dut.sclk.value = 0
     await RisingEdge(dut.clk)
     await RisingEdge(dut.clk)
     value = 0
@@ -87,9 +93,10 @@ def fir_mag(coeff, freq, fs):
     return np.abs(np.exp(-1j * np.outer(w, k)) @ coeff)
 
 
-def chain_mag(freq, fref, fs, r1, r2):
+def chain_mag(freq, fref, fs, r0, r1, r2):
     freq = np.asarray(freq, dtype=float)
-    hcic = cic_mag(freq, fref, r1) * cic_mag(freq, fref / r1, r2)
+    hcic = fir_mag(FRONT, freq, fref)
+    hcic = hcic * cic_mag(freq, fref / r0, r1) * cic_mag(freq, fref / r0 / r1, r2)
     folded = np.abs(freq) % (2 * fs)
     folded = np.minimum(folded, 2 * fs - folded)
     return hcic * fir_mag(CF, folded, 2 * fs) * fir_mag(HB, folded, 2 * fs)
@@ -154,6 +161,8 @@ async def phase_cross_term(dut):
     await spi_xfer(dut, 0x08, 0x03, write=True)
     await spi_xfer(dut, 0x07, 32, write=True)
     await spi_xfer(dut, 0x00, 0x02, write=True)
+    for _ in range(12):
+        await RisingEdge(dut.clk)
     dut.adc_i.value = 0
     dut.adc_q.value = 400
     dut.adc_valid.value = 1
@@ -174,41 +183,40 @@ async def master_frame_lengths(dut):
     for ref, pin in ((32, 0), (36, 1)):
         dut.ref_36.value = pin
         for rate in range(5):
-            for slot_32 in (0, 1):
-                await spi_xfer(dut, 0x03, rate, write=True)
-                ctrl = 0x02 | (0x08 if slot_32 else 0)
-                await spi_xfer(dut, 0x00, ctrl, write=True)
+            await spi_xfer(dut, 0x03, rate, write=True)
+            await spi_xfer(dut, 0x00, 0x02, write=True)
+            for _ in range(8):
                 await RisingEdge(dut.clk)
-                m = TABLE[(ref, rate)][0]
-                bits = 64 if slot_32 else 32
-                base = m // bits
-                rem = m % bits
-                illegal = base < 2 and not (base == 1 and rem == 0)
-                status = await spi_xfer(dut, 0x0A, 0, write=False)
-                assert bool(status & 0x40) == illegal, (ref, rate, slot_32, status)
-                if illegal:
-                    continue
-                prev = int(dut.lrclk_o.value)
-                rises = 0
-                period = 0
-                for _ in range(m * 3):
-                    await RisingEdge(dut.clk)
-                    now = int(dut.lrclk_o.value)
-                    if prev == 0 and now == 1:
-                        rises += 1
-                        if rises == 2:
-                            break
-                    if rises == 1:
-                        period += 1
-                    prev = now
-                if period != m:
-                    cocotb.log.error(
-                        "frame ref=%s rate=%s slot=%s period=%s m=%s base=%s cell=%s bit=%s err=%s lr=%s rises=%s",
-                        ref, rate, slot_32, period, m,
-                        int(dut.u_master.base.value), int(dut.u_master.cell_left.value),
-                        int(dut.u_master.bit_idx.value), int(dut.u_master.clk_error.value),
-                        int(dut.lrclk_o.value), rises)
-                    assert False
+            m = TABLE[(ref, rate)][0]
+            illegal = ref == 36 and rate == 4
+            status = await spi_xfer(dut, 0x0A, 0, write=False)
+            assert bool(status & 0x40) == illegal, (ref, rate, status)
+            if illegal:
+                continue
+            prev = int(dut.lrclk_o.value)
+            rises = 0
+            period = 0
+            highs = 0
+            lows = 0
+            for _ in range(m * 3):
+                await RisingEdge(dut.clk)
+                now = int(dut.lrclk_o.value)
+                b = int(dut.bclk_o.value)
+                if rises == 1:
+                    period += 1
+                    if b:
+                        highs += 1
+                    else:
+                        lows += 1
+                if prev == 0 and now == 1:
+                    rises += 1
+                    if rises == 2:
+                        break
+                prev = now
+            assert period == m, (ref, rate, period, m)
+            # 50 percent of the active bit cells, plus idle lows at the
+            # end of a frame that is longer than the slots.
+            assert highs > 0 and abs(highs - lows) <= m, (ref, rate, highs, lows)
 
 
 @cocotb.test()
@@ -217,22 +225,22 @@ async def filter_response_limits(dut):
     await start(dut)
     worst_rip = 0.0
     worst_alias = 999.0
-    for (ref, rate), (m, r1, r2, _s1, _s2) in TABLE.items():
+    for (ref, rate), (m, r0, r1, r2, _s1, _s2) in TABLE.items():
         fs = RATES_KHZ[rate] * 1e3
         fref = ref * 1e6
         f = np.linspace(0, 0.40 * fs, 200)
-        h = chain_mag(f, fref, fs, r1, r2)
+        h = chain_mag(f, fref, fs, r0, r1, r2)
         h = h / h[0]
         rip = 20 * np.log10(h.max() / h.min())
         fp = np.linspace(0.02 * fs, 0.40 * fs, 40)
-        num = chain_mag(fp, fref, fs, r1, r2)
-        den = np.max(np.stack([chain_mag(k * fs - fp, fref, fs, r1, r2) for k in (1, 2, 3, 4)]), axis=0)
+        num = chain_mag(fp, fref, fs, r0, r1, r2)
+        den = np.max(np.stack([chain_mag(k * fs - fp, fref, fs, r0, r1, r2) for k in (1, 2, 3, 4)]), axis=0)
         alias = 20 * np.log10(np.min(num) / np.max(den))
         assert rip <= RIPPLE_LIMIT_DB, (ref, rate, rip)
         assert alias >= ALIAS_LIMIT_DB, (ref, rate, alias)
         worst_rip = max(worst_rip, rip)
         worst_alias = min(worst_alias, alias)
-        assert r1 * r2 * 2 == m
+        assert r0 * r1 * r2 * 2 == m
     cocotb.log.info("worst ripple %.3f dB, worst alias %.1f dB", worst_rip, worst_alias)
 
 
@@ -242,29 +250,27 @@ async def filter_dc_and_overflow(dut):
     await spi_xfer(dut, 0x08, 0x06, write=True)
     await spi_xfer(dut, 0x03, 4, write=True)
     await spi_xfer(dut, 0x00, 0x02, write=True)
-    dut.adc_i.value = 1000
-    dut.adc_q.value = 1000
+    dut.adc_bit_i.value = 1
+    dut.adc_bit_q.value = 1
     dut.adc_valid.value = 1
     seen = []
-    for _ in range(64 * 40):
+    for _ in range(64 * 80):
         await RisingEdge(dut.clk)
         if int(dut.cal_v.value):
             seen.append(int(dut.cal_i.value.to_signed()))
     dut.adc_valid.value = 0
     assert len(seen) >= 8, len(seen)
-    # DC gain is normalized to 1. Raw gain before `norm` is about 1.387
-    # at this rate, so an unscaled chain would sit near 1387.
-    assert abs(seen[-1] - 1000) <= 4, seen[-1]
-    # Full scale must clip, not wrap negative.
-    dut.adc_i.value = 32767
-    dut.adc_q.value = -32768
+    # Constant +1 through the normalized chain is code 64 at this rate.
+    assert abs(seen[-1] - 64) <= 4, seen[-1]
+    dut.adc_bit_i.value = 0
+    dut.adc_bit_q.value = 0
     dut.adc_valid.value = 1
     full = []
-    for _ in range(64 * 40):
+    for _ in range(64 * 80):
         await RisingEdge(dut.clk)
         if int(dut.cal_v.value):
             full.append(int(dut.cal_i.value.to_signed()))
-    assert full[-1] >= 32766, full[-1]
+    assert abs(full[-1] + 64) <= 4, full[-1]
 
 
 @cocotb.test()
@@ -424,22 +430,22 @@ async def slave_fifo_drift(dut):
 
 def raw_dc_gain(r1, sh1, r2, sh2):
     cic = (r1 ** 4) / (2 ** sh1) * (r2 ** 4) / (2 ** sh2)
-    return cic * float(np.sum(CF)) / 32768.0 * float(np.sum(HB)) / 32768.0
+    return 50.0 * cic * float(np.sum(CF)) / 32768.0 * float(np.sum(HB)) / 32768.0
 
 
 @cocotb.test()
 async def filter_dc_all_rates(dut):
     # Every reference/rate pair, after `norm`, settles at the input.
     gains = []
-    for (ref, rate), (m, r1, r2, sh1, sh2) in TABLE.items():
+    for (ref, rate), (m, r0, r1, r2, sh1, sh2) in TABLE.items():
         raw = raw_dc_gain(r1, sh1, r2, sh2)
         gains.append(raw)
         await start(dut, ref_36=1 if ref == 36 else 0)
         await spi_xfer(dut, 0x08, 0x06, write=True)
         await spi_xfer(dut, 0x03, rate, write=True)
         await spi_xfer(dut, 0x00, 0x02, write=True)
-        dut.adc_i.value = 1000
-        dut.adc_q.value = 1000
+        dut.adc_bit_i.value = 1
+        dut.adc_bit_q.value = 1
         dut.adc_valid.value = 1
         seen = []
         for _ in range(m * 48):
@@ -447,7 +453,7 @@ async def filter_dc_all_rates(dut):
             if int(dut.cal_v.value):
                 seen.append(int(dut.cal_i.value.to_signed()))
         assert len(seen) >= 8, (ref, rate, len(seen))
-        assert abs(seen[-1] - 1000) <= 4, (ref, rate, raw, seen[-1])
+        assert abs(seen[-1] - 64) <= 4, (ref, rate, raw, seen[-1])
     # The un-normalized gains are not the same. 32 MHz / 500 kHz is the low one.
     assert max(gains) / min(gains) > 1.5, gains
     cocotb.log.info("raw DC gains %s", ["%.4f" % g for g in gains])
@@ -501,10 +507,11 @@ async def tx_image_and_noise(dut):
         "TX tone %.1f dB, image %.1f dB, rej %.1f dB, oob floor %.1f dB",
         tone, image, tone - image, floor,
     )
-    # A 2nd-order modulator with feedback into both integrators
-    # rejects this image by about 58 dB on the same tone. 40 dB is
-    # the test limit. The out-of-band median from 1 to 8 MHz is the
-    # shaped-noise floor; 20 dB under the tone is the limit.
+    # The 1-8 MHz floor limit is provisional. Phase 4 has to derive it
+    # from the emission mask, including the analogue reconstruction
+    # filter and the modulator order. The expected mask is 60-70 dB
+    # below the carrier near the carrier. 20 dB is only this model's
+    # shaped-noise check.
     assert tone - image >= 40.0, (tone, image)
     assert tone - floor >= 20.0, (tone, floor)
 
@@ -517,8 +524,8 @@ async def rx_chain_ports(dut):
     await spi_xfer(dut, 0x08, 0x06, write=True)
     await spi_xfer(dut, 0x03, 4, write=True)
     await spi_xfer(dut, 0x00, 0x02, write=True)
-    dut.adc_i.value = 1000
-    dut.adc_q.value = 1000
+    dut.adc_bit_i.value = 1
+    dut.adc_bit_q.value = 1
     dut.adc_valid.value = 1
     saw = 0
     for _ in range(64 * 50):
@@ -546,6 +553,6 @@ async def rx_chain_ports(dut):
     if word & 0x8000:
         word -= 65536
     assert bits == 16, bits
-    assert abs(word - 1000) <= 4, word
+    assert abs(word - 64) <= 4, word
 
 

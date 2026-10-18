@@ -10,7 +10,7 @@ module i2s_slave (
     input  logic               clk,
     input  logic               rst_n,
     input  logic               en,
-    input  logic               slot_32,
+    input  logic [5:0]         slot,
     input  logic               sample_valid,
     input  logic signed [15:0] i_out,
     input  logic signed [15:0] q_out,
@@ -94,7 +94,7 @@ module i2s_slave (
                     if (lrclk) q_in <= {cap[14:0], din};
                     else i_in <= {cap[14:0], din};
                 end
-                if (bitn[4:0] == (slot_32 ? 5'd31 : 5'd15)) bitn <= '0;
+                if (bitn + 6'd1 == {1'b0, slot}) bitn <= '0;
                 else bitn <= bitn + 6'd1;
             end
         end

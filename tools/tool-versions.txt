@@ -1,0 +1,40 @@
+== yosys
+/foss/tools/bin/yosys
+Yosys 0.70 (git sha1 28ba3cb92, Release, GNU /usr/bin/c++ 13.3.0)
+== openroad
+/foss/tools/bin/openroad
+OpenROAD 26Q4-407-geb14e40b7 
+Features included (+) or not (-): -GPU +GUI -Python
+== sta
+/foss/tools/bin/sta
+OpenSTA 3.1.0 80fbbb2945 Copyright (c) 2026, Parallax Software, Inc.
+License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
+== klayout
+/foss/tools/klayout/klayout
+KLayout 0.30.12
+== ngspice
+/foss/tools/bin/ngspice
+******
+** ngspice-47 : Circuit level simulation program
+== Xyce
+alias Xyce='Xyce -plugin $PDK_ROOT/ihp-sg13g2/libs.tech/xyce/plugins/Xyce_Plugin_PSP103_VA.so'
+Invalid option given: --version
+Usage: Xyce [arguments] netlist
+== xschem
+/foss/tools/bin/xschem
+XSCHEM V3.4.8RC
+Copyright (C) 1998-2026 Stefan Schippers
+== verilator
+/foss/tools/bin/verilator
+Verilator 5.052 2026-09-05 rev v5.052
+== iverilog
+/foss/tools/bin/iverilog
+Icarus Verilog version 14.0 (devel) (s20260301-579-g15d870a5-dirty)
+
+== cace
+/usr/local/bin/cace
+cace 2.11.0
+== librelane
+/foss/tools/bin/librelane
+LibreLane v3.1.0.dev3
+

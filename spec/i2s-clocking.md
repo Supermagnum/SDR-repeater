@@ -19,16 +19,28 @@ Slave mode remains available (`CTRL[4] = 1`). In that mode b14 and b15 would be 
 
 LinHT Rev C wiring has not been read from the board files. Which mode that host needs stays provisional. See the Phase 1 review.
 
-## Recommendation for the repeater backplane
+## Bit cells
 
-Use 16-bit slots at 500 kHz. That keeps BCLK at or under 16 MHz on both references.
+Every bit cell is an even number of reference clocks, so BCLK is high for half the cell and low for half the cell. The cell length is 2 clocks at 32 MHz (BCLK = 16 MHz) and 4 clocks at 36 MHz (BCLK = 9 MHz). The slot width is the widest integer from 16 to 32 such that two slots fit in the frame. The 16-bit sample is MSB-justified. Extra slot bits are zero.
 
-| Reference | Slots | M | B | Cell lengths | BCLK high / low |
-|---|---|---|---|---|---|
-| 32 MHz | 16-bit | 64 | 32 | every cell is 2 clocks | 31.25 ns / 31.25 ns (50 percent), period 62.5 ns, BCLK = 16 MHz |
-| 36 MHz | 16-bit | 72 | 32 | 24 cells of 2 clocks, 8 cells of 3 | 2-clock cell: 27.778 ns / 27.778 ns. 3-clock cell: high 55.556 ns, low 27.778 ns (67 / 33 percent) |
+The old case that forwarded the 32 MHz reference as BCLK (32 MHz, 500 kHz, 32-bit slots, one clock per bit) is not generated.
 
-32-bit slots at 500 kHz on a 32 MHz reference forward the reference as BCLK (32 MHz). That is above 16 MHz, so it is not the repeater-backplane choice. It remains a legal mode. 36 MHz with 32-bit slots at 500 kHz stays illegal.
+| Reference | Rate | M | Cell | Slot | BCLK | High = low | S11 | S12 | <= 16 MHz |
+|---|---|---|---|---|---|---|---|---|---|
+| 32 MHz | 25 kHz | 1280 | 2 | 32 | 16 MHz | 31.25 ns | yes (62.5 ns) | yes (50 percent) | yes |
+| 32 MHz | 50 kHz | 640 | 2 | 32 | 16 MHz | 31.25 ns | yes | yes | yes |
+| 32 MHz | 100 kHz | 320 | 2 | 32 | 16 MHz | 31.25 ns | yes | yes | yes |
+| 32 MHz | 200 kHz | 160 | 2 | 32 | 16 MHz | 31.25 ns | yes | yes | yes |
+| 32 MHz | 500 kHz | 64 | 2 | 16 | 16 MHz | 31.25 ns | yes | yes | yes |
+| 36 MHz | 25 kHz | 1440 | 4 | 32 | 9 MHz | 55.556 ns | yes (111.1 ns) | yes (50 percent) | yes |
+| 36 MHz | 50 kHz | 720 | 4 | 32 | 9 MHz | 55.556 ns | yes | yes | yes |
+| 36 MHz | 100 kHz | 360 | 4 | 32 | 9 MHz | 55.556 ns | yes | yes | yes |
+| 36 MHz | 200 kHz | 180 | 4 | 22 | 9 MHz | 55.556 ns | yes | yes | yes |
+| 36 MHz | 500 kHz | 72 | - | - | - | - | - | - | flagged |
+
+36 MHz at 500 kHz has a 72-clock frame. A 16-bit slot at a 4-clock cell needs 128 clocks. A 2-clock cell would make BCLK 18 MHz, which meets S11 (55.6 ns) and S12 (50 percent) and misses the 16 MHz repeater cap. The master sets `clk_error` and holds BCLK and LRCLK low. There is no PLL in this block.
+
+`CTRL[3]` used to select a 32-bit slot. It is reserved and reads as 0. The register map is not frozen.
 
 ## Host slave timing
 
@@ -41,9 +53,9 @@ i.MX 93, industrial datasheet Rev. 3, 12/2023, Table 48, "Slave mode SAI timing 
 
 The 50 MHz table in that datasheet is master mode. It is not used as the slave limit here.
 
-32 MHz, 16-bit, 500 kHz meets S11 (62.5 ns > 40 ns) and S12 (50 percent).
+32 MHz, every rate in the table above, meets S11 (62.5 ns) and S12 (50 percent).
 
-36 MHz, 16-bit, 500 kHz: the 2-clock cells are 55.556 ns and 50 percent, which meets S11 and S12. The 3-clock cells are 83.333 ns, so S11 is met, but the high/low split is 67 / 33 percent of that cell. S12 is 40 to 60 percent of the period. Those cells do not meet S12. An integer split of three reference clocks cannot land inside 40 to 60 percent. The absolute low pulse is 27.778 ns, which is longer than 40 percent of the 40 ns minimum cycle (16 ns), but the datasheet states the limit as a fraction of the period.
+36 MHz, every rate except 500 kHz, meets S11 (111.1 ns) and S12 (50 percent). 500 kHz is the flagged row.
 
 SpacemiT Key Stone K3, public datasheet: the audio block is listed as standard I2S, fixed 48 kHz, 16-bit, stereo, with sysclk of 64/128/256 times fs. That datasheet does not publish a slave BCLK minimum high time or low time. No K3 pulse-width limit is claimed here. The 48 kHz feature line does not describe this IQ rate.
 
@@ -59,13 +71,9 @@ The modulator clock is the reference. It is not 38.4 MHz. Every output rate belo
 | 200 kHz | 160 | 180 |
 | 500 kHz | 64 | 72 |
 
-`LRCLK` toggles once per frame, so its rate is the sample rate exactly.
+`LRCLK` period is M reference clocks, so the sample rate is exact. The 200 kHz / 36 MHz frame has 4 idle clocks after the two 22-bit slots (176 clocks). Those clocks hold BCLK low. They do not change the frame length.
 
-A 16-bit slot uses 32 bit cells in the frame. A 32-bit slot uses 64. Cell length is `floor(M / B)` or one more, spread across the frame. The sample rate stays exact when the cells differ by one reference clock. That difference is bit-period jitter, not a sample-rate error.
-
-A symmetric BCLK needs at least two reference clocks per bit. One case is shorter than that and is still legal, because every cell is exactly one reference clock and BCLK is the reference itself: 32 MHz, 500 kHz, 32-bit slots (M = 64, B = 64).
-
-One case is illegal. 36 MHz, 500 kHz, 32-bit slots has M = 72 and B = 64, so some cells would be a single reference clock and the others would be two. A 32 MHz bit clock is not an integer divide of 36 MHz. The master sets `clk_error` and holds the clocks low. There is no PLL in this block to make that clock.
+A pair that cannot meet both the even-cell rule and the 16 MHz cap is 36 MHz at 500 kHz. The master sets `clk_error` and holds the clocks low. There is no PLL in this block.
 
 ## Wake-up to valid IQ
 

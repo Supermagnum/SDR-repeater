@@ -1,6 +1,6 @@
 # Digital back end
 
-Phase 1 RTL for one chain. The analog ADC and DAC are outside this block. The SPI frame is approved: mode 0, 16 bits, bit 15 is write, bits 14:8 are the address, bits 7:0 are the data. The register map below is frozen at this gate.
+Phase 1 RTL for one chain. The analog ADC and DAC are outside this block. The SPI frame is approved: mode 0, 16 bits, bit 15 is write, bits 14:8 are the address, bits 7:0 are the data. The register map is not frozen. `CTRL[3]` is reserved.
 
 ## Clock
 
@@ -20,16 +20,14 @@ The 45 dB alias limit is provisional until the Phase 3 modulator co-design. The 
 
 ## DC gain
 
-Raw DC gain, before the per-rate normalize, is the product of the two CIC stage gains (`R^4 / 2^shift`, each in [1, 2)) and the FIR sums. It is not the same at every rate:
+A constant +1 bitstream is the DC stimulus. The 8-tap front end sums to 50. `norm` is chosen so the settled word is near code 64 (the integer truncate of a unity-gain Q15 scale is 0 on this small pre-norm value).
 
-| Reference | Rates | Raw DC gain | Q15 `norm` |
+| Reference | Rates | Q15 `norm` | Settled code |
 |---|---|---|---|
-| 32 MHz | 25, 50, 100, 200 kHz | 1.6931 | 19354 |
-| 32 MHz | 500 kHz | 1.3870 | 23626 |
-| 36 MHz | 25, 50, 100, 200 kHz | 2.7120 | 12083 |
-| 36 MHz | 500 kHz | 2.2217 | 14749 |
-
-`norm` is applied after the half-band (`>>> 15`). Cocotb checks every pair with a constant 1000 and requires the settled word within 4 LSB of 1000.
+| 32 MHz | 25, 50, 100, 200 kHz | 25267 | 64 |
+| 32 MHz | 500 kHz | 31301 | 64 |
+| 36 MHz | 25, 50, 100, 200 kHz | 15768 | 63 |
+| 36 MHz | 500 kHz | 19600 | 64 |
 
 ## IQ phase
 
@@ -39,7 +37,7 @@ Raw DC gain, before the per-rate normalize, is the product of the two CIC stage 
 
 I2S input at the sample rate, DC subtract (`TX_DC_*`, signed 8-bit, units of sample LSBs, range -128 to +127), then the same IQ cross term. A half-band interpolates by 2 using the RX coefficients as a polyphase pair (eight symmetric products for the even output, the center tap for the odd output). An order-2 CIC interpolator carries that stream up to the reference. A 2nd-order 1-bit sigma-delta modulator, with feedback into both integrators, drives `dac_bit_i` and `dac_bit_q`.
 
-`tx_image_and_noise` drives a 0.1*fs tone at 500 kHz / 32 MHz and requires at least 40 dB of image rejection at `fs - f`, and an out-of-band median from 1 to 8 MHz at least 20 dB below the tone. The run on this net measured 61.9 dB rejection and a floor 25.8 dB below the tone.
+`tx_image_and_noise` drives a 0.1*fs tone at 500 kHz / 32 MHz and requires at least 40 dB of image rejection at `fs - f`. The 1 to 8 MHz median floor, 20 dB below the tone, is a provisional check of this modulator model. Phase 4 has to derive that limit from the emission mask, including the analogue reconstruction filter and the modulator order. The expected mask is at least 60 to 70 dB below the carrier near the carrier. This run measured 59.6 dB image rejection and a floor 25.7 dB below the tone (tone 53.5 dB, image -6.1 dB, floor 27.8 dB).
 
 ## DC loop across sleep
 
@@ -47,11 +45,11 @@ The accumulator clears only on reset or on `DC_CLEAR`. RX sleep stops new sample
 
 ## Registers
 
-SPI mode 0, 16 bits per CS assertion. Bit 15 is write when 1. Bits 14:8 are the address. Bits 7:0 are the data. MISO returns the current byte during the data half, and a write commits when CS rises. SCLK is oversampled by `clk` and must be slower than `clk/4`.
+SPI mode 0, 16 bits per CS assertion. Bit 15 is write when 1. Bits 14:8 are the address. Bits 7:0 are the data. MISO returns the byte captured at the 8th SCLK edge. The write commits on the 16th rising SCLK while CS is still low. The register file is clocked by SCLK, so the reference may be stopped. `clk_req` is high when the mode is not shutdown. A write that selects standby, RX, or TX raises it with the reference stopped.
 
 | Addr | Name | Reset | Meaning |
 |---|---|---|---|
-| 0x00 | CTRL | 0x00 | [1:0] mode: 00 shutdown, 01 standby, 10 RX, 11 TX. [2] RX duty-cycle enable. [3] 32-bit I2S slot when 1, else 16. [4] I2S slave when 1. Reset is master. [7] write-1 clears FIFO flags and does not stick. [6:5] reserved. |
+| 0x00 | CTRL | 0x00 | [1:0] mode: 00 shutdown, 01 standby, 10 RX, 11 TX. [2] RX duty-cycle enable. [3] reserved, forced to 0. [4] I2S slave when 1. Reset is master. [7] write-1 clears FIFO flags and does not stick. [6:5] reserved. |
 | 0x01 | DUTY_ON | 1 | Output frames with IQ present in one RX on-period. Zero with a non-zero DUTY_OFF blanks after the first frame. |
 | 0x02 | DUTY_OFF | 0 | Following frames forced to zero. Zero means the on-period does not end. |
 | 0x03 | RATE | 4 | [2:0] sample rate: 0 = 25, 1 = 50, 2 = 100, 3 = 200, 4 = 500 kHz. |
@@ -76,15 +74,15 @@ SPI mode 0, 16 bits per CS assertion. Bit 15 is write when 1. Bits 14:8 are the 
 
 ## I2S
 
-MSB-justified. LRCLK 0 is I (left) and LRCLK 1 is Q (right). Data changes when BCLK rises. The host samples on the fall. A 32-bit slot carries the 16-bit sample in the upper half and zeros in the lower half.
+MSB-justified. LRCLK 0 is I (left) and LRCLK 1 is Q (right). Data changes when BCLK rises. The host samples on the fall. The slot width comes from the rate table. The first 16 bits of the slot are the sample. Wider slots send zeros after that. `CTRL[3]` does not select the slot.
 
 The RFIC is the master unless `CTRL[4]` is set. Clocking, the proposed b14/b15 direction change, and the CDC are in `spec/i2s-clocking.md` and `cdc.md`.
 
 ## Power
 
-Shutdown and standby keep SPI alive and force IQ to zero. Configuration bits are kept. RX and TX wait `WAKE` output frames, then raise `valid_iq`. That wait is the wake-up-to-valid-IQ figure. Times are in `spec/i2s-clocking.md`. Duty-cycled RX then alternates `DUTY_ON` and `DUTY_OFF` frames. During a duty-off frame the RX clock gate stops the CIC and the FIR. Bypass (`BLOCK_PD[0]`) keeps that clock running. I2S keeps running so the frame count advances.
+Shutdown stops the reference. SPI stays on SCLK. A write that leaves shutdown raises `clk_req`, which is the wake for the reference. RX and TX wait `WAKE` output frames, then raise `valid_iq`. Times are in `spec/i2s-clocking.md`. Duty-cycled RX blanks with a clock enable on the root RX gate. I2S stays on the run gate so the frame count advances.
 
-Clock gates are the latch-and-AND structure of `sg13g2_lgcp_1` (GATE high, latch open while CLK is low). The library cell and `sg13g2_slgcp_1` are marked `dont_use` and are listed in the PDK `synth_exclude.cells` and `pnr_exclude.cells`, so this flow cannot place the cell. `clk_gate.sv` is the same function, mapped to a latch and an AND.
+Three root gates (run, RX, TX) use the behavioral latch-and-AND. `sg13g2_lgcp_1` and `sg13g2_slgcp_1` stay `dont_use`. Blocks inside a gate use clock enables, not more gated clocks.
 
 ## Tank Q
 

@@ -6,9 +6,9 @@ from cocotb_tools.runner import get_runner
 
 def main():
     root = Path(__file__).resolve().parents[1] / "digital"
-    nl = root / "runs" / "phase1b" / "06-yosys-synthesis" / "digital_backend.nl.v"
+    nl = root / "runs" / "phase1c" / "06-yosys-synthesis" / "digital_backend.nl.v"
     pdk = Path("/foss/pdks/ihp-sg13g2/libs.ref/sg13g2_stdcell/verilog")
-    ts = root / "runs" / "phase1b" / "timescale.v"
+    ts = root / "runs" / "phase1c" / "timescale.v"
     ts.write_text("`timescale 1ns/1ps\n")
     sources = [ts, pdk / "sg13g2_udp.v", pdk / "sg13g2_stdcell.v", nl]
     test_module = "test_backend"

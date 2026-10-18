@@ -13,17 +13,29 @@ module decim_chain (
     input  logic [5:0]         r2,
     input  logic [4:0]         sh1,
     input  logic [4:0]         sh2,
-    input  logic signed [15:0] norm,
     input  logic               valid_in,
     input  logic signed [15:0] i_in,
     input  logic signed [15:0] q_in,
     output logic               valid_out,
     output logic signed [15:0] i_out,
-    output logic signed [15:0] q_out
+    output logic signed [15:0] q_out,
+    input  logic               alt,
+    input  logic signed [39:0] a0,
+    input  logic signed [39:0] b0,
+    input  logic signed [39:0] a1,
+    input  logic signed [39:0] b1,
+    input  logic signed [39:0] a2,
+    input  logic signed [39:0] b2,
+    input  logic signed [39:0] a3,
+    input  logic signed [39:0] b3,
+    output logic signed [39:0] s0,
+    output logic signed [39:0] s1,
+    output logic signed [39:0] s2,
+    output logic signed [39:0] s3
 );
 
-    logic v1_i, v2_i, v1_q, v2_q, fir_v;
-    logic signed [15:0] d1_i, d2_i, d1_q, d2_q, fir_i, fir_q;
+    logic v1_i, v2_i, v1_q, v2_q;
+    logic signed [15:0] d1_i, d2_i, d1_q, d2_q;
     // Private copies of the input valid, one per CIC, so the pin
     // does not enable every integrator through one net.
     (* keep = "true" *) logic v_i, v_q;
@@ -43,15 +55,25 @@ module decim_chain (
         end
     end
 
-    cic4 u_i1 (.clk(clk), .rst_n(rst_n), .en(en), .ratio(r1), .shift(sh1), .valid_in(v_i), .din(x_i), .valid_out(v1_i), .dout(d1_i));
-    cic4 u_i2 (.clk(clk), .rst_n(rst_n), .en(en), .ratio(r2), .shift(sh2), .valid_in(v1_i), .din(d1_i), .valid_out(v2_i), .dout(d2_i));
-    cic4 u_q1 (.clk(clk), .rst_n(rst_n), .en(en), .ratio(r1), .shift(sh1), .valid_in(v_q), .din(x_q), .valid_out(v1_q), .dout(d1_q));
-    cic4 u_q2 (.clk(clk), .rst_n(rst_n), .en(en), .ratio(r2), .shift(sh2), .valid_in(v1_q), .din(d1_q), .valid_out(v2_q), .dout(d2_q));
-
-    fir_seq u_fir (
-        .clk(clk), .rst_n(rst_n), .en(en), .valid_in(v2_i && v2_q),
-        .i_in(d2_i), .q_in(d2_q), .norm(norm),
-        .valid_out(fir_v), .i_out(fir_i), .q_out(fir_q)
+    cic4 #(.SHARE(1'b1)) u_i1 (
+        .clk(clk), .rst_n(rst_n), .en(en), .ratio(r1), .shift(sh1),
+        .valid_in(v_i), .din(x_i), .valid_out(v1_i), .dout(d1_i),
+        .alt(alt), .a0(a0), .b0(b0), .a1(a1), .b1(b1), .s0(s0), .s1(s1)
+    );
+    cic4 u_i2 (
+        .clk(clk), .rst_n(rst_n), .en(en), .ratio(r2), .shift(sh2),
+        .valid_in(v1_i), .din(d1_i), .valid_out(v2_i), .dout(d2_i),
+        .alt(1'b0), .a0('0), .b0('0), .a1('0), .b1('0), .s0(), .s1()
+    );
+    cic4 #(.SHARE(1'b1)) u_q1 (
+        .clk(clk), .rst_n(rst_n), .en(en), .ratio(r1), .shift(sh1),
+        .valid_in(v_q), .din(x_q), .valid_out(v1_q), .dout(d1_q),
+        .alt(alt), .a0(a2), .b0(b2), .a1(a3), .b1(b3), .s0(s2), .s1(s3)
+    );
+    cic4 u_q2 (
+        .clk(clk), .rst_n(rst_n), .en(en), .ratio(r2), .shift(sh2),
+        .valid_in(v1_q), .din(d1_q), .valid_out(v2_q), .dout(d2_q),
+        .alt(1'b0), .a0('0), .b0('0), .a1('0), .b1('0), .s0(), .s1()
     );
 
     logic bypass_v;
@@ -71,8 +93,8 @@ module decim_chain (
         end
     end
 
-    assign valid_out = en ? fir_v : bypass_v;
-    assign i_out = en ? fir_i : bypass_i;
-    assign q_out = en ? fir_q : bypass_q;
+    assign valid_out = en ? (v2_i && v2_q) : bypass_v;
+    assign i_out = en ? d2_i : bypass_i;
+    assign q_out = en ? d2_q : bypass_q;
 
 endmodule
