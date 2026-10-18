@@ -49,3 +49,4 @@ PDN_MACRO_CONNECTIONS:
   - "u_fir.u_ram.u_ram VPWR VGND VDD! VSS!"
   - "u_fir.u_ram.u_ram VPWR VGND VDDARRAY! VSS!"
 PDN_CFG: dir::pdn_cfg.tcl
+FP_MACRO_VERTICAL_HALO: 13.78
