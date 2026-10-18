@@ -19,3 +19,10 @@ IHP full KLayout DRC (maximum rule set, --antenna, --no_density): 0 errors.
 LVS: 0 differences. Antenna: 0 violations. Setup WS +1.20 ns, hold WS +0.05 ns, TNS 0.
 Magic: 7816 errors, all inside the RM_IHPSG13_1P_64x16_c2 footprint, waived as above.
 Density not checked at block level; required at chip level with fill.
+
+## Update — run phase1i (2026-10-18), new reference layout
+Includes SPI mode 0, Philips I2S, clk-domain reset synchroniser, output scale 16384,
+per-clock I/O constraints, post-GRT design repair (SRAM A_DOUT max-cap fixed).
+IHP full KLayout DRC (maximum rule set, --antenna, --no_density): 0 errors.
+LVS 0, antenna 0, max-cap 0, routing DRC 0. Setup WS +0.80 ns, hold WS +0.10 ns, TNS 0.
+Cell area 0.708 mm2. Magic: 7817 errors, all inside the SRAM footprint, waived as above.
