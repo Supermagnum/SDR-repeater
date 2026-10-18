@@ -74,3 +74,10 @@ Previously data changed on the rising edge (the host's sampling edge) in both mo
 Reset: clk domain released through a 2-flop synchroniser; SCLK must stay idle >= 1 us after rst_n rises.
 Test note: logic on gated clocks updates after clk's rising edge in RTL simulation, so
 testbenches drive inputs on clk's falling edge.
+
+## 2026-10-18 — Continuous I2S BCLK
+BCLK runs without gaps at every rate: frame = 2 * slot * bit_cell reference clocks.
+36 MHz / 500 kHz enabled (BCLK 18 MHz: over the 16 MHz repeater-backplane cap, which applies
+to the 32 MHz repeater modules, but within the i.MX93 SAI slave limits for LinHT).
+36 MHz / 200 kHz: no 50 % split exists (180 = 2*18*5); 40/60 duty, exactly on the i.MX93 limit.
+Accepted and documented; LinHT should prefer 100 kHz or 500 kHz.

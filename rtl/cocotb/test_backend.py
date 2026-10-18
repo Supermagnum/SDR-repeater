@@ -22,6 +22,9 @@ FRONT = np.array([1, 4, 8, 12, 12, 8, 4, 1], dtype=float)
 # A full-scale 1-bit input (all ones) lands at FS on the output word.
 FS = 16384
 FS_TOL = 64
+# I2S slot width per (ref MHz, rate index); continuous BCLK since 2026-10-18.
+SLOT = {(32, 0): 32, (32, 1): 32, (32, 2): 16, (32, 3): 20, (32, 4): 16,
+        (36, 0): 24, (36, 1): 20, (36, 2): 18, (36, 3): 18, (36, 4): 18}
 HB = np.array([-138, 0, 305, 0, -617, 0, 1128, 0, -1952, 0, 3376, 0,
                -6450, 0, 20688, 32767, 20688, 0, -6450, 0, 3376, 0,
                -1952, 0, 1128, 0, -617, 0, 305, 0, -138], dtype=float)
@@ -199,7 +202,7 @@ async def master_frame_lengths(dut):
             for _ in range(8):
                 await RisingEdge(dut.clk)
             m = TABLE[(ref, rate)][0]
-            illegal = ref == 36 and rate == 4
+            illegal = False  # every pair is legal with continuous BCLK
             status = await spi_xfer(dut, 0x0A, 0, write=False)
             assert bool(status & 0x40) == illegal, (ref, rate, status)
             if illegal:
@@ -209,6 +212,8 @@ async def master_frame_lengths(dut):
             period = 0
             highs = 0
             lows = 0
+            bedges = 0
+            pb = int(dut.bclk_o.value)
             for _ in range(m * 3):
                 await RisingEdge(dut.clk)
                 now = int(dut.lrclk_o.value)
@@ -219,12 +224,18 @@ async def master_frame_lengths(dut):
                         highs += 1
                     else:
                         lows += 1
+                if rises == 1 and b and not pb:
+                    bedges += 1
+                pb = b
                 if prev == 0 and now == 1:
                     rises += 1
                     if rises == 2:
                         break
                 prev = now
             assert period == m, (ref, rate, period, m)
+            # Continuous BCLK: 2*slot rising edges per frame, duty 40-60 %.
+            assert bedges == 2 * SLOT[(ref, rate)], (ref, rate, bedges)
+            assert 0.4 * m <= highs <= 0.6 * m, (ref, rate, highs, lows)
             # 50 percent of the active bit cells, plus idle lows at the
             # end of a frame that is longer than the slots.
             assert highs > 0 and abs(highs - lows) <= m, (ref, rate, highs, lows)

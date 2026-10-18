@@ -15,7 +15,11 @@ module digital_backend #(
     input  logic               rst_n,
     input  logic               ref_36,
     input  logic               sclk,
+    // cs_n is both a synchronous frame qualifier and the asynchronous clear
+    // of the SPI bit counter (aborted-frame recovery); timed against sclk in the SDC.
+    /* verilator lint_off SYNCASYNCNET */
     input  logic               cs_n,
+    /* verilator lint_on SYNCASYNCNET */
     input  logic               mosi,
     output logic               miso,
     output logic               clk_req,
@@ -55,7 +59,7 @@ module digital_backend #(
     logic [2:0] r0;
     logic [5:0] r1, r2, slot;
     logic [4:0] sh1, sh2;
-    logic [2:0] bit_cell;
+    logic [5:0] bit_cell;
     logic rate_error;
     logic signed [15:0] norm;
     logic decim_v, dc_v, cal_v;
