@@ -81,3 +81,19 @@ BCLK runs without gaps at every rate: frame = 2 * slot * bit_cell reference cloc
 to the 32 MHz repeater modules, but within the i.MX93 SAI slave limits for LinHT).
 36 MHz / 200 kHz: no 50 % split exists (180 = 2*18*5); 40/60 duty, exactly on the i.MX93 limit.
 Accepted and documented; LinHT should prefer 100 kHz or 500 kHz.
+
+## 2026-10-18 — Frequency coverage 130–175 MHz + 400–480 MHz; duplexer confirmed
+
+- **Decision:** the RFIC tunes 130–175 MHz and 400–480 MHz, covering amateur bands, land mobile and PMR446. This replaces the amateur-only baseline (README 11.1).
+- **Owner input:** repeater sites share one antenna between RX and TX through a duplexer on 2 m and on 70 cm.
+- **Norwegian offsets:** 600 kHz (2 m) and 2 MHz (70 cm), taken from the repeater list.
+- **Limits:** derived in `spec/derived-limits.md` and replace the provisional ones.
+- **Consequences, Phase 3 analog:**
+  - harmonic-reject VHF mixer and/or preselector;
+  - LO plan with a VCO at 1.56–2.10 GHz, ÷4 for UHF and ÷12 for VHF;
+  - analog anti-alias of ≥ 40 dB at ±8/9 MHz and ≥ 70 dB at ±32/36 MHz;
+  - selectable TX reconstruction filter.
+- **Consequences, system:**
+  - the host picks the 32 or 36 MHz clock per channel by the harmonic table;
+  - 500 kHz TX is for simplex use only.
+- **Digital backend:** unchanged.
