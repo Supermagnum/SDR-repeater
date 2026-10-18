@@ -32,12 +32,12 @@ module cic4 #(
     output logic               valid_out,
     output logic signed [15:0] dout,
     input  logic               alt,
-    input  logic signed [39:0] a0,
-    input  logic signed [39:0] b0,
-    input  logic signed [39:0] a1,
-    input  logic signed [39:0] b1,
-    output logic signed [39:0] s0,
-    output logic signed [39:0] s1
+    input  logic signed [27:0] a0,
+    input  logic signed [27:0] b0,
+    input  logic signed [27:0] a1,
+    input  logic signed [27:0] b1,
+    output logic signed [27:0] s0,
+    output logic signed [27:0] s1
 );
 
     localparam int AW = 28;
@@ -55,8 +55,9 @@ module cic4 #(
 
     wire signed [AW-1:0] i3_ext = (DROP == 0) ? i3 : {i3, {DROP{1'b0}}};
     wire signed [AW-1:0] i3_sum = i3_ext + i2;
-    wire signed [39:0] add0 = (SHARE && alt) ? (a0 + b0) : ({{(40-AW){i0[AW-1]}}, i0} + {{24{x_r[15]}}, x_r});
-    wire signed [39:0] add1 = (SHARE && alt) ? (a1 + b1) : ({{(40-AW){i1[AW-1]}}, i1} + {{(40-AW){i0[AW-1]}}, i0});
+    // The shared adders are AW bits: the TX interpolator fits in 28 since 2026-10-18.
+    wire signed [AW-1:0] add0 = (SHARE && alt) ? (a0 + b0) : (i0 + AW'(x_r));
+    wire signed [AW-1:0] add1 = (SHARE && alt) ? (a1 + b1) : (i1 + i0);
 
     assign s0 = add0;
     assign s1 = add1;
@@ -107,8 +108,8 @@ module cic4 #(
                 e1 <= e0;
                 e2 <= e1;
                 e3 <= e2;
-                if (e0 && !(SHARE && alt)) i0 <= add0[AW-1:0];
-                if (e1 && !(SHARE && alt)) i1 <= add1[AW-1:0];
+                if (e0 && !(SHARE && alt)) i0 <= add0;
+                if (e1 && !(SHARE && alt)) i1 <= add1;
                 if (e2) i2 <= i2 + i1;
                 if (e3) i3 <= i3_sum[AW-1:DROP];
                 comb_go <= 1'b0;

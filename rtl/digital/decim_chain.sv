@@ -20,18 +20,18 @@ module decim_chain (
     output logic signed [15:0] i_out,
     output logic signed [15:0] q_out,
     input  logic               alt,
-    input  logic signed [39:0] a0,
-    input  logic signed [39:0] b0,
-    input  logic signed [39:0] a1,
-    input  logic signed [39:0] b1,
-    input  logic signed [39:0] a2,
-    input  logic signed [39:0] b2,
-    input  logic signed [39:0] a3,
-    input  logic signed [39:0] b3,
-    output logic signed [39:0] s0,
-    output logic signed [39:0] s1,
-    output logic signed [39:0] s2,
-    output logic signed [39:0] s3
+    input  logic signed [27:0] a0,
+    input  logic signed [27:0] b0,
+    input  logic signed [27:0] a1,
+    input  logic signed [27:0] b1,
+    input  logic signed [27:0] a2,
+    input  logic signed [27:0] b2,
+    input  logic signed [27:0] a3,
+    input  logic signed [27:0] b3,
+    output logic signed [27:0] s0,
+    output logic signed [27:0] s1,
+    output logic signed [27:0] s2,
+    output logic signed [27:0] s3
 );
 
     logic v1_i, v2_i, v1_q, v2_q;

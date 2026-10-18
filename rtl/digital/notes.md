@@ -31,11 +31,11 @@ A constant +1 bitstream is the DC stimulus. The 8-tap front end sums to 50. `nor
 
 ## IQ phase
 
-`yI = (gain_i * xI + phase * xQ) / 128`, `yQ = (gain_q * xQ) / 128`, then saturate. Gain 128 is 1.0. `PHASE` is a signed 8-bit register. One LSB is 1/128 rad, about 0.447 degrees. The stored range is -128 to +127, so the largest coefficient is -128/128 = -1 rad (about -57.3 degrees) and +127/128 rad (about +56.8 degrees). It is a Q-into-I cross term, not a full rotation matrix. Two degrees is about 4.5 LSB, so the grid is finer than the 2 degree image target. That does not say an uncalibrated mixer meets 2 degrees. The TX path uses the same width in `TX_PHASE`.
+DC and IQ correction are not done on the chip since 2026-10-18 (area decision (a), see `decisions.md`). The host applies them to the I2S words. RX: remove the DC estimate `d` (a first-order loop, `d += (x - d) / 2^k`), then `yI = gI*xI + p*xQ`, `yQ = gQ*xQ`. TX: apply the inverse before sending. The removed registers used gain 128 = 1.0 and a phase LSB of 1/128 rad (about 0.45 degrees, finer than the 2 degree image target); that grid is a sensible host-side default.
 
 ## TX path
 
-I2S input at the sample rate, DC subtract (`TX_DC_*`, signed 8-bit, units of sample LSBs, range -128 to +127), then the same IQ cross term. A half-band interpolates by 2 using the RX coefficients as a polyphase pair (eight symmetric products for the even output, the center tap for the odd output). An order-2 CIC interpolator carries that stream up to the reference. A 2nd-order 1-bit sigma-delta modulator, with feedback into both integrators, drives `dac_bit_i` and `dac_bit_q`.
+I2S input at the sample rate, already DC- and IQ-corrected by the host (since 2026-10-18). A half-band interpolates by 2 using the RX coefficients as a polyphase pair (eight symmetric products for the even output, the center tap for the odd output). An order-2 CIC interpolator carries that stream up to the reference. A 2nd-order 1-bit sigma-delta modulator, with feedback into both integrators, drives `dac_bit_i` and `dac_bit_q`.
 
 `tx_image_and_noise` drives a 0.1*fs tone at 500 kHz / 32 MHz and requires at least 40 dB of image rejection at `fs - f`. The 1 to 8 MHz median floor, 20 dB below the tone, is a provisional check of this modulator model. Phase 4 has to derive that limit from the emission mask, including the analogue reconstruction filter and the modulator order. The expected mask is at least 60 to 70 dB below the carrier near the carrier. This run measured 59.6 dB image rejection and a floor 25.7 dB below the tone (tone 53.5 dB, image -6.1 dB, floor 27.8 dB).
 
@@ -53,21 +53,21 @@ SPI mode 0, 16 bits per CS assertion. Bit 15 is write when 1. Bits 14:8 are the 
 | 0x01 | DUTY_ON | 1 | Output frames with IQ present in one RX on-period. Zero with a non-zero DUTY_OFF blanks after the first frame. |
 | 0x02 | DUTY_OFF | 0 | Following frames forced to zero. Zero means the on-period does not end. |
 | 0x03 | RATE | 4 | [2:0] sample rate: 0 = 25, 1 = 50, 2 = 100, 3 = 200, 4 = 500 kHz. |
-| 0x04 | DC_SHIFT | 4 | DC-loop shift, clipped to 1..7. |
-| 0x05 | GAIN_I | 128 | I gain. 128 means 1.0. |
-| 0x06 | GAIN_Q | 128 | Q gain. 128 means 1.0. |
-| 0x07 | PHASE | 0 | Signed I-from-Q cross term. One LSB is 1/128 rad. |
+| 0x04 | — | 0 | Reserved. Was `DC_SHIFT` until 2026-10-18; DC and IQ correction are done by the host. Reads 0, writes ignored. |
+| 0x05 | — | 0 | Reserved. Was `GAIN_I` until 2026-10-18; DC and IQ correction are done by the host. Reads 0, writes ignored. |
+| 0x06 | — | 0 | Reserved. Was `GAIN_Q` until 2026-10-18; DC and IQ correction are done by the host. Reads 0, writes ignored. |
+| 0x07 | — | 0 | Reserved. Was `PHASE` until 2026-10-18; DC and IQ correction are done by the host. Reads 0, writes ignored. |
 | 0x08 | BLOCK_PD | 0 | [0] decimator, [1] DC loop, [2] IQ cal, [3] I2S, [4] TX chain. A set bit powers that block down. Filters bypass. I2S dout stays 0. |
 | 0x09 | WAKE | 0 | Output frames to wait after entering RX or TX before `valid_iq` rises. |
 | 0x0A | STATUS | — | Read only. [1:0] mode, [2] blank, [3] valid_iq, [4] FIFO overflow, [5] FIFO underflow, [6] clk_error, [7] relock busy. |
-| 0x0B | CHIP_ID | 0x11 | Read only. Writes are ignored. |
+| 0x0B | CHIP_ID | 0x12 | Read only. Writes are ignored. 0x11 before the calibration registers were removed (2026-10-18). |
 | 0x0C | BAND | 0 | [0] = 0 selects divide-by-8 (70 cm). [0] = 1 selects divide-by-24 (2 m). A write starts the digital relock interval. |
-| 0x0D | DC_CLEAR | 0 | Write [0] = 1 pulses a one-cycle clear of the DC accumulator. The bit does not stick. |
-| 0x0E | TX_DC_I | 0 | Signed 8-bit TX I DC offset, in sample LSBs. Range -128 to +127. |
-| 0x0F | TX_DC_Q | 0 | Signed 8-bit TX Q DC offset, same units. |
-| 0x10 | TX_GAIN_I | 128 | TX I gain. 128 means 1.0. |
-| 0x11 | TX_GAIN_Q | 128 | TX Q gain. 128 means 1.0. |
-| 0x12 | TX_PHASE | 0 | Signed 8-bit TX Q-into-I cross term. One LSB is 1/128 rad. Range -128 to +127. |
+| 0x0D | — | 0 | Reserved. Was `DC_CLEAR` until 2026-10-18; DC and IQ correction are done by the host. Reads 0, writes ignored. |
+| 0x0E | — | 0 | Reserved. Was `TX_DC_I` until 2026-10-18; DC and IQ correction are done by the host. Reads 0, writes ignored. |
+| 0x0F | — | 0 | Reserved. Was `TX_DC_Q` until 2026-10-18; DC and IQ correction are done by the host. Reads 0, writes ignored. |
+| 0x10 | — | 0 | Reserved. Was `TX_GAIN_I` until 2026-10-18; DC and IQ correction are done by the host. Reads 0, writes ignored. |
+| 0x11 | — | 0 | Reserved. Was `TX_GAIN_Q` until 2026-10-18; DC and IQ correction are done by the host. Reads 0, writes ignored. |
+| 0x12 | — | 0 | Reserved. Was `TX_PHASE` until 2026-10-18; DC and IQ correction are done by the host. Reads 0, writes ignored. |
 | 0x13 | CLK_GATE | 0x1F | Clock allow. [0] CIC, [1] FIR (shares the RX clock with the CIC, so either bit stops that clock), [2] DC and IQ data enable, [3] I2S, [4] TX. A 0 stops that block even in RX or TX. SPI is not in this mask. It stays clocked in every mode, including shutdown. |
 
 `BAND` relock is a digital handshake of 64 reference clocks, about 2.00 us at 32 MHz and 1.78 us at 36 MHz. It is not an analog PLL lock. The analog lock budget remains under 1 ms and is not claimed here.

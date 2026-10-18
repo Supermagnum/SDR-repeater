@@ -9,8 +9,6 @@ VERILOG_FILES:
   - dir::hb_sram.sv
   - dir::fir_seq.sv
   - dir::decim_chain.sv
-  - dir::dc_offset.sv
-  - dir::iq_cal.sv
   - dir::power_ctrl.sv
   - dir::i2s_master.sv
   - dir::sample_fifo.sv

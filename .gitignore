@@ -9,3 +9,6 @@ sim/em/**/vendor/
 *.fst
 rtl/cocotb/sim_build/
 rtl/digital/runs/
+area_*.txt
+signoff_*.txt
+rtl/cocotb/test_backend_1j.py

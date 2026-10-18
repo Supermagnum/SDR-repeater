@@ -97,3 +97,11 @@ Accepted and documented; LinHT should prefer 100 kHz or 500 kHz.
   - the host picks the 32 or 36 MHz clock per channel by the harmonic table;
   - 500 kHz TX is for simplex use only.
 - **Digital backend:** unchanged.
+
+## 2026-10-18 — Area: calibration moved to the host, target ≤ 0.34 mm²
+
+- **Metric.** Real cell area = `design__instance__area__stdcell` + `design__instance__area__macros` (no filler). Phase1i: 0.434 mm². The earlier 0.708 mm² figure included 0.274 mm² of filler cells. Checked by `tools/check_area.py` (limit 340 000 µm²).
+- **Decision (a).** DC and IQ correction for RX and TX are done by the host software. The digital chain is linear, so host-side correction is equivalent. Removed: `iq_cal`, `dc_offset`, the TX calibration stage, and registers 0x04–0x07 and 0x0D–0x12 (now reserved, read 0). `BLOCK_PD[2:1]` and `CLK_GATE[2]` are reserved. `CHIP_ID` 0x11 → 0x12. All other addresses keep their numbers.
+- **Other reductions.** `sample_fifo` depth 8 → 4. TX integrators and the shared `cic4` adders 40 → 28 bits (maximum value 32767 × 720 < 2²⁵). One RAM address generator in `fir_seq` (bit-identical: 0 mismatches over 120 000 random cycles against the old module). `relock_cnt` sized from `RELOCK_CYCLES`.
+- **Not done.** 0.30 mm² is not reachable without removing functions. CIC1 narrowing (bypass path uses 16-bit input) and reserved-bit trimming were judged not worth the risk.
+- **Tests.** `phase_cross_term` and `dc_retained_across_sleep` removed with the blocks they tested. `filter_response_limits` now also checks the duplex-offset (≥ 100 dB) and on-channel (≥ 65 dB) alias limits; `tx_image_and_noise` checks the bitstream noise at 600 kHz and 2 MHz against `spec/derived-limits.md`.

@@ -5,6 +5,9 @@
 // MISO returns the addressed byte during the data half. The write
 // commits on the 16th rising SCLK, while CS is still low.
 // CTRL[3] is reserved. The slot width comes from the rate table.
+// 0x04-0x07 and 0x0D-0x12 are reserved since 2026-10-18: DC and IQ
+// correction moved to the host. They read 0 and ignore writes. CHIP_ID
+// went from 0x11 to 0x12 with that change.
 // An SPI write of a non-shutdown mode raises clk_req in this domain,
 // which is how the host is asked to start the reference.
 
@@ -19,32 +22,20 @@ module spi_regs (
     output logic [7:0] duty_on,
     output logic [7:0] duty_off,
     output logic [7:0] rate,
-    output logic [7:0] dc_shift,
-    output logic [7:0] gain_i,
-    output logic [7:0] gain_q,
-    output logic [7:0] phase,
     output logic [7:0] block_pd,
     output logic [7:0] wake_cycles,
     output logic [7:0] band,
     output logic       flag_tog,
-    output logic       dc_tog,
     output logic       band_tog,
     output logic       cfg_tog,
-    output logic [7:0] tx_dc_i,
-    output logic [7:0] tx_dc_q,
-    output logic [7:0] tx_gain_i,
-    output logic [7:0] tx_gain_q,
-    output logic [7:0] tx_phase,
     output logic [7:0] clk_gate,
     output logic       clk_req
 );
 
     localparam logic [7:0] CTRL_RST = 8'h00;
-    localparam logic [7:0] GAIN_RST = 8'd128;
 
-    logic [7:0] ctrl_q, duty_on_q, duty_off_q, rate_q, dc_shift_q;
-    logic [7:0] gain_i_q, gain_q_q, phase_q, block_pd_q, wake_cycles_q, band_q;
-    logic [7:0] tx_dc_i_q, tx_dc_q_q, tx_gain_i_q, tx_gain_q_q, tx_phase_q, clk_gate_q;
+    logic [7:0] ctrl_q, duty_on_q, duty_off_q, rate_q;
+    logic [7:0] block_pd_q, wake_cycles_q, band_q, clk_gate_q;
     logic [7:0] status_s1, status_s2;
     // shreg[15] is never read: the 16th bit arrives on mosi itself.
     /* verilator lint_off UNUSEDSIGNAL */
@@ -58,17 +49,8 @@ module spi_regs (
     assign duty_off = duty_off_q;
     assign rate = rate_q;
     assign band = band_q;
-    assign dc_shift = dc_shift_q;
-    assign gain_i = gain_i_q;
-    assign gain_q = gain_q_q;
-    assign phase = phase_q;
     assign block_pd = block_pd_q;
     assign wake_cycles = wake_cycles_q;
-    assign tx_dc_i = tx_dc_i_q;
-    assign tx_dc_q = tx_dc_q_q;
-    assign tx_gain_i = tx_gain_i_q;
-    assign tx_gain_q = tx_gain_q_q;
-    assign tx_phase = tx_phase_q;
     assign clk_gate = clk_gate_q;
     assign clk_req = ctrl_q[1:0] != 2'b00;
 
@@ -78,21 +60,11 @@ module spi_regs (
             7'h01: read_reg = duty_on_q;
             7'h02: read_reg = duty_off_q;
             7'h03: read_reg = rate_q;
-            7'h04: read_reg = dc_shift_q;
-            7'h05: read_reg = gain_i_q;
-            7'h06: read_reg = gain_q_q;
-            7'h07: read_reg = phase_q;
             7'h08: read_reg = block_pd_q;
             7'h09: read_reg = wake_cycles_q;
             7'h0A: read_reg = status_s2;
-            7'h0B: read_reg = 8'h11;
+            7'h0B: read_reg = 8'h12;
             7'h0C: read_reg = band_q;
-            7'h0D: read_reg = 8'h00;
-            7'h0E: read_reg = tx_dc_i_q;
-            7'h0F: read_reg = tx_dc_q_q;
-            7'h10: read_reg = tx_gain_i_q;
-            7'h11: read_reg = tx_gain_q_q;
-            7'h12: read_reg = tx_phase_q;
             7'h13: read_reg = clk_gate_q;
             default: read_reg = 8'h00;
         endcase
@@ -144,20 +116,10 @@ module spi_regs (
             duty_off_q <= 8'd0;
             rate_q <= 8'd4;
             band_q <= 8'd0;
-            dc_shift_q <= 8'd4;
-            gain_i_q <= GAIN_RST;
-            gain_q_q <= GAIN_RST;
-            phase_q <= 8'd0;
             block_pd_q <= 8'd0;
             wake_cycles_q <= 8'd0;
-            tx_dc_i_q <= 8'd0;
-            tx_dc_q_q <= 8'd0;
-            tx_gain_i_q <= GAIN_RST;
-            tx_gain_q_q <= GAIN_RST;
-            tx_phase_q <= 8'd0;
             clk_gate_q <= 8'h1F;
             flag_tog <= 1'b0;
-            dc_tog <= 1'b0;
             band_tog <= 1'b0;
             cfg_tog <= 1'b0;
         end else if (cs_n) begin
@@ -179,22 +141,12 @@ module spi_regs (
                         7'h01: duty_on_q <= {shreg[6:0], mosi};
                         7'h02: duty_off_q <= {shreg[6:0], mosi};
                         7'h03: rate_q <= {shreg[6:0], mosi};
-                        7'h04: dc_shift_q <= {shreg[6:0], mosi};
-                        7'h05: gain_i_q <= {shreg[6:0], mosi};
-                        7'h06: gain_q_q <= {shreg[6:0], mosi};
-                        7'h07: phase_q <= {shreg[6:0], mosi};
                         7'h08: block_pd_q <= {shreg[6:0], mosi};
                         7'h09: wake_cycles_q <= {shreg[6:0], mosi};
                         7'h0C: begin
                             band_q <= {7'b0, mosi};
                             band_tog <= ~band_tog;
                         end
-                        7'h0D: if (mosi) dc_tog <= ~dc_tog;
-                        7'h0E: tx_dc_i_q <= {shreg[6:0], mosi};
-                        7'h0F: tx_dc_q_q <= {shreg[6:0], mosi};
-                        7'h10: tx_gain_i_q <= {shreg[6:0], mosi};
-                        7'h11: tx_gain_q_q <= {shreg[6:0], mosi};
-                        7'h12: tx_phase_q <= {shreg[6:0], mosi};
                         7'h13: clk_gate_q <= {shreg[6:0], mosi};
                         default: ;
                     endcase
