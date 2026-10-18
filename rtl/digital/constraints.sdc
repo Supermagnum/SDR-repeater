@@ -68,3 +68,25 @@ set_propagated_clock [all_clocks]
 # ref_36 is a board strap selecting the 32/36 MHz divider table. It is static
 # in operation and may only change while rst_n is asserted.
 set_false_path -from [get_ports ref_36]
+
+# ---- Per-clock I/O constraints (2026-10-18) ---------------------------------
+# These override the clk-relative defaults above for ports owned by other clocks.
+set sclk_io [expr 40.0 * $::env(IO_DELAY_CONSTRAINT) / 100]
+set bclk_io [expr 62.5 * $::env(IO_DELAY_CONSTRAINT) / 100]
+
+# SPI (mode 0): MOSI/CS_N sampled on SCLK rising; MISO launched on SCLK falling,
+# sampled by the host on the rising edge.
+set_input_delay  $sclk_io -clock sclk [get_ports {cs_n mosi}]
+set_output_delay $sclk_io -clock sclk [get_ports miso]
+
+# I2S slave (Philips): LRCLK_I and DIN sampled on BCLK_I rising; DOUT launched
+# on BCLK_I falling. DIN and DOUT are also used by the master on clk, so the
+# bclk_i constraints are added to the clk ones.
+set_input_delay  $bclk_io -clock bclk_i [get_ports lrclk_i]
+set_input_delay  $bclk_io -clock bclk_i -add_delay [get_ports din]
+set_output_delay $bclk_io -clock bclk_i -add_delay [get_ports dout]
+
+# rst_n is asynchronous; its release is synchronised inside the design.
+set_false_path -from [get_ports rst_n]
+# clk_req is a level request to the host, not a timed signal.
+set_false_path -to [get_ports clk_req]
