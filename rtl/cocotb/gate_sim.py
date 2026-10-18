@@ -4,7 +4,7 @@ from pathlib import Path
 from cocotb_tools.runner import get_runner
 
 # Port-level tests only: a gate netlist has no internal RTL signal names.
-GATE_TESTS = "spi_reset_and_registers|master_frame_lengths|rx_chain_ports|i2s_slave_philips"
+GATE_TESTS = "spi_reset_and_registers|master_frame_lengths|rx_chain_ports|i2s_slave_philips|spi_aborted_frame"
 
 
 def main():

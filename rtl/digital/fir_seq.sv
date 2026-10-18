@@ -36,19 +36,21 @@ module fir_seq (
     logic signed [15:0] cf_q0, cf_q1, cf_q2;
     logic [4:0] wp;
     logic signed [15:0] yi, yq_w;
+    // Only acc_i[17:0] feeds the multiplier (norm step). The full-scale
+    // half-band output is at most 28,437 < 2^17 (see rate_table.sv).
+    /* verilator lint_off UNUSEDSIGNAL */
     logic signed [39:0] acc, acc_i;
+    /* verilator lint_on UNUSEDSIGNAL */
     logic [5:0] step;
     logic active, keep, hb_phase;
     logic pend;
     logic signed [15:0] pend_i, pend_q;
-    logic ch;
     logic mac_first;
     logic [5:0] ram_addr;
     logic ram_men, ram_wen, ram_ren;
     logic [15:0] ram_din;
     logic [15:0] ram_dout;
     logic signed [15:0] sample_a;
-    logic [4:0] pair_q;
 
     logic signed [17:0] op_a;
     logic signed [15:0] op_b;
@@ -161,12 +163,10 @@ module fir_seq (
             wp <= '0;
             pend <= 1'b0;
             pend_i <= '0; pend_q <= '0;
-            ch <= 1'b0;
             mac_first <= 1'b0;
             ram_addr <= '0; ram_men <= 1'b0; ram_wen <= 1'b0; ram_ren <= 1'b0;
             ram_din <= '0;
             sample_a <= '0;
-            pair_q <= '0;
             valid_out <= 1'b0;
             i_out <= '0; q_out <= '0;
             tx_done <= 1'b0;
@@ -276,8 +276,6 @@ module fir_seq (
                             end else step <= 6'd60;
                         end else step <= step + 6'd1;
                     end else step <= step + 6'd1;
-                    pair_q <= {1'b0, mpair};
-                    ch <= ch_now;
                 end else if (step == 6'd60) begin
                     i_out <= sat16(40'(prod) >>> 15);
                     step <= 6'd61;

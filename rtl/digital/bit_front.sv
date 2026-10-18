@@ -18,7 +18,10 @@ module bit_front (
     output logic signed [7:0] q_out
 );
 
+    // hist[7] shifts out; dot() uses {hist[6:0], new bit}.
+    /* verilator lint_off UNUSEDSIGNAL */
     logic [7:0] hist_i, hist_q;
+    /* verilator lint_on UNUSEDSIGNAL */
     logic [2:0] count;
     integer k;
 

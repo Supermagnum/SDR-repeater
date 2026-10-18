@@ -46,7 +46,10 @@ module spi_regs (
     logic [7:0] gain_i_q, gain_q_q, phase_q, block_pd_q, wake_cycles_q, band_q;
     logic [7:0] tx_dc_i_q, tx_dc_q_q, tx_gain_i_q, tx_gain_q_q, tx_phase_q, clk_gate_q;
     logic [7:0] status_s1, status_s2;
+    // shreg[15] is never read: the 16th bit arrives on mosi itself.
+    /* verilator lint_off UNUSEDSIGNAL */
     logic [15:0] shreg;
+    /* verilator lint_on UNUSEDSIGNAL */
     logic [4:0] nbits;
     logic [7:0] rd_byte;
 
@@ -95,6 +98,17 @@ module spi_regs (
         endcase
     endfunction
 
+    // Bit counter. CS high clears it asynchronously, so an aborted frame
+    // (CS raised mid-frame, no further SCLK) cannot misalign the next one.
+    // Only this counter uses CS as a reset; the register file does not
+    // (that mapping caused a combinational loop earlier). A complete frame
+    // wraps to 0 on the 16th SCLK edge.
+    always_ff @(posedge sclk or posedge cs_n) begin
+        if (cs_n) nbits <= 5'd0;
+        else if (nbits == 5'd15) nbits <= 5'd0;
+        else nbits <= nbits + 5'd1;
+    end
+
     // SPI mode 0: the host samples MISO on the SCLK rising edge, so the
     // chip changes MISO on the falling edge. Bit 7 goes out on the falling
     // edge after the last address bit (nbits == 8), bit 0 at nbits == 15.
@@ -122,7 +136,6 @@ module spi_regs (
     always_ff @(posedge sclk or negedge rst_n) begin
         if (!rst_n) begin
             shreg <= 16'h0000;
-            nbits <= 5'd0;
             rd_byte <= 8'h00;
             status_s1 <= 8'h00;
             status_s2 <= 8'h00;
@@ -148,7 +161,7 @@ module spi_regs (
             band_tog <= 1'b0;
             cfg_tog <= 1'b0;
         end else if (cs_n) begin
-            nbits <= 5'd0;
+            // CS high: hold. The bit counter is cleared by its own process.
         end else begin
             status_s1 <= status;
             status_s2 <= status_s1;
@@ -186,9 +199,6 @@ module spi_regs (
                         default: ;
                     endcase
                 end
-                nbits <= 5'd0;
-            end else begin
-                nbits <= nbits + 5'd1;
             end
         end
     end

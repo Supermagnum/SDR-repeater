@@ -670,3 +670,27 @@ async def i2s_slave_philips(dut):
     cocotb.log.info("slave left %d right %d", left, right)
     assert abs(left - FS) <= FS_TOL, left
     assert abs(right + FS) <= FS_TOL, right
+
+
+@cocotb.test()
+async def spi_aborted_frame(dut):
+    """CS raised mid-frame (no SCLK edge with CS high) must not misalign the next transfer."""
+    await start(dut)
+    frame = (1 << 15) | (0x01 << 8) | 0x55       # write DUTY_ON = 0x55 ...
+    dut.cs_n.value = 0
+    await RisingEdge(dut.clk)
+    for bit in range(15, 8, -1):                 # ... aborted after 7 bits
+        dut.mosi.value = (frame >> bit) & 1
+        await RisingEdge(dut.clk)
+        dut.sclk.value = 1
+        await RisingEdge(dut.clk)
+        await RisingEdge(dut.clk)
+        dut.sclk.value = 0
+        await RisingEdge(dut.clk)
+    dut.cs_n.value = 1                           # abort, as a real host would: no SCLK
+    for _ in range(4):
+        await RisingEdge(dut.clk)
+    got = await spi_xfer(dut, 0x01, 0, write=False)
+    assert got == 1, got                         # write did not happen, read is aligned
+    await spi_xfer(dut, 0x02, 7, write=True)
+    assert await spi_xfer(dut, 0x02, 0, write=False) == 7

@@ -33,7 +33,10 @@ module i2s_master (
 );
 
     logic [10:0] fc;
+    // cap[15] is the bit that shifts out; it is never read.
+    /* verilator lint_off UNUSEDSIGNAL */
     logic [15:0] cap;
+    /* verilator lint_on UNUSEDSIGNAL */
     logic [10:0] frame_d;
     logic [5:0]  slot_d;
     logic [10:0] bit_at;

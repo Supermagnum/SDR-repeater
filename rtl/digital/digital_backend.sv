@@ -19,6 +19,7 @@ module digital_backend #(
     input  logic               mosi,
     output logic               miso,
     output logic               clk_req,
+    output logic               band_sel,
     input  logic               bclk_i,
     input  logic               lrclk_i,
     input  logic               din,
@@ -70,9 +71,15 @@ module digital_backend #(
     logic relock_busy;
     logic flag_clear, dc_clear, band_write;
     logic flag_t1, flag_t2, dc_t1, dc_t2, band_t1, band_t2, cfg_t1, cfg_t2;
+    // Register copies are full bytes; unused bits are reserved:
+    // CTRL[7:5,3], RATE[7:3], DC_SHIFT[7:3], BLOCK_PD[7:5], BAND[7:1],
+    // CLK_GATE[7:5,1] (CLK_GATE[1] 'FIR allow' is reserved: the shared FIR
+    // engine runs on the run clock).
+    /* verilator lint_off UNUSEDSIGNAL */
     logic [7:0] ctrl_c, duty_on_c, duty_off_c, rate_c, dc_shift_c;
     logic [7:0] gain_i_c, gain_q_c, phase_c, block_pd_c, wake_c, band_c;
     logic [7:0] tx_dc_i_c, tx_dc_q_c, tx_gain_i_c, tx_gain_q_c, tx_phase_c, clk_gate_c;
+    /* verilator lint_on UNUSEDSIGNAL */
     logic run_en, rx_run, tx_run;
     logic clk_run, clk_rx, clk_tx;
     logic front_v;
@@ -85,6 +92,8 @@ module digital_backend #(
     wire filt_rx = !block_pd_c[0] && !tx_en;
 
     assign slave_mode = ctrl_c[4];
+    // LO divider select for the analogue block: 0 = /8 (70 cm), 1 = /24 (2 m).
+    assign band_sel = band_c[0];
     assign status = {relock_busy, clk_error, fifo_under, fifo_over, sample_valid, blank, status_mode};
     assign valid_iq = sample_valid;
     assign bclk_oe = !slave_mode && (rx_en || tx_en);
