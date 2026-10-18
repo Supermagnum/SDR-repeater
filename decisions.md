@@ -54,3 +54,9 @@ Setup uncertainty stays at CLOCK_UNCERTAINTY_CONSTRAINT (0.25 ns). Hold uncertai
 (`set_clock_uncertainty -hold 0.05`), because clocks are propagated after CTS and the
 TCXO/VCTCXO reference jitter is in the picosecond range. The previous 0.25 ns on hold, plus
 the 0.1 ns resizer margin and 5 % derate, drove 6,449 hold buffers.
+
+## 2026-10-18 — SPI mode 0 and power-up reset
+MISO changes on the SCLK falling edge; the host samples on the rising edge (mode 0).
+Previously MISO changed on the rising edge, which would have shifted every read by one
+bit on a real host. Board requirement: rst_n must be held low at power-up until the
+supplies and the reference clock are stable (asynchronous reset, level-sensitive).
