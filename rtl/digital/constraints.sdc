@@ -64,3 +64,7 @@ set_clock_transition $::env(CLOCK_TRANSITION_CONSTRAINT) [all_clocks]
 set_timing_derate -early [expr 1-[expr $::env(TIME_DERATING_CONSTRAINT) / 100.0]]
 set_timing_derate -late [expr 1+[expr $::env(TIME_DERATING_CONSTRAINT) / 100.0]]
 set_propagated_clock [all_clocks]
+
+# ref_36 is a board strap selecting the 32/36 MHz divider table. It is static
+# in operation and may only change while rst_n is asserted.
+set_false_path -from [get_ports ref_36]
