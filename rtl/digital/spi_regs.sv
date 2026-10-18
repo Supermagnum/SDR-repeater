@@ -95,6 +95,25 @@ module spi_regs (
         endcase
     endfunction
 
+    // SPI mode 0: the host samples MISO on the SCLK rising edge, so the
+    // chip changes MISO on the falling edge. Bit 7 goes out on the falling
+    // edge after the last address bit (nbits == 8), bit 0 at nbits == 15.
+    logic [7:0] rd_sh;
+    always_ff @(negedge sclk or negedge rst_n) begin
+        if (!rst_n) begin
+            miso <= 1'b0;
+            rd_sh <= 8'h00;
+        end else if (cs_n) begin
+            miso <= 1'b0;
+        end else if (nbits == 5'd8) begin
+            miso <= rd_byte[7];
+            rd_sh <= {rd_byte[6:0], 1'b0};
+        end else if (nbits > 5'd8 && nbits < 5'd16) begin
+            miso <= rd_sh[7];
+            rd_sh <= {rd_sh[6:0], 1'b0};
+        end
+    end
+
     // A finished frame returns nbits to 0 on the 16th SCLK, while CS
     // is still low. An SCLK edge with CS high also clears the shifter,
     // so an aborted frame does not run into the next one. CS is not an
@@ -105,7 +124,6 @@ module spi_regs (
             shreg <= 16'h0000;
             nbits <= 5'd0;
             rd_byte <= 8'h00;
-            miso <= 1'b0;
             status_s1 <= 8'h00;
             status_s2 <= 8'h00;
             ctrl_q <= CTRL_RST;
@@ -131,17 +149,12 @@ module spi_regs (
             cfg_tog <= 1'b0;
         end else if (cs_n) begin
             nbits <= 5'd0;
-            miso <= 1'b0;
         end else begin
             status_s1 <= status;
             status_s2 <= status_s1;
             shreg <= {shreg[14:0], mosi};
             if (nbits == 5'd7)
                 rd_byte <= read_reg({shreg[5:0], mosi});
-            if (nbits >= 5'd8 && nbits < 5'd16) begin
-                miso <= rd_byte[7];
-                rd_byte <= {rd_byte[6:0], 1'b0};
-            end
             if (nbits == 5'd15) begin
                 if (shreg[14]) begin
                     cfg_tog <= ~cfg_tog;

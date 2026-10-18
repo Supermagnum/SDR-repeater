@@ -43,6 +43,10 @@ async def start(dut, ref_36=0):
     dut.adc_bit_q.value = 0
     dut.adc_i.value = 0
     dut.adc_q.value = 0
+    # Start high, then fall: some simulators (Verilator) start signals at 0
+    # and only run an async-reset branch on a real falling edge.
+    dut.rst_n.value = 1
+    await Timer(1, unit="ns")
     dut.rst_n.value = 0
     await RisingEdge(dut.clk)
     await RisingEdge(dut.clk)
@@ -58,11 +62,12 @@ async def spi_xfer(dut, addr, data, write):
     for bit in range(15, -1, -1):
         dut.mosi.value = (frame >> bit) & 1
         await RisingEdge(dut.clk)
+        if bit < 8:
+            # Mode 0: sample MISO at the SCLK rising edge, as a real host does.
+            miso_bits.append(int(dut.miso.value))
         dut.sclk.value = 1
         await RisingEdge(dut.clk)
         await RisingEdge(dut.clk)
-        if bit < 8:
-            miso_bits.append(int(dut.miso.value))
         dut.sclk.value = 0
         await RisingEdge(dut.clk)
     dut.cs_n.value = 1

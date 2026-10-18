@@ -273,7 +273,6 @@ module fir_seq (
                             if (tx_mode) begin
                                 tx_done <= 1'b1;
                                 active <= 1'b0;
-                                $display("TX ye %0d %0d yo %0d %0d", ye_i, ye_q, yo_i, $signed(ram_dout));
                             end else step <= 6'd60;
                         end else step <= step + 6'd1;
                     end else step <= step + 6'd1;

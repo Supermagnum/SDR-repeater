@@ -32,7 +32,6 @@ module i2s_master (
     logic [5:0]  slot_d;
     logic [10:0] bit_at;
     logic [10:0] sub;
-    logic [5:0]  bitn;
     logic        in_bits;
     logic        right;
     logic [5:0]  in_slot;
@@ -41,7 +40,7 @@ module i2s_master (
 
     always_comb begin
         bit_at = (bit_cell == 3'd4) ? {2'b0, fc[10:2]} : {1'b0, fc[10:1]};
-        sub = (bit_cell == 3'd4) ? {8'b0, fc[1:0]} : {9'b0, fc[0]};
+        sub = (bit_cell == 3'd4) ? {9'b0, fc[1:0]} : {10'b0, fc[0]};
         in_bits = fc < ({5'b0, slot} << (bit_cell == 3'd4 ? 3 : 2));
         // active length = 2 * slot * bit_cell. slot<<1 is the bit count,
         // times bit_cell (2 or 4) is another shift.
@@ -71,7 +70,7 @@ module i2s_master (
                 lrclk <= 1'b0;
                 dout <= 1'b0;
             end else begin
-                bclk <= in_bits && (sub < {8'b0, bit_cell[2:1]});
+                bclk <= in_bits && (sub < {9'b0, bit_cell[2:1]});
                 lrclk <= !(fc == 11'd0 || (in_bits && !right));
                 if (in_bits && sub == 11'd0) begin
                     if (in_slot < 6'd16) begin
