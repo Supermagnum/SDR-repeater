@@ -74,6 +74,9 @@ async def spi_xfer(dut, addr, data, write):
         dut.sclk.value = 0
         await RisingEdge(dut.clk)
     dut.cs_n.value = 1
+    # Raise CS first, then pulse SCLK: changing both at once is a race
+    # (gate level sees the edge before CS), and real hosts never do it.
+    await RisingEdge(dut.clk)
     dut.sclk.value = 1
     await RisingEdge(dut.clk)
     dut.sclk.value = 0
