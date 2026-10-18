@@ -90,7 +90,7 @@ Accepted and documented; LinHT should prefer 100 kHz or 500 kHz.
 - **Limits:** derived in `spec/derived-limits.md` and replace the provisional ones.
 - **Consequences, Phase 3 analog:**
   - harmonic-reject VHF mixer and/or preselector;
-  - LO plan with a VCO at 1.56–2.10 GHz, ÷4 for UHF and ÷12 for VHF;
+  - LO plan with a VCO at 3.12–4.20 GHz, ÷8 for UHF and ÷24 for VHF (as `band_sel` in the RTL);
   - analog anti-alias of ≥ 40 dB at ±8/9 MHz and ≥ 70 dB at ±32/36 MHz;
   - selectable TX reconstruction filter.
 - **Consequences, system:**

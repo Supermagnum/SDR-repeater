@@ -143,15 +143,14 @@ Phase 3 requirement: a harmonic-reject mixer, a switched VHF preselector, or bot
 - It would need about 128 dB of rejection, which no on-chip measure provides.
 - The same applies the other way: the 3rd harmonic of a VHF TX must not land on a UHF RX channel.
 
-### 7.4 LO plan (proposal for the RF engineer)
+### 7.4 LO plan (matches `band_sel` in the RTL)
 
-One VCO at 1.56–2.10 GHz:
-- **UHF:** ÷4 gives 400–525 MHz; the range needed is 1.60–1.92 GHz.
-- **VHF:** ÷12 gives 130–175 MHz. The ÷12 is built as ÷6 then ÷2, so the final ÷2 provides the I/Q quadrature.
+The RTL already defines the divider select: `band_sel` 0 = ÷8 (UHF), 1 = ÷24 (VHF).
+With one VCO at **3.12–4.20 GHz**:
+- **UHF:** ÷8 covers 400–480 MHz from 3.20–3.84 GHz.
+- **VHF:** ÷24 covers 130–175 MHz from 3.12–4.20 GHz. The ÷24 is built as ÷12 then ÷2, so the final ÷2 provides the I/Q quadrature (the same for ÷8 = ÷4 then ÷2).
 
-The 29 % tuning range needs a switched-capacitor bank or two VCO cores.
-
-Alternative: ÷8 for VHF (1.04–1.40 GHz) with a separate VCO.
+The 30 % tuning range needs a switched-capacitor bank or two VCO cores. The divider ratios are the RF engineer's choice; changing them only changes the comment on `band_sel`.
 
 ### 7.5 Other duplex offsets
 
