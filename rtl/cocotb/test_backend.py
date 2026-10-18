@@ -7,18 +7,21 @@ from cocotb.triggers import RisingEdge, FallingEdge, Timer
 RATES_KHZ = [25, 50, 100, 200, 500]
 # (ref_mhz, rate_index) -> (frame clocks, r1, r2, sh1, sh2)
 TABLE = {
-    (32, 0): (1280, 4, 10, 16, 13, 16),
-    (32, 1): (640, 4, 8, 10, 12, 13),
-    (32, 2): (320, 4, 5, 8, 9, 12),
-    (32, 3): (160, 4, 4, 5, 8, 9),
-    (32, 4): (64, 4, 2, 4, 4, 8),
-    (36, 0): (1440, 4, 12, 15, 14, 15),
-    (36, 1): (720, 4, 9, 10, 12, 13),
-    (36, 2): (360, 4, 5, 9, 9, 12),
-    (36, 3): (180, 2, 5, 9, 9, 12),
-    (36, 4): (72, 4, 3, 3, 6, 6),
+    (32, 0): (1280, 4, 10, 16, 8, 13),
+    (32, 1): (640, 4, 8, 10, 7, 10),
+    (32, 2): (320, 4, 5, 8, 4, 9),
+    (32, 3): (160, 4, 4, 5, 3, 6),
+    (32, 4): (64, 4, 2, 4, 0, 4),
+    (36, 0): (1440, 4, 12, 15, 9, 13),
+    (36, 1): (720, 4, 9, 10, 7, 11),
+    (36, 2): (360, 4, 5, 9, 4, 10),
+    (36, 3): (180, 2, 5, 9, 4, 10),
+    (36, 4): (72, 4, 3, 3, 0, 4),
 }
 FRONT = np.array([1, 4, 8, 12, 12, 8, 4, 1], dtype=float)
+# A full-scale 1-bit input (all ones) lands at FS on the output word.
+FS = 16384
+FS_TOL = 64
 HB = np.array([-138, 0, 305, 0, -617, 0, 1128, 0, -1952, 0, 3376, 0,
                -6450, 0, 20688, 32767, 20688, 0, -6450, 0, 3376, 0,
                -1952, 0, 1128, 0, -617, 0, 305, 0, -138], dtype=float)
@@ -266,7 +269,7 @@ async def filter_dc_and_overflow(dut):
     dut.adc_valid.value = 0
     assert len(seen) >= 8, len(seen)
     # Constant +1 through the normalized chain is code 64 at this rate.
-    assert abs(seen[-1] - 64) <= 4, seen[-1]
+    assert abs(seen[-1] - FS) <= FS_TOL, seen[-1]
     dut.adc_bit_i.value = 0
     dut.adc_bit_q.value = 0
     dut.adc_valid.value = 1
@@ -275,7 +278,7 @@ async def filter_dc_and_overflow(dut):
         await RisingEdge(dut.clk)
         if int(dut.cal_v.value):
             full.append(int(dut.cal_i.value.to_signed()))
-    assert abs(full[-1] + 64) <= 4, full[-1]
+    assert abs(full[-1] + FS) <= FS_TOL, full[-1]
 
 
 @cocotb.test()
@@ -458,7 +461,7 @@ async def filter_dc_all_rates(dut):
             if int(dut.cal_v.value):
                 seen.append(int(dut.cal_i.value.to_signed()))
         assert len(seen) >= 8, (ref, rate, len(seen))
-        assert abs(seen[-1] - 64) <= 4, (ref, rate, raw, seen[-1])
+        assert abs(seen[-1] - FS) <= FS_TOL, (ref, rate, raw, seen[-1])
     # The un-normalized gains are not the same. 32 MHz / 500 kHz is the low one.
     assert max(gains) / min(gains) > 1.5, gains
     cocotb.log.info("raw DC gains %s", ["%.4f" % g for g in gains])
@@ -558,7 +561,7 @@ async def rx_chain_ports(dut):
     if word & 0x8000:
         word -= 65536
     assert bits == 16, bits
-    assert abs(word - 64) <= 4, word
+    assert abs(word - FS) <= FS_TOL, word
 
 
 
@@ -599,10 +602,10 @@ async def rx_tone_rtl(dut):
     assert len(out) >= n + skip, len(out)
     seg = np.array(out[skip:skip + n], dtype=float)
     spec = np.abs(np.fft.rfft(seg - seg.mean())) * 2 / n
-    gain_db = 20 * np.log10(spec[k_sig] / (a_sig * 64))
+    gain_db = 20 * np.log10(spec[k_sig] / (a_sig * FS))
     rej_db = 20 * np.log10((spec[k_sig] / a_sig) / (spec[k_alias] / a_int))
     cocotb.log.info(
-        "RX tone %.2f codes, gain %.2f dB vs 64-code full scale, alias rejection %.1f dB, peak %d",
+        "RX tone %.2f codes, gain %.2f dB vs full scale, alias rejection %.1f dB, peak %d",
         spec[k_sig], gain_db, rej_db, int(np.max(np.abs(seg))))
     assert abs(gain_db) <= 1.0, gain_db
     assert rej_db >= ALIAS_LIMIT_DB, rej_db

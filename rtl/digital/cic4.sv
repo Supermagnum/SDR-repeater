@@ -8,7 +8,8 @@
 // Hogenauer pruning. The error budget is half a 16-bit LSB at the
 // output. The last integrator and the comb registers drop the bottom
 // DROP bits. Those bits are below the shift of every rate in the
-// table (the smallest shift is 4), so a residue under 2^DROP changes
+// table (NOTE: since the 2026-10-18 output-scale change the smallest shift is 0,
+// so DROP must stay 0 unless the rate table is revisited), so a residue under 2^DROP changes
 // the output by less than 2^(DROP-shift) LSB. DROP is 2, which is
 // under 0.25 LSB at shift 4 and far under it at the wider shifts.
 // Earlier integrators stay full width: an LSB dropped there is
