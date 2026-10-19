@@ -14,3 +14,5 @@ signoff_*.txt
 rtl/cocotb/test_backend_1j.py
 *.orig
 *.rej
+analog/pn-validation/out/
+analog/pn-validation/out_m*/

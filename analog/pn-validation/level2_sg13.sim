@@ -1,0 +1,44 @@
+Phase-noise validation level 2: SG13G2 cross-coupled NMOS LC oscillator
+
+// Devices: sg13_lv_nmos pair (PSP103 via OSDI, thermal + flicker noise).
+// Tank: ideal 1 nH per side with 1.466 ohm series loss (Q = 15 at 3.5 GHz),
+// 1.8 pF per side to ground. Tail: ideal, noiseless 2 mA. VDD 1.2 V.
+// If the MOS instance line fails, compare it with
+// /foss/tools/vacask/share/doc/vacask/demo/ihp-sg13g2/mos.sim
+
+ground 0
+
+include "sg13g2_vacask_common.lib"
+include "cornerMOSlv.lib" section=mos_tt
+
+load "resistor.osdi"
+load "capacitor.osdi"
+load "inductor.osdi"
+
+model resistor  resistor
+model capacitor capacitor
+model inductor  inductor
+model vsource   vsource
+model isource   isource
+
+vdd  (vdd 0)  vsource dc=1.2
+l1   (vdd lp) inductor  l=1n
+r1   (lp vp)  resistor  r=1.466 noisy=1
+l2   (vdd lm) inductor  l=1n
+r2   (lm vm)  resistor  r=1.466 noisy=1
+c1   (vp 0)   capacitor c=1.8p
+c2   (vm 0)   capacitor c=1.8p
+m1   (vp vm tail 0) sg13_lv_nmos w=20u l=0.13u ng=4
+m2   (vm vp tail 0) sg13_lv_nmos w=20u l=0.13u ng=4
+it   (tail 0) isource dc=2m
+iin  (0 vp)   isource dc=0   // zero-valued, only the gain reference for pnoise
+// Start-up kick, well before the shooting window
+ik   (0 vm) isource type="pulse" val0=0 val1=1m delay=1n rise=50p fall=50p width=200p
+
+control
+  abort always
+  options rawfile="binary" strictsave=1
+  options reltol=1e-7 pss_tolscale=1e-4 pss_minpts=8000
+  save default
+  analysis pn2 pnoise oscillator=1 tper=285.7p tstab=80n maxharm=32 truncharm=16 in="iin" out=["vp", "vm"] outharm=1 values=[1e5, 3e5, 6e5, 1e6, 2e6, 5e6, 1e7, 2e7] writepss=1 writestab=1
+endc

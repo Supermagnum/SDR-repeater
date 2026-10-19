@@ -59,3 +59,18 @@ Every row was read from a live repository API, Docker Hub, PyPI, Codeberg, or a 
 ## Prior-art gap
 
 `IHP-Open-FMD_QNC-Tapeouts` stores each tapeout as a submodule. Those submodules were not checked out. A statement that IHP has no SG13G2 LNA, mixer, VCO, divider, or sigma-delta below 6 GHz would be unsupported.
+
+
+## RF tools checked 2026-10-19 (container `hpretl/iic-osic-tools:2026.10`)
+
+| Tool | Version | Notes |
+|---|---|---|
+| VACASK | `fb8cc20` | `pss`, `pac`, `pnoise`, `hb`, `hbac`, `hbnoise`. SG13G2 models in the PDK (`libs.tech/vacask`, including `vbic_1p3.osdi`). `pnoise` validated (`analog/pn-validation/`). Set `PDK=ihp-sg13g2`, not a full path |
+| ngspice | 47 | `.sp` works; PDK OSDI models `psp103`, `psp103_nqs`, `mosvar`, `r3_cmc`, `cap_cmom*` |
+| Xyce | 7.10 | `.hb` works |
+| OpenVAF-Reloaded | `osdi_0.5_20260820-26-gdd05b5e` | |
+| openEMS (Python) | 0.37.0 | |
+| Palace | in image | The image's pip `gds2palace` is 0.8.0; EM uses the pinned v0.8.2 above |
+| klayout-pex-plugin-palace | 0.1.0 | Not used yet |
+| scikit-rf | 2.1.0 | |
+| `deltasigma` (Python) | — | Not usable with numpy 2 (`np.float`). Σ-Δ synthesis is done with scipy |
