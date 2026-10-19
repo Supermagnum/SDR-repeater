@@ -37,11 +37,54 @@ Inside an LC filter and at SWR 3 (the module's cut-off), voltages and currents c
 | Mini-Circuits LFCN-160+ | LTCC low-pass, 1206 | DC–160 MHz (3 dB at 230 MHz) | Typ. 5.9 dB at 260 MHz, 10.6 at 280, 21.7 at 310; ≥ 20 dB 330–480 MHz **[DS]** | 8 W at 25 °C → 3 W at 100 °C **[DS]** | 2 m 2nd harmonic (288–296 MHz) only ≈ 12–18 dB: **not enough alone**. 175 MHz is outside its passband |
 | Mini-Circuits LFCN-180+ | LTCC low-pass, 1206 | DC–180 MHz (3 dB at 270 MHz) | 7.5 dB at 300 MHz; ≥ 20 dB 370–525 MHz **[DS]** | 8 W at 25 °C → 3 W at 100 °C **[DS]** | 2nd harmonic of 2 m barely touched. Not suitable as the only filter |
 | Mini-Circuits LFCG-180+ | LTCC low-pass, 0805 | DC–180 MHz | ≥ 20 dB 380–800 MHz **[DS]** | 3.5 W at 25 °C **[DS]** | Too little power for 5 W |
-| **Discrete LC (recommended for VHF)** | 5–7-pole elliptic low-pass | 144–148 MHz or 130–175 MHz | Designed for ≥ 50 dB at the 2nd harmonic | Set by the parts | At 5 W: high-Q 0402/0603 C0G capacitors ≥ 100 V and wire-wound or air-core inductors ≥ 1 A. This is what commercial dual-band handhelds do |
+| **Discrete LC (chosen for VHF)** | 7th-order elliptic-type low-pass, 3 traps | 130–175 MHz | ≥ 70 dB from 256 MHz (design below) | Set by the parts | Same values at 5, 20 and 100 W; only the part ratings change. This is what commercial dual-band handhelds do |
 
 Notes for the VHF filter:
-- **Full 130–175 MHz coverage is hard:** the 2nd harmonic of 130 MHz is 260 MHz, only 1.49 × the top of the band. That needs an elliptic (Cauer) filter with notches, or two switched VHF sub-bands. An amateur-only 144–148 MHz filter is much easier.
+- **Full 130–175 MHz coverage (decided):** the 2nd harmonic of 130 MHz is 260 MHz, only 1.49 × the top of the band, so the filter is elliptic with notches — see the design below.
 - The LTCC parts can be a second stage after a discrete filter, or be cascaded, but alone they do not reach the regulatory 2nd-harmonic level.
+
+### VHF harmonic filter, 130–175 MHz (decided 2026-10-19)
+
+Full 130–175 MHz coverage (owner decision). A 7th-order elliptic-type ladder with three traps reaches it with only three inductors:
+
+```
+IN ──┬── L2 ∥ C2 ──┬── L4 ∥ C4 ──┬── L6 ∥ C6 ──┬── OUT
+     C1             C3             C5             C7
+     ⏚              ⏚              ⏚              ⏚
+```
+
+| Part | C1 | L2 ∥ C2 | C3 | L4 ∥ C4 | C5 | L6 ∥ C6 | C7 |
+|---|---|---|---|---|---|---|---|
+| Value | 33 pF | 36 nH ∥ 2.7 pF | 75 pF | 22 nH ∥ 12 pF | 68 pF | 24.5 nH ∥ 15 pF | 27 pF |
+| Trap frequency | — | 511 MHz | — | 309 MHz | — | 263 MHz | — |
+
+Computed with `tools/vhf_lpf_check.py` (ideal parts plus finite Q; no layout parasitics):
+
+| Item | Result |
+|---|---|
+| Passband loss, lossless | ≤ 0.10 dB, 130–175 MHz |
+| Passband loss, inductor Q 100, capacitor Q 500 | 0.37 dB at 130 MHz, 0.44 at 145, 0.57 at 160, 0.94 at 175 MHz |
+| Rejection 256–1200 MHz | ≥ 70.6 dB (2nd harmonic of 130 MHz and up) |
+| ±2 % parts, 300-run Monte Carlo | passband ≤ 0.39 dB, rejection ≥ 65.4 dB (99 % of runs) |
+| Below 128 MHz | not specified (up to about 3 dB loss near 60 MHz) — the filter is only used inside 130–175 MHz |
+
+Worst-case part stress over 130–175 MHz (from the script; current and voltage scale with √P: × 0.447 at 20 W, × 0.224 at 5 W):
+
+| Part | 100 W matched | 100 W, SWR 3 | 20 W, SWR 3 | 5 W, SWR 3 |
+|---|---|---|---|---|
+| C3 75 pF / C5 68 pF | 74 V, 5.6 A | 109 V, 8.9 A | 49 V, 4.0 A | 24 V, 2.0 A |
+| L4 22 nH | 131 V, 5.4 A | 202 V, 8.4 A | 90 V, 3.7 A | 45 V, 1.9 A |
+| L6 24.5 nH | 121 V, 4.5 A | 170 V, 6.3 A | 76 V, 2.8 A | 38 V, 1.4 A |
+| L2 36 nH | 116 V, 2.9 A | 184 V, 4.7 A | 82 V, 2.1 A | 41 V, 1.0 A |
+| C1 / C7 | 78 V, 2.7 A | 111 V, 3.9 A | 50 V, 1.7 A | 25 V, 0.9 A |
+| Trap capacitors | 131 V, 2.0 A | 202 V, 2.8 A | 90 V, 1.3 A | 45 V, 0.6 A |
+
+Part choices by power level:
+
+- **5 W (LinHT, standard module):** high-Q C0G capacitors, 0603 or larger, ≥ 100 V, rated ≥ 2 A RF at 150 MHz; air-core or high-current wire-wound inductors ≥ 2 A. Check each part's RF current rating.
+- **20 W:** porcelain capacitors (ATC 100B, 500 WVDC); air-core inductors rated ≥ 4 A. The Coilcraft Maxi Spring series starts at 90 nH, so the 22–36 nH coils are a smaller air-core series or hand-wound.
+- **100 W (external amplifier):** voltages are well inside the 100B limit (354 V rms at 500 WVDC), but the shunt capacitors carry up to 8.9 A at SWR 3. The 100B is rated for 3 W dissipation (65 °C mounting surface, 20 °C/W), so a single 100B at that position needs ESR ≤ 0.038 Ω at 150 MHz (≤ 0.10 Ω when matched). Use two 100B in parallel per shunt position, or the larger 100C / 100E, until the ESR has been read from the 100B datasheet chart. Inductors: heavy-wire air-core coils rated ≥ 9 A, or lower the SWR cut-off from 3 to 2 at 100 W.
+- **Loss and heat:** at 1 dB loss, a 100 W filter dissipates about 20 W, mostly in the inductors. Inductor Q above 200 at 175 MHz halves that.
 
 ### Dual-band LinHT, PA side
 
@@ -69,8 +112,10 @@ A 100 W PA does not fit on the Eurocard module: at about 40 % efficiency it draw
 
 | Part | Type | Range | Power | Supply / control | Notes |
 |---|---|---|---|---|---|
-| MACOM MSW2030-203 | PIN SPDT | 20 MHz–1 GHz | 100 W CW (+50 dBm) **[DS]** | 5 V **and 28–125 V**; ≈ 100 mA series / 25 mA shunt forward current; MADR-010574 driver; 4 control lines **[DS]** | 8 × 5 × 2.5 mm. No margin at 100 W. The sister part MSW2031 needs 110 V reverse bias at 200 MHz for 125 W, so expect the top of the range at VHF |
-| **MACOM MSW2040-204, MSW2050-205, MSW2022-202** | PIN SPDT | 50 MHz–1 GHz | +52 dBm (~160 W) **[DIST]** | High-voltage bias as above (not checked) | **Best SPDT candidates for 100 W** |
+| MACOM MSW2030-203 | PIN SPDT | 20 MHz–1 GHz | 100 W CW (+50 dBm) **[DS]** | 5 V **and 28–125 V**; ≈ 100 mA series / 25 mA shunt forward current; MADR-010574 driver; 4 control lines **[DS]** | 8 × 5 × 2.5 mm. No margin at 100 W |
+| **MACOM MSW2040-204** | PIN SPDT, **symmetrical** (either throw takes full power) | 50 MHz–1 GHz | +52 dBm CW (+51 dBm abs. max at 85 °C) **[DS]** | 5 V and 28–125 V; ≈ 150 mA series / 25 mA shunt; MADR-010574 driver at 120 V **[DS]** | **Band-path switch for 100 W.** 0.2 dB loss, ≥ 47 dB isolation, IIP3 +65 dBm; 6 W total dissipation at 85 °C |
+| **MACOM MSW2050-205** | PIN SPDT, asymmetrical | 50 MHz–1 GHz | TX/antenna +52 dBm, **RX throw +43 dBm** **[DS]** | 5 V and 28–125 V (up to 200 V reverse) **[DS]** | **T/R switch for 100 W** (RX throw never sees PA power) |
+| MACOM MSW2022-202 | PIN SPDT | 50 MHz–1 GHz | +52 dBm **[DIST]** | Not checked | Alternative |
 | MACOM MSW3100-310 | PIN SP3T | 50 MHz–1 GHz | +57 dBm **[DIST]** | High-voltage bias | Large margin |
 | MACOM MASW-011030 | PIN SP3T | 30 MHz–3 GHz | 100 W CW at +85 °C base plate **[DIST]** | Not stated | 7 mm HQFN-16 |
 | Microsemi MPS2R10-606 | SPDT | 100 MHz–1 GHz | 100 W CW **[NEWS]** | Analogue control voltage | 0.2 dB loss, 55 dB isolation at 500 MHz; check availability |
@@ -81,11 +126,15 @@ No SOI or MEMS switch found for 100 W CW at VHF; they stop at about 20–25 W.
 
 **PIN switches need a 28–125 V bias rail and a driver.** The backplane has no such rail, so the amplifier unit needs its own boost converter plus MADR-010574-type drivers.
 
+**Reverse bias at VHF (MSW2040 / MSW2050 datasheets, 125 W CW, 1.5:1 VSWR) [DS]:** 125 V at 20 and 100 MHz, 85 V at 200 MHz, 55 V at 400 MHz, 28 V at 1 GHz. At 130–175 MHz plan for a **125 V** rail (the MADR-010574 application circuit uses 120 V); 70 cm alone would need about 55 V.
+
+**Availability (2026-10-19):** MACOM lists the MSW2040-204 and MSW2050-205 for order and samples; RFMW lists them as "Standard", price on request, no stock shown. No lifecycle notice found. Get a quote before committing.
+
 ### Filters
 
 - **LTCC surface-mount filters stop at about 10 W** (Mini-Circuits LFHK-1000+: 10 W at 25 °C, 1.5 W at 125 °C **[DS]**). Not usable at 100 W.
 - **Discrete LC:**
-  - Capacitors: Kyocera-AVX (ATC) **100B** porcelain, 0.1–1000 pF, mostly 500 WVDC, some to 1500 V **[DS]**; **100E** (0.38" case), 1–5100 pF, mostly 3600 WVDC **[DS]**. RF current limits are in the datasheet charts; check per value.
+  - Capacitors: Kyocera-AVX (ATC) **100B** porcelain, 0.1–1000 pF, mostly 500 WVDC, some to 1500 V **[DS]**; **100E** (0.38" case), 1–5100 pF, mostly 3600 WVDC **[DS]**. 100B current rating basis: 65 °C mounting surface, 20 °C/W, 3 W dissipation → 125 °C case **[DS]**; the A-rms values are only in the datasheet charts. Required ratings for the VHF filter are in the design section above.
   - Inductors: Coilcraft **Maxi Spring 132-xxSM** air-core, 90–538 nH, 2.0–3.5 A rms (15 °C rise), Q ≈ 104–114 at 50 MHz, SRF 490–1140 MHz **[DS]**. Suitable for 2 m; 70 cm needs smaller air-core coils (current not checked).
 - **External dual-band diplexer:** example 2 m / 70 cm high-power diplexer, 750 W, 144–148 / 430–450 MHz, 0.04 / 0.07 dB loss, ≥ 75 dB isolation, 1 kg, €249 **[DIST]**. Each band still needs its own harmonic filter before it, because the 70 cm arm passes the 3rd harmonic of 2 m.
 
@@ -93,10 +142,11 @@ No SOI or MEMS switch found for 100 W CW at VHF; they stop at about 20–25 W.
 
 ## Open checks
 
-1. Full MACOM datasheets for the +52 dBm SPDTs: reverse bias needed at 150 MHz, forward current, availability.
-2. RF current ratings of the 100B / 100E capacitors at the filter's values.
+1. ~~MACOM reverse bias and availability~~ — done: 125 V at VHF; orderable, quote needed.
+2. **100B ESR at 150 MHz** from the datasheet chart (the text versions do not carry the chart values). Until then: two 100B in parallel, or 100C / 100E, at the 100 W shunt positions.
 3. SKY13330 at 6 W (GRF5604 Psat): only if the LinHT can drive the PA into saturation.
-4. VHF filter: decide 144–148 MHz only, or full 130–175 MHz (elliptic or two sub-bands).
+4. ~~VHF filter range~~ — full 130–175 MHz, design above.
+5. Build and measure the VHF filter (layout parasitics shift the traps; tune C2, C4, C6).
 
 ## Sources
 
@@ -112,6 +162,11 @@ No SOI or MEMS switch found for 100 W CW at VHF; they stop at about 20–25 W.
 - Mini-Circuits LFHK-1000+: https://minicircuits.com/pdfs/LFHK-1000+.pdf
 - MACOM MSW2030-203: https://www.macom.com/products/product-detail/MSW2030-203
 - MACOM MSW203x datasheet: https://cdn.macom.com/datasheets/MSW203x-203.pdf
+- MACOM MSW204x datasheet: https://shop.richardsonrfpd.com/docs/rfpd/msw204x-204.pdf
+- MACOM MSW205x datasheet: https://www.mouser.com/datasheet/2/249/MSW205x_205-1921645.pdf
+- MACOM MSW2040-204: https://www.macom.com/products/product-detail/MSW2040-204
+- RFMW MSW2050-205: https://rfmw.com/products/detail/msw2050205-macom-metelics/403388/
+- ATC 100B datasheet: https://shop.richardsonrfpd.com/docs/rfpd/100b.pdf
 - MACOM MASW-011030: https://www.mouser.in/en/new/macom/macom-masw-011030-switch/
 - RFMW high-power switch list: https://www.rfmw.com/userewavepreview.aspx?promo=305
 - RFuW MSW2T-200501-150: https://rfmw.com/products/detail/msw2t200501150-rfuw/618057/

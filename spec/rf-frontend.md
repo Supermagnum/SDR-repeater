@@ -36,10 +36,10 @@ SX1255 pinout `[DS]`, LinHT use `[SCH]`, and the proposed RFIC function.
 | 4, 7, 26, 28, 31 | GND | GND | GND |
 | 5 | VR_DIG | 100 nF | 1.2 V digital core regulator decoupling |
 | 6 | XTA | n.c. | Crystal option / n.c. with TCXO |
-| 8 | XTB | TCXO_CLK (32 MHz) | Reference input (`clk`); `ref_36` set by register or strap — see open item 3 |
+| 8 | XTB | TCXO_CLK (32 MHz) | Reference input (`clk`); 32 or 36 MHz per the `ref_36` strap on pin 11 |
 | 9 | RESET | RF_RST from the SoC (100 Ω) | **Active-high** reset, as the SX1255: floating = run, pulled high ≥ 100 µs = reset `[DS]`. Internal pull-down; inverted to `rst_n` and ORed with the on-chip power-on reset |
 | 10 | CLK_OUT | I2S_CLK | I2S BCLK (master) / BCLK in (slave) |
-| 11 | CLK_IN | n.c. | Spare (test / slave clock) |
+| 11 | CLK_IN | n.c. | **`ref_36` strap**: sampled while RESET is active; internal pull-down, so n.c. = 32 MHz (LinHT). High = 36 MHz |
 | 12 | Q_IN | n.c. | Spare |
 | 13 | I_IN | I2S data to chip | I2S data in (TX IQ) |
 | 14 | Q_OUT | n.c. | Spare (`valid_iq`) |
@@ -47,9 +47,9 @@ SX1255 pinout `[DS]`, LinHT use `[SCH]`, and the proposed RFIC function.
 | 16, 32 | VBAT2, VBAT3 | +3V3 | Supply |
 | 17–20 | SCK, MISO, MOSI, NSS | SPI | SPI (unchanged frame format) |
 | 21 | DIO0 | n.c. | `clk_req` |
-| 22 | DIO1 | n.c. | `band_sel` monitor / spare |
+| 22 | DIO1 | n.c. | **IRQ out**, active-low (PLL unlock, AGC, RSSI), enabled by register; repeater backplane c1 |
 | 23 | DIO2 | I2S_WS | I2S word select (LRCLK) |
-| 24 | DIO3 | n.c. | Spare / test |
+| 24 | DIO3 | n.c. | **PTT gate in**, internal pull-down; ignored unless `ptt_pin_en` is set (default: TX over SPI only, as the SX1255); repeater backplane c2 |
 | 25 | VR_ANA2 | 100 nF | Second analogue regulator decoupling (TX/DAC) |
 | 27 | RF_IN | L-match → 2× PE4312 | **RX input**, single-ended 50 Ω, 130–175 and 400–480 MHz |
 | 29 | RF_ON | 27 pF to GND | **TX output −** (AC-grounded on LinHT) |
@@ -167,7 +167,7 @@ The study that confirms or moves these numbers is "tier 2" in the plan: Σ-Δ AD
 
 **Repeater RF modules:**
 - One band per module: one PA match, one harmonic filter, one RX match.
-- RX and TX on separate RFICs sharing one reference (`[DER]`); cavity duplexer; optional external LNA (section 3).
+- RX and TX on separate RFICs sharing one reference (`[DER]`), **on one duplex module in one slot** (TX RFIC as I2S slave; `docs/RF-modules.md` §7.1); cavity duplexer; optional external LNA (section 3).
 - 25 W needs a PA stage after the GRF5604 (6 W max).
 
 ---
@@ -185,9 +185,9 @@ The study that confirms or moves these numbers is "tier 2" in the plan: Σ-Δ AD
 
 1. ~~Option P or N~~ — **P**, decided 2026-10-19.
 2. ~~LinHT IQ rate~~ — 500 kSa/s, 16-bit I/Q as L/R (M17 project blog, 2025-09-30). Matches the chip's maximum rate. The host needs an `sx1255-spi` equivalent for the new register map.
-3. **`ref_36` on Option P:** no spare strap pin is defined; use a register bit applied under reset, or DIO3.
+3. ~~`ref_36` on Option P~~ — pin 11 (CLK_IN) strap, sampled at reset, pull-down = 32 MHz (decided 2026-10-19). DIO1 = IRQ and DIO3 = PTT gate decided at the same time.
 4. ~~Reset polarity~~ — active-high, floating in normal operation (SX1255 datasheet §6.2; owner confirms the LinHT pulls it high to reset). Needs an internal pull-down, an inverter to `rst_n`, and an on-chip POR (section 6).
-5. **I2S alignment and master/slave on the LinHT.** ALSA reads the stream as ordinary stereo I2S, which suggests the i.MX93 SAI uses the standard (Philips) format that the chip implements, with the transceiver as clock master. Confirm in the LinHT device tree (SAI `dai-format`, `bitclock-master`) before the pin-map RTL change.
+5. ~~I2S alignment and master/slave on the LinHT~~ — confirmed in `meta-linht-hardware` (`sbc-mcm-imx93.dtsi`, read 2026-10-19): simple-audio-card `format = "i2s"`, `bitclock-master` and `frame-master` = the SX1255 on both the RX and TX links; SAI1 on TX_BCLK, TX_SYNC, TXD0, RXD0. Philips I2S with the transceiver as master — the chip's default.
 6. **Reference-spur requirement** for the PLL (derive in `spec/derived-limits.md`).
 7. ~~Repeater module RX~~ — attenuators as baseline, LNA allowed as a module-designer option (decided 2026-10-19). `spec/derived-limits.md` §8 updated.
 8. Confirm the SX1255 datasheet values marked `[DS]` that were read from extracted text (NF and IIP3 columns).

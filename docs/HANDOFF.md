@@ -26,7 +26,7 @@ The only layout today is the **digital block**. It contains no RF circuitry.
 
 - **Frequency coverage:** **130–175 MHz** and **400–480 MHz** (2 m, 70 cm, land mobile, PMR446) on one single-chain die; band selected per module/handheld. 23 cm deferred.
 - **LO plan:** one VCO at **3.12–4.20 GHz** (30 % tuning: switched-capacitor bank or two cores); UHF ÷8, VHF ÷24; quadrature from the final ÷2. `band_sel` output: 0 = ÷8, 1 = ÷24.
-- **Reference:** 32 MHz or 36 MHz (`ref_36` board strap). Every output rate (25, 50, 100, 200, 500 kHz) is an exact integer ratio. The host picks the clock per channel so no clock harmonic sits on the channel (32 MHz for 2 m / 70 cm; 36 MHz for PMR446 and near 160 / 416 / 448 MHz) — table in `spec/derived-limits.md` §7.2.
+- **Reference:** 32 MHz or 36 MHz (`ref_36` strap on pin 11, CLK_IN, sampled at reset; internal pull-down = 32 MHz). Every output rate (25, 50, 100, 200, 500 kHz) is an exact integer ratio. The host picks the clock per channel so no clock harmonic sits on the channel (32 MHz for 2 m / 70 cm; 36 MHz for PMR446 and near 160 / 416 / 448 MHz) — table in `spec/derived-limits.md` §7.2.
 - **IQ interface:** Philips I2S, continuous BCLK. RFIC is **master** by default; slave mode through a **4-deep** async FIFO. Maximum IQ rate 500 kHz. The LinHT runs at 32 MHz and uses 500 kSa/s (16-bit I/Q as left/right), every rate there has a 50 % BCLK duty. Boards on 36 MHz should prefer 100 or 500 kHz (36 MHz / 200 kHz has a 40/60 BCLK duty).
 - **Calibration:** DC and IQ correction are done **by the host** (decision (a), 2026-10-18). The chip delivers the half-band output word.
 - **Repeater sites:** RX and TX share one antenna through an external cavity duplexer. A full-duplex repeater uses one RFIC for RX and one for TX (the shared filter engine makes one chip half-duplex). Norwegian offsets: 600 kHz (2 m), 2 MHz (70 cm). The repeater must keep the channel at DC (zero-IF): the own-TX blocker aliases onto the channel and is removed only by the CIC nulls. The repeater RX front end defaults to the same 2× PE4312 attenuators as the LinHT (system NF ≈ 8 dB); a module designer may use an external LNA instead (≈ 5 dB).
@@ -180,7 +180,7 @@ Clock period 27.778 ns (36 MHz), setup uncertainty 0.25 ns, hold uncertainty 0.0
 
 1. **Human Phase 1 review gate.** All automated checks pass; approval is a human decision.
 2. **Lint:** LibreLane reports 106 lint warnings (its own Verilator flags and file set). The changed modules are clean under `verilator -Wall`, but the 106 have not been triaged one by one.
-3. **`ref_36`:** declared a false path (static board strap). Confirm in the spec that it may only change under reset.
+3. **`ref_36`:** declared a false path (static board strap). Confirmed in `spec/rf-frontend.md` §2: a pin-11 strap sampled at reset, so it only changes under reset. RTL change pending (with the Option P pin map).
 4. **Register map** is proposed, not frozen. Freeze at the review gate.
 5. **Area target:** 0.34 mm² real cell area is met (0.335). The original 0.30 mm² is not reachable without removing functions (`decisions.md` 2026-10-18).
 6. **Hold margin:** +0.097 ns at the fast corner; the 0.08 ns guard in `check_signoff.py` catches any regression. Re-check after every change.

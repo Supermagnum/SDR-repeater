@@ -79,10 +79,12 @@ All paths below use the `ipc://` scheme. The daemon **binds** PUB sockets; consu
 | `ipc:///run/ht-module/iq_B` | PUB | daemon | RX IQ -> consumers | Binary IQ frame |
 | `ipc:///run/ht-module/iq_C` | PUB | daemon | RX IQ -> consumers | Binary IQ frame |
 | `ipc:///run/ht-module/iq_D` | PUB | daemon | RX IQ -> consumers | Binary IQ frame |
+| `ipc:///run/ht-module/iq_E` | PUB | daemon | RX IQ -> consumers | Binary IQ frame |
 | `ipc:///run/ht-module/tx_A` | SUB | daemon | consumers -> TX IQ | Binary IQ frame |
 | `ipc:///run/ht-module/tx_B` | SUB | daemon | consumers -> TX IQ | Binary IQ frame |
 | `ipc:///run/ht-module/tx_C` | SUB | daemon | consumers -> TX IQ | Binary IQ frame |
 | `ipc:///run/ht-module/tx_D` | SUB | daemon | consumers -> TX IQ | Binary IQ frame |
+| `ipc:///run/ht-module/tx_E` | SUB | daemon | consumers -> TX IQ | Binary IQ frame |
 | `ipc:///run/ht-module/ctrl` | REQ/REP | daemon (REP) | client <-> daemon | ASCII command / reply ([Section 4](#4-control-plane-ctrl)) |
 | `ipc:///run/ht-module/status` | PUB | daemon | telemetry -> consumers | UTF-8 JSON ([Section 5](#5-telemetry-status)) |
 
@@ -118,7 +120,7 @@ Only **populated** slots have sockets; empty slots have no `iq_*` / `tx_*` endpo
 | Offset | Size | Field | Type | Description |
 |--------|------|-------|------|-------------|
 | 0 | 8 | `timestamp_ns` | `uint64` LE | GNSS-disciplined UTC-related time (nanoseconds) |
-| 8 | 4 | `module_id` | `uint32` LE | `0` = A, `1` = B, `2` = C, `3` = D |
+| 8 | 4 | `module_id` | `uint32` LE | `0` = A, `1` = B, `2` = C, `3` = D, `4` = E |
 | 12 | 4 | `sample_count` | `uint32` LE | Number of **complex** samples (pairs) in this message |
 | 16 | `sample_count * 4` | `iq[]` | int16[I], int16[Q] ... | Interleaved I/Q |
 
@@ -177,6 +179,7 @@ commands and IQ sockets still use **`B`** and **`C`** individually.
 | `B` | Slot B |
 | `C` | Slot C |
 | `D` | Slot D |
+| `E` | Slot E |
 | `all` | Every populated slot (only where noted) |
 
 The module's band (`2m`, `70cm`, `23cm`, …) is read from EEPROM at startup and reported

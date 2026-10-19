@@ -1,7 +1,7 @@
 # SDR Repeater — RF Module and RFIC Specification
 
 **Document:** Module RF Hardware Design Specification  
-**Revision:** 0.4.1  
+**Revision:** 0.4.2  
 **Date:** October 2026  
 **Relates to:** SDR Multiband Repeater System Design v1.9  
 
@@ -10,6 +10,8 @@
 **Change summary (r0.3 → r0.4):** HT13G-M is now **one band-switched chain** (130–175 MHz and 400–480 MHz) on an **SX1255-compatible pin-out**, so the same chip is a drop-in for the LinHT. TX output is **−5 dBm** (was 0 dBm) into a GRF5604 driver. The RFIC reset is **active-high with an on-chip power-on reset**; the backplane keeps `RFIC_RESET_N` and the module inverts it. **DC-offset and IQ-imbalance correction moved to the host.** Reference 32 or 36 MHz. **Attenuators are the default RX front end**; the external LNA is optional. A same-band repeater needs **separate RX and TX RFICs**. Backplane pin c5 (`ANT_SW`) is now **VHF/UHF band-path select**. The host side of the backplane is the ECP5 interface card in the Milk-V Megrez (host as secondary platform). The MPW submission plan is replaced by "no fabrication in this phase". HT13G-S (23 cm) is deferred and not updated.
 
 **Change (r0.4 → r0.4.1):** T/R switch corrected — the SKY13351 (about 1 W) is replaced by the PE42820 (5 W variant) and a PIN-diode switch (20 W variant). Filter-part limits added. Parts survey for 5 W, 20 W and 100 W in [rf-switches-and-filters.md](rf-switches-and-filters.md).
+
+**Change (r0.4.1 → r0.4.2):** Interface open items closed: `ref_36` strap on pin 11, hardware PTT gate on DIO3 (backplane c2), IRQ on DIO1 (backplane c1), LinHT I2S format confirmed. A same-band repeater is **one duplex module** with two RFICs. Five slots, A–E. VHF harmonic filter for full 130–175 MHz in [docs/rf-switches-and-filters.md](rf-switches-and-filters.md).
 
 **Earlier change (r0.2 → r0.3):** PA output power updated to 5 W standard / 20 W maximum across all bands. PA candidate parts, harmonic filter component ratings, +12 V PA rail current budget, duty cycle firmware limit, and risk register updated accordingly.
 
@@ -39,14 +41,14 @@
 
 ## 1. Design Context and Rationale
 
-The repeater system described in the companion document uses up to four pluggable radio modules on a 3U Eurocard backplane (IEC 60297), in slots **A** through **D**. Each slot has a fixed **module address** (letter). The band a module covers comes from the module PCB and EEPROM, not from the slot letter — two slots can hold the same band (for example 70 cm in B and 70 cm in C).
+The repeater system described in the companion document uses up to five pluggable radio modules on a 3U Eurocard backplane (IEC 60297), in slots **A** through **E**. Each slot has a fixed **module address** (letter). The band a module covers comes from the module PCB and EEPROM, not from the slot letter — two slots can hold the same band (for example 70 cm in B and 70 cm in C).
 
 Example default install:
 
 - Slot A — 2 metre: 144–146 MHz, 500 kHz IQ bandwidth, 5 W TX standard / 20 W TX maximum
 - Slot B — 70 cm: 432–438 MHz, 500 kHz IQ bandwidth, 5 W TX standard / 20 W TX maximum
 - Slot C — 23 cm: 1240–1258 MHz, 500 kHz IQ bandwidth, 5 W TX standard / 20 W TX maximum (or a second 70 cm link module)
-- Slot D — spare or expansion
+- Slots D and E — spare or expansion
 
 Each module is a self-contained PCB that plugs into a DIN 41612 Eurocard connector slot on the backplane. It carries its own RFIC, RF front end, power amplifier, band-pass filter, T/R switch (or duplexer ports, Section 7.1), variable attenuators, SWR bridge, and optionally an external LNA. IQ data is transported digitally over the backplane data bus. The default antenna interface is front-panel **RP-SMA**; optional **Type-N** jacks are preferred where panel space and the site coax plan allow (see [Section 9.6](#96-antenna-connector-options-rp-sma-or-type-n)).
 
@@ -266,7 +268,10 @@ The open-source phase-noise simulation (VACASK `pnoise`) used for the VCO has be
 | 9 | RESET | **Active-high** reset, internal pull-down; ORed with the on-chip power-on reset |
 | 8 | XTB | 32 or 36 MHz reference input |
 | 21 | DIO0 | `clk_req` |
-| 22, 24, 11, 12, 14 | DIO1, DIO3, CLK_IN, Q_IN, Q_OUT | Spare / test |
+| 11 | CLK_IN | **`ref_36` strap:** sampled while RESET is active, internal pull-down. Low / open = 32 MHz (LinHT, pin not connected), high = 36 MHz. Read back in a status bit |
+| 22 | DIO1 | **IRQ out**, active-low (PLL unlock, AGC threshold, RSSI update), enabled by register; idle as the SX1255 DIO default |
+| 24 | DIO3 | **PTT gate in**, internal pull-down. Ignored unless the register bit `ptt_pin_en` is set (default off: TX over SPI only, as the SX1255); when set, TX runs only while SPI selects TX **and** this pin is high |
+| 12, 14 | Q_IN, Q_OUT | Spare / test |
 
 I2S is Philips format with a continuous bit clock. The RFIC is **master** by default; slave mode goes through a 4-deep asynchronous FIFO. At 500 kSa/s and 32 MHz the bit clock is 16 MHz (32 bit clocks per frame, 50 % duty). Full pin map: [spec/rf-frontend.md](../spec/rf-frontend.md) §2.
 
@@ -298,9 +303,9 @@ The digital I/O runs at the chip supply (2.7–3.6 V), as on the SX1255; there i
 
 ### 5.9 Open Items (interface)
 
-1. **`ref_36` on the SX1255 pin-out:** no spare strap pin; register bit applied under reset, or DIO3.
-2. **Backplane PTT (c2) and RFIC_IRQ_N (c1):** r0.3 had RFIC pins for both; the SX1255 pin-out has neither. TX is enabled over SPI. Whether c2 and c1 use spare DIO pins (e.g. DIO3 / DIO1) or serve only the module's own interlock and status logic is open.
-3. **I2S format on the LinHT:** confirm in the LinHT device tree that the i.MX93 SAI runs standard I2S with the transceiver as clock master.
+1. ~~`ref_36`~~ — strap on pin 11 (CLK_IN), sampled at reset, pull-down = 32 MHz (decided 2026-10-19). Changing it needs a reset, which matches the static false path in timing.
+2. ~~Backplane PTT (c2) and RFIC_IRQ_N (c1)~~ — c2 → DIO3 as a hardware PTT gate (off by default), c1 ← DIO1 as IRQ (decided 2026-10-19). Small RTL change, together with the other Option P pin-map changes.
+3. ~~I2S format on the LinHT~~ — confirmed from the LinHT Yocto layer (`meta-linht-hardware`, `sbc-mcm-imx93.dtsi`): `format = "i2s"`, `bitclock-master` and `frame-master` = the SX1255 on both the RX and the TX link; SAI1 uses TX_BCLK, TX_SYNC, TXD0 and RXD0. That is the chip's default (Philips I2S, RFIC master).
 
 ## 6. HT13G-S RFIC — 23 cm Module
 
@@ -411,7 +416,16 @@ ANT ── cavity duplexer (external, at the site)
           └── TX port ── SWR bridge ── harmonic filter ── PA (GRF5604 driver + final) ── HT13G-M (TX)
 ```
 
-Whether both RFICs sit on **one duplex module** (two front-panel ports) or on **an RX module and a TX module in two slots** (one port each, as Section 9.6 assumes) is open.
+**Decided 2026-10-19: one duplex module per repeater, in one slot.**
+
+- Both RFICs share the module's reference oscillator.
+- **I2S:** the RX RFIC is master on the slot's I2S port (BCLK, LRCLK, DOUT); the TX RFIC runs as slave on the same BCLK/LRCLK and takes DIN. One slot, one I2S port, no backplane change.
+- **SPI:** RX RFIC on `SPI_CS_N` (b4), TX RFIC on `SPI_CS_ADC_N` (b5). The SWR ADC on a duplex module is therefore the I²C variant (ADS1015).
+- **PTT (c2)** gates the TX RFIC; there is no T/R switch. `TR_SW` (c3) is unused.
+- **Front panel:** two ports, RX and TX, to the site's cavity duplexer.
+- **Software:** unchanged — `iq_X` carries the RX RFIC's stream and `tx_X` feeds the TX RFIC of the same slot.
+- **Identity:** MOD_ID gives the band as before; the EEPROM module type says duplex (Section 9.5).
+- Five slots therefore hold up to five repeaters, or a mix with simplex link modules.
 
 **B. Simplex, half-duplex link or cross-band module** (and the LinHT): one RFIC and a T/R switch.
 
@@ -621,7 +635,7 @@ A 7-element Chebyshev band-pass filter is placed between the PA output and the S
 
 > **Rating note:** At 20 W into 50 Ω the peak voltage across filter components is approximately 45 V and peak current approximately 900 mA. Capacitors rated at 30 V (adequate for 5 W) are insufficient at 20 W — 100 V rated parts are required. Inductors must be rated above 2 A with adequate core saturation margin. Verify component ratings at the selected 20 W PA output level before assembly.
 
-> **Parts note:** surface-mount LTCC filters (Mini-Circuits LFCN, LFHK) are rated about 8–10 W at 25 °C, falling with temperature, so they suit only the 5 W level; the 20 W filter is discrete LC. On VHF the LFCN-160+ and LFCN-180+ reject the 2 m 2nd harmonic by only about 7–18 dB, so the VHF filter is a discrete elliptic design. Full 130–175 MHz coverage needs notches or two switched sub-bands, because 2 × 130 MHz = 260 MHz is only 1.49 × 175 MHz. See [rf-switches-and-filters.md](rf-switches-and-filters.md).
+> **Parts note:** surface-mount LTCC filters (Mini-Circuits LFCN, LFHK) are rated about 8–10 W at 25 °C, falling with temperature, so they suit only the 5 W level; the 20 W filter is discrete LC. On VHF the LFCN-160+ and LFCN-180+ reject the 2 m 2nd harmonic by only about 7–18 dB, so the VHF filter is a discrete elliptic design. Full 130–175 MHz coverage is decided (2026-10-19): a 7th-order elliptic-type filter with three traps (33 pF, 36 nH ∥ 2.7 pF, 75 pF, 22 nH ∥ 12 pF, 68 pF, 24.5 nH ∥ 15 pF, 27 pF), ≥ 70 dB from 256 MHz; values, part stress per power level and `tools/vhf_lpf_check.py` in [docs/rf-switches-and-filters.md](rf-switches-and-filters.md).
 
 ---
 
@@ -813,12 +827,12 @@ Columns 1–8 carry power (low-current), SPI, and GPIO. Columns 9–16 carry I²
 | b2 | SPI_MOSI | In | SPI data from the host to RFIC and SWR ADC |
 | b3 | SPI_MISO | Out | SPI data from RFIC / SWR ADC to the host (tri-state when CS inactive) |
 | b4 | SPI_CS_N | In | Active-low chip select for RFIC (unique per module) |
-| b5 | SPI_CS_ADC_N | In | Active-low chip select for SWR ADC (unique per module; NC if I²C ADC variant fitted) |
+| b5 | SPI_CS_ADC_N | In | Active-low chip select for SWR ADC (unique per module; NC if I²C ADC variant fitted). On a **duplex module**: chip select of the TX RFIC (SWR ADC is then the I²C variant) |
 | b6 | ATT_LE | In | Attenuator latch enable (PE4312 parallel mode LE pin) |
 | b7 | RFIC_RESET_N | In | Active-low module reset from the host. 100 kΩ pull-down on the module (reset held until the host drives it high); **inverted on the module** to the RFIC's active-high RESET (pin 9) |
 | b8 | GND | — | Ground |
-| c1 | RFIC_IRQ_N | Out | Active-low IRQ: PLL unlock, AGC threshold, RSSI update (RFIC source pin open — Section 5.9) |
-| c2 | PTT | In | TX enable from the host (step 1 in PTT sequence; RFIC TX itself is enabled over SPI — Section 5.9) |
+| c1 | RFIC_IRQ_N | Out | Active-low IRQ: PLL unlock, AGC threshold, RSSI update. From RFIC DIO1 through an open-drain buffer on the module (on a duplex module, both RFICs' DIO1 wired-OR) |
+| c2 | PTT | In | TX enable from the host (step 1 in PTT sequence). To RFIC DIO3 (hardware PTT gate, active when `ptt_pin_en` is set) through the level translator; the RFIC is also set to TX over SPI |
 | c3 | TR_SW | In | T/R switch control from the host (step 2 in PTT sequence) |
 | c4 | PA_EN | In | PA enable from the host (step 3, after 1 ms delay) |
 | c5 | ANT_SW | In | VHF/UHF band-path select on dual-band modules: high = VHF, low = UHF; 100 kΩ pull-down on module; NC on fixed-band modules (see Section 7.3, Band-path switch) |
@@ -866,7 +880,7 @@ Each module carries a small I²C EEPROM (24C02 or equivalent, 256 bytes) at a un
 
 | Byte offset | Content |
 |-------------|---------|
-| 0x00–0x01 | Module type (0x0001 = 2 m, 0x0002 = 70 cm, 0x0003 = 23 cm, 0x0004 = dual-band 2 m / 70 cm) |
+| 0x00–0x01 | Module type (0x0001 = 2 m, 0x0002 = 70 cm, 0x0003 = 23 cm, 0x0004 = dual-band 2 m / 70 cm, 0x0005 = 2 m duplex, 0x0006 = 70 cm duplex) |
 | 0x02–0x03 | Hardware revision |
 | 0x04–0x13 | Serial number (16 ASCII bytes) |
 | 0x14–0x15 | PA level variant (0x0001 = 5 W standard, 0x0002 = 20 W maximum) |
@@ -880,7 +894,7 @@ The `ht-module-daemon` reads this EEPROM at startup to identify each installed m
 
 ### 9.6 Antenna connector options — RP-SMA or Type-N
 
-Analog RF leaves the module T/R switch through one front-panel coax jack. The PCB layout supports **RP-SMA** (default) or **Type-N** on the same 50 Ω microstrip land. This choice affects only the faceplate RF port.
+Analog RF leaves the module T/R switch through one front-panel coax jack (a duplex module has two: RX and TX, to the cavity duplexer). The PCB layout supports **RP-SMA** (default) or **Type-N** on the same 50 Ω microstrip land. This choice affects only the faceplate RF port.
 
 #### Default: RP-SMA
 
@@ -966,10 +980,12 @@ RFIC (I2S) → DMA → ring buffer in kernel driver
 | `ipc:///run/ht-module/iq_B` | PUB | local | Module B -> consumers | Raw IQ, int16 interleaved, 500 kHz |
 | `ipc:///run/ht-module/iq_C` | PUB | local | Module C -> consumers | Raw IQ, int16 interleaved, 500 kHz |
 | `ipc:///run/ht-module/iq_D` | PUB | local | Module D -> consumers | Raw IQ, int16 interleaved, 500 kHz |
+| `ipc:///run/ht-module/iq_E` | PUB | local | Module E -> consumers | Raw IQ, int16 interleaved, 500 kHz |
 | `ipc:///run/ht-module/tx_A` | SUB | local | GNU Radio -> module A | TX IQ data stream |
 | `ipc:///run/ht-module/tx_B` | SUB | local | GNU Radio -> module B | TX IQ data stream |
 | `ipc:///run/ht-module/tx_C` | SUB | local | GNU Radio -> module C | TX IQ data stream |
 | `ipc:///run/ht-module/tx_D` | SUB | local | GNU Radio -> module D | TX IQ data stream |
+| `ipc:///run/ht-module/tx_E` | SUB | local | GNU Radio -> module E | TX IQ data stream |
 | `ipc:///run/ht-module/ctrl` | REQ/REP | local | Any process -> daemon | Per-module: frequency, gain, PTT, squelch, TX timeout, attenuator, PA level, duty cycle watchdog, SWR query, fault clear ([zeromq-messages.md](zeromq-messages.md)) |
 | `ipc:///run/ht-module/status` | PUB | local | Daemon -> consumers | RSSI, AGC state, PLL lock, temperature, SWR, forward/reflected power, PA level, duty cycle, fault state |
 
@@ -984,7 +1000,7 @@ IQ frames are published as length-prefixed binary messages:
 
 ```
 [ 8 bytes: uint64 timestamp (nanoseconds, GNSS-disciplined) ]
-[ 4 bytes: uint32 module identifier (0=A, 1=B, 2=C, 3=D) ]
+[ 4 bytes: uint32 module identifier (0=A, 1=B, 2=C, 3=D, 4=E) ]
 [ 4 bytes: uint32 sample count in this frame ]
 [ N×4 bytes: int16 I, int16 Q interleaved, little-endian ]
 ```
