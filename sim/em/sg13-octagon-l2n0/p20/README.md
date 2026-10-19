@@ -2,7 +2,7 @@
 
 Phase 2 prerequisite (`spec/phase2-plan.md`, step P2.0; `reports/phase0-review/em-l2n0.md`). Goal: replace the **provisional tank Q** (openEMS 1 µm: 14.9 at 3.5 GHz) with a mesh-converged value, and explain the Phase 0 gap (Palace Q 18.7 vs openEMS 14.9).
 
-Status: **scripts ready, not run yet** (2026-10-19).
+Status: **stage 1 done 2026-10-19** (results and analysis: `reports/phase2-review/p20-stage1.md`); stage 2 next.
 
 ## Method
 
@@ -12,8 +12,9 @@ The same GDS, stack-up, ports, margins and boundary conditions as the Phase 0 ba
 |---|---|---|---|
 | `pal5` | Palace | 5 µm, order 2 | Phase 0 setting (now with a 2.0–4.5 GHz sweep) |
 | `pal3`, `pal2`, `pal1` | Palace | 3 / 2 / 1 µm, order 2 | uniform refinement; upstream found Q needs ~2 µm on a 5 µm-trace spiral |
-| `pal2o3` | Palace | 2 µm, order 3 | cross-check: basis order instead of mesh |
-| `palamr` | Palace | 5 µm start, 2 AMR passes | cross-check: adaptive refinement |
+| `pal2o3` | Palace | 2 µm, order 3 | cross-check: basis order instead of mesh (stage 3) |
+| `palamr` | Palace | 5 µm start, 2 AMR passes | cross-check: adaptive refinement (stage 3) |
+| `palF3`, `palF2`, `palF1` | Palace | 3 / 2 / 1 µm, **filled metals + via fill-factor correction** | the conductor model that came closest to measurement in the upstream L6n2 study; the surface model read Q 24 % high there (stage 2) |
 | `oem2`, `oem1`, `oem07`, `oem05` | openEMS | 2 / 1 / 0.7 / 0.5 µm | uniform refinement; the gds2palace guide notes openEMS needs ~0.5 µm to resolve skin effect (skin depth in Al ≈ 1.4 µm at 3.5 GHz) |
 
 - **Quantities:** L = Im(Zdiff)/ω and Q = Im(Zdiff)/Re(Zdiff), Zdiff = Z11 − Z12 − Z21 + Z22, at 2.4, 3.12, 3.5, 3.65 and 4.2 GHz (`p20_extract.py`, reusing `../extract_lq.py`).
@@ -29,7 +30,8 @@ The Phase 0 vendor checkouts must exist in `../vendor/` (gds2palace v0.8.2, gds2
 cd /foss/designs/sim/em/sg13-octagon-l2n0/p20
 EM_NPROC=8 ./run_p20.sh stage1      # pal5 pal3 pal2 oem2 oem1 — start here
 ./run_p20.sh summary                # tables + verdict -> out/p20/summary.md
-EM_NPROC=8 ./run_p20.sh stage2      # pal1 pal2o3 palamr oem07 oem05 — heavy
+EM_NPROC=8 ./run_p20.sh stage2      # palF3 palF2 palF1 oem07
+EM_NPROC=8 ./run_p20.sh stage3      # optional, heavy: oem05 pal1 pal2o3 palamr
 ./run_p20.sh pal2 oem1              # or any single steps
 ```
 

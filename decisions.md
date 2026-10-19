@@ -164,3 +164,7 @@ P2.2 linear model (`analog/pll-model/`, all inputs `[PROP]`): passes at 150 kHz 
 ## 2026-10-19 — Analogue–digital interface (draft)
 - `spec/analog-digital-interface.md`: the signed-off back end keeps its converter, `band_sel` and `pll_lock` interface; the analogue enables, RX/TX gain words, filter selects, PLL frequency word, frac-N Σ-Δ and VCO band calibration go in a new AFE/LO control block (D3) on the same SPI bus at 0x20–0x3F, MISO ORed at chip top.
 - Proposed small back-end change for the next layout run: expose `rx_on` / `tx_on` so the enable sequencer follows the effective mode (PTT gate, duty cycling).
+
+## 2026-10-19 — P2.0 stage 1 (EM tank Q)
+- Palace (surface conductors) converged at 2 µm: L 1.672 nH, Q 19.70 at 3.65 GHz. openEMS not converged (Q 14.60 → 15.26 from 2 to 1 µm; extrapolated 15.5–15.9).
+- The upstream L6n2 measured-vs-simulated data (gds2palace v0.8.2) shows this Palace setup (surface conductors, merged vias without fill-factor correction) reading Q 24 % high at 3.5 GHz; scaled, L2n0 Q ≈ 15.6–15.9, matching openEMS. Provisional design Q 14.9 kept until stage 2 (filled metals + via correction, openEMS 0.7 µm).

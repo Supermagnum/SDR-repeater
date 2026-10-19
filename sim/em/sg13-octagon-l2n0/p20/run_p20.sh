@@ -4,7 +4,9 @@
 # vendor/ checkouts of gds2palace v0.8.2 and gds2openEMS v0.5.0 must exist there).
 #
 #   ./run_p20.sh stage1          cheap steps: Palace 5/3/2 um, openEMS 2/1 um
-#   ./run_p20.sh stage2          expensive steps: Palace 1 um, order 3, AMR; openEMS 0.7/0.5 um
+#   ./run_p20.sh stage2          filled-metal Palace ladder (3/2/1 um, via fill-factor correction)
+#                                and openEMS 0.7 um
+#   ./run_p20.sh stage3          optional, heavy: openEMS 0.5 um; surface-model Palace 1 um, order 3, AMR
 #   ./run_p20.sh pal2 oem1 ...   any listed steps
 #   ./run_p20.sh summary         tables and verdict from what has finished
 #
@@ -29,10 +31,12 @@ mkdir -p out/p20
 declare -A STEP=(
   [pal5]="palace 5 2 0"   [pal3]="palace 3 2 0"   [pal2]="palace 2 2 0"   [pal1]="palace 1 2 0"
   [pal2o3]="palace 2 3 0" [palamr]="palace 5 2 2"
+  [palF3]="palace 3 2 0 F" [palF2]="palace 2 2 0 F" [palF1]="palace 1 2 0 F"
   [oem2]="openems 2.0 - -" [oem1]="openems 1.0 - -" [oem07]="openems 0.7 - -" [oem05]="openems 0.5 - -"
 )
 STAGE1="pal5 pal3 pal2 oem2 oem1"
-STAGE2="pal1 pal2o3 palamr oem07 oem05"
+STAGE2="palF3 palF2 palF1 oem07"
+STAGE3="oem05 pal1 pal2o3 palamr"
 
 check_inputs() {
   for f in "$GDS" "$STACK_XML" "$GDS2PALACE_WORKFLOW/gds2palace/__init__.py" "$GDS2OPENEMS_MODULES"; do
@@ -42,10 +46,11 @@ check_inputs() {
   sha256sum "$GDS" "$STACK_XML"
 }
 
-run_palace() {  # tag cell order amr
-  local tag=$1 cell=$2 order=$3 amr=$4 log="out/p20/$1.log" t0 cfg simdir csv deemb
+run_palace() {  # tag cell order amr [F = filled metals + via fill-factor correction]
+  local tag=$1 cell=$2 order=$3 amr=$4 filled=0 log="out/p20/$1.log" t0 cfg simdir csv deemb
+  [ "${5:-}" = F ] && filled=1
   t0=$(date +%s)
-  P20_TAG=$tag P20_CELL=$cell P20_ORDER=$order P20_AMR=$amr \
+  P20_TAG=$tag P20_CELL=$cell P20_ORDER=$order P20_AMR=$amr P20_FILLED=$filled P20_FFC=$filled \
     python3 -u p20_palace.py "$GDS" "$STACK_XML" >"$log" 2>&1 || { echo "  model generation failed, see $log"; return 1; }
   cfg=$(awk '/^CONFIG /{print $2}' "$log" | tail -1)
   [ -f "$cfg" ] || { echo "  no config.json reported, see $log"; return 1; }
@@ -58,7 +63,7 @@ run_palace() {  # tag cell order amr
   [ -n "$csv" ] || csv=$(find "$simdir" -name port-S.csv | sort | tail -1)
   ( cd "$simdir" && python3 "$COMBINE" ) >>"$log" 2>&1 || echo "  combine_extend_snp failed (no de-embedded file), see $log"
   deemb=$(find "$simdir" -path '*iteration*' -prune -o -name '*_deembedded.s2p' -print | grep -v '_dc_' | head -1)
-  P20_CELL=$cell P20_ORDER=$order P20_AMR=$amr P20_SECONDS=$(( $(date +%s) - t0 )) \
+  P20_CELL=$cell P20_ORDER=$order P20_AMR=$amr P20_FILLED=$filled P20_SECONDS=$(( $(date +%s) - t0 )) \
     python3 p20_extract.py "$tag" palace palace "$csv" "${deemb:-}" | tee -a "$log"
   python3 "$L2N0/vendor/gds2palace/scripts/palace_summary.py" "$simdir" >>"$log" 2>&1 || true
 }
@@ -83,14 +88,15 @@ for a in "$@"; do
   case "$a" in
     stage1) steps+=($STAGE1) ;;
     stage2) steps+=($STAGE2) ;;
+    stage3) steps+=($STAGE3) ;;
     *) [ -n "${STEP[$a]:-}" ] || { echo "unknown step $a"; exit 1; }; steps+=("$a") ;;
   esac
 done
 for s in "${steps[@]}"; do
   if [ -f "out/p20/$s.json" ]; then echo "== $s: done earlier, skipped"; continue; fi
-  read -r solver cell order amr <<<"${STEP[$s]}"
+  read -r solver cell order amr model <<<"${STEP[$s]}"
   [ "$order" = "-" ] && order=""; [ "$amr" = "-" ] && amr=""
-  echo "== $s: $solver, cell $cell um${order:+, order $order}${amr:+, AMR $amr}  ($(date '+%F %T'))"
-  if [ "$solver" = palace ]; then run_palace "$s" "$cell" "$order" "$amr"; else run_openems "$s" "$cell"; fi
+  echo "== $s: $solver, cell $cell um${order:+, order $order}${amr:+, AMR $amr}${model:+, filled metals + via correction}  ($(date '+%F %T'))"
+  if [ "$solver" = palace ]; then run_palace "$s" "$cell" "$order" "$amr" "${model:-}"; else run_openems "$s" "$cell"; fi
 done
 python3 p20_summary.py

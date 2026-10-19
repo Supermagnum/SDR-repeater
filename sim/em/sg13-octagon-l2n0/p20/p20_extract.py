@@ -32,8 +32,8 @@ def main():
              if abs(r["frequency_Hz"] - r["requested_Hz"]) <= 60e6]
         out["deembedded"] = d
         out["deembedded_source"] = deemb
-    for key, env in (("cell_um", "P20_CELL"), ("order", "P20_ORDER"),
-                     ("amr", "P20_AMR"), ("seconds", "P20_SECONDS")):
+    for key, env in (("cell_um", "P20_CELL"), ("order", "P20_ORDER"), ("amr", "P20_AMR"),
+                     ("filled", "P20_FILLED"), ("seconds", "P20_SECONDS")):
         if os.environ.get(env):
             out[key] = float(os.environ[env])
     os.makedirs(os.path.join(HERE, "out", "p20"), exist_ok=True)

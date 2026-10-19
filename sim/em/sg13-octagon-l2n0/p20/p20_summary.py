@@ -15,10 +15,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "out", "p20")
 FREQS = [2.4e9, 3.12e9, 3.5e9, 3.65e9, 4.2e9]
 LIMIT = 2.0  # percent
-LADDER = {  # coarse -> fine, the uniform-mesh refinement path per solver
-    "palace": ["pal5", "pal3", "pal2", "pal1"],
+LADDER = {  # coarse -> fine, the uniform-mesh refinement path per model
+    "palace": ["pal5", "pal3", "pal2", "pal1"],               # surface-impedance conductors
+    "palace_filled": ["palF3", "palF2", "palF1"],             # filled metals + via fill-factor correction
     "openems": ["oem2", "oem1", "oem07", "oem05"],
 }
+# Upstream anchor (gds2palace v0.8.2, more_examples/measured_vs_simulated/more_accurate_models_L6n2_v2,
+# measured L6n2 vs Palace models, Q at 3.5 GHz): measured 14.92; surface + via merge (this study's
+# "palace") 18.50; surface + correction 17.21; filled + correction 13.64; filled + conformal 1 um 14.05.
+ANCHOR = {"measured": 14.92, "surface_merge": 18.50, "filled_corr": 13.64}
 CHECKS = {"pal2o3": "order 3 at 2 um", "palamr": "AMR, 5 um start, 2 iterations"}
 
 
@@ -93,6 +98,7 @@ def main():
                   f"(limit {LIMIT} %).", ""]
     # cross-checks against the finest Palace step
     fin = verdict.get("palace", (False, None, 0))[1]
+    fin_f = verdict.get("palace_filled", (False, None, 0))[1]
     if fin:
         for tag, what in CHECKS.items():
             if tag in runs:
@@ -107,9 +113,11 @@ def main():
                     f"{f/1e9:.2f} GHz {d}" for f, d in zip(FREQS, diffs)))
         lines.append("")
     # solver comparison at the finest steps
-    if "palace" in verdict and "openems" in verdict:
-        p, o = runs[verdict["palace"][1]], runs[verdict["openems"][1]]
-        lines += [f"## Palace ({verdict['palace'][1]}) vs openEMS ({verdict['openems'][1]}), raw", "",
+    for pk in ("palace", "palace_filled"):
+        if pk not in verdict or "openems" not in verdict:
+            continue
+        p, o = runs[verdict[pk][1]], runs[verdict["openems"][1]]
+        lines += [f"## Palace ({verdict[pk][1]}) vs openEMS ({verdict['openems'][1]}), raw", "",
                   "| f (GHz) | L Palace | L openEMS | ΔL (%) | Q Palace | Q openEMS | ΔQ (%) |",
                   "|---|---|---|---|---|---|---|"]
         for f in FREQS:
@@ -119,16 +127,23 @@ def main():
             lines.append(f"| {f/1e9:.2f} | {rp['L_nH']:.4f} | {ro['L_nH']:.4f} | {pct(rp['L_nH'], ro['L_nH']):+.2f} | "
                          f"{rp['Q']:.2f} | {ro['Q']:.2f} | {pct(rp['Q'], ro['Q']):+.2f} |")
         lines.append("")
-    # design values: finest converged Palace, de-embedded
-    if fin and "deembedded" in runs[fin]:
-        lines += [f"## Design values (Palace {fin}, de-embedded: port series inductance removed)", "",
+    # design values: finest filled-metal Palace if available (closest to measurement upstream), de-embedded
+    best = fin_f or fin
+    if best and "deembedded" in runs[best]:
+        lines += [f"## Design values (Palace {best}, de-embedded: port series inductance removed)", "",
                   "| f (GHz) | L (nH) | Q | R (Ω) |", "|---|---|---|---|"]
         for f in FREQS:
-            r = at(runs[fin], f, "deembedded")
+            r = at(runs[best], f, "deembedded")
             if not r:
                 continue
             lines.append(f"| {f/1e9:.2f} | {r['L_nH']:.4f} | {r['Q']:.2f} | {r['R_ohm']:.3f} |")
         lines.append("")
+    if fin:
+        r = at(runs[fin], 3.5e9)
+        if r:
+            k = ANCHOR["measured"] / ANCHOR["surface_merge"]
+            lines += [f"Measurement-anchored estimate: surface-model Q × {k:.3f} (upstream L6n2 measured / same model) "
+                      f"= {r['Q'] * k:.2f} at 3.5 GHz from {fin}. Indicative only: L6n2 is a different coil.", ""]
     lines += ["Phase 0 baseline for reference (raw): Palace 5 µm 1.664 nH / Q 18.7 and openEMS 1 µm 1.641 nH / "
               "Q 14.9 at 3.5 GHz; provisional design Q 14.9.", ""]
     text = "\n".join(lines)

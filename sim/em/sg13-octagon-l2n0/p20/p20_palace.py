@@ -6,6 +6,10 @@
 #   P20_CELL   refined_cellsize in um        (baseline 5)
 #   P20_ORDER  FEM order 1..3                (baseline default 2)
 #   P20_AMR    adaptive mesh iterations      (baseline 0)
+#   P20_FILLED 1 = conductors as filled volumes (settings['filled_metals']); baseline 0 = surface
+#              impedance sheets. Upstream L6n2 vs measurement: the surface model reads Q high.
+#   P20_FFC    1 = fill-factor correction for merged via arrays (settings['fill_factor_correction']);
+#              baseline 0 under-estimates via resistance.
 #
 # Sweep: 2.0-4.5 GHz, 0.1 GHz steps, Palace adaptive frequency sweep. Covers the VCO
 # range 3.12-4.20 GHz and the Phase 0 points 2.4 / 3.5 GHz.
@@ -24,6 +28,8 @@ tag = os.environ["P20_TAG"]
 cell = float(os.environ["P20_CELL"])
 order = int(os.environ.get("P20_ORDER", "2"))
 amr = int(os.environ.get("P20_AMR", "0"))
+filled = os.environ.get("P20_FILLED", "0") == "1"
+ffc = os.environ.get("P20_FFC", "0") == "1"
 
 preprocess_gds = True
 merge_polygon_size = 2
@@ -48,6 +54,8 @@ settings["cells_per_wavelength"] = 10
 settings["meshsize_max"] = 70
 settings["order"] = order
 settings["adaptive_mesh_iterations"] = amr
+settings["filled_metals"] = filled
+settings["fill_factor_correction"] = ffc
 settings["no_gui"] = True
 
 simulation_ports = simulation_setup.all_simulation_ports()

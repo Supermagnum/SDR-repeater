@@ -62,7 +62,7 @@ RX ≤ 25 mA and TX ≤ 60 mA for the whole chip (§6 of `spec/rf-frontend.md`).
 
 | Step | Work | Output | Gate |
 |---|---|---|---|
-| **P2.0** (scripts ready: `sim/em/sg13-octagon-l2n0/p20/`) | Prerequisites: matched-mesh, de-embedded inductor study (Phase 0 follow-up); pnoise check of the flicker region | Tank Q to replace the provisional 14.9; flicker method | Owner accepts the EM result |
+| **P2.0** (stage 1 done, `reports/phase2-review/p20-stage1.md`; stage 2 next) | Prerequisites: matched-mesh, de-embedded inductor study (Phase 0 follow-up); pnoise check of the flicker region | Tank Q to replace the provisional 14.9; flicker method | Owner accepts the EM result |
 | **P2.1** | Owner decisions D1–D7 (§5) | Entries in `decisions.md` | — |
 | **P2.2** ✅ first run | System model in Python: linear PLL phase-noise model (VCO, PFD/CP, Σ-Δ, loop filter), spur map including the boundary channels, lock-time transient | `analog/pll-model/` with a check script like `vhf_lpf_check.py`; loop parameters (Icp, filter values, KVCO per band, number of bands) | Human review of the budget |
 | **P2.3** | VCO: topology memo, schematic, capacitor bank, varactor; VACASK `pnoise` across bands, PDK corners and −40 to +85 °C, with the EM inductor model | Schematic, pnoise table vs §2.1 | Human topology review before schematic; result review after |
