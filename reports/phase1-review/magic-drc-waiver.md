@@ -26,3 +26,9 @@ per-clock I/O constraints, post-GRT design repair (SRAM A_DOUT max-cap fixed).
 IHP full KLayout DRC (maximum rule set, --antenna, --no_density): 0 errors.
 LVS 0, antenna 0, max-cap 0, routing DRC 0. Setup WS +0.80 ns, hold WS +0.10 ns, TNS 0.
 Cell area 0.708 mm2. Magic: 7817 errors, all inside the SRAM footprint, waived as above.
+
+## phase1j and phase1k (2026-10-19)
+
+- `phase1j`: 7 818 Magic findings, all inside the SRAM footprint (100, 100)–(336.80, 164.36) µm, 0 outside.
+- `phase1k` (reference): 7 815 Magic findings, all inside the SRAM footprint, 0 outside. IHP full KLayout deck (maximum rule set, antenna on, density off): 0 violations.
+- Checked by script: every Magic box compared against the macro bounding box from the LEF `SIZE` and the placement at (100, 100). The waiver is unchanged.

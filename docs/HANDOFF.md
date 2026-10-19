@@ -1,8 +1,6 @@
 # Project handoff — SDR repeater / LinHT RFIC
 
-**State as of:** 18 October 2026, branch `phase1/wip-sram` (pushed), last physical run `phase1g`
-
-> **Note:** `phase1g` was built from the RTL **before** the SPI mode-0 fix (section 10). The RTL is ahead of the layout; the next flow run must include that fix before any gate-level simulation.
+**State as of:** 19 October 2026, branch `phase1/area` (pushed, merged to `main`). Reference layout: **`phase1k`**, signed off on the current RTL.
 **Purpose:** let an RF/IC engineer (or an AI agent under human review) pick up the work, reproduce every result, and see what is solid, what is provisional and what is open.
 
 > **Nothing in this repository has been submitted for fabrication.** Submission to any MPW shuttle or foundry is a deliberate human decision and is out of scope for all automated work.
@@ -14,10 +12,10 @@
 | Phase | Content | Status |
 |---|---|---|
 | 0 | Toolchain pinning, EM baseline (inductor L2n0) | Done. Matched-mesh EM study still required before Phase 2 |
-| 1 | Digital back end (SPI, decimation, DC/IQ correction, I2S, TX interpolation and Σ-Δ, power control) | **Physically clean** (`phase1g`). Not yet approved — see section 8 |
-| 2 | LO: ≈3.44–3.52 GHz VCO, ÷8 / ÷24 dividers, quadrature | Not started |
-| 3 | RX: LNA, passive mixer, TIA, Σ-Δ modulator | Not started |
-| 4 | TX: Σ-Δ DAC, IQ modulator, PA driver | Not started |
+| 1 | Digital back end (SPI, decimation, I2S, TX interpolation and Σ-Δ, power control) | **Signed off on `phase1k`** (section 7). Awaiting the human Phase 1 review gate |
+| 2 | LO: VCO 3.12–4.20 GHz, ÷8 / ÷24 dividers, quadrature | Not started |
+| 3 | RX: LNA, passive mixer, TIA, Σ-Δ modulator | Not started. Requirements in `spec/derived-limits.md` |
+| 4 | TX: Σ-Δ DAC, reconstruction filter, IQ modulator, PA driver | Not started. Requirements in `spec/derived-limits.md` |
 | 5 | Integration: single-chain die, pad ring, top level | Not started |
 
 The only layout today is the **digital block**. It contains no RF circuitry.
@@ -26,14 +24,16 @@ The only layout today is the **digital block**. It contains no RF circuitry.
 
 ## 2. Design baseline (provisional, see `spec/`)
 
-- **Bands:** 2 m (144–146 MHz) and 70 cm (430–440 MHz) on one single-chain die, band selected per module/handheld. 23 cm deferred.
-- **LO plan:** one LC VCO ≈3.44–3.52 GHz; 70 cm = ÷8, 2 m = ÷24 (÷3 then ÷8); quadrature from the final ÷2 stages.
-- **Reference:** 32 MHz or 36 MHz (`ref_36` board strap). The Σ-Δ modulator clock is the reference, so every output rate (25, 50, 100, 200, 500 kHz) is an exact integer ratio.
-- **IQ interface:** I2S, RFIC is **master** by default (BCLK/LRCLK from the reference); slave mode with an 8-deep async FIFO. Slot width is chosen per rate. Proposed backplane change for pins b14/b15 is in `spec/i2s-clocking.md` (the RF-modules document itself was not edited).
-- **Hosts:** repeater modules (DIN 41612 backplane driven by the ECP5-25F PCIe interface card in the Milk-V Megrez host; SpacemiT K3 is the secondary platform — see README rev 1.8) **and** the LinHT handheld (CompuLab MCM-iMX93, 2S battery, 5 V buck rail, SX1255 at 36 MHz). LinHT facts are provisional: Rev C boards were not yet validated when read. The LinHT repository is treated as read-only reference.
+- **Frequency coverage:** **130–175 MHz** and **400–480 MHz** (2 m, 70 cm, land mobile, PMR446) on one single-chain die; band selected per module/handheld. 23 cm deferred.
+- **LO plan:** one VCO at **3.12–4.20 GHz** (30 % tuning: switched-capacitor bank or two cores); UHF ÷8, VHF ÷24; quadrature from the final ÷2. `band_sel` output: 0 = ÷8, 1 = ÷24.
+- **Reference:** 32 MHz or 36 MHz (`ref_36` board strap). Every output rate (25, 50, 100, 200, 500 kHz) is an exact integer ratio. The host picks the clock per channel so no clock harmonic sits on the channel (32 MHz for 2 m / 70 cm; 36 MHz for PMR446 and near 160 / 416 / 448 MHz) — table in `spec/derived-limits.md` §7.2.
+- **IQ interface:** Philips I2S, continuous BCLK. RFIC is **master** by default; slave mode through a **4-deep** async FIFO. Maximum IQ rate 500 kHz. LinHT should prefer 100 or 500 kHz (36 MHz / 200 kHz has a 40/60 BCLK duty).
+- **Calibration:** DC and IQ correction are done **by the host** (decision (a), 2026-10-18). The chip delivers the half-band output word.
+- **Repeater sites:** RX and TX share one antenna through an external cavity duplexer. A full-duplex repeater uses one RFIC for RX and one for TX (the shared filter engine makes one chip half-duplex). Norwegian offsets: 600 kHz (2 m), 2 MHz (70 cm). The repeater must keep the channel at DC (zero-IF): the own-TX blocker aliases onto the channel and is removed only by the CIC nulls.
+- **Hosts:** repeater modules (DIN 41612 backplane, ECP5-25F PCIe card in the Milk-V Megrez host; SpacemiT K3 secondary) **and** the LinHT handheld (CompuLab MCM-iMX93, 2S battery, SX1255 at 36 MHz). LinHT facts are provisional (Rev C not yet validated). The LinHT repository is read-only reference.
 - **Process:** IHP SG13G2 130 nm SiGe BiCMOS, open PDK.
 
-Decisions and their reasons are recorded in `decisions.md` and `spec/baseline-decisions.md`.
+Decisions and their reasons: `decisions.md`, `spec/baseline-decisions.md`. Derived limits: `spec/derived-limits.md`.
 
 ---
 
@@ -44,12 +44,12 @@ Paths are relative to the repository root. This file lives in `docs/`.
 | Path | Content |
 |---|---|
 | `decisions.md` | Human decisions with date and rationale |
-| `spec/` | Baseline decisions, I2S clocking proposal |
+| `spec/` | Baseline decisions, I2S clocking, **derived RX/TX limits** |
 | `docs/` | System and RF-module documents |
 | `rtl/digital/` | Digital back end RTL, `config.yaml`, `constraints.sdc`, `pdn_cfg.tcl`, `notes.md` (register map) |
 | `rtl/cocotb/` | Testbenches: `run_sim.py`, `test_backend.py`, `test_power.py`, `gate_sim.py` |
 | `reports/` | Review gates, EM report, Magic DRC waiver |
-| `tools/` | Tool manifest/lock, container tool list, PDK contents, LibreLane variable list |
+| `tools/` | `check_signoff.py`, `check_area.py`, `derive_limits.py`, tool manifest/lock, PDK contents, LibreLane variable list |
 | `rtl/digital/runs/` | Flow results (not in git — regenerate with section 5) |
 
 ---
@@ -66,7 +66,7 @@ Paths are relative to the repository root. This file lives in `docs/`.
 | ngspice / Xschem | 47 / 3.4.8RC |
 | Verilator / Icarus | 5.052 / 14.0 (devel) |
 | cocotb | 2.1.0 |
-| CACE | 2.11.0 (the version in the container; decided 2026-10-18, manifest updated) |
+| CACE | 2.11.0 |
 | EM | gds2palace v0.8.2, gds2openEMS v0.5.0, stack-up `libs.tech/openems/openems_ihp_sg13g2/workflow/SG13G2_200um.xml` (sha256 `5d4529432b38d7996814f5096af2173d96e8ad5ff84c73ebb57904f1faf03bdf`) |
 
 DRC flag name in this PDK: `--minimum_drc` (the old `--precheck_drc` is deprecated).
@@ -86,88 +86,115 @@ docker run -it --rm -v "$PWD":/foss/designs \
 # inside the container
 iic-pdk ihp-sg13g2
 
-# RTL tests (expect 13/13 PASS)
+# RTL tests (expect 13/13 PASS on both)
 cd /foss/designs/rtl/cocotb && python3 run_sim.py
+SIM=verilator python3 run_sim.py
 
-# Full flow (~1.5 h)
+# Full flow (~1 h 45 min). Do not edit, patch or switch branches in the
+# repository while it runs: LibreLane re-checks its input files before every step.
 cd /foss/designs/rtl/digital
-librelane --manual-pdk --pdk-root /foss/pdks --pdk ihp-sg13g2 --run-tag phase1g config.yaml
+librelane --manual-pdk --pdk-root /foss/pdks --pdk ihp-sg13g2 --run-tag phase1k config.yaml
 
-# IHP full DRC deck on the result (~12 min)
+# Sign-off (timing, DRC, LVS, antenna, max-cap, area <= 340 000 um^2)
+cd /foss/designs
+python3 tools/check_signoff.py rtl/digital/runs/phase1k
+
+# Gate-level simulation of the routed netlist (expect 5/5)
+cd rtl/cocotb && RUN=phase1k python3 gate_sim.py
+
+# IHP full DRC deck (~10 min)
+cd /foss/designs/rtl/digital
 python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py \
-  --path=$(ls runs/phase1g/final/gds/*.gds | head -1) --topcell=digital_backend \
-  --run_dir=runs/phase1g/ihp-full-drc --mp=4 --antenna --no_density
+  --path=$(ls runs/phase1k/final/gds/*.gds | head -1) --topcell=digital_backend \
+  --run_dir=runs/phase1k/ihp-full-drc --mp=4 --antenna --no_density
+
+# Duplex-offset limit derivation
+python3 /foss/designs/tools/derive_limits.py
 ```
 
-The flow exits with "Magic DRC errors found". That is expected and waived (section 7).
+The flow exits with "Magic DRC errors found". That is expected and waived (section 7); all views are saved before it.
 
 ---
 
 ## 6. Digital back end — current architecture
 
-- **SPI** (mode 0, 16-bit frame) clocked by SCLK; MOSI sampled on the rising edge, **MISO driven on the falling edge**. Configuration crosses into the core clock by toggle synchronisation, so the reference may be stopped in shutdown.
-- **Reset:** asynchronous, active-low. Board requirement: `rst_n` held low at power-up until supplies and the reference clock are stable.
-- **RX:** multiplier-free 1-bit front end (8-tap FIR), two order-4 CIC stages per channel, compensation FIR and 31-tap half-band.
-- **Shared filter engine:** one multiplier and **one** `RM_IHPSG13_1P_64x16_c2` SRAM hold the RX compensation FIR, the RX half-band and the TX half-band (the chain is half-duplex). I and Q delay lines use words 0–30 and 32–62.
-- **TX:** I2S input, DC and IQ correction, half-band interpolate-by-2 (shared engine), order-2 CIC interpolator (shares the first CIC integrator adders), 2nd-order 1-bit Σ-Δ modulator.
-- **Correction:** DC loop (state kept across RX sleep), IQ gain and phase cross-term (1/128 rad per LSB, about ±57° range).
-- **Power:** root clock gates for run/RX/TX built as latch + AND (the PDK marks its ICG cells `dont_use`; this is deliberate); per-block power-down; duty-cycled RX.
-- **Register map:** `rtl/digital/notes.md`. **Proposed, not frozen** — CTRL[3] is reserved after the per-rate slot-width change.
+- **SPI** (mode 0, 16-bit frame) clocked by SCLK; MOSI sampled on the rising edge, MISO driven on the falling edge. The bit counter is cleared asynchronously by CS high, so an aborted frame cannot misalign the next one. Configuration crosses into the core clock by toggle synchronisation (bundled data), so the reference may be stopped in shutdown.
+- **Reset:** asynchronous, active-low, with a two-flop release synchroniser for the core clock. SPI uses the raw `rst_n`; board requirement: SCLK idle for ≥ 1 µs after `rst_n` rises, and `rst_n` low at power-up until supplies and reference are stable.
+- **RX:** multiplier-free 1-bit front end (8-tap FIR), two order-4 CIC stages per channel, compensation FIR and 31-tap half-band. Full-scale 1-bit input → 16 384 codes at every rate (`norm`, `sh1`, `sh2` in `rate_table.sv`).
+- **Shared filter engine:** one 18×16 multiplier and **one** `RM_IHPSG13_1P_64x16_c2` SRAM hold the RX compensation FIR, the RX half-band and the TX half-band. I and Q delay lines use words 0–30 and 32–62. One address generator for all accesses.
+- **TX:** I2S input (host-corrected), half-band interpolate-by-2 (shared engine), order-2 CIC interpolator (28-bit, shares the first CIC integrator adders), 2nd-order 1-bit Σ-Δ modulator.
+- **I2S:** counter-based Philips master with continuous BCLK; slave samples on the BCLK rising edge and drives on the falling edge.
+- **Power:** root clock gates for run/RX/TX built as latch + AND (the PDK marks its ICG cells `dont_use`; deliberate); per-block power-down; duty-cycled RX.
+- **Register map:** `rtl/digital/notes.md`. **Proposed, not frozen.** `CHIP_ID` = 0x12. 0x04–0x07 and 0x0D–0x12 are reserved (former calibration registers, read 0); `BLOCK_PD[2:1]`, `CLK_GATE[2:1]` and `CTRL[3]` are reserved.
 
 ---
 
 ## 7. Verified results
 
 ### Simulation (`run_sim.py`, this tree)
-13/13 tests pass on **both Icarus and Verilator** (`SIM=verilator python3 run_sim.py`), including:
+13/13 tests pass on **both Icarus and Verilator**.
 
 | Test | Result | Limit |
 |---|---|---|
-| `rx_tone_rtl` — passband gain on real RTL | +0.39 dB | ±1 dB |
-| `rx_tone_rtl` — alias rejection on real RTL | 47.2 dB | ≥ 45 dB (provisional) |
-| `tx_image_and_noise` — image rejection | 64.3 dB | ≥ 40 dB |
-| `filter_response_limits` (model) | ripple 0.189 dB, alias 48.1 dB worst case | 0.25 dB / 45 dB |
+| `rx_tone_rtl` — passband gain on real RTL | +0.06 dB | ±1 dB |
+| `rx_tone_rtl` — alias rejection on real RTL | 59.1 dB | ≥ 45 dB (wideband) |
+| `filter_response_limits` (model) | ripple 0.190 dB, wideband alias 47.9 dB; duplex offsets ≥ 108 dB; on-channel aliases ≥ 68.1 dB | 0.25 dB / 45 dB / 100 dB / 65 dB |
+| `tx_image_and_noise` — image rejection | 62.6 dB | ≥ 40 dB |
+| `tx_image_and_noise` — bitstream noise at 600 kHz | −107.2 dBFS/Hz | ≤ −101 dBFS/Hz |
+| `tx_image_and_noise` — bitstream noise at 2 MHz | −88.1 dBFS/Hz | ≤ −81 dBFS/Hz |
+| `filter_dc_all_rates` | full scale = 16 384 ± 64 at all 10 rate pairs | — |
 
-Gate-level simulation is pending: the `phase1g` netlist predates the SPI fix. `gate_sim.py` must point at the next run's netlist and include the SRAM models `RM_IHPSG13_1P_64x16_c2.v` and `RM_IHPSG13_1P_core_behavioral.v` from `libs.ref/sg13g2_sram/verilog/`.
+### Gate level (`gate_sim.py`, `phase1k` routed netlist with SRAM models)
+5/5 port-level tests pass: `spi_reset_and_registers`, `master_frame_lengths`, `rx_chain_ports`, `i2s_slave_philips`, `spi_aborted_frame`.
 
-### Physical (`phase1g`)
+### Physical (`phase1k`) — `tools/check_signoff.py`: **SIGN-OFF PASS**
 
 | Check | Result |
 |---|---|
 | IHP full KLayout DRC (maximum rule set, antenna included, density excluded) | **0** |
-| LibreLane KLayout DRC | 0 |
-| LVS (devices, nets, pins, properties) | **0 differences** |
-| Antenna | 0 violations (16 diodes inserted) |
-| Routing DRC | 0 (converged after 3 iterations) |
-| Setup worst slack / TNS (all corners) | +1.20 ns / 0 |
-| Hold worst slack / TNS (all corners) | +0.05 ns / 0 — thin, monitor |
-| Hold buffers inserted | 135 |
-| Cell area | 0.694 mm² |
-| Magic DRC | 7816, **all inside the SRAM footprint** — waived, see `reports/phase1-review/magic-drc-waiver.md` |
+| LibreLane KLayout DRC / routing DRC | 0 / 0 |
+| LVS | **Circuits match uniquely** (0 errors) |
+| Antenna | 0 violating nets (8 antenna cells) |
+| Max-cap / max-slew | 0 / 0 |
+| Setup worst slack (slow 1.08 V 125 °C / typ / fast) | **+3.55 ns** / +11.10 ns / +11.32 ns; TNS 0 |
+| Hold worst slack (slow / typ / fast) | +0.310 / +0.173 / **+0.097 ns**; TNS 0 (guard ≥ 0.08 ns) |
+| Hold buffers / setup buffers | 50 / 0 |
+| Real cell area (std cells + SRAM, no filler) | **335 044 µm² (0.335 mm²)** — limit 0.34 mm² |
+| Die / core area, utilisation | 0.592 mm² / 0.557 mm², 60 % |
+| Magic DRC | 7 815, **all inside the SRAM footprint** (100, 100)–(336.80, 164.36) µm, 0 outside — waived, `reports/phase1-review/magic-drc-waiver.md` |
 
-Density rules are **not** checked at block level. They must be checked at chip level with fill.
+Clock period 27.778 ns (36 MHz), setup uncertainty 0.25 ns, hold uncertainty 0.05 ns. Density rules are **not** checked at block level; they must be checked at chip level with fill.
+
+### Run history
+
+| Run | RTL | Result |
+|---|---|---|
+| `phase1i` | before CS counter / continuous BCLK | clean, setup +0.80 ns, 0.434 mm² real area |
+| `phase1j` | all fixes, before area work | setup **−0.050 ns** at slow corner (SRAM `A_DOUT` → MAC, placement variation); everything else clean, gate level 5/5. Stopped at step 74 because files were changed mid-run; results reconstructed from step 72 |
+| `phase1k` | area patch + timing-driven placement + post-route setup repair | **sign-off pass** (above) |
 
 ---
 
 ## 8. Open items before Phase 1 can be approved
 
-1. **Area:** 0.694 mm² against a 0.30 mm² target (goal 0.25 mm²). Needs structural work, mainly the TX chain and CIC; `DROP = 0` in `cic4.sv` currently disables Hogenauer pruning.
-2. **Output scale:** a full-scale 1-bit input gives about **64 codes** out of ±32767. Rescale `norm`/CIC shifts so full scale lands near ±16 000–32 000. This currently limits RX dynamic range.
-3. **I/O constraints:** SPI pins must be timed against `sclk` and I2S-slave pins against `bclk_i`, not `clk`.
-4. **`ref_36`:** declared a false path (static board strap). Also enforce in RTL that changes only take effect under reset, and state it in the spec.
-5. **Clean-up:** done — debug `$display` removed, `bitn` removed, `i2s_master.sv` width warnings fixed, `PL_TARGET_DENSITY_PCT: 60`. Remaining: `band_c` is unused (the BAND register drives nothing yet), and the lint warnings need triage.
-6. **Gate-level simulation** on the next run's netlist (see section 7). Verilator: done, 13/13.
-7. **Hold margin** of 50 ps: re-check after every change.
-8. **README section 11.1** still describes the dual-chain HT13G-M, which the single-chain baseline replaces. (The IQ-rate mismatch is resolved: the RFIC maximum is 500 kHz and the README now says so; its 1 MHz compute figures are kept as conservative upper bounds.)
+1. **Human Phase 1 review gate.** All automated checks pass; approval is a human decision.
+2. **Lint:** LibreLane reports 106 lint warnings (its own Verilator flags and file set). The changed modules are clean under `verilator -Wall`, but the 106 have not been triaged one by one.
+3. **`ref_36`:** declared a false path (static board strap). Confirm in the spec that it may only change under reset.
+4. **Register map** is proposed, not frozen. Freeze at the review gate.
+5. **Area target:** 0.34 mm² real cell area is met (0.335). The original 0.30 mm² is not reachable without removing functions (`decisions.md` 2026-10-18).
+6. **Hold margin:** +0.097 ns at the fast corner; the 0.08 ns guard in `check_signoff.py` catches any regression. Re-check after every change.
+
+Closed since the previous handoff: output scale (FS 16 384), SPI/I2S I/O constraints, aborted SPI frames, gapped BCLK (continuous BCLK), `band_c` unused (`band_sel` output), README §11.1, provisional RX/TX limits (`spec/derived-limits.md`), gate-level simulation, area.
 
 ---
 
 ## 9. Provisional or lower-confidence values
 
-- **Alias limit 45 dB** — to be derived in Phase 3 together with the Σ-Δ modulator design.
-- **TX out-of-band limit** (1–8 MHz, 20 dB below tone) — far too loose; Phase 4 must derive it from the emission mask (expected ≥ 60–70 dB below carrier near the carrier), including the reconstruction filter and modulator order.
-- **Tank Q** — provisional openEMS values 11.8 (2.4 GHz) / 14.9 (3.5 GHz); Palace gives about 20–26 % higher. Matched-mesh, de-embedded study required before Phase 2.
-- **VCO phase noise** — open tools offer only experimental PSS and no PNOISE; all phase-noise results are lower confidence and must be cross-checked by hand.
+- **Derived limits** (`spec/derived-limits.md`) assume 25 W, 80 dB duplexer isolation, 5 dB NF, ≤ 1 dB desense. Reviewer to confirm isolation and power. Regulatory limit from ITU RR App. 3; confirm against current Nkom licence conditions.
+- **Phase 3/4 analogue requirements** derived from those limits: LO phase noise ≤ −139 dBc/Hz at the duplex offset (25 W), RX ADC DR ≥ 104 dB in 12.5 kHz, anti-alias ≥ 40 dB at ±8/9 MHz and ≥ 70 dB at ±32/36 MHz, TX reconstruction filter ≥ 54 dB at 600 kHz and ≥ 74 dB at 2 MHz, VHF third-harmonic rejection (harmonic-reject mixer or preselector).
+- **500 kHz TX** is for simplex/LinHT use only; a repeater transmits at ≤ 200 kHz IQ.
+- **Tank Q** — provisional openEMS values 11.8 (2.4 GHz) / 14.9 (3.5 GHz); Palace about 20–26 % higher. Matched-mesh, de-embedded study required before Phase 2.
+- **VCO phase noise** — open tools offer only experimental PSS and no PNOISE; phase-noise results are lower confidence and must be cross-checked by hand.
 - **LinHT interface facts** — provisional until Rev C is validated and its board files are read.
 
 ---
@@ -176,23 +203,31 @@ Density rules are **not** checked at block level. They must be checked at chip l
 
 | Problem | Cause | Fix |
 |---|---|---|
-| TX image rejection 18 dB | `fir_seq` wrote each new sample at `2·wp−1` instead of `wp−1` (write address passed through `haddr` twice) | Write at age 30 (RX) / 15 (TX). Rejection back to 64.3 dB |
-| Same bug invisible in RX | RX tests used only DC input; a scrambled delay line still passes DC | Added `rx_tone_rtl` (real Σ-Δ stream, tone + aliasing interferer) |
-| 6449 hold buffers | 0.25 ns clock uncertainty applied to hold as well as setup, plus margin and derate, on direct flip-flop chains | Hold uncertainty 0.05 ns after CTS (`decisions.md`). Result: 135 buffers |
-| SRAM power pins unconnected | SRAM power pins are vertical Metal4; core grid is TopMetal1/TopMetal2; LibreLane's macro grid only connects TopMetal1–TopMetal2 | `pdn_cfg.tcl`: horizontal Metal5 straps over the macro, connects Metal4↔Metal5↔TopMetal1 |
-| Setup fail −0.68 ns at 125 °C | `ref_36` timed as a per-cycle input | False path (static strap) |
-| 4 × `NW.d` in IHP full deck | Standard-cell rows cut by the SRAM keep-out on N-well (power) boundaries | `FP_MACRO_VERTICAL_HALO: 13.78` (one row) |
-| Lint stop in `hb_sram.sv` | `dout` assigned in `initial` and `always_ff` | Simulation model uses plain `always` |
-| SPI reads would be shifted one bit on a real host | MISO changed on the SCLK **rising** edge, the same edge a mode-0 host samples | MISO driven from a `negedge sclk` process with its own shift register |
-| Same bug invisible in tests | Testbench sampled MISO two clocks after the rising edge | `spi_xfer` samples at the rising edge, like a real host |
-| Verilator read every register as 0 | Verilator starts signals at 0, so setting `rst_n = 0` produced no edge and async reset never ran | Tests drive `rst_n` high, then low. Silicon is unaffected (async reset is level-sensitive) |
+| TX image rejection 18 dB | `fir_seq` write address passed through `haddr` twice | Write at age 30 (RX) / 15 (TX). Rejection 62.6 dB |
+| Same bug invisible in RX | RX tests used only DC input | Added `rx_tone_rtl` (real Σ-Δ stream, tone + aliasing interferer) |
+| 6449 hold buffers | 0.25 ns clock uncertainty applied to hold as well | Hold uncertainty 0.05 ns. Now 50 buffers |
+| SRAM power pins unconnected | SRAM power on Metal4, core grid on TopMetal1/2 | `pdn_cfg.tcl`: Metal5 straps over the macro |
+| Setup fail at 125 °C | `ref_36` timed as a per-cycle input | False path (static strap) |
+| 4 × `NW.d` in IHP full deck | Rows cut by the SRAM keep-out | `FP_MACRO_VERTICAL_HALO: 13.78` |
+| Max-cap on SRAM `A_DOUT` | Estimated loads before routing | Post-GRT design repair, 25 % cap margin |
+| Full scale was ~64 codes | CIC shifts / `norm` | Rescaled; shift moved into `sh1` to avoid CIC1 truncation; FS 16 384 |
+| SPI reads shifted one bit | MISO changed on the sampling edge | MISO from a `negedge sclk` process |
+| Aborted SPI frame misaligned the next | Bit counter only cleared by a full frame | Counter cleared asynchronously by CS high |
+| I2S word misaligned on real hosts | Non-standard edges; gapped BCLK | Philips format, counter-based master, continuous BCLK |
+| Core flops left reset on different edges | Async release | Two-flop reset synchroniser |
+| Verilator read every register as 0 | No reset edge at time 0 | Tests drive `rst_n` high, then low |
+| Gate sim read all zeros | Testbench raised CS and SCLK at the same instant | CS raised first, as a real host does |
+| Address refactor X in Icarus | A function's hidden reads are not in a continuous assignment's sensitivity | Logic written out in `always_comb`; checked bit-identical over 120 000 random cycles |
+| "0.708 mm²" area | `design__instance__area` includes 0.274 mm² filler | Real area = stdcell + macro (`check_area.py`) |
+| `phase1j` stopped at step 74 | RTL files deleted while the flow ran | Never edit the tree during a run |
+| `phase1j` setup −0.05 ns | Placement variation on a thin path; no post-route setup repair | `PL_TIMING_DRIVEN`, `RUN_POST_GRT_RESIZER_TIMING`, 0.1 ns margins → +3.55 ns |
 
 ---
 
 ## 11. Next steps
 
-1. Close the Phase 1 open items (section 8) and pass the Phase 1 review gate.
+1. Phase 1 review gate (section 8).
 2. Matched-mesh, de-embedded inductor study (Phase 0 EM follow-up).
-3. Phase 2 LO test chip — hand-designed, human-reviewed topology.
+3. Phase 2 LO test chip (VCO 3.12–4.20 GHz, ÷8/÷24) — hand-designed, human-reviewed topology, against the phase-noise requirement in `spec/derived-limits.md`.
 
 The agent instructions (phases, forbidden actions, review gates, provenance tags `[SCH]` `[PEX-C]` `[PEX-RC]` `[EM]` `[HAND]` `[LIT]`) live in the project's agent prompt; follow it for any automated work.
