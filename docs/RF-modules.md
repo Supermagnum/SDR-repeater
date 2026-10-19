@@ -514,6 +514,24 @@ The T/R switch is a key reliability element. Solid-state (PIN diode or CMOS SOI)
 
 On TX→RX transition the sequence reverses: PA de-assert → T/R switch RX → RFIC PTT release. This ensures the external LNA is never exposed to PA output power.
 
+#### Band-path switch (ANT_SW, dual-band modules only)
+
+The single-chain RFIC tunes 130–175 MHz and 400–480 MHz, but the parts around it cannot be shared between bands: the PA output match, the harmonic filter (a 2 m low-pass must cut off near 180 MHz; the 70 cm filter passes up to about 490 MHz and therefore passes the 2nd and 3rd harmonics of 2 m) and the RX input match differ per band. A module built for both bands therefore has a VHF path and a UHF path, chosen by backplane pin c5 (`ANT_SW`). Fixed-band modules (2 m only or 70 cm only) do not fit the switches and leave c5 unconnected.
+
+| Item | Definition |
+|------|------------|
+| Logic | 1.8 V CMOS from the ECP5 interface card. **High = VHF path, low = UHF path** |
+| Default | 100 kΩ pull-down on the module, so an unconfigured or unpowered backplane selects UHF |
+| Interlock | `ht-module-daemon` changes ANT_SW only in RX state, with PTT, PA_EN and TR_SW de-asserted; the RFIC is retuned in the same step |
+| Module ID | A dual-band module identifies itself as MOD_ID = 11 (previously spare) plus EEPROM module type |
+
+**Low-power side — pSemi PE4259 (SPDT, 10 MHz–3 GHz, SC-70-6), candidate.** Two switches, one between the RFIC TX output (−5 dBm) and the two PA input matches, one between the two RX input matches and the RFIC RX input. From the PE4259 datasheet (DOC-03694-5.01): insertion loss about 0.3 dB, input-to-output isolation about 50 dB at 150 MHz and 40 dB at 450 MHz, return loss about 29 dB, IIP3 +55 dBm, 1.5 µs switching. At these levels it is far from its limits.
+
+- **Supply:** run the PE4259 at **VDD = 1.8 V** (its minimum). In single-pin mode the control threshold is 0.7 × VDD, so a 3.0 V supply would need 2.1 V on CTRL and the 1.8 V backplane GPIO would not switch it reliably. At 1.8 V the P1 dB falls to about +30.5 dBm, which does not matter on the low-power side.
+- **Wiring:** CTRL (pin 4) from ANT_SW; VHF path on RF1 (CTRL high), UHF path on RF2. All RF pins DC-blocked with series capacitors. Fit the shunt tuning capacitor at RFC shown in the datasheet evaluation schematic if return loss needs it.
+
+**High-power side — not the PE4259.** After the PA the switch would see the full output: 5 W (+37 dBm) standard, 20 W (+43 dBm) maximum, 6 W from a GRF5604 on its own. The PE4259 is rated for about +34.5 dBm maximum at 150–450 MHz (datasheet Figure 3) and +31.5 dBm minimum P1 dB at 3 V. The PA-side band selection needs a part rated for the full PA power (PIN-diode switching, as in commercial dual-band transceivers, or a high-power SOI switch), or two PA output paths that meet in a diplexer **after** each band's own harmonic filter. ANT_SW drives that switch too. Which of these to use is still open.
+
 #### Variable Attenuator (RX path, per band)
 
 | Parameter | Value |
@@ -789,9 +807,9 @@ Columns 1–8 carry power (low-current), SPI, and GPIO. Columns 9–16 carry I²
 | c2 | PTT | In | TX enable from K3 (step 1 in PTT sequence) |
 | c3 | TR_SW | In | T/R switch control from K3 (step 2 in PTT sequence) |
 | c4 | PA_EN | In | PA enable from K3 (step 3, after 1 ms delay) |
-| c5 | ANT_SW | In | Shared/independent antenna mode select (HT13G-M only; NC on HT13G-S module) |
+| c5 | ANT_SW | In | VHF/UHF band-path select on dual-band modules: high = VHF, low = UHF; 100 kΩ pull-down on module; NC on fixed-band modules (see Section 7.3, Band-path switch) |
 | c6 | MOD_PRESENT | Out | Module presence detect — pulled low on module, open on empty slot |
-| c7 | MOD_ID0 | Out | Module type ID bit 0 (resistor-coded: 00=2m, 01=70cm, 10=23cm, 11=spare) |
+| c7 | MOD_ID0 | Out | Module type ID bit 0 (resistor-coded: 00=2m, 01=70cm, 10=23cm, 11=dual-band 2m/70cm) |
 | c8 | MOD_ID1 | Out | Module type ID bit 1 |
 | a9 | GND | — | Ground |
 | a10 | I2C_SCL | In | I²C clock — shared backplane bus (100 kHz); temperature sensor, EEPROM, SWR ADC (ADS1015 variant) |
@@ -822,7 +840,7 @@ Columns 1–8 carry power (low-current), SPI, and GPIO. Columns 9–16 carry I²
 - `I2C_SDA/SCL` are shared across all module slots on the backplane I²C bus. Each module has a unique I²C address for its temperature sensor, EEPROM, and (if the ADS1015 ADC variant is fitted) SWR ADC. Temperature sensors use the LM75 / TMP102 family (7-bit address set by address pins on the module).
 - `VCTCXO_TUNE` is a per-module signal — each module has its own RC-filtered PWM input from a separate K3 PWM channel, allowing independent VCTCXO discipline per band.
 - `I2S_BCLK`, `I2S_LRCLK`, `I2S_DOUT`, `I2S_DIN` are per slot — each populated module occupies one SAI peripheral on the K3 (SAI mapping: slot A, B, C, D).
-- All GPIO signals (PTT, TR_SW, PA_EN, ATT_LE, RFIC_RESET_N) are 1.8 V logic driven by the K3 EC-IO GPIO. The RFIC `VDD_IO` must be configured to 1.8 V on all modules to match. No level translation is required.
+- All GPIO signals (PTT, TR_SW, PA_EN, ATT_LE, ANT_SW, RFIC_RESET_N) are 1.8 V logic driven by the K3 EC-IO GPIO. The RFIC `VDD_IO` must be configured to 1.8 V on all modules to match. No level translation is required.
 - `RFIC_IRQ_N` is an open-drain output from the module; a 10 kΩ pull-up to 1.8 V is on the module PCB.
 - `SPI_CS_ADC_N` is a separate chip-select for the SWR ADC (MCP3202 variant). If the I²C ADC variant (ADS1015) is fitted instead, this pin is NC and the ADC is addressed via `I2C_SDA/SCL`.
 - I2S and SPI traces require continuous via fences on both sides for their full routed length, extending to within 2 mm of the connector pads (see Section 8.3).
