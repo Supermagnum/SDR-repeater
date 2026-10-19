@@ -1,13 +1,15 @@
 # SDR Repeater — RF Module and RFIC Specification
 
 **Document:** Module RF Hardware Design Specification  
-**Revision:** 0.4
-**Date:** October 2026
-**Relates to:** SDR Multiband Repeater System Design v1.9
+**Revision:** 0.4.1  
+**Date:** October 2026  
+**Relates to:** SDR Multiband Repeater System Design v1.9  
 
 **Status:** This document records **design ideas and a target architecture** — not committed tapeout data, BOMs, or shipping hardware. **No fabrication is planned in this phase** (Section 11). The binding RFIC requirements are in [spec/rf-frontend.md](../spec/rf-frontend.md); the limits behind them in [spec/derived-limits.md](../spec/derived-limits.md); the design status in [HANDOFF.md](HANDOFF.md). Where this document and those files disagree, those files win.
 
 **Change summary (r0.3 → r0.4):** HT13G-M is now **one band-switched chain** (130–175 MHz and 400–480 MHz) on an **SX1255-compatible pin-out**, so the same chip is a drop-in for the LinHT. TX output is **−5 dBm** (was 0 dBm) into a GRF5604 driver. The RFIC reset is **active-high with an on-chip power-on reset**; the backplane keeps `RFIC_RESET_N` and the module inverts it. **DC-offset and IQ-imbalance correction moved to the host.** Reference 32 or 36 MHz. **Attenuators are the default RX front end**; the external LNA is optional. A same-band repeater needs **separate RX and TX RFICs**. Backplane pin c5 (`ANT_SW`) is now **VHF/UHF band-path select**. The host side of the backplane is the ECP5 interface card in the Milk-V Megrez (host as secondary platform). The MPW submission plan is replaced by "no fabrication in this phase". HT13G-S (23 cm) is deferred and not updated.
+
+**Change (r0.4 → r0.4.1):** T/R switch corrected — the SKY13351 (about 1 W) is replaced by the PE42820 (5 W variant) and a PIN-diode switch (20 W variant). Filter-part limits added. Parts survey for 5 W, 20 W and 100 W in [rf-switches-and-filters.md](rf-switches-and-filters.md).
 
 **Earlier change (r0.2 → r0.3):** PA output power updated to 5 W standard / 20 W maximum across all bands. PA candidate parts, harmonic filter component ratings, +12 V PA rail current budget, duty cycle firmware limit, and risk register updated accordingly.
 
@@ -58,6 +60,8 @@ Two PA output power levels are defined for all module variants:
 | **Maximum** | 20 W (43 dBm) | Hilltop sites, portable deployments, secondary links requiring range |
 
 The standard 5 W level is the default factory configuration. The 20 W level is selected by operator command via the `ctrl` ZMQ socket and stored in the module EEPROM. A firmware-enforced 50% duty cycle limit applies at all times when operating at 20 W output (see [Section 10.5](#105-ht-module-daemon-functions)). Forced-air cooling (120 mm fan beneath the module card cage) is required for sustained 20 W operation; see [Section 8.5](#85-ground-plane-and-copper-pour-thermal-policy).
+
+Higher power (for example 100 W) is an **external amplifier** after the module: about 250 W DC and 150 W of heat do not fit the 72 W slot budget or the module cooling. Switch and filter parts for that level are in [rf-switches-and-filters.md](rf-switches-and-filters.md) §3.
 
 ### Key differences from the OpenHT-DB handheld design
 
@@ -508,15 +512,16 @@ The module will not transmit again until an operator issues `MOD_CLEAR_FAULT` af
 | Parameter | VHF (144 MHz) | UHF (432 MHz) | 23 cm (1240 MHz) |
 |-----------|:-------------:|:-------------:|:----------------:|
 | Type | SPDT | SPDT | SPDT |
-| Part (candidate) | SKY13351-378LF | SKY13351-378LF | SKY13384-350LF or PE4259 |
-| Frequency | DC–3 GHz | DC–3 GHz | DC–3 GHz |
+| Part (candidate), 5 W variant | pSemi PE42820 (SOI, +43 dBm CW) | same | same (to 2.7 GHz) |
+| Part (candidate), 20 W variant | PIN-diode SPDT ≥ 50 W, e.g. Skyworks SKY12208-306LF or MACOM MSW2030-203 | same | SKY12208-306LF (to 2.7 GHz; the MSW2030 stops at 1 GHz) |
+| Frequency | 30 MHz–2.7 GHz (PE42820) | same | same |
 | Insertion loss | < 0.5 dB | < 0.5 dB | < 0.6 dB |
 | TX→RX isolation | > 30 dB | > 30 dB | > 28 dB |
-| Power handling | > 25 W continuous | > 25 W continuous | > 25 W continuous |
-| Switching time | < 1 µs | < 1 µs | < 1 µs |
+| Power handling | ≥ 2 dB above the PA level: ≥ +39 dBm (5 W variant), ≥ +45 dBm (20 W variant) | same | same |
+| Switching time | ≤ 10 µs (the PTT sequence allows 1 ms) | same | same |
 | Control | 2 GPIO from the host (via backplane) | same | same |
 
-The T/R switch is a key reliability element. Solid-state (PIN diode or CMOS SOI) switching is mandatory — no mechanical relays. All three bands can use the SKY13351 or its equivalent (the LinHT uses the SKY13330); at 1240 MHz insertion loss is slightly higher but remains acceptable. **Power handling must be verified against the 20 W maximum level at the selected part's rated continuous power; derate to 50% duty cycle where continuous rating is marginal.**
+The T/R switch is a key reliability element. Solid-state (PIN diode or CMOS SOI) switching is mandatory — no mechanical relays. The PE42820 runs from a single 2.3–5.5 V supply and switches from 1.8 V logic, so it needs no extra rail; it has no margin at 20 W, hence a PIN switch for the 20 W variant (PIN switches need a bias supply, up to 28–125 V for the MACOM parts). The LinHT uses the SKY13330 (P0.1dB +38.5 dBm, about 7 W), adequate at 5 W only. **The SKY13351 named up to r0.4 is a 1 W part and is not suitable.** **Power handling must be verified at the selected part's rated continuous power and at SWR 3; derate to 50% duty cycle where continuous rating is marginal.** Candidates and datasheet numbers: [rf-switches-and-filters.md](rf-switches-and-filters.md).
 
 **PTT sequencing is hardware-enforced:**
 
@@ -543,7 +548,7 @@ The single-chain RFIC tunes 130–175 MHz and 400–480 MHz, but the parts aroun
 - **Supply:** run the PE4259 at **VDD = 1.8 V** (its minimum). In single-pin mode the control threshold is 0.7 × VDD, so a 3.0 V supply would need 2.1 V on CTRL and the 1.8 V backplane GPIO would not switch it reliably. At 1.8 V the P1 dB falls to about +30.5 dBm, which does not matter on the low-power side.
 - **Wiring:** CTRL (pin 4) from ANT_SW; VHF path on RF1 (CTRL high), UHF path on RF2. All RF pins DC-blocked with series capacitors. Fit the shunt tuning capacitor at RFC shown in the datasheet evaluation schematic if return loss needs it.
 
-**High-power side — not the PE4259.** After the PA the switch would see the full output: 5 W (+37 dBm) standard, 20 W (+43 dBm) maximum, 6 W from a GRF5604 on its own. The PE4259 is rated for about +34.5 dBm maximum at 150–450 MHz (datasheet Figure 3) and +31.5 dBm minimum P1 dB at 3 V. The PA-side band selection needs a part rated for the full PA power (PIN-diode switching, as in commercial dual-band transceivers, or a high-power SOI switch), or two PA output paths that meet in a diplexer **after** each band's own harmonic filter. ANT_SW drives that switch too. Which of these to use is still open.
+**High-power side — not the PE4259.** After the PA the switch would see the full output: 5 W (+37 dBm) standard, 20 W (+43 dBm) maximum, 6 W from a GRF5604 on its own. The PE4259 is rated for about +34.5 dBm maximum at 150–450 MHz (datasheet Figure 3) and +31.5 dBm minimum P1 dB at 3 V. The PA-side band selection needs a part rated for the full PA power (PIN-diode switching, as in commercial dual-band transceivers, or a high-power SOI switch), or two PA output paths that meet in a diplexer **after** each band's own harmonic filter. ANT_SW drives that switch too. Which of these to use is still open. Candidate parts by power level: [rf-switches-and-filters.md](rf-switches-and-filters.md).
 
 #### Variable Attenuator (RX path, per band)
 
@@ -615,6 +620,8 @@ A 7-element Chebyshev band-pass filter is placed between the PA output and the S
 | PCB footprint | ~25 × 8 mm | ~20 × 8 mm | ~15 × 6 mm |
 
 > **Rating note:** At 20 W into 50 Ω the peak voltage across filter components is approximately 45 V and peak current approximately 900 mA. Capacitors rated at 30 V (adequate for 5 W) are insufficient at 20 W — 100 V rated parts are required. Inductors must be rated above 2 A with adequate core saturation margin. Verify component ratings at the selected 20 W PA output level before assembly.
+
+> **Parts note:** surface-mount LTCC filters (Mini-Circuits LFCN, LFHK) are rated about 8–10 W at 25 °C, falling with temperature, so they suit only the 5 W level; the 20 W filter is discrete LC. On VHF the LFCN-160+ and LFCN-180+ reject the 2 m 2nd harmonic by only about 7–18 dB, so the VHF filter is a discrete elliptic design. Full 130–175 MHz coverage needs notches or two switched sub-bands, because 2 × 130 MHz = 260 MHz is only 1.49 × 175 MHz. See [rf-switches-and-filters.md](rf-switches-and-filters.md).
 
 ---
 
@@ -1050,14 +1057,14 @@ Background kept from r0.3, for whoever makes the fabrication decision later: IHP
 | 5 W PA thermal dissipation on module | Low | 40% efficiency → ~7.5 W; within passive cooling budget with copper pour heatspreading; fan extends margin |
 | 20 W filter and coupler component ratings | Medium | Peak voltage ~45 V and peak current ~900 mA at 20 W; 30 V capacitors (adequate at 5 W) insufficient — 100 V rated capacitors required; inductor current rating > 2 A; coupler power rating > 25 W; verify all TX-path passive component ratings before assembly |
 | 20 W PA supply current on har-bus contacts | Low | Peak ~4.2 A per slot at +12 V; within har-bus 64 contact rating; verify PSU total capacity when multiple 20 W modules transmit simultaneously |
-| T/R switch power handling at 20 W | Low–Medium | SKY13351 and equivalents must be verified at 20 W; derate to 50% duty cycle if continuous rating is marginal; multiple equivalent SPDT RF switches available (pSemi, MACOM) as footprint-compatible alternatives |
+| T/R switch power handling at 20 W | Low–Medium | PE42820 has no margin at 20 W; 20 W variant uses a PIN switch rated ≥ 50 W with its bias supply; verify at SWR 3; parts in [rf-switches-and-filters.md](rf-switches-and-filters.md) |
 | SWR bridge directivity at VHF (144 MHz) | Medium | Toroidal transformer couplers at VHF can exhibit reduced directivity below 150 MHz; validate directivity at 144 MHz on bench; adjust winding ratio or use transmission-line coupler if directivity < 20 dB |
 | SWR detector calibration drift with temperature | Low–Medium | Schottky detector diodes have temperature-dependent characteristics; three-point calibration table in EEPROM covers nominal temperature; consider two-temperature calibration table in future EEPROM revision |
 | PE4312 insertion loss at 1240 MHz | Low | Rated to 4 GHz; at 1.24 GHz insertion loss rises slightly but remains < 2 dB; acceptable for system NF budget |
 | DIN 41612 I2S signal integrity over backplane | Low | I2S at 16 MHz bit clock is well within DIN 41612 routing capability; series termination 33 Ω; mandatory via fences on I2S and SPI traces per Section 8.3 |
 | ZMQ IPC latency causing TX audio artefacts | Low | ZMQ PUB/SUB is sub-millisecond at localhost; hardware PTT sequencing (1 ms delay) already dominates latency |
 | SG13G2Cu BEOL availability for 23 cm VCO inductors | Medium | Standard Al BEOL thick layer may suffice; Cu BEOL option available from IHP at additional cost if Q is insufficient |
-| SKY13351 availability (supply chain) | Low | Multiple equivalent SPDT RF switches available (pSemi, MACOM); footprint-compatible alternatives exist |
+| T/R and band switch availability | Low | Several makers (pSemi, Skyworks, MACOM, Mini-Circuits); alternatives listed in [rf-switches-and-filters.md](rf-switches-and-filters.md) |
 
 ---
 
