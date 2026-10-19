@@ -1,6 +1,6 @@
 # Phase 2 plan — LO and synthesizer
 
-Status: **draft for human review, 2026-10-19.** Nothing in this plan has been designed or simulated yet. It turns `spec/rf-frontend.md` §5 and `spec/derived-limits.md` §9 into budgets, work steps and the decisions the owner has to make before circuit work starts. Topologies are proposals; per the agent rules they are chosen by a human.
+Status: **draft for human review, 2026-10-19. Owner decisions D1–D7 accepted 2026-10-19; P2.2 first run done (`analog/pll-model/`).** Nothing in this plan has been designed or simulated yet. It turns `spec/rf-frontend.md` §5 and `spec/derived-limits.md` §9 into budgets, work steps and the decisions the owner has to make before circuit work starts. Topologies are proposals; per the agent rules they are chosen by a human.
 
 ---
 
@@ -41,7 +41,7 @@ Not yet covered: the **flicker region** below about 100 kHz (not validated in VA
 |---|---|---|
 | PFD frequency | = reference, 32 or 36 MHz | No reference divider; lowest in-band noise |
 | Feedback divider N | ≈ 87–131 (3.12–4.20 GHz / 32–36 MHz) | |
-| Loop bandwidth | **100–150 kHz** | Settles in tens of µs (≤ 150 µs wake, ≤ 0.5 ms TX/RX turnaround); well below the 600 kHz / 2 MHz offsets, so the loop filter attenuates Σ-Δ noise and spurs there |
+| Loop bandwidth | **150 kHz** (P2.2: 100 kHz locks in 187 µs, 125 kHz in 150 µs, 150 kHz in 125 µs) | Settles in tens of µs (≤ 150 µs wake, ≤ 0.5 ms TX/RX turnaround); well below the 600 kHz / 2 MHz offsets, so the loop filter attenuates Σ-Δ noise and spurs there |
 | Σ-Δ modulator | MASH 1-1-1 with dither, ≥ 24-bit | Resolution ≈ fPFD / 2²⁴ / div ≤ 0.24 Hz at RF (requirement ≤ 10 Hz, < 1 Hz preferred) |
 | In-band noise | PFD/CP figure of merit ≈ −218 dBc/Hz (conservative) → ≈ −102 dBc/Hz at the VCO, ≈ −130 (VHF) / −120 (UHF) dBc/Hz at RF | Inside the loop only; not at the duplex offsets |
 | Loop filter | 3rd or 4th order passive | Attenuation of MASH noise and fractional spurs at 600 kHz / 2 MHz; set by the model in step P2.2 |
@@ -64,7 +64,7 @@ RX ≤ 25 mA and TX ≤ 60 mA for the whole chip (§6 of `spec/rf-frontend.md`).
 |---|---|---|---|
 | **P2.0** | Prerequisites: matched-mesh, de-embedded inductor study (Phase 0 follow-up); pnoise check of the flicker region | Tank Q to replace the provisional 14.9; flicker method | Owner accepts the EM result |
 | **P2.1** | Owner decisions D1–D7 (§5) | Entries in `decisions.md` | — |
-| **P2.2** | System model in Python: linear PLL phase-noise model (VCO, PFD/CP, Σ-Δ, loop filter), spur map including the boundary channels, lock-time transient | `analog/pll-model/` with a check script like `vhf_lpf_check.py`; loop parameters (Icp, filter values, KVCO per band, number of bands) | Human review of the budget |
+| **P2.2** ✅ first run | System model in Python: linear PLL phase-noise model (VCO, PFD/CP, Σ-Δ, loop filter), spur map including the boundary channels, lock-time transient | `analog/pll-model/` with a check script like `vhf_lpf_check.py`; loop parameters (Icp, filter values, KVCO per band, number of bands) | Human review of the budget |
 | **P2.3** | VCO: topology memo, schematic, capacitor bank, varactor; VACASK `pnoise` across bands, PDK corners and −40 to +85 °C, with the EM inductor model | Schematic, pnoise table vs §2.1 | Human topology review before schematic; result review after |
 | **P2.4** | Dividers and phase generation (÷2/÷3 prescaler stages, quadrature, 8-phase for VHF) | Transient across corners: maximum frequency, duty cycle, I/Q phase error (→ image rejection), 8-phase error (→ harmonic rejection) | Human review |
 | **P2.5** | PFD, charge pump, loop filter, multi-modulus divider, Σ-Δ modulator (digital) | Schematics; CP mismatch and leakage → spur estimate fed back to P2.2 | Human review |
@@ -88,15 +88,15 @@ Tools: VACASK (`pss`/`pnoise`, settings in `analog/pn-validation/README.md`), ng
 
 ---
 
-## 5. Decisions needed from the owner
+## 5. Owner decisions (all accepted as proposed, 2026-10-19)
 
-| # | Decision | Proposal |
+| # | Decision | Decided |
 |---|---|---|
 | D1 | VCO core type | NMOS cross-coupled first, HBT as comparison |
 | D2 | One wide-range VCO or two cores | One VCO with a 5–6-bit capacitor bank |
 | D3 | Where the Σ-Δ modulator lives | Separate small digital PLL block; the back end stays at 0.34 mm² |
 | D4 | VHF LO phases | 8-phase (÷3 then 8-phase ÷8) for the harmonic-reject mixer |
-| D5 | Loop bandwidth | 100–150 kHz |
+| D5 | Loop bandwidth | 100–150 kHz; P2.2 picks **150 kHz** for lock time |
 | D6 | Integer-boundary channels on the duplex offset | Meet the spur limit in the PLL; host avoidance only if P2.2 shows it cannot |
 | D7 | LO current budget | ≤ 10 mA of the RX 25 mA |
 

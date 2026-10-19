@@ -13,7 +13,7 @@
 |---|---|---|
 | 0 | Toolchain pinning, EM baseline (inductor L2n0) | Done. Matched-mesh EM study still required before Phase 2 |
 | 1 | Digital back end (SPI, decimation, I2S, TX interpolation and Σ-Δ, power control) | **Signed off on `phase1l`** (section 7). Awaiting the human Phase 1 review gate |
-| 2 | LO: VCO 3.12–4.20 GHz, ÷8 / ÷24 dividers, quadrature | Not started. Plan and budgets in `spec/phase2-plan.md` (draft, owner decisions D1–D7 pending); requirements in `spec/rf-frontend.md` §5; phase-noise simulation validated (`analog/pn-validation/`) |
+| 2 | LO: VCO 3.12–4.20 GHz, ÷8 / ÷24 dividers, quadrature | Plan in `spec/phase2-plan.md`; owner decisions D1–D7 accepted; P2.2 PLL model first run passes (`analog/pll-model/`, 150 kHz loop, VCO ≤ −116 dBc/Hz at 1 MHz); P2.0 (EM inductor study) and P2.3 onward not started; requirements in `spec/rf-frontend.md` §5; phase-noise simulation validated (`analog/pn-validation/`) |
 | 3 | RX: LNA, passive mixer, TIA, Σ-Δ modulator | Not started. Requirements in `spec/rf-frontend.md` §3 and `spec/derived-limits.md` |
 | 4 | TX: Σ-Δ DAC, reconstruction filter, IQ modulator, PA driver | Not started. Requirements in `spec/rf-frontend.md` §4 and `spec/derived-limits.md` |
 | 5 | Integration: single-chain die, pad ring, top level | Not started |

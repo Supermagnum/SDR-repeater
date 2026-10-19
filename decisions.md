@@ -147,3 +147,15 @@ Accepted and documented; LinHT should prefer 100 kHz or 500 kHz.
 ## 2026-10-19 — phase1l signed off; Phase 2 plan drafted
 - `phase1l` (pin-map RTL): sign-off pass — setup +3.99 ns, hold +0.089 ns (guard 0.08), LVS match, antenna 0, KLayout DRC 0, Magic DRC 7 815 (unchanged, inside the SRAM, waived), real area 339 617 µm² of 340 000. Gate level 6/6. The digital back end has no area left.
 - `spec/phase2-plan.md`: LO budgets (VCO ≤ −116 / −115 dBc/Hz at 1 MHz), loop proposal (100–150 kHz, MASH 1-1-1, fPFD = reference), steps P2.0–P2.7, decisions D1–D7 for the owner.
+
+## 2026-10-19 — Phase 2 owner decisions D1–D7; P2.2 model
+Accepted as proposed in `spec/phase2-plan.md` §5:
+- D1 VCO core: NMOS cross-coupled (the validated case), SiGe HBT version as comparison.
+- D2 one wide-range VCO with a 5–6-bit capacitor bank.
+- D3 the Σ-Δ modulator goes in a separate small digital PLL block; the back end stays at 0.34 mm².
+- D4 VHF LO: 8 phases (÷3, then 8-phase ÷8) for the harmonic-reject mixer.
+- D5 loop bandwidth 100–150 kHz.
+- D6 the integer-boundary channels must meet the spur limit in the PLL; host avoidance only if the model shows it cannot.
+- D7 LO current ≤ 10 mA of the 25 mA RX budget.
+
+P2.2 linear model (`analog/pll-model/`, all inputs `[PROP]`): passes at 150 kHz (lock 125 µs; 100 kHz needs 187 µs, so 150 kHz is chosen within D5). Duplex-offset phase noise −137.2 dBc/Hz (VHF) and −139.4 (UHF); the VCO term dominates and L(1 MHz) must stay ≤ −115 dBc/Hz. Boundary spurs on the hit channels pass if the raw spur is ≤ −35 dBc (VHF) / −20 dBc (UHF), so D6 holds on this model. Loop filter ≈ 400 pF.
