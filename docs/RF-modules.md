@@ -1,18 +1,17 @@
 # SDR Repeater — RF Module and RFIC Specification
 
 **Document:** Module RF Hardware Design Specification  
-**Revision:** 0.3  
-**Date:** June 2026  
-**Relates to:** SDR Multiband Repeater System Design v1.5  
+**Revision:** 0.4
+**Date:** October 2026
+**Relates to:** SDR Multiband Repeater System Design v1.9
 
-**Status:** This document records **design ideas and a target architecture** — not committed tapeout data, BOMs, or shipping hardware. Numbers, block diagrams, and MPW plans may change as bench results and shuttle runs inform later revisions.
+**Status:** This document records **design ideas and a target architecture** — not committed tapeout data, BOMs, or shipping hardware. **No fabrication is planned in this phase** (Section 11). The binding RFIC requirements are in [spec/rf-frontend.md](../spec/rf-frontend.md); the limits behind them in [spec/derived-limits.md](../spec/derived-limits.md); the design status in [HANDOFF.md](HANDOFF.md). Where this document and those files disagree, those files win.
 
-**Change summary (r0.2 → r0.3):** PA output power updated to 5 W standard / 20 W maximum across all bands. PA candidate parts, harmonic filter component ratings, +12 V PA rail current budget, duty cycle firmware limit, and risk register updated accordingly.
+**Change summary (r0.3 → r0.4):** HT13G-M is now **one band-switched chain** (130–175 MHz and 400–480 MHz) on an **SX1255-compatible pin-out**, so the same chip is a drop-in for the LinHT. TX output is **−5 dBm** (was 0 dBm) into a GRF5604 driver. The RFIC reset is **active-high with an on-chip power-on reset**; the backplane keeps `RFIC_RESET_N` and the module inverts it. **DC-offset and IQ-imbalance correction moved to the host.** Reference 32 or 36 MHz. **Attenuators are the default RX front end**; the external LNA is optional. A same-band repeater needs **separate RX and TX RFICs**. Backplane pin c5 (`ANT_SW`) is now **VHF/UHF band-path select**. The host side of the backplane is the ECP5 interface card in the Milk-V Megrez (host as secondary platform). The MPW submission plan is replaced by "no fabrication in this phase". HT13G-S (23 cm) is deferred and not updated.
 
-**Note:**
-The linHT projects bandwidth target is currently up to 500 kHz IQ, that has a rf spectrum coverage of 0.5 MHz.
-It can be found here: 
-https://linux-radio.eu/
+**Earlier change (r0.2 → r0.3):** PA output power updated to 5 W standard / 20 W maximum across all bands. PA candidate parts, harmonic filter component ratings, +12 V PA rail current budget, duty cycle firmware limit, and risk register updated accordingly.
+
+**LinHT:** HT13G-M is pin- and SPI-frame-compatible with the Semtech SX1255 used in the [LinHT](https://linux-radio.eu/) handheld: same footprint, 32 MHz reference, 500 kSa/s 16-bit IQ (0.5 MHz of RF spectrum), −5 dBm into the existing GRF5604 PA. VHF on the LinHT needs a board revision ([spec/rf-frontend.md](../spec/rf-frontend.md) §8).
 
 ---
 
@@ -30,7 +29,7 @@ https://linux-radio.eu/
 8. [Module PCB Architecture](#8-module-pcb-architecture)
 9. [Backplane Interface](#9-backplane-interface)
 10. [Software Interface: ZeroMQ IPC](#10-software-interface-zeromq-ipc)
-11. [MPW Tapeout Strategy](#11-mpw-tapeout-strategy)
+11. [Path to Silicon](#11-path-to-silicon)
 12. [Risk Register](#12-risk-register)
 13. [Open Licensing](#13-open-licensing)
 
@@ -47,7 +46,7 @@ Example default install:
 - Slot C — 23 cm: 1240–1258 MHz, 500 kHz IQ bandwidth, 5 W TX standard / 20 W TX maximum (or a second 70 cm link module)
 - Slot D — spare or expansion
 
-Each module is a self-contained PCB that plugs into a DIN 41612 Eurocard connector slot on the backplane. It carries its own RFIC, RF front end, power amplifier, band-pass filter, T/R switch, variable attenuator, SWR bridge, and external LNA. IQ data is transported digitally over the backplane data bus. The default antenna interface is front-panel **RP-SMA**; optional **Type-N** jacks are preferred where panel space and the site coax plan allow (see [Section 9.6](#96-antenna-connector-options-rp-sma-or-type-n)).
+Each module is a self-contained PCB that plugs into a DIN 41612 Eurocard connector slot on the backplane. It carries its own RFIC, RF front end, power amplifier, band-pass filter, T/R switch (or duplexer ports, Section 7.1), variable attenuators, SWR bridge, and optionally an external LNA. IQ data is transported digitally over the backplane data bus. The default antenna interface is front-panel **RP-SMA**; optional **Type-N** jacks are preferred where panel space and the site coax plan allow (see [Section 9.6](#96-antenna-connector-options-rp-sma-or-type-n)).
 
 ### PA output power levels
 
@@ -67,13 +66,13 @@ The repeater module context differs from a handheld transceiver in several impor
 | Parameter | OpenHT-DB handheld | Repeater module |
 |-----------|-------------------|-----------------|
 | Form factor | Single PCB, battery-powered | 3U Eurocard (100 × 160 mm), DIN 41612 backplane connector, backplane-powered |
-| IQ interface | I2S to iMX93 SoM on same PCB | I2S over backplane DIN 41612 to SpacemiT K3 |
+| IQ interface | I2S to iMX93 SoM on same PCB | I2S over backplane DIN 41612 to the host's ECP5 interface card |
 | Audio hardware | Codec, mic, headphone | Present on module PCB — used for bench test and optional monitoring |
 | Display / keypad | On chassis | Not on module — on chassis manager or remote |
 | ALSA | Required (audio output to user) | Available; used for bench testing and optional direct monitoring |
 | Battery / charging | On-board BMS + USB-C PD | External DC from backplane PSU rails (+12 V PA, +5 V, +3.3 V, +1.8 V) |
-| USB-A (security token) | On-board | On main SBC via backplane; Nitrokey token plugged into K3 USB-A |
-| Bands per PCB | Dual (VHF + UHF) | Single band per module |
+| USB-A (security token) | On-board | On the host; Nitrokey token plugged into the host's USB-A |
+| Bands per PCB | Dual (VHF + UHF) | Single band per module; dual-band 2 m / 70 cm optional (band-path switch, Section 7.3) |
 | GNSS on module | No — on main SBC | No — on main SBC |
 | SWR monitoring | Not applicable (handheld) | On-module SWR bridge + ADC; auto-disable on SWR > 3.0 |
 
@@ -88,6 +87,8 @@ No existing commodity RFIC adequately covers all three bands (144 MHz, 432 MHz, 
 ### LinHT and the SX1255 path
 
 The **[LinHT](https://linux-radio.eu/)** handheld project (OpenHT lineage) uses the Semtech **SX1255** for its UHF transceiver path — a reasonable fit at 432 MHz with 500 kHz IQ bandwidth. There is **no comparable commodity transceiver IC with a clean IQ interface at 144 MHz (VHF)** in the same class: the SX1255 family does not operate below roughly 400 MHz. That gap affects LinHT as well as this repeater concept. Both need true VHF coverage, not merely a UHF chip with an external upconverter or a compromised narrowband sub-GHz part.
+
+HT13G-M closes that gap from the other side: it keeps the SX1255 pin-out and SPI frame, so it drops into the LinHT, and adds 130–175 MHz to the same single chain ([spec/rf-frontend.md](../spec/rf-frontend.md)).
 
 The repeater addresses multiband service differently — one module PCB per band (or per role), each with a purpose-narrow RFIC — but the underlying commodity-silicon problem is the same: **no single off-the-shelf part spans VHF, UHF, and 23 cm** with the IQ interface and noise figure this architecture expects.
 
@@ -120,7 +121,7 @@ No commodity part in this survey covers the full 130 MHz–1300 MHz range with �
 
 A custom RFIC is the only clean path for the goals stated here.
 
-The approach taken — **one dedicated RFIC per module**, each covering one amateur band (or one link role) — avoids the power and complexity penalties of a wideband transceiver covering all three bands simultaneously. Each module is a focused, optimised design.
+The approach taken — **one RFIC design for 2 m and 70 cm (HT13G-M) and a separate one for 23 cm (HT13G-S)** — avoids the power and complexity penalties of a wideband transceiver covering all three bands simultaneously. A module uses HT13G-M for one band, or for both bands with a band-path switch (Section 7.3).
 
 ---
 
@@ -148,7 +149,7 @@ The SiGe HBT's fT of 300+ GHz means the transistors are operating well below the
 
 IHP runs regular OpenMPW shuttle batches for the SG13G2 and SG13CMOS5L processes. Each community slot is 2 mm². Based on the published 2025–2026 schedule, shuttles have run approximately every 1–2 months with tapeout deadlines in April, May, July, and September 2025, and an SG13G2 MPW run scheduled for October 2026. Turn-around time is approximately 8 months for SG13G2.
 
-The single-chain die for each band (Section 11 tapeout strategy) is sized to fit within the 2 mm² community slot, making the design accessible to independent validation before any commercial production run.
+The development chain stops before fabrication (Section 11). For scale: the signed-off HT13G-M digital back end occupies about 0.34 mm²; the analogue area is not yet estimated.
 
 ### Alternative processes
 
@@ -171,127 +172,135 @@ Designs targeting SG13CMOS5L should be maintained as a separate PDK variant (`$P
 
 ## 4. RFIC Family Overview
 
-Two RFIC variants are specified, covering all three repeater bands:
+| RFIC | Coverage | Used in | Status |
+|------|----------|---------|--------|
+| **HT13G-M** | 130–175 MHz (VHF) **and** 400–480 MHz (UHF) — **one band-switched chain** | 2 m, 70 cm and dual-band repeater modules; LinHT handheld (SX1255 drop-in) | Digital back end signed off (Phase 1); analogue part specified, not yet designed |
+| **HT13G-S** | 1200–1300 MHz (L-band / 23 cm) — single chain | 23 cm module | Deferred |
 
-| RFIC | Bands covered | Module(s) |
-|------|--------------|-----------|
-| **HT13G-M** | 130–175 MHz (VHF) + 400–480 MHz (UHF) — dual chain | 2 m module + 70 cm module (one chip, two independent chains) |
-| **HT13G-S** | 1200–1300 MHz (L-band / 23 cm) — single chain | 23 cm module |
+Up to r0.3 the HT13G-M was a dual-chain chip: two LNAs, two PLLs, two I2S ports and two PTT inputs, with one chain powered down on each module. It is now a **single chain**: one LNA input, one quadrature mixer, one VCO at 3.12–4.20 GHz divided by 8 (UHF) or 24 (VHF), one Σ-Δ ADC and one Σ-Δ DAC. The band is chosen by register (`band_sel`). The same die serves 2 m, 70 cm, VHF/UHF land mobile and PMR446, and — because it keeps the **Semtech SX1255 pin-out and SPI frame** — the LinHT handheld.
 
-The HT13G-M is the dual-chain variant adapted from the OpenHT-DB handheld specification, with the handheld-specific interfaces (audio codec, display, battery management) removed and the backplane interfaces (I2S over DIN 41612, SPI configuration, ZeroMQ IPC) substituted.
+The full requirements are in [spec/rf-frontend.md](../spec/rf-frontend.md); the limits they come from (Norwegian duplex offsets: 600 kHz on 2 m, 2 MHz on 70 cm) are in [spec/derived-limits.md](../spec/derived-limits.md); the design status and sign-off numbers are in [HANDOFF.md](HANDOFF.md). Section 5 summarises them.
 
-The HT13G-S is a new single-chain design targeting the 23 cm band. The SiGe HBT process easily covers 1.2–1.3 GHz; this is well within the transistor's capabilities at fT of 300 GHz.
+The HT13G-S is a separate single-chain design for 23 cm (Section 6), deferred until VHF/UHF is done.
 
 ---
 
 ## 5. HT13G-M RFIC — 2 m / 70 cm Module
 
-This chip is used on both the 2 m module (VHF chain only active) and the 70 cm module (UHF chain only active). Both chains are present on silicon; the inactive chain is powered down via SPI. This approach reuses a single die across two modules, reducing NRE cost and simplifying the OpenMPW submission.
+One HT13G-M is a **half-duplex** transceiver: the receive and transmit paths share the on-chip filter engine. A same-band repeater therefore uses **two** HT13G-M, one for RX and one for TX (Section 7.1). A simplex or cross-band module uses one.
 
 ### 5.1 Architecture
 
-Both RX and TX chains use direct-conversion (zero-IF) IQ architecture. Each chain is fully independent: separate LNA, separate PLL/VCO, separate Σ-Δ ADC and DAC, separate I2S port. There is no shared LO between the VHF and UHF chains, providing > 60 dB inter-chain isolation.
+Direct-conversion (zero-IF) IQ in both directions, one chain for both bands:
 
 ```
-                    ┌─────────────────────────────────────────────────────┐
-                    │                  HT13G-M RFIC                       │
-                    │                                                     │
-  RF_VHF_IN ───────►│ BPF → LNA_V → IQ Mixer → Σ-Δ ADC → I2S_VHF OUT  │
-                    │         ↑                                           │
-                    │      PLL_V (130–175 MHz, 32 MHz ref)               │
-                    │         ↓                                           │
-  RF_VHF_OUT ◄──────│ BPF ← PA Driver ← IQ Mod ← Σ-Δ DAC ← I2S_VHF IN │
-                    │                                                     │
-  RF_UHF_IN ───────►│ BPF → LNA_U → IQ Mixer → Σ-Δ ADC → I2S_UHF OUT  │
-                    │         ↑                                           │
-                    │      PLL_U (400–480 MHz, 32 MHz ref)               │
-                    │         ↓                                           │
-  RF_UHF_OUT ◄──────│ BPF ← PA Driver ← IQ Mod ← Σ-Δ DAC ← I2S_UHF IN │
-                    │                                                     │
-                    │ SPI config · RSSI · AGC · TEMP · IRQ               │
-                    │ VCTCXO_TUNE (0–1.8 V analog)                       │
-                    └─────────────────────────────────────────────────────┘
+RF_IN (pin 27) → LNA with gain steps → quadrature mixer (harmonic-reject on VHF) → TIA + anti-alias → Σ-Δ ADC → decimation ─┐
+                                              ↑ LO                                                                     │
+        XTB (pin 8, 32 or 36 MHz) → PLL → VCO 3.12–4.20 GHz → ÷8 (UHF) / ÷24 (VHF) → I/Q LO                            ├─ I2S + SPI
+                                              ↓ LO                                                                     │  (digital back
+RF_OP / RF_ON (pins 30 / 29) ← PA driver ← TX gain ≥ 30 dB ← IQ modulator ← reconstruction filter ← Σ-Δ DAC ← interpolation ─┘   end, signed off)
 ```
 
 ### 5.2 Receive Path Specifications
 
-| Parameter | VHF Chain | UHF Chain | Notes |
-|-----------|-----------|-----------|-------|
-| Frequency range | 130–175 MHz | 400–480 MHz | Covers 2 m and 70 cm globally |
-| Architecture | Zero-IF direct conversion IQ | same | |
-| LNA topology | Common-emitter SiGe HBT, inductively degenerated | same | |
-| Noise figure | < 5 dB | < 4 dB | At matched 50 Ω, 25°C |
-| Input impedance | 50 Ω | 50 Ω | External matching network on module PCB |
-| IIP3 | > −5 dBm | > −5 dBm | |
-| LNA gain | 12–20 dB, 4 programmable steps via SPI | same | |
-| Image rejection | > 40 dBc | > 40 dBc | DC offset correction loop required |
-| ADC architecture | 1-bit Σ-Δ, 38.4 MHz oversampled, decimated | same | |
-| ADC output word | 16-bit I + 16-bit Q signed | same | |
-| Sample rates | 25 / 50 / 100 / 200 / 500 kHz selectable | same | |
-| Max IQ bandwidth | 500 kHz | 500 kHz | |
-| DC offset cancellation | Digital feedback loop, programmable time constant | same | |
-| IQ imbalance | < 1 dB amplitude, < 2° phase post-calibration | same | |
-| RSSI | 8-bit, ±2 dB, SPI-readable | same | |
-| AGC | Programmable threshold + step; manual SPI override | same | |
+Targets for the **attenuator baseline** (two PE4312 in front of the chip, as on the LinHT; Section 7.1). `[PROP]` values in [spec/rf-frontend.md](../spec/rf-frontend.md) §3 are proposals for review.
+
+| Parameter | Target | Notes |
+|-----------|--------|-------|
+| Frequency range | 130–175 MHz and 400–480 MHz | One chain; band by register |
+| Input | 50 Ω single-ended (pin 27) | One external match per band |
+| Noise figure (max gain) | ≤ 4 dB | Not worse than the SX1255 (4.5 dB); baseline system NF ≈ 8 dB with the attenuators |
+| Gain control on chip | ≥ 48 dB | The PE4312s add 0–63 dB externally |
+| IIP3 (max gain) | ≥ −20 dBm | Own TX leakage plus a second signal at a repeater |
+| Input P1 dB (max gain) | ≥ −30 dBm | Own TX at −36 dBm (25 W, 80 dB duplexer) must not compress |
+| LO phase noise at the duplex offset | ≤ −136 dBc/Hz (25 W), ≤ −129 dBc/Hz (5 W) | Reciprocal mixing; −139 with the LNA option |
+| VHF 3 × LO response | ≥ 60 dB rejection | Harmonic-reject mixer plus board preselection |
+| ADC | 1-bit Σ-Δ at the reference rate (32 or 36 MHz) | DR ≥ 101 dB in 12.5 kHz (25 W) / 94 dB (5 W); anti-alias ≥ 40 dB at ±8/9 MHz, ≥ 70 dB at ±32/36 MHz |
+| IQ output | 16-bit I + 16-bit Q | 25 / 50 / 100 / 200 / 500 kHz; 500 kHz maximum |
+| DC offset, IQ imbalance | **Corrected on the host** | Removed from the chip in 2026-10 to meet the 0.34 mm² digital area target |
+| Maximum input | 0 dBm operating, +6 dBm absolute | As the SX1255 |
 
 ### 5.3 Transmit Path Specifications
 
-| Parameter | VHF Chain | UHF Chain | Notes |
-|-----------|-----------|-----------|-------|
-| Architecture | Direct IQ upconversion | same | |
-| DAC architecture | 1-bit Σ-Δ interpolating | same | |
-| Input sample rates | 25 / 50 / 100 / 200 / 500 kHz | same | |
-| Output power (chip) | 0 ± 2 dBm into 50 Ω | same | External PA on module PCB (see Section 7.3) |
-| Harmonic suppression | > 25 dBc | > 25 dBc | Module PCB band filter brings this to > 60 dBc |
-| TX/RX isolation | > 40 dB | > 40 dB | On-chip switch + external T/R switch on module |
-| PA driver current | Programmable 0 / 50 / 100% via SPI | same | |
+| Parameter | Target | Notes |
+|-----------|--------|-------|
+| Output | **−5 dBm** average into 50 Ω, single-ended on RF_OP (differential 100 Ω allowed) | Same as the SX1255 on the LinHT, so the GRF5604 and its match are reused |
+| Output P1 dB | ≥ +2 dBm | 7 dB back-off |
+| OIP3 at −5 dBm | ≥ +13 dBm | Linear modes |
+| Gain control | ≥ 30 dB analogue, ≤ 2 dB steps, **after** the reconstruction filter | Lowering power must lower the noise too |
+| Noise at the duplex offset | ≤ −146 dBc/Hz at the RFIC output (25 W) | −149 with the LNA option |
+| Reconstruction filter | ≥ 51 dB at 600 kHz, ≥ 71 dB at 2 MHz (IQ rates ≤ 200 kHz) | Selectable corner |
+| Image / LO leakage | Image ≥ 40 dB after host calibration; LO leakage ≤ −30 dBc before | |
+| Harmonics at the RFIC output | ≤ −30 dBc | The module filter does the rest |
+| TX enable | SPI register write (the SX1255 pin-out has no PTT pin) | See open item 2 in Section 5.9 |
 
-### 5.4 PLL / Frequency Synthesis
+### 5.4 LO / Frequency Synthesis
 
-| Parameter | VHF PLL | UHF PLL |
-|-----------|---------|---------|
-| Architecture | Integer-N + fractional Σ-Δ extension | same |
-| VCO range | 130–175 MHz direct | 400–480 MHz direct |
-| Reference | 32 MHz shared VCTCXO (on module PCB) | same |
-| VCTCXO tune input | 0–1.8 V analog, ±50 ppm pull | — |
-| Phase noise @ 10 kHz offset | < −90 dBc/Hz | < −95 dBc/Hz |
-| Lock time | < 1 ms | < 1 ms |
-| Frequency resolution | < 100 Hz | < 100 Hz |
-| Frequency word | 32-bit via SPI | same |
-| Inter-chain isolation | > 60 dB — fully independent PLLs | |
+| Parameter | Target |
+|-----------|--------|
+| VCO | 3.12–4.20 GHz; ÷8 for UHF, ÷24 for VHF; quadrature from the last ÷2 |
+| Phase noise at the LO | ≤ −136 dBc/Hz at 600 kHz (VHF) and 2 MHz (UHF), 25 W baseline |
+| Frequency resolution | ≤ 10 Hz at RF; < 1 Hz preferred so ppm correction can be done in the LO |
+| Synthesizer wake-up | ≤ 150 µs |
+| TX/RX turnaround | ≤ 0.5 ms including PLL settling (DMR TDMA) |
+| Reference | 32 MHz or 36 MHz on XTB; the host picks per channel so that no clock harmonic lands on it (32 MHz for 2 m / 70 cm, 36 MHz for PMR446 and near 160 / 416 / 448 MHz). LinHT: 32 MHz only |
+| Reference spurs | To be derived (open item in spec/rf-frontend.md) |
 
-### 5.5 Digital Interface
+The chip has no tuning-voltage pin. The module's reference oscillator (VCTCXO) is tuned through backplane pin a12 as before; how the RFIC modules are frequency-disciplined is not decided yet.
 
-| Signal | Description |
-|--------|-------------|
-| I2S_VHF: BCLK / LRCLK / DOUT / DIN | VHF IQ stream; I = Left, Q = Right; 16-bit frames |
-| I2S_UHF: BCLK / LRCLK / DOUT / DIN | UHF IQ stream; identical format |
-| SPI: CLK / MOSI / MISO / CS | Shared configuration bus; up to 10 MHz |
-| PTT_VHF / PTT_UHF | Active-high TX enable per chain; hardware path < 1 µs |
-| IRQ | Active-low: PLL unlock, AGC threshold, RSSI update |
-| RESET_N | Active-low chip reset |
-| VCTCXO_TUNE | Analog in 0–1.8 V; disciplines shared 32 MHz reference |
+The open-source phase-noise simulation (VACASK `pnoise`) used for the VCO has been validated against an exact result and against transient noise on an SG13G2 oscillator ([analog/pn-validation/](../analog/pn-validation/README.md)); the flicker region is not yet validated.
+
+### 5.5 Digital Interface (SX1255 pin-out, "Option P")
+
+| Pin(s) | SX1255 name | HT13G-M function |
+|--------|-------------|------------------|
+| 17–20 | SCK, MISO, MOSI, NSS | SPI, same frame as the SX1255 (mode 0, write bit + 7-bit address + 8-bit data). **Register map differs** — the host driver changes |
+| 10 | CLK_OUT | I2S BCLK (out when master, in when slave) |
+| 23 | DIO2 | I2S word select (LRCLK) |
+| 15 | I_OUT | I2S data out (RX IQ: I = left, Q = right, 16-bit) |
+| 13 | I_IN | I2S data in (TX IQ) |
+| 9 | RESET | **Active-high** reset, internal pull-down; ORed with the on-chip power-on reset |
+| 8 | XTB | 32 or 36 MHz reference input |
+| 21 | DIO0 | `clk_req` |
+| 22, 24, 11, 12, 14 | DIO1, DIO3, CLK_IN, Q_IN, Q_OUT | Spare / test |
+
+I2S is Philips format with a continuous bit clock. The RFIC is **master** by default; slave mode goes through a 4-deep asynchronous FIFO. At 500 kSa/s and 32 MHz the bit clock is 16 MHz (32 bit clocks per frame, 50 % duty). Full pin map: [spec/rf-frontend.md](../spec/rf-frontend.md) §2.
+
+The digital I/O runs at the chip supply (2.7–3.6 V), as on the SX1255; there is no separate VDD_IO. On a repeater module, level translators sit between the 1.8 V backplane and the RFIC (Section 9.5 notes).
 
 ### 5.6 Power
 
-| Rail | Voltage | RX current | TX current |
-|------|---------|------------|------------|
-| VDD_RF | 3.3 V | 55 mA (both chains) | 80 mA |
-| VDD_CORE | 1.2 V (internal LDO) | 20 mA | 25 mA |
-| VDD_IO | 1.8 V or 3.3 V selectable | 5 mA | 5 mA |
-| **Total** | | **~265 mW** | **~363 mW** |
-
-On a repeater module, the inactive chain is powered down via SPI register: the 2 m module powers down the UHF chain, the 70 cm module powers down the VHF chain.
+| Item | Target |
+|------|--------|
+| Supply | Single 2.7–3.6 V (VBAT1–3), internal regulators decoupled on VR_PA, VR_ANA1, VR_ANA2, VR_DIG |
+| Sleep | ≤ 1 µA |
+| Standby (reference running) | ≤ 1.5 mA |
+| RX | ≤ 25 mA |
+| TX at −5 dBm | ≤ 60 mA |
+| Temperature | −40 to +85 °C ambient |
+| ESD | ±2 kV HBM all pins; RF pins ≥ ±1 kV |
+| Power-on reset | On-chip; SPI usable ≤ 5 ms after power-on and after a manual reset |
 
 ### 5.7 Package
 
-- QFN-48, 6×6 mm, 0.5 mm pitch
-- Exposed thermal/RF ground pad (EPAD); minimum 9-via array to L2
-- WLCSP variant possible after silicon validation
+- Same as the SX1255: MLPQ-W 5 × 5 mm, 32 leads plus exposed pad (pin 0 = ground, also RF ground)
+- Exposed pad: minimum 9-via array to L2
 
----
+### 5.8 Work Done on the Host
+
+- **DC-offset and IQ-imbalance correction** of the RX stream, and pre-correction of the TX stream, in the host software (GNU Radio 4, planned under `host/gr4/`). The RFIC has no calibration registers for these.
+- Choice of the 32 or 36 MHz reference per channel.
+- A new SPI driver (the LinHT's `sx1255-spi` equivalent) for the HT13G-M register map.
+
+### 5.9 Open Items (interface)
+
+1. **`ref_36` on the SX1255 pin-out:** no spare strap pin; register bit applied under reset, or DIO3.
+2. **Backplane PTT (c2) and RFIC_IRQ_N (c1):** r0.3 had RFIC pins for both; the SX1255 pin-out has neither. TX is enabled over SPI. Whether c2 and c1 use spare DIO pins (e.g. DIO3 / DIO1) or serve only the module's own interlock and status logic is open.
+3. **I2S format on the LinHT:** confirm in the LinHT device tree that the i.MX93 SAI runs standard I2S with the transceiver as clock master.
 
 ## 6. HT13G-S RFIC — 23 cm Module
+
+> **Deferred — not updated since r0.3.** When work on 23 cm starts, HT13G-S takes over the HT13G-M decisions: active-high reset with on-chip power-on reset, DC-offset and IQ correction on the host, 32 or 36 MHz reference, −5 dBm TX output, no fabrication in the development phase. The numbers below are the r0.3 ideas.
 
 The 23 cm band (1240–1258 MHz) requires a separate RFIC. At 1.24 GHz the circuit topology changes compared to sub-500 MHz design — microstrip matching networks become practical and transmission line effects must be accounted for in layout. The SiGe HBT process remains entirely appropriate; fT of 300 GHz gives > 200× frequency headroom.
 
@@ -363,7 +372,7 @@ Single-chain, single-band. Zero-IF direct conversion with on-chip LNA, IQ mixer,
 
 ### 6.5 Digital Interface
 
-Identical to HT13G-M for SPI, PTT, IRQ, RESET_N, and VCTCXO_TUNE. Single I2S port (I2S_23CM) instead of two.
+To follow HT13G-M (Section 5.5) for SPI, I2S and reset when the design is resumed.
 
 ### 6.6 Power
 
@@ -388,25 +397,29 @@ Each module presents the same external signal chain architecture regardless of b
 
 ### 7.1 Full RF Chain Block
 
+One HT13G-M is half-duplex (Section 5). Two module configurations follow from that.
+
+**A. Repeater (same-band duplex):** RX and TX run at the same time, so two RFICs are needed — one receiving, one transmitting — sharing one reference oscillator, with RX and TX joined at the site's external cavity duplexer (80 dB TX→RX isolation assumed in [spec/derived-limits.md](../spec/derived-limits.md)).
+
+```
+ANT ── cavity duplexer (external, at the site)
+          ├── RX port ── 2× PE4312 (0–63 dB) [── optional LNA in front] ── HT13G-M (RX)
+          └── TX port ── SWR bridge ── harmonic filter ── PA (GRF5604 driver + final) ── HT13G-M (TX)
+```
+
+Whether both RFICs sit on **one duplex module** (two front-panel ports) or on **an RX module and a TX module in two slots** (one port each, as Section 9.6 assumes) is open.
+
+**B. Simplex, half-duplex link or cross-band module** (and the LinHT): one RFIC and a T/R switch.
+
 ```
 ANT (RP-SMA or Type-N, front panel)
     │
-    ▼
-T/R Switch (SPDT, solid-state)
-    │                    │
-    ▼ (RX path)          ▼ (TX path)
-Variable Attenuator      SWR Bridge (directional coupler)
-(0–31.5 dB, 0.5 dB)          │
-    │                    ▼
-    ▼              Band-Pass / Harmonic Filter
-External LNA       (7-element Chebyshev, > 60 dBc)
-(NF < 0.8 dB)           │
-    │                    ▼
-    ▼              Power Amplifier (5 W standard / 20 W maximum)
-  [RFIC RX input]        │
-                         ▲
-                   [RFIC TX output]
+T/R switch (SPDT, solid-state)
+    ├── RX path: 2× PE4312 variable attenuator (0–63 dB) [── optional external LNA in front] ── HT13G-M RF_IN
+    └── TX path: SWR bridge ── harmonic filter ── PA (GRF5604 driver + final, 5 W / 20 W) ── HT13G-M RF_OP
 ```
+
+The **default RX front end is the attenuators alone**, as on the LinHT (system NF ≈ 8 dB, sensitivity about −117 dBm for 12 dB SINAD in 12.5 kHz FM). A module designer may fit an external LNA in front of them (NF ≈ 5 dB system); the RFIC limits are given for both cases in [spec/derived-limits.md](../spec/derived-limits.md) §8. A dual-band module adds the band-path switches of Section 7.3.
 
 The SWR bridge is placed **between the PA output and the T/R switch**, after the harmonic filter, so it measures the power actually reaching the antenna port — including any mismatch at the connector and feedline. Forward and reflected power detector outputs feed a dual-channel ADC on the module PCB; the ADC result is read by the `ht-module-daemon` via I²C or SPI during transmit.
 
@@ -490,7 +503,7 @@ The module will not transmit again until an operator issues `MOD_CLEAR_FAULT` af
 
 ### 7.3 Component Specifications
 
-#### T/R Switch (Solid-state, per band)
+#### T/R Switch (Solid-state, configuration B modules)
 
 | Parameter | VHF (144 MHz) | UHF (432 MHz) | 23 cm (1240 MHz) |
 |-----------|:-------------:|:-------------:|:----------------:|
@@ -501,9 +514,9 @@ The module will not transmit again until an operator issues `MOD_CLEAR_FAULT` af
 | TX→RX isolation | > 30 dB | > 30 dB | > 28 dB |
 | Power handling | > 25 W continuous | > 25 W continuous | > 25 W continuous |
 | Switching time | < 1 µs | < 1 µs | < 1 µs |
-| Control | 2 GPIO from SpacemiT K3 (via backplane) | same | same |
+| Control | 2 GPIO from the host (via backplane) | same | same |
 
-The T/R switch is a key reliability element. Solid-state (PIN diode or CMOS SOI) switching is mandatory — no mechanical relays. All three bands can use the SKY13351 or its equivalent; at 1240 MHz insertion loss is slightly higher but remains acceptable. **Power handling must be verified against the 20 W maximum level at the selected part's rated continuous power; derate to 50% duty cycle where continuous rating is marginal.**
+The T/R switch is a key reliability element. Solid-state (PIN diode or CMOS SOI) switching is mandatory — no mechanical relays. All three bands can use the SKY13351 or its equivalent (the LinHT uses the SKY13330); at 1240 MHz insertion loss is slightly higher but remains acceptable. **Power handling must be verified against the 20 W maximum level at the selected part's rated continuous power; derate to 50% duty cycle where continuous rating is marginal.**
 
 **PTT sequencing is hardware-enforced:**
 
@@ -537,15 +550,15 @@ The single-chain RFIC tunes 130–175 MHz and 400–480 MHz, but the parts aroun
 | Parameter | Value |
 |-----------|-------|
 | Part | pSemi PE4312 (1 MHz–4 GHz, valid for all three bands) |
-| Range | 0–31.5 dB, 0.5 dB steps |
+| Range | 0–31.5 dB per device, 0.5 dB steps; **two in series (0–63 dB)** as on the LinHT |
 | Insertion loss at 0 dB | < 1 dB |
 | Control | 6-bit SPI or parallel; latch enable from module GPIO |
-| Purpose | Extends AGC range; prevents RFIC saturation on strong local signals |
+| Purpose | Default RX front end: extends the gain-control range and lets a strong site trade sensitivity for blocking |
 | Supply | 3.3 V |
 
 The PE4312 covers DC–4 GHz, making it suitable for all three bands with a single part number. At 1240 MHz, insertion loss increases slightly from the 1 MHz spec but remains under 1 dB.
 
-#### External LNA (RX path, per band)
+#### External LNA (RX path, optional)
 
 | Parameter | VHF / UHF | 23 cm |
 |-----------|-----------|-------|
@@ -553,9 +566,9 @@ The PE4312 covers DC–4 GHz, making it suitable for all three bands with a sing
 | Noise figure | < 0.8 dB | < 1.0 dB |
 | Gain | 16–20 dB | 14–18 dB |
 | Bias | 3.3 V, set by on-module bias resistor | same |
-| Placement | Immediately after T/R switch, before attenuator | same |
+| Placement | When fitted: immediately after the T/R switch or duplexer RX port, before the attenuators | same |
 
-The external LNA defines the system noise figure, which is dominated by the first active stage. Placing the LNA before the attenuator means the attenuator's insertion loss and the RFIC's noise figure are both divided by the LNA gain when referred to the input — a critical system noise figure improvement.
+The external LNA defines the system noise figure, which is dominated by the first active stage. Placing the LNA before the attenuator means the attenuator's insertion loss and the RFIC's noise figure are both divided by the LNA gain when referred to the input — a system noise figure improvement from about 8 dB to about 5 dB. The LNA is **optional**: the baseline module has none, and the LNA gain raises the linearity the RFIC sees by the same amount.
 
 #### Power Amplifier (TX path, per band)
 
@@ -566,21 +579,21 @@ Two PA configurations are supported. Both share the same PCB footprint family wh
 | **Standard output (5 W)** | | | |
 | Target output | 5 W (37 dBm) | 5 W (37 dBm) | 5 W (37 dBm) |
 | Candidate IC | RA07H1317M | RA07H4047M | RA07H1213M or MAAMSS0060 |
-| Required gain | ~37 dB (two-stage) | ~37 dB | ~37 dB |
+| Required gain | ~42 dB from −5 dBm (driver + final) | ~42 dB | ~42 dB |
 | PA supply | 3.3–5 V regulated | same | same |
 | Efficiency | > 40% Class AB | > 40% | > 35% |
 | Heat dissipation at 5 W TX | ~7.5 W at 40% efficiency | same | ~8.6 W at 37% |
 | **Maximum output (20 W)** | | | |
 | Target output | 20 W (43 dBm) | 20 W (43 dBm) | 20 W (43 dBm) |
 | Candidate IC | RA30H1317M | RA30H4047M | MAAMSS0060 or equivalent GaAs MMIC |
-| Required gain | ~43 dB (two-stage) | ~43 dB | ~43 dB |
+| Required gain | ~48 dB from −5 dBm (driver + final) | ~48 dB | ~48 dB |
 | PA supply | +12 V from backplane (direct, no linear regulator in series) | same | same |
 | Efficiency | > 40% Class AB | > 40% | > 35% |
 | Heat dissipation at 20 W TX | ~30 W at 40% efficiency; **15 W average at 50% duty cycle** | same | ~34 W at 37%; **17 W average** |
 | **Common** | | | |
-| Input power | 0 dBm from RFIC | same | same |
-| Architecture | Driver + GaAs or LDMOS final | same | GaAs MMIC |
-| Enable | GPIO from SpacemiT K3 via backplane, sequenced after T/R switch | same | same |
+| Input power | **−5 dBm** from the RFIC | same | same |
+| Architecture | GRF5604 driver (100–600 MHz, as on the LinHT) + GaAs or LDMOS final; check the final's drive requirement against the GRF5604 output | same | GaAs MMIC |
+| Enable | GPIO from the host via backplane, sequenced after T/R switch | same | same |
 
 > **Thermal note (20 W variant):** At 20 W output with 40% efficiency the PA dissipates ~30 W instantaneously and ~15 W average at 50% duty cycle. This exceeds the passive cooling capacity of the 100 × 160 mm module PCB (~5 W passively). A 120 mm fan mounted below the card cage is **required** for sustained 20 W operation. The copper pour and via array described in Section 8.5 conduct heat from the PA package to the board surface; forced air removes it from there. The per-card temperature sensors (LM75/TMP102, Section 9.4) feed the fan controller; fan speed should begin ramping at 35°C board temperature and reach full speed by 45°C. A firmware transmit inhibit triggers at 55°C regardless of PA level.
 
@@ -631,7 +644,7 @@ Each module is a single PCB on a **3U Eurocard form factor (100 × 160 mm per IE
 │  50 Ω microstrip L1 · mandatory shield cans (Würth/Laird)   │
 ├────────────────────────────────────┬────────────────────────┤
 │  MIXED ZONE                        │  DIGITAL ZONE          │
-│  VCTCXO 32 MHz                     │  DIN 41612 connector   │
+│  VCTCXO 32 or 36 MHz               │  DIN 41612 connector   │
 │  VCTCXO_TUNE RC filter             │  area (96-pin + har-bus)│
 │  SWR ADC (MCP3202 / ADS1015)       │  power contacts)       │
 │  SPI / I2S traces (short,          │  Power conditioning    │
@@ -695,7 +708,7 @@ All ground copper pours on L1 (top) and L6 (bottom) serve a dual purpose: RF/sig
 
 ## 9. Backplane Interface
 
-Each module communicates with the SpacemiT K3 compute module over the backplane via a **DIN 41612 Eurocard connector system**. The module PCB retains the 3U Eurocard form factor (100 × 160 mm per IEC 60297).
+Each module communicates with the host over the backplane via a **DIN 41612 Eurocard connector system**. The host side of the backplane is the **ECP5-25F PCIe interface card** in the Milk-V Megrez (primary platform); a host (secondary platform) with equivalent GPIO and I2S can take its place. Both are called **host** below. The module PCB retains the 3U Eurocard form factor (100 × 160 mm per IEC 60297).
 
 ### 9.1 Connector System
 
@@ -714,59 +727,53 @@ KiCad standard library includes DIN 41612 footprints; no custom footprint is req
 
 The RFIC produces IQ samples as I2S audio streams (I = Left, Q = Right, 16-bit signed). At 500 kHz IQ bandwidth, the I2S bit clock is 16 MHz (500 kHz × 2 channels × 16 bits). This is a slow, deterministic serial bus — entirely compatible with routing over the DIN 41612 signal connector.
 
-On the SpacemiT K3, each I2S stream maps to one SAI (Synchronous Audio Interface) peripheral:
+Each slot has its own I2S port on the host interface card (BCLK, LRCLK, DOUT, DIN). The RFIC is the I2S **master** by default, so BCLK and LRCLK come from the module; the RFIC can also run as slave. At 500 kSa/s with a 32 MHz reference the bit clock is 16 MHz.
 
-| Module | RFIC I2S port | K3 SAI peripheral | ALSA device |
-|--------|--------------|-------------------|-------------|
-| 2 m | I2S_VHF | SAI1 | hw:0 (bench testing only) |
-| 70 cm | I2S_UHF | SAI2 | hw:1 (bench testing only) |
-| 23 cm | I2S_23CM | SAI3 | hw:2 (bench testing only) |
-
-For the production repeater, the I2S streams are not presented to userspace via ALSA. Instead, a kernel driver or DMA path feeds the raw IQ samples directly into the ZeroMQ IPC layer (see Section 10). ALSA mapping is used only during bench testing.
+For the production repeater the IQ stream is not presented to userspace via ALSA: the interface card's DMA path feeds the raw IQ samples into the ZeroMQ IPC layer (see Section 10). ALSA (as on the LinHT) is used only for bench testing.
 
 ### 9.3 Configuration: SPI over Backplane
 
-Each module's RFIC is configured via SPI. The SPI bus is carried over the DIN 41612 signal connector. Each module has a unique chip-select line, allowing all three modules to share a single SPI bus from the K3.
+Each module's RFIC is configured via SPI. The SPI bus is carried over the DIN 41612 signal connector. Each module has a unique chip-select line, allowing all three modules to share a single SPI bus from the host.
 
 The SWR ADC (MCP3202) shares the same SPI bus with a dedicated chip-select line per module, or uses I²C (ADS1015 variant) on the shared I²C backplane bus.
 
 | Signal | Direction | Notes |
 |--------|-----------|-------|
-| SPI_CLK | K3 → all modules | Shared clock, up to 10 MHz |
-| SPI_MOSI | K3 → all modules | Shared data |
-| SPI_MISO | modules → K3 | Tri-stated when CS inactive |
-| SPI_CS_2M | K3 → 2 m module | Active-low chip select (RFIC) |
-| SPI_CS_70CM | K3 → 70 cm module | Active-low chip select (RFIC) |
-| SPI_CS_23CM | K3 → 23 cm module | Active-low chip select (RFIC) |
-| SPI_CS_ADC_2M | K3 → 2 m module | Active-low chip select (SWR ADC, MCP3202 variant) |
-| SPI_CS_ADC_70CM | K3 → 70 cm module | same |
-| SPI_CS_ADC_23CM | K3 → 23 cm module | same |
+| SPI_CLK | host → all modules | Shared clock, up to 10 MHz |
+| SPI_MOSI | host → all modules | Shared data |
+| SPI_MISO | modules → host | Tri-stated when CS inactive |
+| SPI_CS_2M | host → 2 m module | Active-low chip select (RFIC) |
+| SPI_CS_70CM | host → 70 cm module | Active-low chip select (RFIC) |
+| SPI_CS_23CM | host → 23 cm module | Active-low chip select (RFIC) |
+| SPI_CS_ADC_2M | host → 2 m module | Active-low chip select (SWR ADC, MCP3202 variant) |
+| SPI_CS_ADC_70CM | host → 70 cm module | same |
+| SPI_CS_ADC_23CM | host → 23 cm module | same |
 
 ### 9.4 Control Signals over Backplane
 
 | Signal | Direction | Function |
 |--------|-----------|----------|
-| PTT_2M | K3 → module | TX enable, 2 m (step 1 in PTT sequence) |
-| SW_2M | K3 → module | T/R switch, 2 m (step 2) |
-| PA_EN_2M | K3 → module | PA enable, 2 m (step 3, after 1 ms delay) |
-| PTT_70CM | K3 → module | TX enable, 70 cm |
-| SW_70CM | K3 → module | T/R switch, 70 cm |
-| PA_EN_70CM | K3 → module | PA enable, 70 cm |
-| PTT_23CM | K3 → module | TX enable, 23 cm |
-| SW_23CM | K3 → module | T/R switch, 23 cm |
-| PA_EN_23CM | K3 → module | PA enable, 23 cm |
-| ATT_LE_2M | K3 → module | Attenuator latch enable, 2 m |
-| ATT_LE_70CM | K3 → module | Attenuator latch enable, 70 cm |
-| ATT_LE_23CM | K3 → module | Attenuator latch enable, 23 cm |
-| IRQ_2M | module → K3 | RFIC event: PLL unlock, AGC, RSSI |
-| IRQ_70CM | module → K3 | same |
-| IRQ_23CM | module → K3 | same |
-| VCTCXO_TUNE_2M | K3 → module | PWM + RC filter → 0–1.8 V analog |
-| VCTCXO_TUNE_70CM | K3 → module | same |
-| VCTCXO_TUNE_23CM | K3 → module | same |
-| TEMP_2M | module → K3 | I²C temperature sensor (per slot, shared I²C backplane bus) |
-| TEMP_70CM | module → K3 | same |
-| TEMP_23CM | module → K3 | same |
+| PTT_2M | host → module | TX enable, 2 m (step 1 in PTT sequence) |
+| SW_2M | host → module | T/R switch, 2 m (step 2) |
+| PA_EN_2M | host → module | PA enable, 2 m (step 3, after 1 ms delay) |
+| PTT_70CM | host → module | TX enable, 70 cm |
+| SW_70CM | host → module | T/R switch, 70 cm |
+| PA_EN_70CM | host → module | PA enable, 70 cm |
+| PTT_23CM | host → module | TX enable, 23 cm |
+| SW_23CM | host → module | T/R switch, 23 cm |
+| PA_EN_23CM | host → module | PA enable, 23 cm |
+| ATT_LE_2M | host → module | Attenuator latch enable, 2 m |
+| ATT_LE_70CM | host → module | Attenuator latch enable, 70 cm |
+| ATT_LE_23CM | host → module | Attenuator latch enable, 23 cm |
+| IRQ_2M | module → host | RFIC event: PLL unlock, AGC, RSSI |
+| IRQ_70CM | module → host | same |
+| IRQ_23CM | module → host | same |
+| VCTCXO_TUNE_2M | host → module | PWM + RC filter → 0–1.8 V analog |
+| VCTCXO_TUNE_70CM | host → module | same |
+| VCTCXO_TUNE_23CM | host → module | same |
+| TEMP_2M | module → host | I²C temperature sensor (per slot, shared I²C backplane bus) |
+| TEMP_70CM | module → host | same |
+| TEMP_23CM | module → host | same |
 
 ### 9.5 DIN 41612 Connector Pin Assignment
 
@@ -795,18 +802,18 @@ Columns 1–8 carry power (low-current), SPI, and GPIO. Columns 9–16 carry I²
 | a6 | +3V3 | PWR in | 3.3 V (second pin for current capacity) |
 | a7 | GND | — | Ground |
 | a8 | GND | — | Ground |
-| b1 | SPI_CLK | In | Shared SPI clock from K3 (up to 10 MHz) |
-| b2 | SPI_MOSI | In | SPI data from K3 to RFIC and SWR ADC |
-| b3 | SPI_MISO | Out | SPI data from RFIC / SWR ADC to K3 (tri-state when CS inactive) |
+| b1 | SPI_CLK | In | Shared SPI clock from the host (up to 10 MHz) |
+| b2 | SPI_MOSI | In | SPI data from the host to RFIC and SWR ADC |
+| b3 | SPI_MISO | Out | SPI data from RFIC / SWR ADC to the host (tri-state when CS inactive) |
 | b4 | SPI_CS_N | In | Active-low chip select for RFIC (unique per module) |
 | b5 | SPI_CS_ADC_N | In | Active-low chip select for SWR ADC (unique per module; NC if I²C ADC variant fitted) |
 | b6 | ATT_LE | In | Attenuator latch enable (PE4312 parallel mode LE pin) |
-| b7 | RFIC_RESET_N | In | Active-low RFIC reset from K3 |
+| b7 | RFIC_RESET_N | In | Active-low module reset from the host. 100 kΩ pull-down on the module (reset held until the host drives it high); **inverted on the module** to the RFIC's active-high RESET (pin 9) |
 | b8 | GND | — | Ground |
-| c1 | RFIC_IRQ_N | Out | Active-low IRQ: PLL unlock, AGC threshold, RSSI update |
-| c2 | PTT | In | TX enable from K3 (step 1 in PTT sequence) |
-| c3 | TR_SW | In | T/R switch control from K3 (step 2 in PTT sequence) |
-| c4 | PA_EN | In | PA enable from K3 (step 3, after 1 ms delay) |
+| c1 | RFIC_IRQ_N | Out | Active-low IRQ: PLL unlock, AGC threshold, RSSI update (RFIC source pin open — Section 5.9) |
+| c2 | PTT | In | TX enable from the host (step 1 in PTT sequence; RFIC TX itself is enabled over SPI — Section 5.9) |
+| c3 | TR_SW | In | T/R switch control from the host (step 2 in PTT sequence) |
+| c4 | PA_EN | In | PA enable from the host (step 3, after 1 ms delay) |
 | c5 | ANT_SW | In | VHF/UHF band-path select on dual-band modules: high = VHF, low = UHF; 100 kΩ pull-down on module; NC on fixed-band modules (see Section 7.3, Band-path switch) |
 | c6 | MOD_PRESENT | Out | Module presence detect — pulled low on module, open on empty slot |
 | c7 | MOD_ID0 | Out | Module type ID bit 0 (resistor-coded: 00=2m, 01=70cm, 10=23cm, 11=dual-band 2m/70cm) |
@@ -814,7 +821,7 @@ Columns 1–8 carry power (low-current), SPI, and GPIO. Columns 9–16 carry I²
 | a9 | GND | — | Ground |
 | a10 | I2C_SCL | In | I²C clock — shared backplane bus (100 kHz); temperature sensor, EEPROM, SWR ADC (ADS1015 variant) |
 | a11 | I2C_SDA | Bidir | I²C data |
-| a12 | VCTCXO_TUNE | In | Analog 0–1.8 V GNSS frequency discipline (from K3 PWM + RC filter) |
+| a12 | VCTCXO_TUNE | In | Analog 0–1.8 V to the module's reference oscillator (host PWM + RC filter); discipline method not decided |
 | a13 | PPS_REF | In | Optional 1PPS reference input for module-local timestamp (not required for basic operation) |
 | a14 | GND | — | Ground |
 | a15 | GND | — | Ground |
@@ -824,11 +831,11 @@ Columns 1–8 carry power (low-current), SPI, and GPIO. Columns 9–16 carry I²
 | b11 | GND | — | Ground |
 | b12 | GND | — | Ground |
 | b13 | GND | — | Ground |
-| b14 | I2S_BCLK | In | I2S bit clock from K3 SAI peripheral |
-| b15 | I2S_LRCLK | In | I2S left/right clock (500 kHz IQ sample rate word select) |
+| b14 | I2S_BCLK | Out | I2S bit clock from the RFIC (master, default); In when the RFIC is set to slave |
+| b15 | I2S_LRCLK | Out | I2S word select (IQ sample rate, 500 kHz maximum); In when the RFIC is set to slave |
 | b16 | GND | — | Ground |
-| c9 | I2S_DOUT | Out | I2S data out from RFIC to K3 (RX IQ: I=Left, Q=Right, 16-bit) |
-| c10 | I2S_DIN | In | I2S data in to RFIC from K3 (TX IQ) |
+| c9 | I2S_DOUT | Out | I2S data out from RFIC to the host (RX IQ: I=Left, Q=Right, 16-bit) |
+| c10 | I2S_DIN | In | I2S data in to RFIC from the host (TX IQ) |
 | c11–c16 | GND | — | Ground (via-fence reference) |
 | a17–a32 | GND | — | Ground / reserved |
 | b17–b32 | GND | — | Ground / reserved |
@@ -836,11 +843,12 @@ Columns 1–8 carry power (low-current), SPI, and GPIO. Columns 9–16 carry I²
 
 **Notes on J_BACKPLANE:**
 
-- `MOD_PRESENT` allows the K3 to detect which slots are populated at boot. The K3 reads `MOD_ID[1:0]` and module EEPROM to learn each module's band type and PA level variant. An empty slot presents high-impedance on all lines.
+- `MOD_PRESENT` allows the host to detect which slots are populated at boot. The host reads `MOD_ID[1:0]` and module EEPROM to learn each module's band type and PA level variant. An empty slot presents high-impedance on all lines.
 - `I2C_SDA/SCL` are shared across all module slots on the backplane I²C bus. Each module has a unique I²C address for its temperature sensor, EEPROM, and (if the ADS1015 ADC variant is fitted) SWR ADC. Temperature sensors use the LM75 / TMP102 family (7-bit address set by address pins on the module).
-- `VCTCXO_TUNE` is a per-module signal — each module has its own RC-filtered PWM input from a separate K3 PWM channel, allowing independent VCTCXO discipline per band.
-- `I2S_BCLK`, `I2S_LRCLK`, `I2S_DOUT`, `I2S_DIN` are per slot — each populated module occupies one SAI peripheral on the K3 (SAI mapping: slot A, B, C, D).
-- All GPIO signals (PTT, TR_SW, PA_EN, ATT_LE, ANT_SW, RFIC_RESET_N) are 1.8 V logic driven by the K3 EC-IO GPIO. The RFIC `VDD_IO` must be configured to 1.8 V on all modules to match. No level translation is required.
+- `VCTCXO_TUNE` is a per-module signal — each module has its own RC-filtered PWM input from a separate host PWM channel, allowing independent VCTCXO discipline per band.
+- `I2S_BCLK`, `I2S_LRCLK`, `I2S_DOUT`, `I2S_DIN` are per slot — each populated module occupies one I2S port on the host interface card.
+- All GPIO signals (PTT, TR_SW, PA_EN, ATT_LE, ANT_SW, RFIC_RESET_N) are 1.8 V logic driven by the host. The HT13G-M has no separate `VDD_IO`: its digital pins run at its 2.7–3.6 V supply, as on the SX1255. The module therefore has **level translators** between the backplane and the RFIC on SPI, I2S and reset. GPIO that drives only module parts is used at 1.8 V where the part accepts it — check each part's input threshold (the PE4259 example is in Section 7.3).
+- `RFIC_RESET_N` stays active-low on the backplane. The module inverts it (one inverter or an NMOS) to drive the RFIC's active-high RESET pin; the RFIC's on-chip power-on reset covers power-up on its own.
 - `RFIC_IRQ_N` is an open-drain output from the module; a 10 kΩ pull-up to 1.8 V is on the module PCB.
 - `SPI_CS_ADC_N` is a separate chip-select for the SWR ADC (MCP3202 variant). If the I²C ADC variant (ADS1015) is fitted instead, this pin is NC and the ADC is addressed via `I2C_SDA/SCL`.
 - I2S and SPI traces require continuous via fences on both sides for their full routed length, extending to within 2 mm of the connector pads (see Section 8.3).
@@ -851,7 +859,7 @@ Each module carries a small I²C EEPROM (24C02 or equivalent, 256 bytes) at a un
 
 | Byte offset | Content |
 |-------------|---------|
-| 0x00–0x01 | Module type (0x0001 = 2 m, 0x0002 = 70 cm, 0x0003 = 23 cm) |
+| 0x00–0x01 | Module type (0x0001 = 2 m, 0x0002 = 70 cm, 0x0003 = 23 cm, 0x0004 = dual-band 2 m / 70 cm) |
 | 0x02–0x03 | Hardware revision |
 | 0x04–0x13 | Serial number (16 ASCII bytes) |
 | 0x14–0x15 | PA level variant (0x0001 = 5 W standard, 0x0002 = 20 W maximum) |
@@ -911,7 +919,7 @@ One connector type and one PA level per module at assembly. IQ (I2S on J_BACKPLA
 
 ## 10. Software Interface: ZeroMQ IPC
 
-In the repeater context, IQ data flows from each module RFIC through the backplane into the SpacemiT K3, where it is processed by GNU Radio 4.0 or SDRangel. ZeroMQ (ZMQ) is used as the inter-process communication layer between the low-level hardware driver and the signal processing application.
+In the repeater context, IQ data flows from each module RFIC through the backplane into the host, where it is processed by GNU Radio 4.0 or SDRangel. ZeroMQ (ZMQ) is used as the inter-process communication layer between the low-level hardware driver and the signal processing application.
 
 ### 10.1 Why ZeroMQ for IQ transport
 
@@ -982,7 +990,7 @@ The 64-bit nanosecond timestamp uses the system clock disciplined by chrony + GN
 
 The `ht-module-daemon` is a single Rust daemon responsible for:
 
-- Initialising all three module RFICs via SPI on startup; loading SWR calibration tables and PA level variant from each module's EEPROM
+- Initialising all module RFICs via SPI on startup (HT13G-M register map, not the SX1255's); loading SWR calibration tables and PA level variant from each module's EEPROM
 - Reading module temperature sensors via I²C (backplane bus) and publishing via status socket; forwarding temperature readings to the chassis fan controller
 - Managing the PTT sequence (hardware-enforced order: RFIC PTT → T/R switch → 1 ms delay → PA enable) in response to `ctrl` socket commands
 - Setting attenuator values via SPI in response to `ctrl` socket commands
@@ -990,9 +998,12 @@ The `ht-module-daemon` is a single Rust daemon responsible for:
 - **Enforcing transmit inhibit at 55°C board temperature:** immediately de-asserting PA_EN, TR_SW, and PTT on any module whose temperature sensor exceeds 55°C; setting `fault_reason: "over_temp"`; blocking PTT until temperature drops below 50°C and the operator clears the fault via `MOD_CLEAR_FAULT`
 - **Polling the SWR ADC on each transmitting module** at regular intervals during TX (recommended: every 100 ms); computing SWR from forward and reflected detector voltages using the EEPROM calibration table; publishing `swr`, `fwd_w`, and `ref_w` in the `status` JSON
 - **Auto-disabling any module whose SWR exceeds 3.0:** immediately de-asserting PA_EN, TR_SW, and PTT in that order; setting the module's fault state; publishing a `swr_high` alert; blocking subsequent PTT commands until `MOD_CLEAR_FAULT` is received
-- Managing VCTCXO frequency discipline: reading GNSS 1PPS interrupt from K3 GPIO, computing correction, updating PWM duty cycle for each module's VCTCXO_TUNE input
+- Managing VCTCXO frequency discipline: reading GNSS 1PPS interrupt from the host GPIO, computing correction, updating PWM duty cycle for each module's VCTCXO_TUNE input
 - Monitoring RFIC IRQ lines (PLL unlock, AGC threshold events) and publishing alerts via `status` socket
-- Routing TX IQ from ZMQ SUB to SAI DMA TX path
+- Routing TX IQ from ZMQ SUB to the interface card's DMA TX path
+- Changing `ANT_SW` on dual-band modules only in RX state (Section 7.3)
+
+RX DC-offset and IQ-imbalance correction and TX pre-correction are **not** in the RFIC; they run in the host signal chain (GNU Radio 4 blocks, planned under `host/gr4/`).
 
 This mirrors the `ht13g-spi` CLI and HT Daemon described in the OpenHT-DB software stack, adapted for three independent modules and the absence of display/keypad/audio hardware.
 
@@ -1009,33 +1020,17 @@ For cross-band repeat (e.g. receive on module A, 2 m, retransmit on module B, 70
 
 ---
 
-## 11. MPW Tapeout Strategy
+## 11. Path to Silicon
 
-Full dual-band or triple-band integration on a single die would require approximately 4–6 mm² including the sealring — exceeding the 2 mm² community slot in the OpenMPW program. The strategy is therefore to submit and validate each chain independently before integration.
+**No fabrication is planned in this phase.** The development chain stops before fabrication: the design is prepared for human review and for an RF engineer, and any submission is a separate decision by the project owner after that review.
 
-### 11.1 Recommended Submission Sequence
+Status (see [HANDOFF.md](HANDOFF.md)):
 
-| Phase | Shuttle | Design | Goal |
-|-------|---------|--------|------|
-| 1 | SG13G2 (next available) | VHF RX chain only — LNA + IQ mixer + ADC stub | Validate noise figure, IIP3, ADC at 144 MHz |
-| 2 | SG13G2 (following) | UHF RX chain only — same topology, 432 MHz | Validate UHF chain performance |
-| 3 | SG13G2 | 23 cm RX chain — cascode LNA + IQ mixer + ADC, 1240 MHz | Validate L-band NF and phase noise |
-| 4 | SG13G2 | VHF TX chain — DAC + IQ modulator + PA driver | Validate IQ balance, harmonic suppression |
-| 5 | SG13G2 | UHF TX chain | same at 432 MHz |
-| 6 | SG13G2 | HT13G-M full dual-chain integration | First full die; area ~3–4 mm² → commercial MPW run |
-| 7 | SG13G2 | HT13G-S full 23 cm integration | Full 23 cm die; area ~1.5–2 mm² → fits community slot |
+- HT13G-M digital back end (Phase 1): signed off on IHP SG13G2, about 0.34 mm².
+- Analogue part (Phases 2–4): requirements in [spec/rf-frontend.md](../spec/rf-frontend.md); the phase-noise simulation for the VCO is validated ([analog/pn-validation/](../analog/pn-validation/README.md)).
+- HT13G-S: deferred.
 
-Phases 1–5 each fit within the 2 mm² community slot and can be submitted to the IHP OpenMPW program at no cost. Phases 6–7 require either a commercial MPW slot or a larger-area community allocation.
-
-### 11.2 Current MPW Schedule (SG13G2 / SG13CMOS5L)
-
-Based on the published IHP schedule as of May 2026:
-
-- **Next SG13G2 MPW run:** October 4, 2026 (tapeout deadline approximately August 2026)
-- **Next SG13CMOS5L MPW run:** November 15, 2026 (tapeout deadline approximately May 2026) — alternative for digital/control blocks or CMOS-only prototypes; see [Alternative processes](#alternative-processes)
-- Turn-around time for SG13G2: approximately 8 months from tapeout to die delivery; SG13CMOS5L runs typically have shorter turn-around
-
-A Phase 1 (VHF RX chain) submission targeting the October 2026 run would receive silicon approximately June 2027. All measurement results must be published open-source per the OpenMPW program requirements.
+Background kept from r0.3, for whoever makes the fabrication decision later: IHP OpenMPW community slots are 2 mm², and SG13G2 turn-around is about 8 months. Validating the receive chain on its own (LNA, mixer, ADC) before a full die is the lower-risk order. The single-chain HT13G-M removes the r0.3 "dual-chain integration" step.
 
 ---
 
@@ -1043,10 +1038,14 @@ A Phase 1 (VHF RX chain) submission targeting the October 2026 run would receive
 
 | Risk | Likelihood | Mitigation |
 |------|------------|------------|
-| HT13G-M VHF PLL phase noise at 144 MHz | Medium | SiGe HBT VCOs at VHF well-characterised; validate VHF chain in Phase 1 MPW before integration |
-| DC offset in zero-IF VHF chain | Medium–High | Standard direct-conversion challenge; digital feedback loop in spec; calibrate on startup via `ht-module-daemon` |
-| IQ imbalance at 1240 MHz (HT13G-S) | Medium–High | L-band IQ balance harder than VHF/UHF; on-chip IQ calibration registers; measured and corrected at startup |
-| IHP MPW 2 mm² area insufficient for full HT13G-M die | High | Planned; individual chain validation in community slots before commercial MPW submission |
+| HT13G-M LO phase noise at the duplex offset | Medium | ≤ −136 dBc/Hz at 600 kHz / 2 MHz from a 3.12–4.20 GHz VCO divided by 24 / 8; VACASK `pnoise` validated for the VCO design (thermal region; flicker region still open) |
+| DC offset in zero-IF VHF chain | Medium–High | Standard direct-conversion challenge; corrected on the host (no on-chip loop since 2026-10); host correction must track temperature and gain changes |
+| IQ imbalance at 1240 MHz (HT13G-S) | Medium–High | L-band IQ balance harder than VHF/UHF; corrected on the host, as for HT13G-M |
+| Die area for a full HT13G-M | Open | No fabrication in this phase; digital back end 0.34 mm²; analogue area to be estimated in Phases 2–4 |
+| VHF on the LinHT | Medium | The drop-in gives UHF only on the current board; VHF needs a harmonic filter, PA match, RX match and band switch ([spec/rf-frontend.md](../spec/rf-frontend.md) §8) |
+| RFIC I/O level against the 1.8 V backplane | Low | Level translators on the module (Section 9.5 notes) |
+| PA-side band switching on dual-band modules | Medium | PE4259 only on the low-power side; the PA side needs a part rated for full power, or a diplexer after per-band filters (Section 7.3) |
+| Backplane PTT / IRQ without RFIC pins | Low–Medium | The SX1255 pin-out has neither; open item 2 in Section 5.9 |
 | 20 W PA thermal dissipation on module | Medium–High | 40% efficiency → ~30 W instantaneous, ~15 W average at 50% duty cycle; dedicated PA copper pour with high-density via array (3×3 minimum, 0.4 mm drill, 1 mm pitch, L1–L3); L1/L6 ground pour heatspreading to card guides and chassis wall per Section 8.5; 120 mm fan below card cage required for 20 W operation; firmware transmit inhibit at 55°C board temperature; 50% duty cycle enforced by daemon |
 | 5 W PA thermal dissipation on module | Low | 40% efficiency → ~7.5 W; within passive cooling budget with copper pour heatspreading; fan extends margin |
 | 20 W filter and coupler component ratings | Medium | Peak voltage ~45 V and peak current ~900 mA at 20 W; 30 V capacitors (adequate at 5 W) insufficient — 100 V rated capacitors required; inductor current rating > 2 A; coupler power rating > 25 W; verify all TX-path passive component ratings before assembly |
