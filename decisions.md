@@ -110,3 +110,13 @@ Accepted and documented; LinHT should prefer 100 kHz or 500 kHz.
 
 - Phase1j missed setup by 0.050 ns (slow corner, 4 endpoints: SRAM `A_DOUT` → half-band MAC). The same path had +0.80 ns in phase1i; the difference is placement and routing, not the RTL. Everything else in phase1j passed (LVS, DRC, antenna, max-cap 0; gate-level 5/5; Magic 7 818, all inside the SRAM).
 - Setup was never repaired with real routing loads (`RUN_POST_GRT_RESIZER_TIMING` false, `PL_TIMING_DRIVEN` false). Both are now on, with a 0.1 ns setup margin and a 0.1 ns post-route hold margin (keeps the 0.08 ns hold guard).
+
+## 2026-10-19 — RF front end: SX1255-compatible drop-in, repeater RX default, phase-noise tool
+
+- **Option P:** the RFIC is pin-compatible with the SX1255 (MLPQ-W 5 × 5 mm, 32 leads), so the LinHT can take it without a respin for UHF. The SPI frame is already identical (mode 0, write bit + 7-bit address + data). IQ uses the SX1255 "mode B2" I2S pins. Not register-compatible: the host driver changes.
+- **LinHT Rev C facts (schematic, 2026-07-14):** 32 MHz TCXO; the 2× PE4312 attenuators are in the RX path, TX power is set inside the transceiver; the SX1255 TX output is used single-ended. IQ is 500 kSa/s, 16-bit I/Q as left/right audio (M17 project).
+- **Reset:** the SX1255 RESET pin is active-high and floats in normal operation. The RFIC needs an internal pull-down and an on-chip power-on reset.
+- **Repeater RX front end:** the 2× PE4312 attenuators are the default (system NF ≈ 8 dB); an external LNA is a module-designer option (≈ 5 dB). Limits re-derived in `spec/derived-limits.md` §8.
+- **TX output:** −5 dBm nominal into the existing GRF5604 match; ≥ 30 dB analogue gain control after the reconstruction filter (digital scaling would break the duplex-noise budget).
+- **Phase noise:** VACASK `pnoise` validated (`analog/pn-validation/`); use `pss_minpts` ≥ 8000 for close-in offsets.
+- Requirements: `spec/rf-frontend.md` (draft for human review).

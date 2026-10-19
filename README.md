@@ -1,8 +1,10 @@
 # SDR Multiband Repeater System Design
 
-**Revision:** 1.8  
-**Date:** June 2026  
+**Revision:** 1.9  
+**Date:** October 2026  
 **Architecture:** Open Silicon · Linux · Modular Eurocard  
+
+> **Revision 1.9 changes:** Open RFIC status added (Section 2): one single-chain die covering 130–175 MHz and 400–480 MHz, LinHT drop-in for the SX1255 (pin-compatible), −5 dBm TX output into the module PA, attenuator-default receive front end, DC-offset and IQ calibration moved to the host, 32/36 MHz reference. Links added to the RF front-end spec, the derived limits and the phase-noise validation. Module table, §6.5 and §12 updated to match.  
 
 > **Revision 1.8 changes:** Primary compute platform changed from Milk-V Titan to Milk-V Megrez (ESWIN EIC7700X, 19.95 TOPS NPU); SpacemiT K3 Pico-ITX designated secondary platform; full compute board comparison table added; computational overhead estimate updated for Megrez 4-core SiFive P550 with NPU offload; 5-slot operation confirmed within compute budget.  
 
@@ -37,11 +39,10 @@
 
 **RFIC design status and handoff:** [docs/HANDOFF.md](docs/HANDOFF.md) — current state of the open RFIC on IHP SG13G2, how to reproduce all results, verified sign-off numbers, open items and lessons learned.
 
+**RFIC requirements:** [spec/rf-frontend.md](spec/rf-frontend.md) — RF requirements for the analogue part (RX, TX, LO, power, pin map, board work, verification). [spec/derived-limits.md](spec/derived-limits.md) — limits derived from the Norwegian repeater offsets (600 kHz on 2 m, 2 MHz on 70 cm). [analog/pn-validation/](analog/pn-validation/README.md) — validation of the open-source phase-noise simulation used for the VCO.
 
-**Note:**
-The linHT projects bandwidth target is currently up to 500 kHz IQ, that has a rf spectrum coverage of 0.5 MHz.
-It can be found here: 
-https://linux-radio.eu/
+**Note — LinHT:**
+The same RFIC is a drop-in replacement for the SX1255 in the [LinHT](https://linux-radio.eu/) handheld (M17 Foundation): same pins, same SPI frame, same I2S pins, 32 MHz reference, 500 kSa/s 16-bit IQ (0.5 MHz of RF spectrum), same −5 dBm drive into the existing GRF5604 PA and PE4312 attenuators. The LinHT board still needs a VHF harmonic filter and VHF matching to use 2 m; see [spec/rf-frontend.md](spec/rf-frontend.md) §8.
 
 **Developer documentation:** [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) · [docs/repo-map.md](docs/repo-map.md) · [docs/runtime/](docs/runtime/README.md) (per-repo specs) · [docs/roadmap.md](docs/roadmap.md) · [docs/dev-environment.md](docs/dev-environment.md) · [docs/repeater-logic.md](docs/repeater-logic.md) · [docs/ota-remote-control.md](docs/ota-remote-control.md) · [docs/release-integrity.md](docs/release-integrity.md) · [docs/implementation-language.md](docs/implementation-language.md) · [ADR 001: I2S + ZMQ](docs/adr/001-iq-transport-i2s-zmq.md)
 
@@ -150,12 +151,25 @@ The system supports up to five pluggable radio modules on the backplane. Three b
 
 | Module | Band | Frequency Range | IQ Bandwidth | TX Power | Antenna |
 |--------|------|-----------------|--------------|----------|---------|
-| 2 metre | VHF | 144–146 MHz | 500 kHz max | 5 W | RP-SMA (front panel) |
-| 70 cm | UHF | 432–438 MHz | 500 kHz max | 5 W | RP-SMA (front panel) |
-| 23 cm | UHF/SHF | 1240–1258 MHz | 500 kHz max | 5 W | RP-SMA (front panel) |
+| 2 metre | VHF | 144–146 MHz (RFIC: 130–175 MHz) | 500 kHz max | 5 W | RP-SMA (front panel) |
+| 70 cm | UHF | 432–438 MHz (RFIC: 400–480 MHz) | 500 kHz max | 5 W | RP-SMA (front panel) |
+| 23 cm | UHF/SHF | 1240–1258 MHz (RFIC deferred) | 500 kHz max | 5 W | RP-SMA (front panel) |
 | Expansion | — | User-defined | — | — | RP-SMA (front panel) |
 
 Sample rates of 25 / 50 / 100 / 200 / 500 kHz are selectable per module via SPI register. At the maximum 500 kHz IQ bandwidth, the I2S bit clock is about 16 MHz (500 kHz × 2 channels × 16 bits). The RFIC is the I2S master; slot width per reference clock is defined in [spec/i2s-clocking.md](spec/i2s-clocking.md).
+
+### The open RFIC
+
+The 2 m and 70 cm modules use an open RFIC designed on the IHP SG13G2 process. Status, sign-off numbers and open items are in [docs/HANDOFF.md](docs/HANDOFF.md); the RF requirements are in [spec/rf-frontend.md](spec/rf-frontend.md).
+
+- **One chip, both bands:** a single receive/transmit chain covers **130–175 MHz** and **400–480 MHz**, so the same die serves 2 m, 70 cm, VHF/UHF land mobile and PMR446. The band is chosen per module. 23 cm needs a separate chip (deferred).
+- **Repeater use:** RX and TX share the antenna through an external cavity duplexer; a full-duplex repeater module uses one RFIC for RX and one for TX. The limits that the Norwegian duplex offsets impose on the chip are in [spec/derived-limits.md](spec/derived-limits.md).
+- **Reference clock:** 32 MHz or 36 MHz TCXO. The host picks the clock per channel so that no clock harmonic lands on the channel (32 MHz for 2 m and 70 cm; 36 MHz for PMR446 and near 160, 416 and 448 MHz).
+- **TX output:** −5 dBm, the same as the SX1255, so the same external PA (GRF5604) and attenuators (PE4312) can be used on the repeater module and in the LinHT.
+- **Receive front end:** the default is the simplest one — step attenuators ahead of the RFIC (system noise figure about 8 dB). A module designer can fit an external LNA instead (about 5 dB); the chip's limits are given for both cases.
+- **Calibration on the host:** DC-offset and IQ-imbalance correction are not done on the chip; the host software does them on the IQ stream (planned under `host/gr4/`). This kept the digital area at the 0.34 mm² target.
+- **Reset:** active-high, as on the SX1255, with an on-chip power-on reset.
+- **Status:** the digital part (Phase 1) is signed off. The analogue part (LNA/mixer, VCO/PLL, ADC/DAC, TX driver) is specified but not yet designed; the open-source phase-noise simulation has been validated for it ([analog/pn-validation/](analog/pn-validation/README.md)). The chip has **not** been submitted for fabrication; it needs review by an RF engineer first.
 
 ### Module interface
 
@@ -171,7 +185,7 @@ Each module connects to the backplane via:
 
 The DIN 41612 architecture is sized for the actual signal requirements of this repeater. Module interconnect is carried on DIN 41612 signal and power contacts; the host connects to the backplane only through the **ECP5-25F PCIe interface card** (see [Section 4](#4-compute-module)). High-speed differential fabric or PCIe on the module backplane itself is not used.
 
-> **Note on analog RF through the backplane:** RF is digitised at each module; analog RF exits only through the front-panel RP-SMA (or optional Type-N) connector. At 144–1258 MHz with up to 500 kHz IQ bandwidth, digital I2S transport over DIN 41612 is the preferred and simpler approach.
+> **Note on analog RF through the backplane:** RF is digitised at each module; analog RF exits only through the front-panel RP-SMA (or optional Type-N) connector. At 130–480 MHz (and 1240–1300 MHz for the deferred 23 cm chip) with up to 500 kHz IQ bandwidth, digital I2S transport over DIN 41612 is the preferred and simpler approach.
 
 ### Module PCB design standards
 
@@ -576,6 +590,8 @@ This approach requires:
 - A short coaxial connection between the reference output and the SDR reference input
 
 For most repeater deployments, Approach A (software PPM correction) is sufficient and simpler. Approach B is worth implementing if the system will be used for weak-signal work, EME, or precise frequency standard duties.
+
+> **Note — open RFIC modules:** the open RFIC takes a **32 MHz or 36 MHz** reference, not 10 MHz, so a GNSS 10 MHz output cannot be connected to it directly. How the RFIC modules are disciplined (VCTCXO_TUNE, a synthesised reference, or correction in the PLL frequency word) is not decided yet.
 
 ### 6.6 GNSS receiver comparison summary
 
@@ -1003,7 +1019,7 @@ The open nature of the hardware and software stack facilitates regulatory compli
 |----------|-----------|---------------------|
 | Backplane | 3U Eurocard subrack with DIN 41612 backplane | IEC 60297; DIN 41612 Type C + har-bus 64 |
 | Power supply | Mean Well DRC-100B or DRC-240B (DIN rail) | 24 V DC bus to backplane |
-| Radio module ×3 | 2 m / 70 cm / 23 cm SDR TX/RX | DIN 41612 Eurocard (100 × 160 mm), RP-SMA front panel |
+| Radio module ×3 | 2 m / 70 cm SDR TX/RX on the open RFIC (130–175 / 400–480 MHz); 23 cm when its RFIC exists | DIN 41612 Eurocard (100 × 160 mm), RP-SMA front panel |
 | Expansion slots | Spare (slots D–E) | DIN 41612 Eurocard |
 | Compute host | Milk-V Megrez Mini-ITX (ESWIN EIC7700X) | 32 GB LPDDR5 soldered; M.2 NVMe; 2× GbE; Wi-Fi 6 |
 | Backplane interface | ECP5-25F PCIe card | PCIe Gen1 ×1 (in Megrez Gen3 ×4 slot); USB fallback |
@@ -1032,7 +1048,8 @@ The open nature of the hardware and software stack facilitates regulatory compli
 | Digital voice blocks | [gr-qradiolink](https://github.com/Supermagnum/gr-qradiolink) — DMR, dPMR, NXDN, P25, M17, FreeDV, LDPC FEC as GNU Radio OOT blocks |
 | GNSS daemon | gpsd (NMEA/UBX parsing, shared memory) |
 | Time discipline | chrony (GNSS SHM + PPS → Stratum 1 NTP) |
-| Frequency correction | Software PPM in GNU Radio / SDRangel (standard); hardware 10 MHz ref (optional) |
+| Frequency correction | Software PPM in GNU Radio / SDRangel (standard); hardware reference (optional, see §6.5 note) |
+| RX calibration | DC-offset and IQ-imbalance correction for the open RFIC, on the host (planned in `host/gr4/`) |
 | Remote control | `repeater-authd` (Rust) + gr-linux-crypto (Brainpool, CallsignKeyStore, Nitrokey) |
 | Audit log | `/var/log/repeater/audit.log` — append-only JSON, daily repeater-signed rotation |
 | Crypto | Linux kernel crypto API + GnuPG userspace + gr-linux-crypto |

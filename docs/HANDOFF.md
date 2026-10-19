@@ -1,6 +1,6 @@
 # Project handoff — SDR repeater / LinHT RFIC
 
-**State as of:** 19 October 2026, branch `phase1/area` (pushed, merged to `main`). Reference layout: **`phase1k`**, signed off on the current RTL.
+**State as of:** 19 October 2026. Reference layout: **`phase1k`** (signed off, on `main`). RF front-end requirements drafted in `spec/rf-frontend.md` (branch `phase2/rf-spec`); VACASK phase-noise analysis validated (`analog/pn-validation/`).
 **Purpose:** let an RF/IC engineer (or an AI agent under human review) pick up the work, reproduce every result, and see what is solid, what is provisional and what is open.
 
 > **Nothing in this repository has been submitted for fabrication.** Submission to any MPW shuttle or foundry is a deliberate human decision and is out of scope for all automated work.
@@ -13,9 +13,9 @@
 |---|---|---|
 | 0 | Toolchain pinning, EM baseline (inductor L2n0) | Done. Matched-mesh EM study still required before Phase 2 |
 | 1 | Digital back end (SPI, decimation, I2S, TX interpolation and Σ-Δ, power control) | **Signed off on `phase1k`** (section 7). Awaiting the human Phase 1 review gate |
-| 2 | LO: VCO 3.12–4.20 GHz, ÷8 / ÷24 dividers, quadrature | Not started |
-| 3 | RX: LNA, passive mixer, TIA, Σ-Δ modulator | Not started. Requirements in `spec/derived-limits.md` |
-| 4 | TX: Σ-Δ DAC, reconstruction filter, IQ modulator, PA driver | Not started. Requirements in `spec/derived-limits.md` |
+| 2 | LO: VCO 3.12–4.20 GHz, ÷8 / ÷24 dividers, quadrature | Not started. Requirements in `spec/rf-frontend.md` §5; phase-noise simulation validated (`analog/pn-validation/`) |
+| 3 | RX: LNA, passive mixer, TIA, Σ-Δ modulator | Not started. Requirements in `spec/rf-frontend.md` §3 and `spec/derived-limits.md` |
+| 4 | TX: Σ-Δ DAC, reconstruction filter, IQ modulator, PA driver | Not started. Requirements in `spec/rf-frontend.md` §4 and `spec/derived-limits.md` |
 | 5 | Integration: single-chain die, pad ring, top level | Not started |
 
 The only layout today is the **digital block**. It contains no RF circuitry.
@@ -27,10 +27,10 @@ The only layout today is the **digital block**. It contains no RF circuitry.
 - **Frequency coverage:** **130–175 MHz** and **400–480 MHz** (2 m, 70 cm, land mobile, PMR446) on one single-chain die; band selected per module/handheld. 23 cm deferred.
 - **LO plan:** one VCO at **3.12–4.20 GHz** (30 % tuning: switched-capacitor bank or two cores); UHF ÷8, VHF ÷24; quadrature from the final ÷2. `band_sel` output: 0 = ÷8, 1 = ÷24.
 - **Reference:** 32 MHz or 36 MHz (`ref_36` board strap). Every output rate (25, 50, 100, 200, 500 kHz) is an exact integer ratio. The host picks the clock per channel so no clock harmonic sits on the channel (32 MHz for 2 m / 70 cm; 36 MHz for PMR446 and near 160 / 416 / 448 MHz) — table in `spec/derived-limits.md` §7.2.
-- **IQ interface:** Philips I2S, continuous BCLK. RFIC is **master** by default; slave mode through a **4-deep** async FIFO. Maximum IQ rate 500 kHz. LinHT should prefer 100 or 500 kHz (36 MHz / 200 kHz has a 40/60 BCLK duty).
+- **IQ interface:** Philips I2S, continuous BCLK. RFIC is **master** by default; slave mode through a **4-deep** async FIFO. Maximum IQ rate 500 kHz. The LinHT runs at 32 MHz and uses 500 kSa/s (16-bit I/Q as left/right), every rate there has a 50 % BCLK duty. Boards on 36 MHz should prefer 100 or 500 kHz (36 MHz / 200 kHz has a 40/60 BCLK duty).
 - **Calibration:** DC and IQ correction are done **by the host** (decision (a), 2026-10-18). The chip delivers the half-band output word.
-- **Repeater sites:** RX and TX share one antenna through an external cavity duplexer. A full-duplex repeater uses one RFIC for RX and one for TX (the shared filter engine makes one chip half-duplex). Norwegian offsets: 600 kHz (2 m), 2 MHz (70 cm). The repeater must keep the channel at DC (zero-IF): the own-TX blocker aliases onto the channel and is removed only by the CIC nulls.
-- **Hosts:** repeater modules (DIN 41612 backplane, ECP5-25F PCIe card in the Milk-V Megrez host; SpacemiT K3 secondary) **and** the LinHT handheld (CompuLab MCM-iMX93, 2S battery, SX1255 at 36 MHz). LinHT facts are provisional (Rev C not yet validated). The LinHT repository is read-only reference.
+- **Repeater sites:** RX and TX share one antenna through an external cavity duplexer. A full-duplex repeater uses one RFIC for RX and one for TX (the shared filter engine makes one chip half-duplex). Norwegian offsets: 600 kHz (2 m), 2 MHz (70 cm). The repeater must keep the channel at DC (zero-IF): the own-TX blocker aliases onto the channel and is removed only by the CIC nulls. The repeater RX front end defaults to the same 2× PE4312 attenuators as the LinHT (system NF ≈ 8 dB); a module designer may use an external LNA instead (≈ 5 dB).
+- **Hosts:** repeater modules (DIN 41612 backplane, ECP5-25F PCIe card in the Milk-V Megrez host; SpacemiT K3 secondary) **and** the LinHT handheld (CompuLab MCM-iMX93, 2S battery, SX1255 with a 32 MHz TCXO, read from the Rev C schematic 2026-10-19). The RFIC is planned as a pin-compatible SX1255 replacement (`spec/rf-frontend.md`, option P). Other LinHT facts are provisional (Rev C not yet validated). The LinHT repository is read-only reference.
 - **Process:** IHP SG13G2 130 nm SiGe BiCMOS, open PDK.
 
 Decisions and their reasons: `decisions.md`, `spec/baseline-decisions.md`. Derived limits: `spec/derived-limits.md`.
@@ -44,7 +44,8 @@ Paths are relative to the repository root. This file lives in `docs/`.
 | Path | Content |
 |---|---|
 | `decisions.md` | Human decisions with date and rationale |
-| `spec/` | Baseline decisions, I2S clocking, **derived RX/TX limits** |
+| `spec/` | Baseline decisions, I2S clocking, **derived RX/TX limits**, **RF front-end requirements** (`rf-frontend.md`) |
+| `analog/pn-validation/` | VACASK phase-noise validation (passed 2026-10-19) |
 | `docs/` | System and RF-module documents |
 | `rtl/digital/` | Digital back end RTL, `config.yaml`, `constraints.sdc`, `pdn_cfg.tcl`, `notes.md` (register map) |
 | `rtl/cocotb/` | Testbenches: `run_sim.py`, `test_backend.py`, `test_power.py`, `gate_sim.py` |
@@ -119,7 +120,7 @@ The flow exits with "Magic DRC errors found". That is expected and waived (secti
 ## 6. Digital back end — current architecture
 
 - **SPI** (mode 0, 16-bit frame) clocked by SCLK; MOSI sampled on the rising edge, MISO driven on the falling edge. The bit counter is cleared asynchronously by CS high, so an aborted frame cannot misalign the next one. Configuration crosses into the core clock by toggle synchronisation (bundled data), so the reference may be stopped in shutdown.
-- **Reset:** asynchronous, active-low, with a two-flop release synchroniser for the core clock. SPI uses the raw `rst_n`; board requirement: SCLK idle for ≥ 1 µs after `rst_n` rises, and `rst_n` low at power-up until supplies and reference are stable.
+- **Reset:** asynchronous, active-low, with a two-flop release synchroniser for the core clock. SPI uses the raw `rst_n`; board requirement: SCLK idle for ≥ 1 µs after `rst_n` rises, and `rst_n` low at power-up until supplies and reference are stable. For the SX1255-compatible package the RESET pin is active-high and floats at power-up, so the complete chip needs an on-chip power-on reset (`spec/rf-frontend.md` §6).
 - **RX:** multiplier-free 1-bit front end (8-tap FIR), two order-4 CIC stages per channel, compensation FIR and 31-tap half-band. Full-scale 1-bit input → 16 384 codes at every rate (`norm`, `sh1`, `sh2` in `rate_table.sv`).
 - **Shared filter engine:** one 18×16 multiplier and **one** `RM_IHPSG13_1P_64x16_c2` SRAM hold the RX compensation FIR, the RX half-band and the TX half-band. I and Q delay lines use words 0–30 and 32–62. One address generator for all accesses.
 - **TX:** I2S input (host-corrected), half-band interpolate-by-2 (shared engine), order-2 CIC interpolator (28-bit, shares the first CIC integrator adders), 2nd-order 1-bit Σ-Δ modulator.
@@ -190,11 +191,11 @@ Closed since the previous handoff: output scale (FS 16 384), SPI/I2S I/O constra
 
 ## 9. Provisional or lower-confidence values
 
-- **Derived limits** (`spec/derived-limits.md`) assume 25 W, 80 dB duplexer isolation, 5 dB NF, ≤ 1 dB desense. Reviewer to confirm isolation and power. Regulatory limit from ITU RR App. 3; confirm against current Nkom licence conditions.
-- **Phase 3/4 analogue requirements** derived from those limits: LO phase noise ≤ −139 dBc/Hz at the duplex offset (25 W), RX ADC DR ≥ 104 dB in 12.5 kHz, anti-alias ≥ 40 dB at ±8/9 MHz and ≥ 70 dB at ±32/36 MHz, TX reconstruction filter ≥ 54 dB at 600 kHz and ≥ 74 dB at 2 MHz, VHF third-harmonic rejection (harmonic-reject mixer or preselector).
+- **Derived limits** (`spec/derived-limits.md`) assume 25 W, 80 dB duplexer isolation, ≤ 1 dB desense, and a system NF of 8 dB with the attenuator front end (baseline) or 5 dB with an LNA (option), see `spec/derived-limits.md` §8. Reviewer to confirm isolation and power. Regulatory limit from ITU RR App. 3; confirm against current Nkom licence conditions.
+- **Phase 3/4 analogue requirements** derived from those limits: LO phase noise ≤ −136 dBc/Hz at the duplex offset (25 W, baseline; −139 with the LNA option), RX ADC DR ≥ 101 dB in 12.5 kHz (104), anti-alias ≥ 40 dB at ±8/9 MHz and ≥ 70 dB at ±32/36 MHz, TX reconstruction filter ≥ 51 dB at 600 kHz and ≥ 71 dB at 2 MHz (54 / 74 with the LNA option), VHF third-harmonic rejection (harmonic-reject mixer or preselector).
 - **500 kHz TX** is for simplex/LinHT use only; a repeater transmits at ≤ 200 kHz IQ.
 - **Tank Q** — provisional openEMS values 11.8 (2.4 GHz) / 14.9 (3.5 GHz); Palace about 20–26 % higher. Matched-mesh, de-embedded study required before Phase 2.
-- **VCO phase noise** — open tools offer only experimental PSS and no PNOISE; phase-noise results are lower confidence and must be cross-checked by hand.
+- **VCO phase noise** — VACASK `pnoise` (oscillator mode) validated 2026-10-19 against the exact LC result (worst 0.19 dB, 100 kHz–20 MHz) and against transient noise on an SG13G2 oscillator (0.5 dB). Thermal region only; the flicker region close to the carrier is not yet validated (`analog/pn-validation/`).
 - **LinHT interface facts** — provisional until Rev C is validated and its board files are read.
 
 ---
@@ -228,6 +229,6 @@ Closed since the previous handoff: output scale (FS 16 384), SPI/I2S I/O constra
 
 1. Phase 1 review gate (section 8).
 2. Matched-mesh, de-embedded inductor study (Phase 0 EM follow-up).
-3. Phase 2 LO test chip (VCO 3.12–4.20 GHz, ÷8/÷24) — hand-designed, human-reviewed topology, against the phase-noise requirement in `spec/derived-limits.md`.
+3. Phase 2 LO test chip (VCO 3.12–4.20 GHz, ÷8/÷24) — hand-designed, human-reviewed topology, against `spec/rf-frontend.md` §5. Phase noise can now be simulated with VACASK `pnoise` at the settings in `analog/pn-validation/README.md`.
 
 The agent instructions (phases, forbidden actions, review gates, provenance tags `[SCH]` `[PEX-C]` `[PEX-RC]` `[EM]` `[HAND]` `[LIT]`) live in the project's agent prompt; follow it for any automated work.

@@ -1,0 +1,39 @@
+Phase-noise validation level 1, transient-noise reference (slow: minutes)
+
+ground 0
+
+load "resistor.osdi"
+load "capacitor.osdi"
+load "inductor.osdi"
+
+embed "negtanh.va" <<<FILE
+`include "constants.vams"
+`include "disciplines.vams"
+module negtanh(A, B);
+    inout A, B;
+    electrical A, B;
+    analog begin
+        I(A, B) <+ -6.0606e-3 * 0.2 * tanh(V(A, B) / 0.2);
+    end
+endmodule
+>>>FILE
+load "negtanh.va"
+
+model resistor  resistor
+model capacitor capacitor
+model inductor  inductor
+model negtanh   negtanh
+
+ct (t 0) capacitor c=2.0678p
+lt (t 0) inductor  l=1n
+rt (t 0) resistor  r=330 noisy=1
+gt (t 0) negtanh
+
+control
+  abort always
+  options rawfile="binary" reltol=1e-6
+  // Noiseless start-up to the limit cycle, then a long noisy run
+  analysis tst tran stop=60n step=5p maxstep=5p ic={"t", 0.3} store="ss"
+  save v(t)
+  analysis tn1 tran stop=10.5u step=5p maxstep=5p ic="ss" icmode="uic" noisemode="zoh" noisefmax=50G noisefmin=50k oversample=1
+endc

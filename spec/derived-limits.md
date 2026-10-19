@@ -25,7 +25,7 @@ A reviewer may change these. Every limit below scales 1:1 in dB with them.
 |---|---|---|
 | P | 37 dBm (5 W) baseline; **44 dBm (25 W) design case** | output at the antenna port |
 | I | 80 dB | TX→RX isolation of the cavity duplexer at 600 kHz (2 m) and at 2 MHz (70 cm). Typical 6-cavity units give 80–90 dB. Confirmed by the owner: RX and TX share one antenna through a duplexer on both bands. |
-| NF | 5 dB | system RX noise figure |
+| NF | 5 dB | system RX noise figure, **LNA option**. The baseline front end (2× PE4312 attenuators before the chip) gives ≈ 8 dB; §8 re-derives the limits for it |
 | B | 12.5 kHz | channel noise bandwidth |
 | N | −174 + 41 + 5 = **−128 dBm** | RX noise floor in B |
 | Desense | ≤ 1 dB | interference ≤ N − 6 dB = −134 dBm, i.e. **−175 dBm/Hz** at the RX input |
@@ -177,3 +177,20 @@ A continuous-time Σ-Δ ADC provides part of this rejection inherently. Wide cov
 - **Land mobile:** needs type-approved equipment and a licence.
 
 The chip can cover these bands, but legal use depends on how the finished radio is certified.
+
+## 8. Receiver front-end cases (decided 2026-10-19)
+
+The repeater modules default to the LinHT receive front end: 2× PE4312 step attenuators (2.2–3 dB insertion loss) in front of the RFIC. With about 4 dB of loss ahead of a chip with a 4 dB noise figure, the **baseline system NF is ≈ 8 dB**. A module designer may replace the attenuators with an external LNA (NF ≈ 1 dB, 15–20 dB gain), which gives the 5 dB case used in §2–5.
+
+Baseline (NF 8 dB): noise floor −125 dBm in 12.5 kHz; 1 dB desense threshold −131 dBm = −172 dBm/Hz at the module RX port; 80 dB duplexer.
+
+| | 5 W | 25 W | LNA option, 25 W |
+|---|---|---|---|
+| R2 TX noise at duplex offset, whole chain | ≤ −129 dBc/Hz | ≤ −136 dBc/Hz | −139 |
+| R3 same, RFIC output (R2 − 10 dB) | ≤ −139 dBc/Hz | ≤ −146 dBc/Hz | −149 |
+| R4 LO phase noise at duplex offset | ≤ −129 dBc/Hz | ≤ −136 dBc/Hz | −139 |
+| R5 decimator rejection, on-channel duplex alias | ≥ 88 dB | ≥ 95 dB | 98 (the test keeps 100 dB) |
+| R7 ADC dynamic range in 12.5 kHz | ≥ 94 dB | ≥ 101 dB | 104 |
+| TX reconstruction filter at 600 kHz / 2 MHz | | ≥ 51 / 71 dB | 54 / 74 |
+
+Baseline sensitivity is about −117 dBm for 12 dB SINAD (FM, 12.5 kHz); the LNA option recovers about 3 dB. The attenuators let a strong site trade sensitivity for blocking. The RFIC is specified for the baseline, which is also the harder case for its linearity (`spec/rf-frontend.md` §3).

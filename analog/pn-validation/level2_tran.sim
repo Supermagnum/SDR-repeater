@@ -1,0 +1,44 @@
+Phase-noise validation level 2, transient-noise reference (slow: minutes)
+
+// Devices: sg13_lv_nmos pair (PSP103 via OSDI, thermal + flicker noise).
+// Tank: ideal 1 nH per side with 1.466 ohm series loss (Q = 15 at 3.5 GHz),
+// 1.8 pF per side to ground. Tail: ideal, noiseless 2 mA. VDD 1.2 V.
+// If the MOS instance line fails, compare it with
+// /foss/tools/vacask/share/doc/vacask/demo/ihp-sg13g2/mos.sim
+
+ground 0
+
+include "sg13g2_vacask_common.lib"
+include "cornerMOSlv.lib" section=mos_tt
+
+load "resistor.osdi"
+load "capacitor.osdi"
+load "inductor.osdi"
+
+model resistor  resistor
+model capacitor capacitor
+model inductor  inductor
+model vsource   vsource
+model isource   isource
+
+vdd  (vdd 0)  vsource dc=1.2
+l1   (vdd lp) inductor  l=1n
+r1   (lp vp)  resistor  r=1.466 noisy=1
+l2   (vdd lm) inductor  l=1n
+r2   (lm vm)  resistor  r=1.466 noisy=1
+c1   (vp 0)   capacitor c=1.8p
+c2   (vm 0)   capacitor c=1.8p
+m1   (vp vm tail 0) sg13_lv_nmos w=20u l=0.13u ng=4
+m2   (vm vp tail 0) sg13_lv_nmos w=20u l=0.13u ng=4
+it   (tail 0) isource dc=2m
+// Start-up kick, well before the shooting window
+ik   (0 vm) isource type="pulse" val0=0 val1=1m delay=1n rise=50p fall=50p width=200p
+
+control
+  abort always
+  options rawfile="binary" strictsave=1
+  options reltol=1e-6 pss_tolscale=1e-3
+  analysis tst tran stop=80n step=5p maxstep=5p store="ss"
+  save v(vp) v(vm)
+  analysis tn2 tran stop=10.5u step=5p maxstep=5p ic="ss" icmode="uic" noisemode="zoh" noisefmax=50G noisefmin=50k oversample=1
+endc

@@ -1,0 +1,45 @@
+Phase-noise validation level 1: ideal LC tank, only the tank resistor is noisy
+
+// Tank: L = 1 nH, C = 2.0678 pF (f0 = 3.500 GHz), R = 330 ohm (Q = 15).
+// Active part: noiseless I = -Gm*VL*tanh(V/VL), Gm = 2/R, VL = 0.2 V.
+// Expected (params.py): L(df) = kT / (R C^2 A^2 (2 pi df)^2), about -125 dBc/Hz at 1 MHz.
+
+ground 0
+
+load "resistor.osdi"
+load "capacitor.osdi"
+load "inductor.osdi"
+
+embed "negtanh.va" <<<FILE
+`include "constants.vams"
+`include "disciplines.vams"
+// Noiseless limiting negative conductance (values fixed in the module)
+module negtanh(A, B);
+    inout A, B;
+    electrical A, B;
+    analog begin
+        I(A, B) <+ -6.0606e-3 * 0.2 * tanh(V(A, B) / 0.2);
+    end
+endmodule
+>>>FILE
+load "negtanh.va"
+
+model resistor  resistor
+model capacitor capacitor
+model inductor  inductor
+model negtanh   negtanh
+
+ct (t 0) capacitor c=2.0678p
+lt (t 0) inductor  l=1n
+rt (t 0) resistor  r=330 noisy=1
+gt (t 0) negtanh
+model isource isource
+iin (0 t) isource dc=0   // zero-valued, only the gain reference for pnoise
+
+control
+  abort always
+  options rawfile="binary" strictsave=1
+  options reltol=1e-8 pss_tolscale=1e-6 pss_minpts=16000
+  save default
+  analysis pn1 pnoise oscillator=1 tper=285.7p tstab=60n ic={"t", 0.3} maxharm=32 truncharm=16 in="iin" out="t" outharm=1 values=[1e5, 3e5, 6e5, 1e6, 2e6, 5e6, 1e7, 2e7] writepss=1 writestab=1
+endc
