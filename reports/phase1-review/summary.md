@@ -18,21 +18,21 @@ SPI mode 0, 16 bits. Bit 15 is write. Bits 14:8 are the address. Bits 7:0 are th
 | 0x01 | DUTY_ON | 1 | RX on frames. |
 | 0x02 | DUTY_OFF | 0 | Following blank frames. Zero means the on period does not end. |
 | 0x03 | RATE | 4 | 0 = 25, 1 = 50, 2 = 100, 3 = 200, 4 = 500 kHz. |
-| 0x04 | DC_SHIFT | 4 | DC-loop shift, clipped to 1..7. |
-| 0x05 | GAIN_I | 128 | 128 means 1.0. |
-| 0x06 | GAIN_Q | 128 | 128 means 1.0. |
-| 0x07 | PHASE | 0 | Signed 8-bit Q-into-I cross term. One LSB is 1/128 rad. |
+| 0x04 | DC_SHIFT | 4 | DC-loop shift, clipped to 1..7. **Removed 2026-10-18 (host-side calibration): reserved, reads 0.** |
+| 0x05 | GAIN_I | 128 | 128 means 1.0. **Removed 2026-10-18 (host-side calibration): reserved, reads 0.** |
+| 0x06 | GAIN_Q | 128 | 128 means 1.0. **Removed 2026-10-18 (host-side calibration): reserved, reads 0.** |
+| 0x07 | PHASE | 0 | Signed 8-bit Q-into-I cross term. One LSB is 1/128 rad. **Removed 2026-10-18 (host-side calibration): reserved, reads 0.** |
 | 0x08 | BLOCK_PD | 0 | [0] decimator, [1] DC, [2] IQ, [3] I2S, [4] TX. A set bit powers that block down. |
 | 0x09 | WAKE | 0 | Output frames before `valid_iq`. |
 | 0x0A | STATUS | — | Read only. Mode, blank, valid, FIFO flags, `clk_error`, relock busy. |
-| 0x0B | CHIP_ID | 0x11 | Read only. Writes are ignored. |
+| 0x0B | CHIP_ID | 0x11 | Read only. Writes are ignored. **0x12 since 2026-10-18.** |
 | 0x0C | BAND | 0 | 0 selects divide-by-8. 1 selects divide-by-24. A write starts the digital relock count. |
-| 0x0D | DC_CLEAR | 0 | Write bit 0 pulses a one-cycle clear. The bit does not stick. |
-| 0x0E | TX_DC_I | 0 | Signed 8-bit TX I offset, sample LSBs, -128..+127. |
-| 0x0F | TX_DC_Q | 0 | Signed 8-bit TX Q offset, same units. |
-| 0x10 | TX_GAIN_I | 128 | TX I gain. 128 means 1.0. |
-| 0x11 | TX_GAIN_Q | 128 | TX Q gain. 128 means 1.0. |
-| 0x12 | TX_PHASE | 0 | Signed 8-bit, same scale as `PHASE`. |
+| 0x0D | DC_CLEAR | 0 | Write bit 0 pulses a one-cycle clear. The bit does not stick. **Removed 2026-10-18 (host-side calibration): reserved, reads 0.** |
+| 0x0E | TX_DC_I | 0 | Signed 8-bit TX I offset, sample LSBs, -128..+127. **Removed 2026-10-18 (host-side calibration): reserved, reads 0.** |
+| 0x0F | TX_DC_Q | 0 | Signed 8-bit TX Q offset, same units. **Removed 2026-10-18 (host-side calibration): reserved, reads 0.** |
+| 0x10 | TX_GAIN_I | 128 | TX I gain. 128 means 1.0. **Removed 2026-10-18 (host-side calibration): reserved, reads 0.** |
+| 0x11 | TX_GAIN_Q | 128 | TX Q gain. 128 means 1.0. **Removed 2026-10-18 (host-side calibration): reserved, reads 0.** |
+| 0x12 | TX_PHASE | 0 | Signed 8-bit, same scale as `PHASE`. **Removed 2026-10-18 (host-side calibration): reserved, reads 0.** |
 | 0x13 | CLK_GATE | 0x1F | Allow bits. [0] CIC, [1] FIR, [2] DC and IQ data enable, [3] I2S, [4] TX. A 0 stops that block. SPI is outside this mask and stays clocked in every mode. |
 
 `BAND` relock is 64 reference clocks, about 2.00 µs at 32 MHz and 1.78 µs at 36 MHz. That is a digital handshake. The analog lock budget remains under 1 ms and is not claimed here.
@@ -66,7 +66,7 @@ Passband ripple, 0 to 0.40 of the sample rate, worst case 0.189 dB. The test lim
 
 ## IQ phase
 
-`PHASE` and `TX_PHASE` are signed 8-bit. One LSB is 1/128 rad, about 0.447 degrees. The stored range is -128 to +127, so the largest coefficient is -1 rad (about -57.3 degrees) and +127/128 rad (about +56.8 degrees). The term is Q into I. Two degrees is about 4.5 LSB. That is the correction grid. It is not a claim that an uncalibrated mixer meets 2 degrees.
+**Historical: these registers were removed on 2026-10-18 and the host applies this correction.** `PHASE` and `TX_PHASE` are signed 8-bit. One LSB is 1/128 rad, about 0.447 degrees. The stored range is -128 to +127, so the largest coefficient is -1 rad (about -57.3 degrees) and +127/128 rad (about +56.8 degrees). The term is Q into I. Two degrees is about 4.5 LSB. That is the correction grid. It is not a claim that an uncalibrated mixer meets 2 degrees.
 
 ## Transmit path
 

@@ -1,5 +1,6 @@
 `timescale 1ns/1ps
-// Depth-8 async FIFO. Write side is the reference. Read side is BCLK.
+// Depth-4 async FIFO (8 until 2026-10-18; both clocks have the same
+// average rate, so 4 leaves a two-word margin each way). Write side is the reference. Read side is BCLK.
 // Pointers are gray-coded and synchronized by two flops.
 // Overflow and underflow stick until clr.
 
@@ -16,21 +17,21 @@ module sample_fifo (
     output logic        underflow
 );
 
-    logic [31:0] mem [0:7];
-    logic [3:0] wr_bin, rd_bin;
-    logic [3:0] wr_gray, rd_gray;
-    logic [3:0] wr_gray_s1, wr_gray_s2;
-    logic [3:0] rd_gray_s1, rd_gray_s2;
+    logic [31:0] mem [0:3];
+    logic [2:0] wr_bin, rd_bin;
+    logic [2:0] wr_gray, rd_gray;
+    logic [2:0] wr_gray_s1, wr_gray_s2;
+    logic [2:0] rd_gray_s1, rd_gray_s2;
     logic wr_full, rd_empty;
     logic clr_req, clr_ack;
     logic clr_req_s1, clr_req_s2;
     logic clr_ack_s1, clr_ack_s2;
 
-    function automatic logic [3:0] bin2gray(input logic [3:0] b);
+    function automatic logic [2:0] bin2gray(input logic [2:0] b);
         bin2gray = b ^ (b >> 1);
     endfunction
 
-    assign wr_full = (wr_gray == {~rd_gray_s2[3:2], rd_gray_s2[1:0]});
+    assign wr_full = (wr_gray == {~rd_gray_s2[2:1], rd_gray_s2[0]});
     assign rd_empty = (rd_gray == wr_gray_s2);
 
     always_ff @(posedge wr_clk or negedge rst_n) begin
@@ -54,9 +55,9 @@ module sample_fifo (
             if (wr_en) begin
                 if (wr_full) overflow <= 1'b1;
                 else begin
-                    mem[wr_bin[2:0]] <= wr_data;
-                    wr_bin <= wr_bin + 4'd1;
-                    wr_gray <= bin2gray(wr_bin + 4'd1);
+                    mem[wr_bin[1:0]] <= wr_data;
+                    wr_bin <= wr_bin + 3'd1;
+                    wr_gray <= bin2gray(wr_bin + 3'd1);
                 end
             end
         end
@@ -85,9 +86,9 @@ module sample_fifo (
                     underflow <= 1'b1;
                     rd_data <= '0;
                 end else begin
-                    rd_data <= mem[rd_bin[2:0]];
-                    rd_bin <= rd_bin + 4'd1;
-                    rd_gray <= bin2gray(rd_bin + 4'd1);
+                    rd_data <= mem[rd_bin[1:0]];
+                    rd_bin <= rd_bin + 3'd1;
+                    rd_gray <= bin2gray(rd_bin + 3'd1);
                 end
             end
         end

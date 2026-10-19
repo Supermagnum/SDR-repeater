@@ -15,8 +15,6 @@ def main():
         root / "hb_sram.sv",
         root / "fir_seq.sv",
         root / "decim_chain.sv",
-        root / "dc_offset.sv",
-        root / "iq_cal.sv",
         root / "power_ctrl.sv",
         root / "i2s_master.sv",
         root / "sample_fifo.sv",

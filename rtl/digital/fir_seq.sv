@@ -36,19 +36,21 @@ module fir_seq (
     logic signed [15:0] cf_q0, cf_q1, cf_q2;
     logic [4:0] wp;
     logic signed [15:0] yi, yq_w;
+    // Only acc_i[17:0] feeds the multiplier (norm step). The full-scale
+    // half-band output is at most 28,437 < 2^17 (see rate_table.sv).
+    /* verilator lint_off UNUSEDSIGNAL */
     logic signed [39:0] acc, acc_i;
+    /* verilator lint_on UNUSEDSIGNAL */
     logic [5:0] step;
     logic active, keep, hb_phase;
     logic pend;
     logic signed [15:0] pend_i, pend_q;
-    logic ch;
     logic mac_first;
     logic [5:0] ram_addr;
     logic ram_men, ram_wen, ram_ren;
     logic [15:0] ram_din;
     logic [15:0] ram_dout;
     logic signed [15:0] sample_a;
-    logic [4:0] pair_q;
 
     logic signed [17:0] op_a;
     logic signed [15:0] op_b;
@@ -74,33 +76,9 @@ module fir_seq (
         endcase
     endfunction
 
-    function automatic logic [5:0] haddr(input logic qch, input logic [4:0] age);
-        logic [5:0] sum;
-        logic [4:0] idx;
-        if (tx_mode) begin
-            sum = {2'b0, wp[3:0]} + {2'b0, age[3:0]};
-            idx = {1'b0, sum[3:0]};
-        end else begin
-            sum = {1'b0, wp} + {1'b0, age};
-            if (sum >= 6'd31) sum = sum - 6'd31;
-            idx = sum[4:0];
-        end
-        haddr = qch ? {1'b1, idx} : {1'b0, idx};
-    endfunction
-
     function automatic logic [4:0] newest;
         if (tx_mode) newest = (wp[3:0] == 4'd0) ? 5'd15 : {1'b0, wp[3:0] - 4'd1};
         else newest = (wp == 5'd0) ? 5'd30 : (wp - 5'd1);
-    endfunction
-
-    function automatic logic [4:0] age_lo(input logic [3:0] p);
-        if (tx_mode) age_lo = {1'b0, p};
-        else age_lo = {p[3:0], 1'b0};
-    endfunction
-
-    function automatic logic [4:0] age_hi(input logic [3:0] p);
-        if (tx_mode) age_hi = 5'd15 - {1'b0, p};
-        else age_hi = 5'd30 - {p[3:0], 1'b0};
     endfunction
 
     hb_sram u_ram (
@@ -117,6 +95,39 @@ module fir_seq (
     wire [3:0] mpair = 4'((loc - 6'd3) >> 1);
     wire mac_pair = loc[0] && (loc >= 6'd3) && (loc <= 6'd17);
     wire mac_center = (loc == 6'd18);
+
+    // One address generator for every RAM access (2026-10-18: haddr was
+    // instantiated five times). The selection mirrors the branches below.
+    // haddr/age_lo/age_hi are written out here because they read wp and
+    // tx_mode, and a function's hidden reads are not in the sensitivity
+    // of a continuous assignment in every simulator.
+    logic addr_q;
+    logic [4:0] addr_age, a_idx;
+    logic [5:0] a_sum, addr_c;
+    always_comb begin
+        addr_q = 1'b0;
+        addr_age = tx_mode ? 5'd15 : 5'd30;
+        if (step == 6'd5 || step == 6'd11) begin
+            addr_q = 1'b1;
+        end else if (step >= 6'd20) begin
+            addr_q = ch_now;
+            if (loc < 6'd16 && !loc[0])
+                addr_age = tx_mode ? {1'b0, ipair} : {ipair, 1'b0};
+            else if (loc < 6'd16)
+                addr_age = tx_mode ? (5'd15 - {1'b0, ipair}) : (5'd30 - {ipair, 1'b0});
+            else
+                addr_age = tx_mode ? 5'd7 : 5'd15;
+        end
+        if (tx_mode) begin
+            a_sum = {2'b0, wp[3:0]} + {2'b0, addr_age[3:0]};
+            a_idx = {1'b0, a_sum[3:0]};
+        end else begin
+            a_sum = {1'b0, wp} + {1'b0, addr_age};
+            if (a_sum >= 6'd31) a_sum = a_sum - 6'd31;
+            a_idx = a_sum[4:0];
+        end
+        addr_c = {addr_q, a_idx};
+    end
 
     always_comb begin
         op_a = '0;
@@ -161,12 +172,10 @@ module fir_seq (
             wp <= '0;
             pend <= 1'b0;
             pend_i <= '0; pend_q <= '0;
-            ch <= 1'b0;
             mac_first <= 1'b0;
             ram_addr <= '0; ram_men <= 1'b0; ram_wen <= 1'b0; ram_ren <= 1'b0;
             ram_din <= '0;
             sample_a <= '0;
-            pair_q <= '0;
             valid_out <= 1'b0;
             i_out <= '0; q_out <= '0;
             tx_done <= 1'b0;
@@ -223,13 +232,13 @@ module fir_seq (
                 end else if (step == 6'd4 || step == 6'd10) begin
                     ram_men <= 1'b1;
                     ram_wen <= 1'b1;
-                    ram_addr <= haddr(1'b0, tx_mode ? 5'd15 : 5'd30);
+                    ram_addr <= addr_c;
                     ram_din <= yi;
                     step <= step + 6'd1;
                 end else if (step == 6'd5 || step == 6'd11) begin
                     ram_men <= 1'b1;
                     ram_wen <= 1'b1;
-                    ram_addr <= haddr(1'b1, tx_mode ? 5'd15 : 5'd30);
+                    ram_addr <= addr_c;
                     ram_din <= yq_w;
                     wp <= newest();
                     if (!tx_mode && !keep) active <= 1'b0;
@@ -243,15 +252,15 @@ module fir_seq (
                     if (loc < 6'd16 && !loc[0]) begin
                         ram_men <= 1'b1;
                         ram_ren <= 1'b1;
-                        ram_addr <= haddr(ch_now, age_lo(ipair));
+                        ram_addr <= addr_c;
                     end else if (loc < 6'd16 && loc[0]) begin
                         ram_men <= 1'b1;
                         ram_ren <= 1'b1;
-                        ram_addr <= haddr(ch_now, age_hi(ipair));
+                        ram_addr <= addr_c;
                     end else if (loc == 6'd16) begin
                         ram_men <= 1'b1;
                         ram_ren <= 1'b1;
-                        ram_addr <= haddr(ch_now, tx_mode ? 5'd7 : 5'd15);
+                        ram_addr <= addr_c;
                     end
                     if (loc >= 6'd2 && !loc[0] && loc <= 6'd16)
                         sample_a <= $signed(ram_dout);
@@ -276,8 +285,6 @@ module fir_seq (
                             end else step <= 6'd60;
                         end else step <= step + 6'd1;
                     end else step <= step + 6'd1;
-                    pair_q <= {1'b0, mpair};
-                    ch <= ch_now;
                 end else if (step == 6'd60) begin
                     i_out <= sat16(40'(prod) >>> 15);
                     step <= 6'd61;

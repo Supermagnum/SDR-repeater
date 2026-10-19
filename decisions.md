@@ -66,3 +66,47 @@ CACE: use 2.11.0, the version in hpretl/iic-osic-tools:2026.10 (manifest updated
 Maximum RFIC IQ sample rate: 500 kHz (25/50/100/200/500 kHz). README updated from 1 MHz /
 32 MHz BCLK to 500 kHz / about 16 MHz BCLK. Matches the LinHT 500 kHz target, keeps BCLK
 within the i.MX93 SAI slave limits, and keeps the Sigma-Delta oversampling ratio at 64/72.
+
+## 2026-10-18 — I2S format: Philips (standard I2S)
+Master and slave use Philips I2S: LRCLK low = left (I), high = right (Q), changing one bit
+before each MSB; data and LRCLK change on the BCLK falling edge, sampled on the rising edge.
+Previously data changed on the rising edge (the host's sampling edge) in both modes.
+Reset: clk domain released through a 2-flop synchroniser; SCLK must stay idle >= 1 us after rst_n rises.
+Test note: logic on gated clocks updates after clk's rising edge in RTL simulation, so
+testbenches drive inputs on clk's falling edge.
+
+## 2026-10-18 — Continuous I2S BCLK
+BCLK runs without gaps at every rate: frame = 2 * slot * bit_cell reference clocks.
+36 MHz / 500 kHz enabled (BCLK 18 MHz: over the 16 MHz repeater-backplane cap, which applies
+to the 32 MHz repeater modules, but within the i.MX93 SAI slave limits for LinHT).
+36 MHz / 200 kHz: no 50 % split exists (180 = 2*18*5); 40/60 duty, exactly on the i.MX93 limit.
+Accepted and documented; LinHT should prefer 100 kHz or 500 kHz.
+
+## 2026-10-18 — Frequency coverage 130–175 MHz + 400–480 MHz; duplexer confirmed
+
+- **Decision:** the RFIC tunes 130–175 MHz and 400–480 MHz, covering amateur bands, land mobile and PMR446. This replaces the amateur-only baseline (README 11.1).
+- **Owner input:** repeater sites share one antenna between RX and TX through a duplexer on 2 m and on 70 cm.
+- **Norwegian offsets:** 600 kHz (2 m) and 2 MHz (70 cm), taken from the repeater list.
+- **Limits:** derived in `spec/derived-limits.md` and replace the provisional ones.
+- **Consequences, Phase 3 analog:**
+  - harmonic-reject VHF mixer and/or preselector;
+  - LO plan with a VCO at 3.12–4.20 GHz, ÷8 for UHF and ÷24 for VHF (as `band_sel` in the RTL);
+  - analog anti-alias of ≥ 40 dB at ±8/9 MHz and ≥ 70 dB at ±32/36 MHz;
+  - selectable TX reconstruction filter.
+- **Consequences, system:**
+  - the host picks the 32 or 36 MHz clock per channel by the harmonic table;
+  - 500 kHz TX is for simplex use only.
+- **Digital backend:** unchanged.
+
+## 2026-10-18 — Area: calibration moved to the host, target ≤ 0.34 mm²
+
+- **Metric.** Real cell area = `design__instance__area__stdcell` + `design__instance__area__macros` (no filler). Phase1i: 0.434 mm². The earlier 0.708 mm² figure included 0.274 mm² of filler cells. Checked by `tools/check_area.py` (limit 340 000 µm²).
+- **Decision (a).** DC and IQ correction for RX and TX are done by the host software. The digital chain is linear, so host-side correction is equivalent. Removed: `iq_cal`, `dc_offset`, the TX calibration stage, and registers 0x04–0x07 and 0x0D–0x12 (now reserved, read 0). `BLOCK_PD[2:1]` and `CLK_GATE[2]` are reserved. `CHIP_ID` 0x11 → 0x12. All other addresses keep their numbers.
+- **Other reductions.** `sample_fifo` depth 8 → 4. TX integrators and the shared `cic4` adders 40 → 28 bits (maximum value 32767 × 720 < 2²⁵). One RAM address generator in `fir_seq` (bit-identical: 0 mismatches over 120 000 random cycles against the old module). `relock_cnt` sized from `RELOCK_CYCLES`.
+- **Not done.** 0.30 mm² is not reachable without removing functions. CIC1 narrowing (bypass path uses 16-bit input) and reserved-bit trimming were judged not worth the risk.
+- **Tests.** `phase_cross_term` and `dc_retained_across_sleep` removed with the blocks they tested. `filter_response_limits` now also checks the duplex-offset (≥ 100 dB) and on-channel (≥ 65 dB) alias limits; `tx_image_and_noise` checks the bitstream noise at 600 kHz and 2 MHz against `spec/derived-limits.md`.
+
+## 2026-10-19 — Timing-driven placement and post-route setup repair
+
+- Phase1j missed setup by 0.050 ns (slow corner, 4 endpoints: SRAM `A_DOUT` → half-band MAC). The same path had +0.80 ns in phase1i; the difference is placement and routing, not the RTL. Everything else in phase1j passed (LVS, DRC, antenna, max-cap 0; gate-level 5/5; Magic 7 818, all inside the SRAM).
+- Setup was never repaired with real routing loads (`RUN_POST_GRT_RESIZER_TIMING` false, `PL_TIMING_DRIVEN` false). Both are now on, with a 0.1 ns setup margin and a 0.1 ns post-route hold margin (keeps the 0.08 ns hold guard).

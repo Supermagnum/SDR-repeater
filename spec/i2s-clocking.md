@@ -89,4 +89,4 @@ A pair that cannot meet both the even-cell rule and the 16 MHz cap is 36 MHz at 
 
 With the DC state kept across RX sleep, the first valid frame after wake is already the settled word. No extra frames are added. `WAKE` itself is still spent blanked, so the time above is the programmed wait, the same on both references.
 
-Clearing the DC accumulator (`DC_CLEAR`) drops that state. With `DC_SHIFT = 1` and a 200 LSB input offset, the next new word is 100 LSB and the error is under 20 LSB on the fourth new word. At 25 kHz those four words are 160 us. At 500 kHz they are 8 us. The same count applies on both references.
+DC removal moved to the host on 2026-10-18 (area decision (a)). The chip no longer has `DC_CLEAR` or `DC_SHIFT`; its output word is the half-band (or decimator) output.

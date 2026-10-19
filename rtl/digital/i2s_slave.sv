@@ -1,10 +1,14 @@
 `timescale 1ns/1ps
-// I2S slave. BCLK and LRCLK belong to the host and are asynchronous
-// to the reference. IQ words cross in sample_fifo.
-// The shifter is in the BCLK domain. A word is prefetched at the
-// start of Left and used on the next frame, so the slave path has
-// one frame of latency. Empty prefetch raises underflow and sends
-// zeros. A write into a full FIFO raises overflow.
+// I2S slave, Philips (standard I2S) format. BCLK and LRCLK belong to the
+// host and are asynchronous to the reference; IQ words cross in
+// sample_fifo. The host changes LRCLK and DIN on the BCLK falling edge and
+// samples DOUT on the rising edge. This module samples LRCLK and DIN on the
+// rising edge and drives DOUT on the falling edge. A channel's MSB is in
+// the bit cell after the LRCLK change. The next IQ pair is fetched from the
+// FIFO at the start of the right channel and presented from the start of
+// the next left channel. Empty fetch raises underflow and sends zeros. A
+// write into a full FIFO raises overflow. The frame length follows the
+// host's LRCLK, so `slot` is not used here.
 
 module i2s_slave (
     input  logic               clk,
@@ -27,14 +31,19 @@ module i2s_slave (
 
     logic rd_en;
     logic [31:0] rd_data;
-    logic [15:0] hold_i, hold_q;
-    logic [5:0] bitn;
-    // cap[15] is the bit that shifts out of the DIN capture register.
-    /* verilator lint_off UNUSEDSIGNAL */
-    logic [15:0] sh, cap;
-    /* verilator lint_on UNUSEDSIGNAL */
+    logic [15:0] hold_i, hold_q, nxt_i, nxt_q;
+    logic [5:0] k_r;      // bit index of the next cell (63 = idle)
+    logic ch_r;           // channel of that bit: 0 left, 1 right
     logic lr_q;
     logic use_next;
+    logic change;
+    /* verilator lint_off UNUSEDSIGNAL */
+    logic [15:0] cap;
+    logic [5:0] slot_unused;
+    /* verilator lint_on UNUSEDSIGNAL */
+
+    assign slot_unused = slot;
+    assign change = (lrclk != lr_q);
 
     sample_fifo u_fifo (
         .wr_clk(clk),
@@ -54,50 +63,55 @@ module i2s_slave (
             rd_en <= 1'b0;
             hold_i <= '0;
             hold_q <= '0;
-            bitn <= '0;
-            sh <= '0;
+            nxt_i <= '0;
+            nxt_q <= '0;
+            k_r <= 6'd63;
+            ch_r <= 1'b0;
             cap <= '0;
             lr_q <= 1'b0;
             use_next <= 1'b0;
-            dout <= 1'b0;
             i_in <= '0;
             q_in <= '0;
         end else begin
             rd_en <= 1'b0;
             lr_q <= lrclk;
             if (use_next) begin
-                hold_i <= rd_data[31:16];
-                hold_q <= rd_data[15:0];
+                nxt_i <= rd_data[31:16];
+                nxt_q <= rd_data[15:0];
                 use_next <= 1'b0;
             end
             if (!en) begin
-                dout <= 1'b0;
-                bitn <= '0;
-            end else if (lrclk != lr_q || bitn == 6'd0) begin
-                bitn <= 6'd1;
-                if (lr_q && !lrclk) begin
-                    rd_en <= 1'b1;
-                    use_next <= 1'b1;
-                end
-                dout <= !lrclk ? hold_i[15] : hold_q[15];
-                sh <= !lrclk ? {hold_i[14:0], 1'b0} : {hold_q[14:0], 1'b0};
-                cap <= {15'b0, din};
+                k_r <= 6'd63;
             end else begin
-                if (bitn <= 6'd15) begin
-                    dout <= sh[15];
-                    sh <= {sh[14:0], 1'b0};
+                // Capture the bit of the cell sampled now (k_r, ch_r before update).
+                if (k_r < 6'd16) begin
                     cap <= {cap[14:0], din};
-                end else begin
-                    dout <= 1'b0;
+                    if (k_r == 6'd15) begin
+                        if (ch_r) q_in <= {cap[14:0], din};
+                        else i_in <= {cap[14:0], din};
+                    end
                 end
-                if (bitn == 6'd15) begin
-                    if (lrclk) q_in <= {cap[14:0], din};
-                    else i_in <= {cap[14:0], din};
+                if (change) begin
+                    k_r <= 6'd0;
+                    ch_r <= lrclk;
+                    if (lrclk) begin
+                        rd_en <= 1'b1;      // right channel starts: fetch the next pair
+                        use_next <= 1'b1;
+                    end else begin
+                        hold_i <= nxt_i;    // left channel starts: present it
+                        hold_q <= nxt_q;
+                    end
+                end else if (k_r != 6'd63) begin
+                    k_r <= k_r + 6'd1;
                 end
-                if (bitn + 6'd1 == {1'b0, slot}) bitn <= '0;
-                else bitn <= bitn + 6'd1;
             end
         end
+    end
+
+    always_ff @(negedge bclk or negedge rst_n) begin
+        if (!rst_n) dout <= 1'b0;
+        else if (!en || k_r >= 6'd16) dout <= 1'b0;
+        else dout <= ch_r ? hold_q[4'd15 - k_r[3:0]] : hold_i[4'd15 - k_r[3:0]];
     end
 
 endmodule

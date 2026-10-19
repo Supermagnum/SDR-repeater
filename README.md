@@ -923,15 +923,17 @@ Although designed for amateur radio use, the hardware and software in this syste
 
 ### 11.1 Frequency coverage and commercial band overlap
 
-The HT13G-M and HT13G-S RFICs cover ranges that encompass the major VHF and UHF commercial land mobile allocations used worldwide:
+The HT13G RFICs cover ranges that encompass the major VHF and UHF commercial land mobile allocations used worldwide:
 
 | RFIC | Coverage | Commercial allocations included |
 |------|----------|----------------------------------|
-| HT13G-M VHF chain | 130–175 MHz | VHF high band PMR (150–174 MHz) |
-| HT13G-M UHF chain | 400–480 MHz | UHF PMR (450–470 MHz), TETRA UHF |
-| HT13G-S | 1200–1300 MHz | L-band data links, TETRA 1.4 GHz |
+| HT13G-M (one band-switched chain) | 130–175 MHz | VHF high band PMR (150–174 MHz) |
+| HT13G-M (same chain) | 400–480 MHz | UHF PMR (450–470 MHz), TETRA UHF, PMR446 |
+| HT13G-S (deferred) | 1200–1300 MHz | L-band data links, TETRA 1.4 GHz |
 
-The hardware does not distinguish between amateur and commercial allocations. A module configured for 144 MHz and a module configured for 460 MHz use identical hardware; only the firmware frequency word differs. For a licensed commercial operator, the same field-replaceable module PCB covers the relevant allocation with no hardware change.
+The hardware does not distinguish between amateur and commercial allocations. A module configured for 144 MHz and a module configured for 460 MHz use identical hardware; only the firmware frequency word differs. For a licensed commercial operator, the same field-replaceable module PCB covers the relevant allocation with no hardware change. Licence-free PMR446 use requires type-approved equipment with an integral antenna; repeaters are not permitted on PMR446.
+
+At repeater sites RX and TX share an antenna through an external cavity duplexer. A full-duplex repeater uses one RFIC for RX and one for TX; the same chip serves the LinHT handheld in simplex/half-duplex. The limits derived from the Norwegian repeater offsets (600 kHz on 2 m, 2 MHz on 70 cm) are in [`spec/derived-limits.md`](spec/derived-limits.md). Status and review hand-off: [`docs/HANDOFF.md`](docs/HANDOFF.md).
 
 ### 11.2 Encryption for licensed commercial use
 

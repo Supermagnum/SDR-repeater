@@ -7,26 +7,44 @@ from cocotb.triggers import RisingEdge, FallingEdge, Timer
 RATES_KHZ = [25, 50, 100, 200, 500]
 # (ref_mhz, rate_index) -> (frame clocks, r1, r2, sh1, sh2)
 TABLE = {
-    (32, 0): (1280, 4, 10, 16, 13, 16),
-    (32, 1): (640, 4, 8, 10, 12, 13),
-    (32, 2): (320, 4, 5, 8, 9, 12),
-    (32, 3): (160, 4, 4, 5, 8, 9),
-    (32, 4): (64, 4, 2, 4, 4, 8),
-    (36, 0): (1440, 4, 12, 15, 14, 15),
-    (36, 1): (720, 4, 9, 10, 12, 13),
-    (36, 2): (360, 4, 5, 9, 9, 12),
-    (36, 3): (180, 2, 5, 9, 9, 12),
-    (36, 4): (72, 4, 3, 3, 6, 6),
+    (32, 0): (1280, 4, 10, 16, 8, 13),
+    (32, 1): (640, 4, 8, 10, 7, 10),
+    (32, 2): (320, 4, 5, 8, 4, 9),
+    (32, 3): (160, 4, 4, 5, 3, 6),
+    (32, 4): (64, 4, 2, 4, 0, 4),
+    (36, 0): (1440, 4, 12, 15, 9, 13),
+    (36, 1): (720, 4, 9, 10, 7, 11),
+    (36, 2): (360, 4, 5, 9, 4, 10),
+    (36, 3): (180, 2, 5, 9, 4, 10),
+    (36, 4): (72, 4, 3, 3, 0, 4),
 }
 FRONT = np.array([1, 4, 8, 12, 12, 8, 4, 1], dtype=float)
+# A full-scale 1-bit input (all ones) lands at FS on the output word.
+FS = 16384
+FS_TOL = 64
+# I2S slot width per (ref MHz, rate index); continuous BCLK since 2026-10-18.
+SLOT = {(32, 0): 32, (32, 1): 32, (32, 2): 16, (32, 3): 20, (32, 4): 16,
+        (36, 0): 24, (36, 1): 20, (36, 2): 18, (36, 3): 18, (36, 4): 18}
 HB = np.array([-138, 0, 305, 0, -617, 0, 1128, 0, -1952, 0, 3376, 0,
                -6450, 0, 20688, 32767, 20688, 0, -6450, 0, 3376, 0,
                -1952, 0, 1128, 0, -617, 0, 305, 0, -138], dtype=float)
 CF = np.array([-5006, 32767, -5006], dtype=float)
-# The 45 dB alias number is provisional until the Phase 3 modulator
-# co-design. The coefficient set clears it; the limit is not frozen.
+# Limits from spec/derived-limits.md (section 5, 2026-10-18).
+# 45 dB: wideband alias limit over the whole delivered band.
+# 100 dB: a duplex-offset band (600 kHz, 2 MHz) that aliases onto the
+# wanted channel. 65 dB: any other band that aliases onto the channel,
+# up to 4 MHz (beyond that the Phase 3 analogue anti-alias filter is
+# required: 0 dB at +-clk, 31 dB at +-clk/4 from the digital chain).
 RIPPLE_LIMIT_DB = 0.25
 ALIAS_LIMIT_DB = 45.0
+DUPLEX_LIMIT_DB = 100.0
+ONCHANNEL_LIMIT_DB = 65.0
+DUPLEX_OFFSETS = (0.6e6, 2.0e6)
+CH_HALF = 5.5e3
+# TX bitstream noise at the duplex offsets, dBFS/Hz. The spec limit is
+# -95 / -75 dBc/Hz for a -6 dBFS carrier; the analogue reconstruction
+# filter (Phase 3) provides the rest.
+TX_NOISE_LIMITS = ((0.6e6, -101.0), (2.0e6, -81.0))
 
 
 async def start(dut, ref_36=0):
@@ -71,6 +89,9 @@ async def spi_xfer(dut, addr, data, write):
         dut.sclk.value = 0
         await RisingEdge(dut.clk)
     dut.cs_n.value = 1
+    # Raise CS first, then pulse SCLK: changing both at once is a race
+    # (gate level sees the edge before CS), and real hosts never do it.
+    await RisingEdge(dut.clk)
     dut.sclk.value = 1
     await RisingEdge(dut.clk)
     dut.sclk.value = 0
@@ -115,19 +136,19 @@ async def spi_reset_and_registers(dut):
         0x01: 1,
         0x02: 0,
         0x03: 4,
-        0x04: 4,
-        0x05: 128,
-        0x06: 128,
+        0x04: 0,
+        0x05: 0,
+        0x06: 0,
         0x07: 0,
         0x08: 0,
         0x09: 0,
-        0x0B: 0x11,
+        0x0B: 0x12,
         0x0C: 0,
         0x0D: 0,
         0x0E: 0,
         0x0F: 0,
-        0x10: 128,
-        0x11: 128,
+        0x10: 0,
+        0x11: 0,
         0x12: 0,
         0x13: 0x1F,
     }
@@ -135,9 +156,7 @@ async def spi_reset_and_registers(dut):
         got = await spi_xfer(dut, addr, 0, write=False)
         assert got == exp, (addr, got, exp)
     writes = {
-        0x01: 3, 0x02: 5, 0x03: 2, 0x04: 6, 0x05: 90, 0x06: 100,
-        0x07: 0xE0, 0x08: 0x0F, 0x09: 4, 0x0C: 1,
-        0x0E: 0x05, 0x10: 140, 0x12: 0x10, 0x13: 0x1F,
+        0x01: 3, 0x02: 5, 0x03: 2, 0x08: 0x0F, 0x09: 4, 0x0C: 1, 0x13: 0x1F,
     }
     for addr, data in writes.items():
         await spi_xfer(dut, addr, data, write=True)
@@ -146,39 +165,23 @@ async def spi_reset_and_registers(dut):
         if addr == 0x0C:
             data = 1
         assert got == data, (addr, got, data)
+    # The former DC/IQ calibration registers are reserved: writes are
+    # ignored and they read 0 (calibration moved to the host 2026-10-18).
+    for addr in (0x04, 0x05, 0x06, 0x07, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12):
+        await spi_xfer(dut, addr, 0x5A, write=True)
+        got = await spi_xfer(dut, addr, 0, write=False)
+        assert got == 0, (addr, got)
     # CTRL bit 7 is a clear strobe and does not stick. Bit 4 is slave.
     await spi_xfer(dut, 0x00, 0x96, write=True)
     ctrl = await spi_xfer(dut, 0x00, 0, write=False)
     assert ctrl == 0x16, ctrl
     # Chip ID is not writable.
     await spi_xfer(dut, 0x0B, 0xFF, write=True)
-    assert await spi_xfer(dut, 0x0B, 0, write=False) == 0x11
+    assert await spi_xfer(dut, 0x0B, 0, write=False) == 0x12
     # Standby keeps the other registers.
     await spi_xfer(dut, 0x00, 0x01, write=True)
-    assert await spi_xfer(dut, 0x05, 0, write=False) == 90
+    assert await spi_xfer(dut, 0x01, 0, write=False) == 3
     assert await spi_xfer(dut, 0x0C, 0, write=False) == 1
-
-
-@cocotb.test()
-async def phase_cross_term(dut):
-    await start(dut)
-    # Bypass CIC and DC. phase = 32/128 rad per full-scale Q into I.
-    await spi_xfer(dut, 0x08, 0x03, write=True)
-    await spi_xfer(dut, 0x07, 32, write=True)
-    await spi_xfer(dut, 0x00, 0x02, write=True)
-    for _ in range(12):
-        await RisingEdge(dut.clk)
-    dut.adc_i.value = 0
-    dut.adc_q.value = 400
-    dut.adc_valid.value = 1
-    await RisingEdge(dut.clk)
-    dut.adc_valid.value = 0
-    for _ in range(6):
-        await RisingEdge(dut.clk)
-    assert int(dut.i_hold.value.to_signed()) == 100
-    assert int(dut.q_hold.value.to_signed()) == 400
-    # 2 degrees is 0.0349 rad. One phase LSB is 1/128 rad, about 0.45 degrees,
-    # so the cross-term can place the residual under 2 degrees.
 
 
 @cocotb.test()
@@ -193,7 +196,7 @@ async def master_frame_lengths(dut):
             for _ in range(8):
                 await RisingEdge(dut.clk)
             m = TABLE[(ref, rate)][0]
-            illegal = ref == 36 and rate == 4
+            illegal = False  # every pair is legal with continuous BCLK
             status = await spi_xfer(dut, 0x0A, 0, write=False)
             assert bool(status & 0x40) == illegal, (ref, rate, status)
             if illegal:
@@ -203,6 +206,8 @@ async def master_frame_lengths(dut):
             period = 0
             highs = 0
             lows = 0
+            bedges = 0
+            pb = int(dut.bclk_o.value)
             for _ in range(m * 3):
                 await RisingEdge(dut.clk)
                 now = int(dut.lrclk_o.value)
@@ -213,12 +218,18 @@ async def master_frame_lengths(dut):
                         highs += 1
                     else:
                         lows += 1
+                if rises == 1 and b and not pb:
+                    bedges += 1
+                pb = b
                 if prev == 0 and now == 1:
                     rises += 1
                     if rises == 2:
                         break
                 prev = now
             assert period == m, (ref, rate, period, m)
+            # Continuous BCLK: 2*slot rising edges per frame, duty 40-60 %.
+            assert bedges == 2 * SLOT[(ref, rate)], (ref, rate, bedges)
+            assert 0.4 * m <= highs <= 0.6 * m, (ref, rate, highs, lows)
             # 50 percent of the active bit cells, plus idle lows at the
             # end of a frame that is longer than the slots.
             assert highs > 0 and abs(highs - lows) <= m, (ref, rate, highs, lows)
@@ -243,6 +254,17 @@ async def filter_response_limits(dut):
         alias = 20 * np.log10(np.min(num) / np.max(den))
         assert rip <= RIPPLE_LIMIT_DB, (ref, rate, rip)
         assert alias >= ALIAS_LIMIT_DB, (ref, rate, alias)
+        # Bands that alias onto the wanted channel (zero-IF, channel at DC).
+        d = np.linspace(-CH_HALF, CH_HALF, 111)
+        base = np.mean(chain_mag(d, fref, fs, r0, r1, r2) ** 2)
+        def onch(off):
+            return 10 * np.log10(base / np.mean(chain_mag(off + d, fref, fs, r0, r1, r2) ** 2))
+        for off in DUPLEX_OFFSETS:
+            land = ((off + fs / 2) % fs) - fs / 2
+            if abs(land) < CH_HALF:
+                assert onch(off) >= DUPLEX_LIMIT_DB, (ref, rate, off, onch(off))
+        worst_onch = min(onch(k * fs) for k in range(1, int(4e6 / fs) + 1))
+        assert worst_onch >= ONCHANNEL_LIMIT_DB, (ref, rate, worst_onch)
         worst_rip = max(worst_rip, rip)
         worst_alias = min(worst_alias, alias)
         assert r0 * r1 * r2 * 2 == m
@@ -261,68 +283,21 @@ async def filter_dc_and_overflow(dut):
     seen = []
     for _ in range(64 * 80):
         await RisingEdge(dut.clk)
-        if int(dut.cal_v.value):
-            seen.append(int(dut.cal_i.value.to_signed()))
+        if int(dut.rx_v.value):
+            seen.append(int(dut.rx_i.value.to_signed()))
     dut.adc_valid.value = 0
     assert len(seen) >= 8, len(seen)
     # Constant +1 through the normalized chain is code 64 at this rate.
-    assert abs(seen[-1] - 64) <= 4, seen[-1]
+    assert abs(seen[-1] - FS) <= FS_TOL, seen[-1]
     dut.adc_bit_i.value = 0
     dut.adc_bit_q.value = 0
     dut.adc_valid.value = 1
     full = []
     for _ in range(64 * 80):
         await RisingEdge(dut.clk)
-        if int(dut.cal_v.value):
-            full.append(int(dut.cal_i.value.to_signed()))
-    assert abs(full[-1] + 64) <= 4, full[-1]
-
-
-@cocotb.test()
-async def dc_retained_across_sleep(dut):
-    await start(dut)
-    await spi_xfer(dut, 0x08, 0x05, write=True)  # bypass CIC and IQ cal
-    await spi_xfer(dut, 0x04, 1, write=True)
-    await spi_xfer(dut, 0x00, 0x02, write=True)
-    dut.adc_i.value = 200
-    dut.adc_q.value = -80
-    async def frames(n):
-        got = 0
-        while got < n:
-            dut.adc_valid.value = 1
-            await RisingEdge(dut.clk)
-            dut.adc_valid.value = 0
-            await RisingEdge(dut.clk)
-            if int(dut.sample_valid.value):
-                got += 1
-        return int(dut.i_hold.value.to_signed())
-    await frames(30)
-    settled = int(dut.i_hold.value.to_signed())
-    assert abs(settled) < 20, settled
-    await spi_xfer(dut, 0x00, 0x01, write=True)  # standby
-    for _ in range(10):
-        await RisingEdge(dut.clk)
-    await spi_xfer(dut, 0x00, 0x02, write=True)
-    first = await frames(1)
-    assert abs(first) < 20, first
-    await spi_xfer(dut, 0x0D, 1, write=True)
-    # shift=1 halves the residual each frame. The first frame after a
-    # clear jumps back toward the raw offset. Later frames reconverge.
-    samples = []
-    for _ in range(8):
-        dut.adc_valid.value = 1
-        await RisingEdge(dut.clk)
-        dut.adc_valid.value = 0
-        for _w in range(6):
-            await RisingEdge(dut.clk)
-            if int(dut.cal_v.value):
-                samples.append(int(dut.i_hold.value.to_signed()))
-    assert len(samples) >= 2, samples
-    # samples[0] is the word already in the pipeline when clear was written.
-    assert abs(samples[1] - 100) < 30, samples
-    reconverged = next((i for i, y in enumerate(samples) if i > 0 and abs(y) < 20), None)
-    assert reconverged is not None, samples
-    cocotb.log.info("DC clear: first=%s frames to |y|<20: %s", samples[0], reconverged)
+        if int(dut.rx_v.value):
+            full.append(int(dut.rx_i.value.to_signed()))
+    assert abs(full[-1] + FS) <= FS_TOL, full[-1]
 
 
 @cocotb.test()
@@ -341,7 +316,7 @@ async def wake_duty_and_power(dut):
     # Two-frame duty period is 128 reference clocks at 500 kHz.
     for _ in range(64 * 6):
         await RisingEdge(dut.clk)
-        if int(dut.cal_v.value):
+        if int(dut.rx_v.value):
             if int(dut.sample_valid.value):
                 valids += 1
             else:
@@ -359,7 +334,7 @@ async def wake_duty_and_power(dut):
     dut.adc_valid.value = 1
     for _ in range(64 * 3):
         await RisingEdge(dut.clk)
-        if int(dut.cal_v.value) and int(dut.sample_valid.value):
+        if int(dut.rx_v.value) and int(dut.sample_valid.value):
             on_count += 1
     assert on_count >= 64, on_count
     await spi_xfer(dut, 0x01, 0, write=True)
@@ -370,7 +345,7 @@ async def wake_duty_and_power(dut):
     blank_after = 0
     for _ in range(64 * 4):
         await RisingEdge(dut.clk)
-        if int(dut.cal_v.value):
+        if int(dut.rx_v.value):
             if int(dut.sample_valid.value):
                 off_after += 1
             else:
@@ -455,10 +430,10 @@ async def filter_dc_all_rates(dut):
         seen = []
         for _ in range(m * 48):
             await RisingEdge(dut.clk)
-            if int(dut.cal_v.value):
-                seen.append(int(dut.cal_i.value.to_signed()))
+            if int(dut.rx_v.value):
+                seen.append(int(dut.rx_i.value.to_signed()))
         assert len(seen) >= 8, (ref, rate, len(seen))
-        assert abs(seen[-1] - 64) <= 4, (ref, rate, raw, seen[-1])
+        assert abs(seen[-1] - FS) <= FS_TOL, (ref, rate, raw, seen[-1])
     # The un-normalized gains are not the same. 32 MHz / 500 kHz is the low one.
     assert max(gains) / min(gains) > 1.5, gains
     cocotb.log.info("raw DC gains %s", ["%.4f" % g for g in gains])
@@ -467,29 +442,42 @@ async def filter_dc_all_rates(dut):
 @cocotb.test()
 async def tx_image_and_noise(dut):
     # 500 kHz, 32 MHz, 16-bit slots. BCLK is 16 MHz with a 2-clock cell.
-    # din is set while BCLK is low, which is the cycle before the master
-    # launches the next bit. Tone at 0.1*fs on I, Q silent.
+    # A Philips I2S host: DIN changes on the BCLK falling edge, cells are
+    # counted from the LRCLK falling edge, and I bit e sits in cell e+1.
+    # Tone at 0.1*fs on I, Q silent.
     await start(dut, ref_36=0)
     await spi_xfer(dut, 0x03, 4, write=True)
     await spi_xfer(dut, 0x00, 0x03, write=True)
     fs = 500_000.0
     f_tone = 0.1 * fs
     bits = []
-    bit_n = 0
     sample_n = 0
     word = int(round(8000 * np.sin(2 * np.pi * f_tone / fs * sample_n))) & 0xFFFF
+    cell = None
+    prev_b = int(dut.bclk_o.value)
+    prev_lr = int(dut.lrclk_o.value)
     for _ in range(64 * 160):
-        await RisingEdge(dut.clk)
-        if int(dut.bclk_o.value) == 0:
-            b = bit_n % 32
-            if b < 16:
-                dut.din.value = (word >> (15 - b)) & 1
+        # Observe and drive on clk's falling edge: the I2S master runs on a
+        # gated clock that settles after clk's rising edge in RTL simulation.
+        await FallingEdge(dut.clk)
+        b_now = int(dut.bclk_o.value)
+        lr = int(dut.lrclk_o.value)
+        if prev_b == 1 and b_now == 0:
+            # BCLK falling edge: the host changes DIN here.
+            if prev_lr == 1 and lr == 0:
+                cell = 0
+            elif cell is not None:
+                cell += 1
+            e = None if cell is None else cell - 1
+            if e is not None and 0 <= e < 16:
+                dut.din.value = (word >> (15 - e)) & 1
+                if e == 15:
+                    sample_n += 1
+                    word = int(round(8000 * np.sin(2 * np.pi * f_tone / fs * sample_n))) & 0xFFFF
             else:
                 dut.din.value = 0
-            bit_n += 1
-            if b == 31:
-                sample_n += 1
-                word = int(round(8000 * np.sin(2 * np.pi * f_tone / fs * sample_n))) & 0xFFFF
+        prev_b = b_now
+        prev_lr = lr
         if int(dut.dac_bit_valid.value):
             bits.append(1.0 if int(dut.dac_bit_i.value) else -1.0)
     assert len(bits) > 4096, len(bits)
@@ -512,19 +500,23 @@ async def tx_image_and_noise(dut):
         "TX tone %.1f dB, image %.1f dB, rej %.1f dB, oob floor %.1f dB",
         tone, image, tone - image, floor,
     )
-    # The 1-8 MHz floor limit is provisional. Phase 4 has to derive it
-    # from the emission mask, including the analogue reconstruction
-    # filter and the modulator order. The expected mask is 60-70 dB
-    # below the carrier near the carrier. 20 dB is only this model's
-    # shaped-noise check.
     assert tone - image >= 40.0, (tone, image)
     assert tone - floor >= 20.0, (tone, floor)
+    # Noise density at the duplex offsets (spec/derived-limits.md),
+    # relative to a full-scale sine (power 0.5). The median over +-40 kHz
+    # ignores the CIC image lines; dividing by ln 2 removes the median bias.
+    psd = np.abs(np.fft.rfft(bits * w)) ** 2 / (32e6 * np.sum(w ** 2)) * 2
+    for off, lim in TX_NOISE_LIMITS:
+        m = np.abs(freqs - (f_tone + off)) < 40e3
+        nd = 10 * np.log10(np.median(psd[m]) / np.log(2) / 0.5)
+        cocotb.log.info("TX noise at %.1f MHz offset: %.1f dBFS/Hz (limit %.0f)", off / 1e6, nd, lim)
+        assert nd <= lim, (off, nd, lim)
 
 
 @cocotb.test()
 async def rx_chain_ports(dut):
     # Port-level RX check so the same test can run on the gate netlist.
-    # DC and IQ are bypassed. The decimator output is the I2S left word.
+    # The half-band output is the I2S left word.
     await start(dut)
     await spi_xfer(dut, 0x08, 0x06, write=True)
     await spi_xfer(dut, 0x03, 4, write=True)
@@ -545,20 +537,26 @@ async def rx_chain_ports(dut):
         if prev_lr == 1 and lr == 0:
             break
         prev_lr = lr
+    # Philips I2S: sample DOUT on BCLK rising edges, as a host does.
+    # The first rising edge after LRCLK falls (cell 0) carries the previous
+    # right-channel bit; the left MSB is in the next cell.
     word = 0
     bits = 0
+    rises = 0
     prev_b = int(dut.bclk_o.value)
-    for _ in range(80):
+    for _ in range(200):
         await RisingEdge(dut.clk)
         b = int(dut.bclk_o.value)
-        if prev_b == 1 and b == 0 and bits < 16:
-            word = ((word << 1) | int(dut.dout.value)) & 0xFFFF
-            bits += 1
+        if prev_b == 0 and b == 1:
+            rises += 1
+            if rises >= 2 and bits < 16:
+                word = ((word << 1) | int(dut.dout.value)) & 0xFFFF
+                bits += 1
         prev_b = b
     if word & 0x8000:
         word -= 65536
     assert bits == 16, bits
-    assert abs(word - 64) <= 4, word
+    assert abs(word - FS) <= FS_TOL, word
 
 
 
@@ -567,7 +565,7 @@ async def rx_chain_ports(dut):
 async def rx_tone_rtl(dut):
     """Real tones through the RTL RX chain: passband gain and alias rejection."""
     await start(dut)
-    await spi_xfer(dut, 0x08, 0x06, write=True)   # bypass DC loop and IQ cal
+    await spi_xfer(dut, 0x08, 0x06, write=True)   # BLOCK_PD[2:1] are reserved since 2026-10-18
     await spi_xfer(dut, 0x03, 4, write=True)      # 500 kHz
     await spi_xfer(dut, 0x00, 0x02, write=True)   # RX
     fref, fs, n = 32e6, 500e3, 512
@@ -593,16 +591,79 @@ async def rx_tone_rtl(dut):
         dut.adc_bit_i.value = int(b)
         dut.adc_bit_q.value = int(b)
         await RisingEdge(dut.clk)
-        if int(dut.cal_v.value):
-            out.append(int(dut.cal_i.value.to_signed()))
+        if int(dut.rx_v.value):
+            out.append(int(dut.rx_i.value.to_signed()))
     dut.adc_valid.value = 0
     assert len(out) >= n + skip, len(out)
     seg = np.array(out[skip:skip + n], dtype=float)
     spec = np.abs(np.fft.rfft(seg - seg.mean())) * 2 / n
-    gain_db = 20 * np.log10(spec[k_sig] / (a_sig * 64))
+    gain_db = 20 * np.log10(spec[k_sig] / (a_sig * FS))
     rej_db = 20 * np.log10((spec[k_sig] / a_sig) / (spec[k_alias] / a_int))
     cocotb.log.info(
-        "RX tone %.2f codes, gain %.2f dB vs 64-code full scale, alias rejection %.1f dB, peak %d",
+        "RX tone %.2f codes, gain %.2f dB vs full scale, alias rejection %.1f dB, peak %d",
         spec[k_sig], gain_db, rej_db, int(np.max(np.abs(seg))))
     assert abs(gain_db) <= 1.0, gain_db
     assert rej_db >= ALIAS_LIMIT_DB, rej_db
+
+
+@cocotb.test()
+async def i2s_slave_philips(dut):
+    """Slave mode: a host drives Philips I2S from its own clock; check both words."""
+    await start(dut)
+    await spi_xfer(dut, 0x08, 0x06, write=True)    # BLOCK_PD[2:1] are reserved since 2026-10-18
+    await spi_xfer(dut, 0x03, 4, write=True)       # 500 kHz
+    await spi_xfer(dut, 0x00, 0x12, write=True)    # RX, I2S slave
+    dut.adc_bit_i.value = 1                        # I = +full scale
+    dut.adc_bit_q.value = 0                        # Q = -full scale
+    dut.adc_valid.value = 1
+    for _ in range(64 * 50):
+        await RisingEdge(dut.clk)
+    half = 31.2                                    # host BCLK ~16.03 MHz, not locked to clk
+    samples = []
+    for frame in range(24):
+        for cell in range(32):
+            dut.bclk_i.value = 0                   # falling edge: host changes LRCLK and DIN
+            dut.lrclk_i.value = 0 if cell < 16 else 1
+            dut.din.value = 0
+            await Timer(half, unit="ns")
+            samples.append(int(dut.dout.value))    # host samples at the rising edge
+            dut.bclk_i.value = 1
+            await Timer(half, unit="ns")
+    dut.adc_valid.value = 0
+
+    def word(bits):
+        w = 0
+        for b in bits:
+            w = (w << 1) | b
+        return w - 65536 if w & 0x8000 else w
+
+    f = 20 * 32
+    left = word(samples[f + 1:f + 17])
+    right = word(samples[f + 17:f + 33])
+    cocotb.log.info("slave left %d right %d", left, right)
+    assert abs(left - FS) <= FS_TOL, left
+    assert abs(right + FS) <= FS_TOL, right
+
+
+@cocotb.test()
+async def spi_aborted_frame(dut):
+    """CS raised mid-frame (no SCLK edge with CS high) must not misalign the next transfer."""
+    await start(dut)
+    frame = (1 << 15) | (0x01 << 8) | 0x55       # write DUTY_ON = 0x55 ...
+    dut.cs_n.value = 0
+    await RisingEdge(dut.clk)
+    for bit in range(15, 8, -1):                 # ... aborted after 7 bits
+        dut.mosi.value = (frame >> bit) & 1
+        await RisingEdge(dut.clk)
+        dut.sclk.value = 1
+        await RisingEdge(dut.clk)
+        await RisingEdge(dut.clk)
+        dut.sclk.value = 0
+        await RisingEdge(dut.clk)
+    dut.cs_n.value = 1                           # abort, as a real host would: no SCLK
+    for _ in range(4):
+        await RisingEdge(dut.clk)
+    got = await spi_xfer(dut, 0x01, 0, write=False)
+    assert got == 1, got                         # write did not happen, read is aligned
+    await spi_xfer(dut, 0x02, 7, write=True)
+    assert await spi_xfer(dut, 0x02, 0, write=False) == 7

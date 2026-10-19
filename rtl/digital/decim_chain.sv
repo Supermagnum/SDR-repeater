@@ -20,18 +20,18 @@ module decim_chain (
     output logic signed [15:0] i_out,
     output logic signed [15:0] q_out,
     input  logic               alt,
-    input  logic signed [39:0] a0,
-    input  logic signed [39:0] b0,
-    input  logic signed [39:0] a1,
-    input  logic signed [39:0] b1,
-    input  logic signed [39:0] a2,
-    input  logic signed [39:0] b2,
-    input  logic signed [39:0] a3,
-    input  logic signed [39:0] b3,
-    output logic signed [39:0] s0,
-    output logic signed [39:0] s1,
-    output logic signed [39:0] s2,
-    output logic signed [39:0] s3
+    input  logic signed [27:0] a0,
+    input  logic signed [27:0] b0,
+    input  logic signed [27:0] a1,
+    input  logic signed [27:0] b1,
+    input  logic signed [27:0] a2,
+    input  logic signed [27:0] b2,
+    input  logic signed [27:0] a3,
+    input  logic signed [27:0] b3,
+    output logic signed [27:0] s0,
+    output logic signed [27:0] s1,
+    output logic signed [27:0] s2,
+    output logic signed [27:0] s3
 );
 
     logic v1_i, v2_i, v1_q, v2_q;
@@ -63,7 +63,10 @@ module decim_chain (
     cic4 u_i2 (
         .clk(clk), .rst_n(rst_n), .en(en), .ratio(r2), .shift(sh2),
         .valid_in(v1_i), .din(d1_i), .valid_out(v2_i), .dout(d2_i),
+        // s0/s1 (shared-adder outputs) are only used on the SHARE instances.
+        /* verilator lint_off PINCONNECTEMPTY */
         .alt(1'b0), .a0('0), .b0('0), .a1('0), .b1('0), .s0(), .s1()
+        /* verilator lint_on PINCONNECTEMPTY */
     );
     cic4 #(.SHARE(1'b1)) u_q1 (
         .clk(clk), .rst_n(rst_n), .en(en), .ratio(r1), .shift(sh1),
@@ -73,7 +76,10 @@ module decim_chain (
     cic4 u_q2 (
         .clk(clk), .rst_n(rst_n), .en(en), .ratio(r2), .shift(sh2),
         .valid_in(v1_q), .din(d1_q), .valid_out(v2_q), .dout(d2_q),
+        // s0/s1 (shared-adder outputs) are only used on the SHARE instances.
+        /* verilator lint_off PINCONNECTEMPTY */
         .alt(1'b0), .a0('0), .b0('0), .a1('0), .b1('0), .s0(), .s1()
+        /* verilator lint_on PINCONNECTEMPTY */
     );
 
     logic bypass_v;
