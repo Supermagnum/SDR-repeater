@@ -51,9 +51,9 @@ Optional: ship `repeater-supervisord` and `repeater-authd` in a sibling crate �
 
 | Responsibility | Behaviour |
 |----------------|-----------|
-| Bind PUB | `ipc:///run/ht-module/iq_A`, `iq_B`, `iq_C`, `iq_D` (populated slots only) |
+| Bind PUB | `ipc:///run/ht-module/iq_A` … `iq_E` (populated slots only) |
 | Bind REP | `ipc:///run/ht-module/ctrl` — one command per REQ/REP round-trip |
-| Connect SUB | `tx_A`, `tx_B`, `tx_C`, `tx_D` — single logical publisher per module enforced at policy layer |
+| Connect SUB | `tx_A` … `tx_E` — single logical publisher per module enforced at policy layer |
 | Bind PUB | `ipc:///run/ht-module/status` — periodic JSON plus alert events |
 
 Reference: ZeroMQ guide REQ/REP semantics; match reply strings `OK` and `ERR <reason>` from [zeromq-messages.md Section 4](../zeromq-messages.md#4-control-plane-ctrl).
@@ -63,7 +63,7 @@ Reference: ZeroMQ guide REQ/REP semantics; match reply strings `OK` and `ERR <re
 | Field | Source |
 |-------|--------|
 | `timestamp_ns` | CLOCK_REALTIME adjusted by chrony, or monotonic mapping documented in README |
-| `module_id` | 0 / 1 / 2 / 3 for slots A / B / C / D |
+| `module_id` | 0 / 1 / 2 / 3 / 4 for slots A / B / C / D / E |
 | `sample_count` | Derived from DMA buffer fill |
 | `iq[]` | int16 interleaved from SAI capture |
 
@@ -116,7 +116,7 @@ Read layout [RF-modules.md Section 9.4](../RF-modules.md) utility EEPROM map; po
 | Key (TOML) | Meaning |
 |------------|---------|
 | `backend` | `stub` \| `linht_proxy` \| `sx1255` \| `i2s_dma` |
-| `modules.enabled` | List of populated slot addresses: `A`, `B`, `C`, `D` |
+| `modules.enabled` | List of populated slot addresses: `A`, `B`, `C`, `D`, `E` |
 | `zmq.ipc_prefix` | Default `/run/ht-module` |
 | `status.interval_ms` | Default 1000 |
 | `ptt.require_lease` | Default true in production |

@@ -120,3 +120,12 @@ Accepted and documented; LinHT should prefer 100 kHz or 500 kHz.
 - **TX output:** −5 dBm nominal into the existing GRF5604 match; ≥ 30 dB analogue gain control after the reconstruction filter (digital scaling would break the duplex-noise budget).
 - **Phase noise:** VACASK `pnoise` validated (`analog/pn-validation/`); use `pss_minpts` ≥ 8000 for close-in offsets.
 - Requirements: `spec/rf-frontend.md` (draft for human review).
+
+## 2026-10-19 — Interface pins, duplex module, five slots, VHF filter, 100 W parts
+- **`ref_36`:** strap on SX1255 pin 11 (CLK_IN), sampled while RESET is active, internal pull-down: open = 32 MHz (LinHT unchanged), high = 36 MHz. Readable in a status bit. Changing it needs a reset, consistent with the static false path.
+- **Backplane c2 (PTT) → RFIC DIO3:** hardware PTT gate with pull-down, ignored unless `ptt_pin_en` is set (default: SPI-only TX, as the SX1255 and the LinHT). **Backplane c1 (IRQ) ← RFIC DIO1:** active-low IRQ, enabled by register; open-drain buffer on the module. RTL change together with the other Option P pin-map changes (Phase 5).
+- **LinHT I2S format confirmed** (read-only, `meta-linht-hardware` `sbc-mcm-imx93.dtsi`): `format = "i2s"`, SX1255 is bit-clock and frame master on both links. Matches the chip default.
+- **Same-band repeater = one duplex module in one slot:** two RFICs, shared reference; RX RFIC is I2S master, TX RFIC is slave on the same port; TX RFIC chip select on b5 (SWR ADC then I²C); two front-panel ports to the cavity duplexer; no T/R switch. EEPROM types 0x0005 (2 m duplex), 0x0006 (70 cm duplex).
+- **Five slots, A–E** (README is canonical): `iq_E` / `tx_E` and `module_id` 4 added in `zeromq-messages.md`, `ht-module-daemon.md` and `RF-modules.md`.
+- **VHF harmonic filter covers 130–175 MHz (owner decision):** 7th-order elliptic-type ladder with traps at about 263 / 309 / 511 MHz, ≥ 70 dB from 256 MHz; values and part stress in `docs/rf-switches-and-filters.md`; check with `tools/vhf_lpf_check.py`.
+- **100 W parts:** MACOM MSW2040-204 (symmetrical) for band switching, MSW2050-205 (asymmetrical) for T/R; 125 V reverse bias needed at VHF; orderable, quote needed. ATC 100B: 3 W dissipation limit; two in parallel (or 100C/100E) at the 100 W shunt positions until the ESR chart is read.
