@@ -50,6 +50,8 @@ TX_NOISE_LIMITS = ((0.6e6, -101.0), (2.0e6, -81.0))
 async def start(dut, ref_36=0):
     cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
     dut.ref_36.value = ref_36
+    dut.ptt_pin.value = 0
+    dut.pll_lock.value = 1
     dut.sclk.value = 0
     dut.cs_n.value = 1
     dut.mosi.value = 0
@@ -70,6 +72,15 @@ async def start(dut, ref_36=0):
     await RisingEdge(dut.clk)
     dut.rst_n.value = 1
     await RisingEdge(dut.clk)
+
+
+async def pulse_reset(dut):
+    dut.rst_n.value = 0
+    for _ in range(3):
+        await RisingEdge(dut.clk)
+    dut.rst_n.value = 1
+    for _ in range(3):
+        await RisingEdge(dut.clk)
 
 
 async def spi_xfer(dut, addr, data, write):
@@ -142,7 +153,7 @@ async def spi_reset_and_registers(dut):
         0x07: 0,
         0x08: 0,
         0x09: 0,
-        0x0B: 0x12,
+        0x0B: 0x13,
         0x0C: 0,
         0x0D: 0,
         0x0E: 0,
@@ -151,6 +162,9 @@ async def spi_reset_and_registers(dut):
         0x11: 0,
         0x12: 0,
         0x13: 0x1F,
+        0x14: 0,
+        # INFO: [2] PLL lock (pin high), [1] PTT pin, [0] ref_36 latched.
+        0x15: 0x04,
     }
     for addr, exp in expect_reset.items():
         got = await spi_xfer(dut, addr, 0, write=False)
@@ -177,7 +191,7 @@ async def spi_reset_and_registers(dut):
     assert ctrl == 0x16, ctrl
     # Chip ID is not writable.
     await spi_xfer(dut, 0x0B, 0xFF, write=True)
-    assert await spi_xfer(dut, 0x0B, 0, write=False) == 0x12
+    assert await spi_xfer(dut, 0x0B, 0, write=False) == 0x13
     # Standby keeps the other registers.
     await spi_xfer(dut, 0x00, 0x01, write=True)
     assert await spi_xfer(dut, 0x01, 0, write=False) == 3
@@ -187,9 +201,11 @@ async def spi_reset_and_registers(dut):
 @cocotb.test()
 async def master_frame_lengths(dut):
     await start(dut)
-    await spi_xfer(dut, 0x08, 0x07, write=True)
     for ref, pin in ((32, 0), (36, 1)):
+        # ref_36 is a strap latched during reset (2026-10-19): change it, then reset.
         dut.ref_36.value = pin
+        await pulse_reset(dut)
+        await spi_xfer(dut, 0x08, 0x07, write=True)
         for rate in range(5):
             await spi_xfer(dut, 0x03, rate, write=True)
             await spi_xfer(dut, 0x00, 0x02, write=True)
@@ -667,3 +683,84 @@ async def spi_aborted_frame(dut):
     assert got == 1, got                         # write did not happen, read is aligned
     await spi_xfer(dut, 0x02, 7, write=True)
     assert await spi_xfer(dut, 0x02, 0, write=False) == 7
+
+
+@cocotb.test()
+async def pinmap_ref36_ptt_irq(dut):
+    """SX1255 pin-out additions (2026-10-19): ref_36 strap latched at reset,
+    hardware PTT gate (CTRL[3], DIO3), IRQ output (IRQ_EN, DIO1)."""
+    await start(dut, ref_36=0)
+    assert (await spi_xfer(dut, 0x15, 0, write=False)) & 0x01 == 0
+    # Strap change without reset is ignored; after reset it is taken.
+    dut.ref_36.value = 1
+    for _ in range(10):
+        await RisingEdge(dut.clk)
+    assert (await spi_xfer(dut, 0x15, 0, write=False)) & 0x01 == 0
+    await pulse_reset(dut)
+    assert (await spi_xfer(dut, 0x15, 0, write=False)) & 0x01 == 1
+    # 36 MHz, 500 kHz: 72-clock frame.
+    await spi_xfer(dut, 0x08, 0x07, write=True)
+    await spi_xfer(dut, 0x03, 4, write=True)
+    await spi_xfer(dut, 0x00, 0x02, write=True)
+    rises, period, prev = 0, 0, int(dut.lrclk_o.value)
+    for _ in range(400):
+        await RisingEdge(dut.clk)
+        now = int(dut.lrclk_o.value)
+        if rises == 1:
+            period += 1
+        if prev == 0 and now == 1:
+            rises += 1
+            if rises == 2:
+                break
+        prev = now
+    assert period == 72, period
+
+    # PTT gate off (CTRL[3] = 0): TX mode runs regardless of the pin.
+    dut.ptt_pin.value = 0
+    await spi_xfer(dut, 0x00, 0x03, write=True)
+    for _ in range(8):
+        await RisingEdge(dut.clk)
+    assert (await spi_xfer(dut, 0x0A, 0, write=False)) & 0x03 == 0x03
+    # Gate on, pin low: the core holds standby.
+    await spi_xfer(dut, 0x00, 0x0B, write=True)
+    for _ in range(8):
+        await RisingEdge(dut.clk)
+    assert (await spi_xfer(dut, 0x00, 0, write=False)) == 0x0B
+    assert (await spi_xfer(dut, 0x0A, 0, write=False)) & 0x03 == 0x01
+    # Pin high: TX.
+    dut.ptt_pin.value = 1
+    for _ in range(8):
+        await RisingEdge(dut.clk)
+    assert (await spi_xfer(dut, 0x0A, 0, write=False)) & 0x03 == 0x03
+    assert (await spi_xfer(dut, 0x15, 0, write=False)) & 0x02 == 0x02
+    dut.ptt_pin.value = 0
+    for _ in range(8):
+        await RisingEdge(dut.clk)
+    assert (await spi_xfer(dut, 0x0A, 0, write=False)) & 0x03 == 0x01
+    await spi_xfer(dut, 0x00, 0x01, write=True)
+
+    # IRQ: PLL-unlock source, masked and enabled.
+    assert int(dut.irq_n.value) == 1
+    dut.pll_lock.value = 0
+    for _ in range(8):
+        await RisingEdge(dut.clk)
+    assert int(dut.irq_n.value) == 1, "masked source must not assert IRQ"
+    await spi_xfer(dut, 0x14, 0xF8, write=True)
+    assert await spi_xfer(dut, 0x14, 0, write=False) == 0x08
+    for _ in range(8):
+        await RisingEdge(dut.clk)
+    assert int(dut.irq_n.value) == 0
+    assert (await spi_xfer(dut, 0x15, 0, write=False)) & 0x04 == 0
+    dut.pll_lock.value = 1
+    for _ in range(8):
+        await RisingEdge(dut.clk)
+    assert int(dut.irq_n.value) == 1
+    # Disabling the source releases it too.
+    dut.pll_lock.value = 0
+    for _ in range(8):
+        await RisingEdge(dut.clk)
+    assert int(dut.irq_n.value) == 0
+    await spi_xfer(dut, 0x14, 0x00, write=True)
+    for _ in range(8):
+        await RisingEdge(dut.clk)
+    assert int(dut.irq_n.value) == 1

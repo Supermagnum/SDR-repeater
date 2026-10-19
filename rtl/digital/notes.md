@@ -1,6 +1,6 @@
 # Digital back end
 
-Phase 1 RTL for one chain. The analog ADC and DAC are outside this block. The SPI frame is approved: mode 0, 16 bits, bit 15 is write, bits 14:8 are the address, bits 7:0 are the data. The register map is not frozen. `CTRL[3]` is reserved.
+Phase 1 RTL for one chain. The analog ADC and DAC are outside this block. The SPI frame is approved: mode 0, 16 bits, bit 15 is write, bits 14:8 are the address, bits 7:0 are the data. The register map is not frozen. `CTRL[3]` enables the hardware PTT gate (2026-10-19).
 
 ## Clock
 
@@ -49,7 +49,7 @@ SPI mode 0, 16 bits per CS assertion. Bit 15 is write when 1. Bits 14:8 are the 
 
 | Addr | Name | Reset | Meaning |
 |---|---|---|---|
-| 0x00 | CTRL | 0x00 | [1:0] mode: 00 shutdown, 01 standby, 10 RX, 11 TX. [2] RX duty-cycle enable. [3] reserved, forced to 0. [4] I2S slave when 1. Reset is master. [7] write-1 clears FIFO flags and does not stick. [6:5] reserved. |
+| 0x00 | CTRL | 0x00 | [1:0] mode: 00 shutdown, 01 standby, 10 RX, 11 TX. [2] RX duty-cycle enable. [3] PTT gate enable: in TX mode the core runs only while `ptt_pin` (SX1255 pin DIO3) is high, otherwise it holds standby. [4] I2S slave when 1. Reset is master. [7] write-1 clears FIFO flags and does not stick. [6:5] reserved. |
 | 0x01 | DUTY_ON | 1 | Output frames with IQ present in one RX on-period. Zero with a non-zero DUTY_OFF blanks after the first frame. |
 | 0x02 | DUTY_OFF | 0 | Following frames forced to zero. Zero means the on-period does not end. |
 | 0x03 | RATE | 4 | [2:0] sample rate: 0 = 25, 1 = 50, 2 = 100, 3 = 200, 4 = 500 kHz. |
@@ -60,7 +60,7 @@ SPI mode 0, 16 bits per CS assertion. Bit 15 is write when 1. Bits 14:8 are the 
 | 0x08 | BLOCK_PD | 0 | [0] decimator, [1] DC loop, [2] IQ cal, [3] I2S, [4] TX chain. A set bit powers that block down. Filters bypass. I2S dout stays 0. |
 | 0x09 | WAKE | 0 | Output frames to wait after entering RX or TX before `valid_iq` rises. |
 | 0x0A | STATUS | — | Read only. [1:0] mode, [2] blank, [3] valid_iq, [4] FIFO overflow, [5] FIFO underflow, [6] clk_error, [7] relock busy. |
-| 0x0B | CHIP_ID | 0x12 | Read only. Writes are ignored. 0x11 before the calibration registers were removed (2026-10-18). |
+| 0x0B | CHIP_ID | 0x13 | Read only. Writes are ignored. 0x11 before the calibration registers were removed (2026-10-18); 0x12 before IRQ_EN, INFO and the PTT gate were added (2026-10-19). |
 | 0x0C | BAND | 0 | [0] = 0 selects divide-by-8 (70 cm). [0] = 1 selects divide-by-24 (2 m). A write starts the digital relock interval. |
 | 0x0D | — | 0 | Reserved. Was `DC_CLEAR` until 2026-10-18; DC and IQ correction are done by the host. Reads 0, writes ignored. |
 | 0x0E | — | 0 | Reserved. Was `TX_DC_I` until 2026-10-18; DC and IQ correction are done by the host. Reads 0, writes ignored. |
@@ -68,15 +68,25 @@ SPI mode 0, 16 bits per CS assertion. Bit 15 is write when 1. Bits 14:8 are the 
 | 0x10 | — | 0 | Reserved. Was `TX_GAIN_I` until 2026-10-18; DC and IQ correction are done by the host. Reads 0, writes ignored. |
 | 0x11 | — | 0 | Reserved. Was `TX_GAIN_Q` until 2026-10-18; DC and IQ correction are done by the host. Reads 0, writes ignored. |
 | 0x12 | — | 0 | Reserved. Was `TX_PHASE` until 2026-10-18; DC and IQ correction are done by the host. Reads 0, writes ignored. |
+| 0x14 | IRQ_EN | 0 | [0] FIFO overflow, [1] FIFO underflow, [2] clk_error, [3] PLL not locked (`pll_lock` low). `irq_n` (SX1255 pin DIO1) is low while any enabled condition holds; it is a level, cleared by removing the cause (FIFO flags: `CTRL[7]`) or the enable. [7:4] reserved. |
+| 0x15 | INFO | — | Read only. [0] `ref_36` as latched at reset, [1] `ptt_pin` (synchronised), [2] `pll_lock` (synchronised). [7:3] read 0. |
 | 0x13 | CLK_GATE | 0x1F | Clock allow. [0] CIC, [1] FIR (shares the RX clock with the CIC, so either bit stops that clock), [2] DC and IQ data enable, [3] I2S, [4] TX. A 0 stops that block even in RX or TX. SPI is not in this mask. It stays clocked in every mode, including shutdown. |
 
 `BAND` relock is a digital handshake of 64 reference clocks, about 2.00 us at 32 MHz and 1.78 us at 36 MHz. It is not an analog PLL lock. The analog lock budget remains under 1 ms and is not claimed here.
 
 ## I2S
 
-MSB-justified. LRCLK 0 is I (left) and LRCLK 1 is Q (right). Data changes when BCLK rises. The host samples on the fall. The slot width comes from the rate table. The first 16 bits of the slot are the sample. Wider slots send zeros after that. `CTRL[3]` does not select the slot.
+Philips (standard) I2S since 2026-10-18. LRCLK 0 is I (left) and LRCLK 1 is Q (right); LRCLK changes one bit before each MSB. Data and LRCLK change when BCLK falls; the receiver samples on the rise. The LinHT device tree uses exactly this (`format = "i2s"`, transceiver as clock master). The slot width comes from the rate table. The first 16 bits of the slot are the sample. Wider slots send zeros after that. `CTRL[3]` does not select the slot.
 
 The RFIC is the master unless `CTRL[4]` is set. Clocking, the proposed b14/b15 direction change, and the CDC are in `spec/i2s-clocking.md` and `cdc.md`.
+
+## SX1255 pin-out additions (2026-10-19)
+
+- `ref_36` is the pin-11 strap. It is sampled on every `clk` edge while the reset synchroniser is in reset and held afterwards, so a change needs a reset (the SDC keeps it a false path). The value in use reads back in `INFO[0]`.
+- `ptt_pin` is the pin-24 (DIO3) hardware PTT gate. Two-flop synchroniser. Ignored unless `CTRL[3]` is set, so the default is SX1255-style TX over SPI only.
+- `irq_n` is the pin-22 (DIO1) interrupt, registered, active low, masked by `IRQ_EN`.
+- `pll_lock` is an input from the analogue PLL (two-flop synchroniser); until that exists, tie it high.
+- The active-high RESET pin, its pull-down, the power-on reset, and the I2S word select on DIO2 are chip-top items outside this block; this block still sees `rst_n` and `lrclk_o`.
 
 ## Power
 

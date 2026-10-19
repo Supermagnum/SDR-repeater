@@ -250,7 +250,7 @@ Targets for the **attenuator baseline** (two PE4312 in front of the chip, as on 
 | Synthesizer wake-up | ≤ 150 µs |
 | TX/RX turnaround | ≤ 0.5 ms including PLL settling (DMR TDMA) |
 | Reference | 32 MHz or 36 MHz on XTB; the host picks per channel so that no clock harmonic lands on it (32 MHz for 2 m / 70 cm, 36 MHz for PMR446 and near 160 / 416 / 448 MHz). LinHT: 32 MHz only |
-| Reference spurs | To be derived (open item in spec/rf-frontend.md) |
+| Spurs | ≤ −95 dBc at the duplex offset (25 W), TX ≤ −67 dBc elsewhere (design target), RX ≤ −84 dBc elsewhere — [spec/derived-limits.md](../spec/derived-limits.md) §9 |
 
 The chip has no tuning-voltage pin. The module's reference oscillator (VCTCXO) is tuned through backplane pin a12 as before; how the RFIC modules are frequency-disciplined is not decided yet.
 

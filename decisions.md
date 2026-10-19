@@ -129,3 +129,17 @@ Accepted and documented; LinHT should prefer 100 kHz or 500 kHz.
 - **Five slots, A–E** (README is canonical): `iq_E` / `tx_E` and `module_id` 4 added in `zeromq-messages.md`, `ht-module-daemon.md` and `RF-modules.md`.
 - **VHF harmonic filter covers 130–175 MHz (owner decision):** 7th-order elliptic-type ladder with traps at about 263 / 309 / 511 MHz, ≥ 70 dB from 256 MHz; values and part stress in `docs/rf-switches-and-filters.md`; check with `tools/vhf_lpf_check.py`.
 - **100 W parts:** MACOM MSW2040-204 (symmetrical) for band switching, MSW2050-205 (asymmetrical) for T/R; 125 V reverse bias needed at VHF; orderable, quote needed. ATC 100B: 3 W dissipation limit; two in parallel (or 100C/100E) at the 100 W shunt positions until the ESR chart is read.
+
+## 2026-10-19 — Pin-map RTL (block level)
+- `ref_36` is latched while the reset synchroniser is in reset (pin-11 strap); `INFO[0]` reads it back.
+- `CTRL[3]` (was reserved) enables the hardware PTT gate: in TX mode the core holds standby unless `ptt_pin` (DIO3) is high. Default off.
+- `IRQ_EN` (0x14) masks FIFO overflow, FIFO underflow, clk_error and PLL-not-locked onto `irq_n` (DIO1), a registered active-low level. New input `pll_lock` from the analogue PLL.
+- `INFO` (0x15, read only): latched `ref_36`, synchronised `ptt_pin` and `pll_lock`.
+- CHIP_ID 0x12 → 0x13. New ports: `ptt_pin`, `pll_lock` (in), `irq_n` (out); SDC false paths added for them.
+- Chip-top items unchanged in this block: active-high RESET with pull-down and power-on reset, I2S word select on DIO2, `clk_req` on DIO0.
+- Tests: RTL suite 14/14 on Icarus (new `pinmap_ref36_ptt_irq`, also in the gate-level list); `master_frame_lengths` now resets after changing `ref_36`. `verilator -Wall` clean. Needs a new layout run (`phase1l`).
+
+## 2026-10-19 — PLL spur limits; 100B capacitors at 100 W
+- Spur limits in `spec/derived-limits.md` §9: duplex offset ≤ −95 dBc (25 W) / −88 dBc (5 W) for RX LO and TX; TX elsewhere −67 dBc design target (regulatory −57 dBc); RX elsewhere −84 dBc and adjacent channels −65 dBc as proposals to confirm against the applicable standard.
+- Integer-boundary spurs fall on the duplex offset with both references on 3 of 161 2 m channels and 5 of 801 70 cm channels (12.5 kHz raster, all whole-MHz). Count: for each channel f, d = |f·div − round(f·div/fref)·fref| / div, hit if m·d (m = 1..3) is within 12.5 kHz of the offset. The LO plan for those channels is a Phase 2 decision.
+- ATC 100B ESR read from the datasheet chart: two 100B in parallel at C3 and C5 of the VHF filter at 100 W; single parts elsewhere and at 5–20 W.

@@ -55,7 +55,7 @@ SX1255 pinout `[DS]`, LinHT use `[SCH]`, and the proposed RFIC function.
 | 29 | RF_ON | 27 pF to GND | **TX output −** (AC-grounded on LinHT) |
 | 30 | RF_OP | → GRF5604 input match | **TX output +** |
 
-Digital back end changes for Option P (small, Phase 5): I2S word select on DIO2 and the B2 bit alignment (open item 5); `clk_req` on DIO0; reset input inverted (active-high pin) and combined with the power-on reset.
+Digital back end changes for Option P: **block-level part done 2026-10-19** (`ref_36` latched at reset from pin 11, PTT gate on DIO3 with `CTRL[3]`, IRQ on DIO1 with `IRQ_EN`, CHIP_ID 0x13; `rtl/digital/notes.md`). The I2S format needs no change (Philips, confirmed on the LinHT). Still at chip top: I2S word select routed to DIO2, `clk_req` to DIO0, the active-high RESET pin inverted and combined with the power-on reset.
 
 ---
 
@@ -117,7 +117,7 @@ LinHT path after the RFIC `[SCH]`: RF_OP → high-pass T match (33 p / 10 nH / 3
 | VCO / division | (400–510 MHz only) | VCO 3.12–4.20 GHz; ÷8 UHF, ÷24 VHF; quadrature from the last ÷2 | `band_sel` in RTL |
 | Phase noise at the LO | −108 dBc/Hz @ 100 kHz, −128 @ 1 MHz | ≤ −136 dBc/Hz at 600 kHz (VHF) and at 2 MHz (UHF), 25 W attenuator baseline (−139 with the LNA option); ≈ −108 / −118 dBc/Hz at the VCO after division credit | R4, section 3 |
 | Frequency resolution | Fxosc / 2¹⁹ ≈ 31–34 Hz | **≤ 10 Hz** at RF; < 1 Hz preferred so GNSS/ppm correction can be done in the LO | Frequency-discipline note |
-| Reference spurs | — | To be derived (they can land on the duplex offset) — open item 6 | |
+| Spurs (reference and fractional) | — | At the duplex offset ≤ −95 dBc (25 W) / ≤ −88 dBc (5 W), RX and TX; elsewhere TX ≤ −67 dBc design target (regulatory −57 dBc at 25 W), RX ≤ −84 dBc `[PROP]` | `spec/derived-limits.md` §9 |
 | Synthesizer wake-up | 50 µs typ (150 max) | ≤ 150 µs | DMR TDMA turnaround |
 | TX/RX turnaround | 120 µs TX wake-up | ≤ 0.5 ms including PLL settling `[PROP]` | DMR 30 ms slots |
 | Reference | 32–36.864 MHz crystal or TCXO | 32 MHz or 36 MHz TCXO on XTB; host chooses per channel (`[DER]` §7.2) | LinHT: 32 MHz only |
@@ -188,6 +188,6 @@ The study that confirms or moves these numbers is "tier 2" in the plan: Σ-Δ AD
 3. ~~`ref_36` on Option P~~ — pin 11 (CLK_IN) strap, sampled at reset, pull-down = 32 MHz (decided 2026-10-19). DIO1 = IRQ and DIO3 = PTT gate decided at the same time.
 4. ~~Reset polarity~~ — active-high, floating in normal operation (SX1255 datasheet §6.2; owner confirms the LinHT pulls it high to reset). Needs an internal pull-down, an inverter to `rst_n`, and an on-chip POR (section 6).
 5. ~~I2S alignment and master/slave on the LinHT~~ — confirmed in `meta-linht-hardware` (`sbc-mcm-imx93.dtsi`, read 2026-10-19): simple-audio-card `format = "i2s"`, `bitclock-master` and `frame-master` = the SX1255 on both the RX and TX links; SAI1 on TX_BCLK, TX_SYNC, TXD0, RXD0. Philips I2S with the transceiver as master — the chip's default.
-6. **Reference-spur requirement** for the PLL (derive in `spec/derived-limits.md`).
+6. ~~Reference-spur requirement~~ — derived in `spec/derived-limits.md` §9 (2026-10-19). Integer-boundary spurs land exactly on the duplex offset on a few whole-MHz channels with both references (e.g. 434.000 MHz); Phase 2 decides the LO plan for those.
 7. ~~Repeater module RX~~ — attenuators as baseline, LNA allowed as a module-designer option (decided 2026-10-19). `spec/derived-limits.md` §8 updated.
 8. Confirm the SX1255 datasheet values marked `[DS]` that were read from extracted text (NF and IIP3 columns).

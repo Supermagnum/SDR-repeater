@@ -180,7 +180,7 @@ Clock period 27.778 ns (36 MHz), setup uncertainty 0.25 ns, hold uncertainty 0.0
 
 1. **Human Phase 1 review gate.** All automated checks pass; approval is a human decision.
 2. **Lint:** LibreLane reports 106 lint warnings (its own Verilator flags and file set). The changed modules are clean under `verilator -Wall`, but the 106 have not been triaged one by one.
-3. **`ref_36`:** declared a false path (static board strap). Confirmed in `spec/rf-frontend.md` §2: a pin-11 strap sampled at reset, so it only changes under reset. RTL change pending (with the Option P pin map).
+3. **`ref_36`:** declared a false path (static board strap). Pin-11 strap sampled at reset, implemented in RTL 2026-10-19 together with the PTT gate (DIO3) and IRQ (DIO1). **The RTL is now newer than `phase1k`: a new layout run (`phase1l`) and sign-off are needed** before the Phase 1 review.
 4. **Register map** is proposed, not frozen. Freeze at the review gate.
 5. **Area target:** 0.34 mm² real cell area is met (0.335). The original 0.30 mm² is not reachable without removing functions (`decisions.md` 2026-10-18).
 6. **Hold margin:** +0.097 ns at the fast corner; the 0.08 ns guard in `check_signoff.py` catches any regression. Re-check after every change.
@@ -227,6 +227,7 @@ Closed since the previous handoff: output scale (FS 16 384), SPI/I2S I/O constra
 
 ## 11. Next steps
 
+0. Run `phase1l` (LibreLane, same config) on the pin-map RTL, then `tools/check_signoff.py`, `tools/check_area.py` and `gate_sim.py` (it now includes `pinmap_ref36_ptt_irq`). Area margin before the change was about 5 000 µm².
 1. Phase 1 review gate (section 8).
 2. Matched-mesh, de-embedded inductor study (Phase 0 EM follow-up).
 3. Phase 2 LO test chip (VCO 3.12–4.20 GHz, ÷8/÷24) — hand-designed, human-reviewed topology, against `spec/rf-frontend.md` §5. Phase noise can now be simulated with VACASK `pnoise` at the settings in `analog/pn-validation/README.md`.

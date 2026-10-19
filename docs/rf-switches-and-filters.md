@@ -83,7 +83,16 @@ Part choices by power level:
 
 - **5 W (LinHT, standard module):** high-Q C0G capacitors, 0603 or larger, ≥ 100 V, rated ≥ 2 A RF at 150 MHz; air-core or high-current wire-wound inductors ≥ 2 A. Check each part's RF current rating.
 - **20 W:** porcelain capacitors (ATC 100B, 500 WVDC); air-core inductors rated ≥ 4 A. The Coilcraft Maxi Spring series starts at 90 nH, so the 22–36 nH coils are a smaller air-core series or hand-wound.
-- **100 W (external amplifier):** voltages are well inside the 100B limit (354 V rms at 500 WVDC), but the shunt capacitors carry up to 8.9 A at SWR 3. The 100B is rated for 3 W dissipation (65 °C mounting surface, 20 °C/W), so a single 100B at that position needs ESR ≤ 0.038 Ω at 150 MHz (≤ 0.10 Ω when matched). Use two 100B in parallel per shunt position, or the larger 100C / 100E, until the ESR has been read from the 100B datasheet chart. Inductors: heavy-wire air-core coils rated ≥ 9 A, or lower the SWR cut-off from 3 to 2 at 100 W.
+- **100 W (external amplifier):** voltages are well inside the 100B limit (354 V rms at 500 WVDC; worst case 202 V rms on a trap capacitor). Dissipation, from the 100B datasheet ESR chart at 150 MHz (typical: about 0.03 Ω at 27–33 pF, 0.04 Ω at 12–15 pF and at 56–75 pF, 0.07 Ω at 2.7 pF) **[DS]** and the 3 W limit (65 °C mounting surface, 20 °C/W):
+
+  | Position | 100 W, SWR 3 | 100 W matched | 20 W, SWR 3 |
+  |---|---|---|---|
+  | C3 75 pF | 8.85 A → **3.0 W (at the limit)** | 5.5 A → 1.1 W | 4.0 A → 0.6 W |
+  | C5 68 pF | 8.18 A → **2.5 W (85 % of limit)** | 5.6 A → 1.2 W | 3.7 A → 0.5 W |
+  | C1 33 pF, C7 27 pF | ≤ 3.9 A → ≤ 0.44 W | — | ≤ 0.1 W |
+  | Traps 12 / 15 / 2.7 pF | ≤ 2.8 A → ≤ 0.31 W | — | ≤ 0.06 W |
+
+  So a single 100B is fine at every position at 5 W and 20 W, and at 100 W everywhere except **C3 and C5: fit two 100B in parallel there** (e.g. 2 × 39 pF and 2 × 33 pF; each then dissipates about 0.75 W at SWR 3), or a 100C. ESR rises somewhat towards 175 MHz, which is why one part at C3 is not enough. Inductors: heavy-wire air-core coils rated ≥ 9 A, or lower the SWR cut-off from 3 to 2 at 100 W.
 - **Loss and heat:** at 1 dB loss, a 100 W filter dissipates about 20 W, mostly in the inductors. Inductor Q above 200 at 175 MHz halves that.
 
 ### Dual-band LinHT, PA side
@@ -143,7 +152,7 @@ No SOI or MEMS switch found for 100 W CW at VHF; they stop at about 20–25 W.
 ## Open checks
 
 1. ~~MACOM reverse bias and availability~~ — done: 125 V at VHF; orderable, quote needed.
-2. **100B ESR at 150 MHz** from the datasheet chart (the text versions do not carry the chart values). Until then: two 100B in parallel, or 100C / 100E, at the 100 W shunt positions.
+2. ~~100B ESR~~ — read from the datasheet chart (ATC # 001-807 Rev. S): two 100B in parallel at C3 and C5 for 100 W; single parts everywhere else and at 5–20 W.
 3. SKY13330 at 6 W (GRF5604 Psat): only if the LinHT can drive the PA into saturation.
 4. ~~VHF filter range~~ — full 130–175 MHz, design above.
 5. Build and measure the VHF filter (layout parasitics shift the traps; tune C2, C4, C6).
@@ -166,7 +175,7 @@ No SOI or MEMS switch found for 100 W CW at VHF; they stop at about 20–25 W.
 - MACOM MSW205x datasheet: https://www.mouser.com/datasheet/2/249/MSW205x_205-1921645.pdf
 - MACOM MSW2040-204: https://www.macom.com/products/product-detail/MSW2040-204
 - RFMW MSW2050-205: https://rfmw.com/products/detail/msw2050205-macom-metelics/403388/
-- ATC 100B datasheet: https://shop.richardsonrfpd.com/docs/rfpd/100b.pdf
+- ATC 100B datasheet (ATC # 001-807 Rev. S, 8/18): https://shop.richardsonrfpd.com/docs/rfpd/100b.pdf
 - MACOM MASW-011030: https://www.mouser.in/en/new/macom/macom-masw-011030-switch/
 - RFMW high-power switch list: https://www.rfmw.com/userewavepreview.aspx?promo=305
 - RFuW MSW2T-200501-150: https://rfmw.com/products/detail/msw2t200501150-rfuw/618057/
