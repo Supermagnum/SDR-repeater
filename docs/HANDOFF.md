@@ -154,7 +154,7 @@ The flow exits with "Magic DRC errors found". That is expected and waived (secti
 
 | Check | Result |
 |---|---|
-| IHP full KLayout DRC (maximum rule set, antenna included, density excluded) | [0 on `phase1k`] — **re-run on `phase1l`** (section 5) |
+| IHP full KLayout DRC (maximum rule set, antenna included, density excluded) | **0** on `phase1l` (573 s) |
 | LibreLane KLayout DRC / routing DRC | 0 / 0 |
 | LVS | **Circuits match uniquely** (0 errors) |
 | Antenna | 0 violating nets (8 antenna cells) |
@@ -183,7 +183,7 @@ Clock period 27.778 ns (36 MHz), setup uncertainty 0.25 ns, hold uncertainty 0.0
 
 1. **Human Phase 1 review gate.** All automated checks pass; approval is a human decision.
 2. **Lint:** LibreLane reports 106 lint warnings (its own Verilator flags and file set). The changed modules are clean under `verilator -Wall`, but the 106 have not been triaged one by one.
-3. ~~`ref_36`~~ — pin-11 strap sampled at reset, with the PTT gate (DIO3) and IRQ (DIO1); signed off on `phase1l`. Re-run the IHP full KLayout DRC on `phase1l` (section 5).
+3. ~~`ref_36`~~ — pin-11 strap sampled at reset, with the PTT gate (DIO3) and IRQ (DIO1); signed off on `phase1l`, IHP full KLayout DRC 0.
 4. **Register map** is proposed, not frozen. Freeze at the review gate.
 5. **Area target:** 0.34 mm² real cell area is met (339 617 µm², **383 µm² left** — no room for further digital logic; the PLL's Σ-Δ modulator needs its own block, `spec/phase2-plan.md` D3). The original 0.30 mm² is not reachable without removing functions (`decisions.md` 2026-10-18).
 6. **Hold margin:** +0.089 ns (`phase1l`); the 0.08 ns guard in `check_signoff.py` catches any regression. Re-check after every change.
@@ -230,7 +230,7 @@ Closed since the previous handoff: output scale (FS 16 384), SPI/I2S I/O constra
 
 ## 11. Next steps
 
-0. ~~Run `phase1l`~~ — done, sign-off pass. Still to do: IHP full KLayout DRC on `phase1l`.
+0. ~~Run `phase1l`~~ — done: sign-off pass and IHP full KLayout DRC 0.
 1. Phase 1 review gate (section 8).
 2. Matched-mesh, de-embedded inductor study (Phase 0 EM follow-up).
 3. Phase 2 LO (VCO 3.12–4.20 GHz, ÷8/÷24, fractional-N PLL) — plan, budgets, steps P2.0–P2.7 and owner decisions D1–D7 in **`spec/phase2-plan.md`**; hand-designed, human-reviewed topology, against `spec/rf-frontend.md` §5. Phase noise can now be simulated with VACASK `pnoise` at the settings in `analog/pn-validation/README.md`.
