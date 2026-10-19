@@ -67,7 +67,7 @@ RX ≤ 25 mA and TX ≤ 60 mA for the whole chip (§6 of `spec/rf-frontend.md`).
 | **P2.2** ✅ first run | System model in Python: linear PLL phase-noise model (VCO, PFD/CP, Σ-Δ, loop filter), spur map including the boundary channels, lock-time transient | `analog/pll-model/` with a check script like `vhf_lpf_check.py`; loop parameters (Icp, filter values, KVCO per band, number of bands) | Human review of the budget |
 | **P2.3** | VCO: topology memo, schematic, capacitor bank, varactor; VACASK `pnoise` across bands, PDK corners and −40 to +85 °C, with the EM inductor model | Schematic, pnoise table vs §2.1 | Human topology review before schematic; result review after |
 | **P2.4** | Dividers and phase generation (÷2/÷3 prescaler stages, quadrature, 8-phase for VHF) | Transient across corners: maximum frequency, duty cycle, I/Q phase error (→ image rejection), 8-phase error (→ harmonic rejection) | Human review |
-| **P2.5** | PFD, charge pump, loop filter, multi-modulus divider, Σ-Δ modulator (digital) | Schematics; CP mismatch and leakage → spur estimate fed back to P2.2 | Human review |
+| **P2.5** | PFD, charge pump, loop filter, multi-modulus divider, Σ-Δ modulator (digital, in the AFE/LO control block: `spec/analog-digital-interface.md` §5) | Schematics; CP mismatch and leakage → spur estimate fed back to P2.2 | Human review |
 | **P2.6** | PLL closed loop: behavioural top with transistor-level VCO and divider | Lock time, frequency error, phase noise vs offset, spurs on boundary channels | Compare with P2.2 |
 | **P2.7** | Layout of VCO and dividers, PEX, EM on the tank and LO routing; post-layout pnoise | `[PEX-RC]` / `[EM]` tagged results | Phase 2 review gate |
 

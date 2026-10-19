@@ -160,3 +160,7 @@ Accepted as proposed in `spec/phase2-plan.md` §5:
 
 P2.2 linear model (`analog/pll-model/`, all inputs `[PROP]`): passes at 150 kHz (lock 125 µs; 100 kHz needs 187 µs, so 150 kHz is chosen within D5). Duplex-offset phase noise −137.2 dBc/Hz (VHF) and −139.4 (UHF); the VCO term dominates and L(1 MHz) must stay ≤ −115 dBc/Hz. Boundary spurs on the hit channels pass if the raw spur is ≤ −35 dBc (VHF) / −20 dBc (UHF), so D6 holds on this model. Loop filter ≈ 400 pF.
 - `phase1l`: IHP full KLayout DRC (maximum rule set, antenna, no density) 0 violations (2026-10-19). Phase 1 is complete pending the human review gate.
+
+## 2026-10-19 — Analogue–digital interface (draft)
+- `spec/analog-digital-interface.md`: the signed-off back end keeps its converter, `band_sel` and `pll_lock` interface; the analogue enables, RX/TX gain words, filter selects, PLL frequency word, frac-N Σ-Δ and VCO band calibration go in a new AFE/LO control block (D3) on the same SPI bus at 0x20–0x3F, MISO ORed at chip top.
+- Proposed small back-end change for the next layout run: expose `rx_on` / `tx_on` so the enable sequencer follows the effective mode (PTT gate, duty cycling).
