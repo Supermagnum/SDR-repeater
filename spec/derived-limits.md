@@ -207,15 +207,17 @@ Discrete spurs (dBc, total power of the spur relative to the carrier), as oppose
 | S4 | RX LO spur at any other offset ≥ 1 MHz — reciprocal mixing with a strong off-channel signal | ≤ −84 dBc `[PROP]` | ≤ −84 dBc `[PROP]` | an 84 dB blocking class: a −33 dBm blocker may raise the channel to the −117 dBm sensitivity level; confirm against the applicable standard |
 | S5 | LO spur in the adjacent channels (±12.5 / ±25 kHz) | ≤ −65 dBc `[PROP]` | ≤ −65 dBc `[PROP]` | adjacent-channel selectivity and adjacent-channel power of the order of 60–70 dB; confirm |
 
-**Where fractional-N spurs land.** The integer-boundary spur sits at the VCO's distance to the nearest multiple of the reference, divided by the LO divider (÷24 VHF, ÷8 UHF). For 12.5 kHz channels in 144–146 MHz and 430–440 MHz (spur and its 2nd/3rd harmonic within ±12.5 kHz of the duplex offset):
+**Where fractional-N spurs land** (corrected 2026-10-19 — the first version divided the offset by N, which is wrong). The integer-boundary spur sits at d = |f_VCO − k·f_ref| from the carrier, the VCO's distance to the nearest multiple of the reference. Frequency division does **not** change that offset in hertz (it lowers the level by 20·log10(N)), so the spur appears at **d** from the RF carrier too (as in `spec/integer-boundary-spurs.md`). It hits the duplex offset when the RF carrier is 600 kHz / 24 = **25 kHz** (2 m) or 2 MHz / 8 = **250 kHz** (70 cm) from a boundary channel k·f_ref / N. For 12.5 kHz channels in 144–146 MHz and 430–440 MHz (spur or its 2nd/3rd harmonic within ±6.25 kHz of the duplex offset):
 
 | Band | Channels | Hit with 32 MHz | Hit with 36 MHz | Hit with both |
 |---|---|---|---|---|
-| 2 m (600 kHz) | 161 | 9 | 8 | 3: 144.200, 144.300, 144.600 MHz |
-| 70 cm (2 MHz) | 801 | 8 | 10 | 5: 430.000, 431.000, 433.000, 434.000, 439.000 MHz |
+| 2 m (600 kHz) | 161 | 3 | 6 | 2: 144.0125, 144.0250 MHz |
+| 70 cm (2 MHz) | 801 | 10 | 8 | 5: 431.750, 431.875, 432.125, 432.250, 436.250 MHz |
 
-Example: 434.000 MHz → VCO 3472 MHz, 16 MHz from 108 × 32 MHz and from 96 × 36 MHz; 16 MHz / 8 = **2 MHz**, exactly the 70 cm duplex offset. So:
-- the host's per-channel choice of 32 or 36 MHz (§7.2) should also avoid boundary spurs on the duplex offset; it removes most hits;
-- the PLL must still meet S1/S2 for the remaining channels (all on whole MHz), or those channels need a different LO plan (e.g. an offset LO with digital correction in the host). Decide in Phase 2.
+Example: 432.250 MHz → VCO 3458 MHz, 2 MHz from 108 × 32 MHz = 96 × 36 MHz = 3456 MHz, so the boundary spur lands on the 2 MHz duplex offset with either reference.
 
-Count reproduced by a short script in the 2026-10-19 decision entry; the per-channel rule belongs in the host's channel planner next to the clock-harmonic table.
+- The host's per-channel choice of 32 or 36 MHz (§7.2) should also avoid these hits; it removes most of them.
+- For the remaining channels the spur must meet S1/S2 after the 20·log10(N) division credit (27.6 dB VHF, 18.1 dB UHF) and the loop-filter attenuation at 600 kHz / 2 MHz. The PLL model in `spec/phase2-plan.md` (step P2.2) decides whether that holds or whether those channels are avoided by the host.
+- Reference spurs appear at ±f_ref (±32 / ±36 MHz) at RF, as S3 says; there the loop filter attenuates strongly.
+
+Count: for each channel f, d = |f·N − round(f·N/f_ref)·f_ref|; hit if m·d (m = 1…3) is within ±6.25 kHz of the duplex offset. The per-channel rule belongs in the host's channel planner next to the clock-harmonic table.

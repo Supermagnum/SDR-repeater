@@ -141,5 +141,9 @@ Accepted and documented; LinHT should prefer 100 kHz or 500 kHz.
 
 ## 2026-10-19 — PLL spur limits; 100B capacitors at 100 W
 - Spur limits in `spec/derived-limits.md` §9: duplex offset ≤ −95 dBc (25 W) / −88 dBc (5 W) for RX LO and TX; TX elsewhere −67 dBc design target (regulatory −57 dBc); RX elsewhere −84 dBc and adjacent channels −65 dBc as proposals to confirm against the applicable standard.
-- Integer-boundary spurs fall on the duplex offset with both references on 3 of 161 2 m channels and 5 of 801 70 cm channels (12.5 kHz raster, all whole-MHz). Count: for each channel f, d = |f·div − round(f·div/fref)·fref| / div, hit if m·d (m = 1..3) is within 12.5 kHz of the offset. The LO plan for those channels is a Phase 2 decision.
+- Integer-boundary spurs on the duplex offset (**corrected the same day**: the first count divided the spur offset by N; division keeps the offset and only lowers the level). With both references: 2 of 161 2 m channels (144.0125, 144.025 MHz) and 5 of 801 70 cm channels (431.750, 431.875, 432.125, 432.250, 436.250 MHz). Whether the PLL meets the limit there is decided by the Phase 2 model (`spec/phase2-plan.md` P2.2).
 - ATC 100B ESR read from the datasheet chart: two 100B in parallel at C3 and C5 of the VHF filter at 100 W; single parts elsewhere and at 5–20 W.
+
+## 2026-10-19 — phase1l signed off; Phase 2 plan drafted
+- `phase1l` (pin-map RTL): sign-off pass — setup +3.99 ns, hold +0.089 ns (guard 0.08), LVS match, antenna 0, KLayout DRC 0, Magic DRC 7 815 (unchanged, inside the SRAM, waived), real area 339 617 µm² of 340 000. Gate level 6/6. The digital back end has no area left.
+- `spec/phase2-plan.md`: LO budgets (VCO ≤ −116 / −115 dBc/Hz at 1 MHz), loop proposal (100–150 kHz, MASH 1-1-1, fPFD = reference), steps P2.0–P2.7, decisions D1–D7 for the owner.
