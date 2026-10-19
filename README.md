@@ -232,7 +232,7 @@ Key characteristics:
 - RFIC_IRQ_N, MOD_PRESENT, MOD_ID0, MOD_ID1 — status inputs to ECP5 interface card
 - VCTCXO_TUNE — analog 0–1.8 V per module
 - PPS_REF — optional 1PPS reference
-- ANT_SW — HT13G-M modules only
+- ANT_SW — VHF/UHF band-path select on dual-band modules (high = VHF, low = UHF); unused on fixed-band modules — see [docs/RF-modules.md](docs/RF-modules.md) Section 7.3
 
 **Power rails:**
 
