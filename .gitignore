@@ -12,3 +12,5 @@ rtl/digital/runs/
 area_*.txt
 signoff_*.txt
 rtl/cocotb/test_backend_1j.py
+*.orig
+*.rej
