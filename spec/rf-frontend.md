@@ -160,7 +160,7 @@ The study that confirms or moves these numbers is "tier 2" in the plan: Σ-Δ AD
 ## 8. Board-level work outside the RFIC
 
 **LinHT (VHF needs a board revision):**
-- VHF TX harmonic filter: the LFCN-490+ passes the 2nd and 3rd harmonics of 2 m; add a ~180 MHz low-pass and a band switch.
+- VHF TX harmonic filter: the LFCN-490+ passes the 2nd and 3rd harmonics of 2 m; add a VHF low-pass and a band switch. The small LTCC low-passes (LFCN-160+, LFCN-180+) reject the 2nd harmonic by only about 7–18 dB, so the VHF filter is a discrete elliptic LC design; full 130–175 MHz coverage needs notches or two sub-bands. A second SKY13330 (about 7 W, 1.8 V control) can be the PA-side band switch at 5 W. Parts: [docs/rf-switches-and-filters.md](../docs/rf-switches-and-filters.md).
 - PA output match: second matched path (same GRF5604, VHF match) or a switched match.
 - RX input match for VHF.
 - Dual-band antenna.
