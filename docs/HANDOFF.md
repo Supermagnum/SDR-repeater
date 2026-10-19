@@ -1,6 +1,6 @@
 # Project handoff — SDR repeater / LinHT RFIC
 
-**State as of:** 19 October 2026. Reference layout: **`phase1k`** (signed off, on `main`). RF front-end requirements drafted in `spec/rf-frontend.md` (branch `phase2/rf-spec`); VACASK phase-noise analysis validated (`analog/pn-validation/`).
+**State as of:** 19 October 2026. Reference layout: **`phase1l`** (signed off; pin-map RTL of 2026-10-19). Phase 2 plan: `spec/phase2-plan.md` (draft for review). RF front-end requirements drafted in `spec/rf-frontend.md` (branch `phase2/rf-spec`); VACASK phase-noise analysis validated (`analog/pn-validation/`).
 **Purpose:** let an RF/IC engineer (or an AI agent under human review) pick up the work, reproduce every result, and see what is solid, what is provisional and what is open.
 
 > **Nothing in this repository has been submitted for fabrication.** Submission to any MPW shuttle or foundry is a deliberate human decision and is out of scope for all automated work.
@@ -12,8 +12,8 @@
 | Phase | Content | Status |
 |---|---|---|
 | 0 | Toolchain pinning, EM baseline (inductor L2n0) | Done. Matched-mesh EM study still required before Phase 2 |
-| 1 | Digital back end (SPI, decimation, I2S, TX interpolation and Σ-Δ, power control) | **Signed off on `phase1k`** (section 7). Awaiting the human Phase 1 review gate |
-| 2 | LO: VCO 3.12–4.20 GHz, ÷8 / ÷24 dividers, quadrature | Not started. Requirements in `spec/rf-frontend.md` §5; phase-noise simulation validated (`analog/pn-validation/`) |
+| 1 | Digital back end (SPI, decimation, I2S, TX interpolation and Σ-Δ, power control) | **Signed off on `phase1l`** (section 7). Awaiting the human Phase 1 review gate |
+| 2 | LO: VCO 3.12–4.20 GHz, ÷8 / ÷24 dividers, quadrature | Not started. Plan and budgets in `spec/phase2-plan.md` (draft, owner decisions D1–D7 pending); requirements in `spec/rf-frontend.md` §5; phase-noise simulation validated (`analog/pn-validation/`) |
 | 3 | RX: LNA, passive mixer, TIA, Σ-Δ modulator | Not started. Requirements in `spec/rf-frontend.md` §3 and `spec/derived-limits.md` |
 | 4 | TX: Σ-Δ DAC, reconstruction filter, IQ modulator, PA driver | Not started. Requirements in `spec/rf-frontend.md` §4 and `spec/derived-limits.md` |
 | 5 | Integration: single-chain die, pad ring, top level | Not started |
@@ -87,27 +87,27 @@ docker run -it --rm -v "$PWD":/foss/designs \
 # inside the container
 iic-pdk ihp-sg13g2
 
-# RTL tests (expect 13/13 PASS on both)
+# RTL tests (expect 14/14 PASS)
 cd /foss/designs/rtl/cocotb && python3 run_sim.py
 SIM=verilator python3 run_sim.py
 
 # Full flow (~1 h 45 min). Do not edit, patch or switch branches in the
 # repository while it runs: LibreLane re-checks its input files before every step.
 cd /foss/designs/rtl/digital
-librelane --manual-pdk --pdk-root /foss/pdks --pdk ihp-sg13g2 --run-tag phase1k config.yaml
+librelane --manual-pdk --pdk-root /foss/pdks --pdk ihp-sg13g2 --run-tag phase1l config.yaml
 
 # Sign-off (timing, DRC, LVS, antenna, max-cap, area <= 340 000 um^2)
 cd /foss/designs
-python3 tools/check_signoff.py rtl/digital/runs/phase1k
+python3 tools/check_signoff.py rtl/digital/runs/phase1l
 
-# Gate-level simulation of the routed netlist (expect 5/5)
-cd rtl/cocotb && RUN=phase1k python3 gate_sim.py
+# Gate-level simulation of the routed netlist (expect 6/6)
+cd rtl/cocotb && RUN=phase1l python3 gate_sim.py
 
 # IHP full DRC deck (~10 min)
 cd /foss/designs/rtl/digital
 python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py \
-  --path=$(ls runs/phase1k/final/gds/*.gds | head -1) --topcell=digital_backend \
-  --run_dir=runs/phase1k/ihp-full-drc --mp=4 --antenna --no_density
+  --path=$(ls runs/phase1l/final/gds/*.gds | head -1) --topcell=digital_backend \
+  --run_dir=runs/phase1l/ihp-full-drc --mp=4 --antenna --no_density
 
 # Duplex-offset limit derivation
 python3 /foss/designs/tools/derive_limits.py
@@ -145,24 +145,26 @@ The flow exits with "Magic DRC errors found". That is expected and waived (secti
 | `tx_image_and_noise` — bitstream noise at 2 MHz | −88.1 dBFS/Hz | ≤ −81 dBFS/Hz |
 | `filter_dc_all_rates` | full scale = 16 384 ± 64 at all 10 rate pairs | — |
 
-### Gate level (`gate_sim.py`, `phase1k` routed netlist with SRAM models)
-5/5 port-level tests pass: `spi_reset_and_registers`, `master_frame_lengths`, `rx_chain_ports`, `i2s_slave_philips`, `spi_aborted_frame`.
+### Gate level (`gate_sim.py`, `phase1l` routed netlist with SRAM models)
+6/6 port-level tests pass: `spi_reset_and_registers`, `master_frame_lengths`, `rx_chain_ports`, `i2s_slave_philips`, `spi_aborted_frame`, `pinmap_ref36_ptt_irq`.
 
-### Physical (`phase1k`) — `tools/check_signoff.py`: **SIGN-OFF PASS**
+### Physical (`phase1l`) — `tools/check_signoff.py`: **SIGN-OFF PASS**
+
+`phase1k` values in brackets where `phase1l` was not re-measured in the same detail.
 
 | Check | Result |
 |---|---|
-| IHP full KLayout DRC (maximum rule set, antenna included, density excluded) | **0** |
+| IHP full KLayout DRC (maximum rule set, antenna included, density excluded) | [0 on `phase1k`] — **re-run on `phase1l`** (section 5) |
 | LibreLane KLayout DRC / routing DRC | 0 / 0 |
 | LVS | **Circuits match uniquely** (0 errors) |
 | Antenna | 0 violating nets (8 antenna cells) |
 | Max-cap / max-slew | 0 / 0 |
-| Setup worst slack (slow 1.08 V 125 °C / typ / fast) | **+3.55 ns** / +11.10 ns / +11.32 ns; TNS 0 |
-| Hold worst slack (slow / typ / fast) | +0.310 / +0.173 / **+0.097 ns**; TNS 0 (guard ≥ 0.08 ns) |
-| Hold buffers / setup buffers | 50 / 0 |
-| Real cell area (std cells + SRAM, no filler) | **335 044 µm² (0.335 mm²)** — limit 0.34 mm² |
-| Die / core area, utilisation | 0.592 mm² / 0.557 mm², 60 % |
-| Magic DRC | 7 815, **all inside the SRAM footprint** (100, 100)–(336.80, 164.36) µm, 0 outside — waived, `reports/phase1-review/magic-drc-waiver.md` |
+| Setup worst slack | **+3.99 ns**; TNS 0 [`phase1k`: +3.55 / +11.10 / +11.32 ns slow / typ / fast] |
+| Hold worst slack | **+0.089 ns**; TNS 0 (guard ≥ 0.08 ns) [`phase1k`: +0.097 ns] |
+| Hold buffers / setup buffers | [`phase1k`: 50 / 0] |
+| Real cell area (std cells + SRAM, no filler) | **339 617 µm²** (std cells 324 377 + SRAM 15 240) — limit 340 000 µm²; **383 µm² left** [`phase1k`: 335 044] |
+| Die area | 0.597 mm² (filler 212 566 µm²) [`phase1k`: 0.592 mm²] |
+| Magic DRC | 7 815 (unchanged from `phase1k`), **all inside the SRAM footprint** (100, 100)–(336.80, 164.36) µm, 0 outside — waived, `reports/phase1-review/magic-drc-waiver.md` |
 
 Clock period 27.778 ns (36 MHz), setup uncertainty 0.25 ns, hold uncertainty 0.05 ns. Density rules are **not** checked at block level; they must be checked at chip level with fill.
 
@@ -172,7 +174,8 @@ Clock period 27.778 ns (36 MHz), setup uncertainty 0.25 ns, hold uncertainty 0.0
 |---|---|---|
 | `phase1i` | before CS counter / continuous BCLK | clean, setup +0.80 ns, 0.434 mm² real area |
 | `phase1j` | all fixes, before area work | setup **−0.050 ns** at slow corner (SRAM `A_DOUT` → MAC, placement variation); everything else clean, gate level 5/5. Stopped at step 74 because files were changed mid-run; results reconstructed from step 72 |
-| `phase1k` | area patch + timing-driven placement + post-route setup repair | **sign-off pass** (above) |
+| `phase1k` | area patch + timing-driven placement + post-route setup repair | sign-off pass |
+| `phase1l` | pin-map RTL: `ref_36` strap, PTT gate, IRQ, INFO (2026-10-19) | **sign-off pass** (above); LVS match, gate level 6/6 |
 
 ---
 
@@ -180,10 +183,10 @@ Clock period 27.778 ns (36 MHz), setup uncertainty 0.25 ns, hold uncertainty 0.0
 
 1. **Human Phase 1 review gate.** All automated checks pass; approval is a human decision.
 2. **Lint:** LibreLane reports 106 lint warnings (its own Verilator flags and file set). The changed modules are clean under `verilator -Wall`, but the 106 have not been triaged one by one.
-3. **`ref_36`:** declared a false path (static board strap). Confirmed in `spec/rf-frontend.md` §2: a pin-11 strap sampled at reset, so it only changes under reset. RTL change pending (with the Option P pin map).
+3. ~~`ref_36`~~ — pin-11 strap sampled at reset, with the PTT gate (DIO3) and IRQ (DIO1); signed off on `phase1l`. Re-run the IHP full KLayout DRC on `phase1l` (section 5).
 4. **Register map** is proposed, not frozen. Freeze at the review gate.
-5. **Area target:** 0.34 mm² real cell area is met (0.335). The original 0.30 mm² is not reachable without removing functions (`decisions.md` 2026-10-18).
-6. **Hold margin:** +0.097 ns at the fast corner; the 0.08 ns guard in `check_signoff.py` catches any regression. Re-check after every change.
+5. **Area target:** 0.34 mm² real cell area is met (339 617 µm², **383 µm² left** — no room for further digital logic; the PLL's Σ-Δ modulator needs its own block, `spec/phase2-plan.md` D3). The original 0.30 mm² is not reachable without removing functions (`decisions.md` 2026-10-18).
+6. **Hold margin:** +0.089 ns (`phase1l`); the 0.08 ns guard in `check_signoff.py` catches any regression. Re-check after every change.
 
 Closed since the previous handoff: output scale (FS 16 384), SPI/I2S I/O constraints, aborted SPI frames, gapped BCLK (continuous BCLK), `band_c` unused (`band_sel` output), README §11.1, provisional RX/TX limits (`spec/derived-limits.md`), gate-level simulation, area.
 
@@ -227,8 +230,9 @@ Closed since the previous handoff: output scale (FS 16 384), SPI/I2S I/O constra
 
 ## 11. Next steps
 
+0. ~~Run `phase1l`~~ — done, sign-off pass. Still to do: IHP full KLayout DRC on `phase1l`.
 1. Phase 1 review gate (section 8).
 2. Matched-mesh, de-embedded inductor study (Phase 0 EM follow-up).
-3. Phase 2 LO test chip (VCO 3.12–4.20 GHz, ÷8/÷24) — hand-designed, human-reviewed topology, against `spec/rf-frontend.md` §5. Phase noise can now be simulated with VACASK `pnoise` at the settings in `analog/pn-validation/README.md`.
+3. Phase 2 LO (VCO 3.12–4.20 GHz, ÷8/÷24, fractional-N PLL) — plan, budgets, steps P2.0–P2.7 and owner decisions D1–D7 in **`spec/phase2-plan.md`**; hand-designed, human-reviewed topology, against `spec/rf-frontend.md` §5. Phase noise can now be simulated with VACASK `pnoise` at the settings in `analog/pn-validation/README.md`.
 
 The agent instructions (phases, forbidden actions, review gates, provenance tags `[SCH]` `[PEX-C]` `[PEX-RC]` `[EM]` `[HAND]` `[LIT]`) live in the project's agent prompt; follow it for any automated work.

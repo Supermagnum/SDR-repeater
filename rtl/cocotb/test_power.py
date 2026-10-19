@@ -29,6 +29,8 @@ async def boot(dut):
     _clk_run = True
     cocotb.start_soon(refclk(dut))
     dut.ref_36.value = 1
+    dut.ptt_pin.value = 0
+    dut.pll_lock.value = 1
     dut.sclk.value = 0
     dut.cs_n.value = 1
     dut.mosi.value = 0

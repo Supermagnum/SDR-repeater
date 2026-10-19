@@ -68,6 +68,10 @@ set_propagated_clock [all_clocks]
 # ref_36 is a board strap selecting the 32/36 MHz divider table. It is static
 # in operation and may only change while rst_n is asserted.
 set_false_path -from [get_ports ref_36]
+# ptt_pin (DIO3) and pll_lock are asynchronous levels with two-flop
+# synchronisers inside; irq_n is a level to the host (2026-10-19).
+set_false_path -from [get_ports {ptt_pin pll_lock}]
+set_false_path -to [get_ports irq_n]
 
 # ---- Per-clock I/O constraints (2026-10-18) ---------------------------------
 # These override the clk-relative defaults above for ports owned by other clocks.

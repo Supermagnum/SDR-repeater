@@ -4,7 +4,7 @@ The reference clock is `clk`. It is 32 MHz or 36 MHz, selected by the `ref_36` p
 
 ## Master mode
 
-Master mode is the reset default (`CTRL[4] = 0`). `BCLK` and `LRCLK` are outputs. They are divided from `clk`, so the master shifter and the decimator are in the same clock domain. There is no synchronizer on the IQ sample in this mode. `dout` changes on the rising edge of `BCLK`. The host samples on the falling edge.
+Master mode is the reset default (`CTRL[4] = 0`). `BCLK` and `LRCLK` are outputs. They are divided from `clk`, so the master shifter and the decimator are in the same clock domain. There is no synchronizer on the IQ sample in this mode. `dout` and `LRCLK` change on the falling edge of `BCLK` (Philips I2S); the host samples on the rising edge.
 
 ## Slave mode
 
@@ -15,3 +15,7 @@ IQ samples cross in `sample_fifo`, depth 8. The write clock is `clk`. The read c
 The slave shifter prefetches one word at the start of Left and transmits it on the next frame. The first frame after enable is zeros. That is one frame of latency, on top of the FIFO.
 
 The TX capture path in slave mode does not pulse `dac_valid`. TX IQ from a slave host is captured in the BCLK domain and is not yet timed into the reference domain. Master mode does pulse `dac_valid` at the end of a frame.
+
+## Asynchronous pins (2026-10-19)
+
+`ptt_pin` (DIO3) and `pll_lock` (from the analogue PLL) each pass a two-flop synchroniser on `clk` before use. `ref_36` is sampled only while the reset synchroniser holds the core in reset; it is static afterwards. `irq_n` is a registered output on `clk`. The three synchronised levels reach the SPI domain through the same two-flop path as STATUS (`INFO`, 0x15).

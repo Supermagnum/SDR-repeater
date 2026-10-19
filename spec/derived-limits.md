@@ -194,3 +194,30 @@ Baseline (NF 8 dB): noise floor −125 dBm in 12.5 kHz; 1 dB desense threshold �
 | TX reconstruction filter at 600 kHz / 2 MHz | | ≥ 51 / 71 dB | 54 / 74 |
 
 Baseline sensitivity is about −117 dBm for 12 dB SINAD (FM, 12.5 kHz); the LNA option recovers about 3 dB. The attenuators let a strong site trade sensitivity for blocking. The RFIC is specified for the baseline, which is also the harder case for its linearity (`spec/rf-frontend.md` §3).
+
+## 9. PLL spurs (derived 2026-10-19)
+
+Discrete spurs (dBc, total power of the spur relative to the carrier), as opposed to the noise limits in dBc/Hz above. Baseline receiver (§8): 1 dB desense threshold −131 dBm in 12.5 kHz at the module RX port; 80 dB duplexer; own TX at the RX input R1 = −43 dBm (5 W) / −36 dBm (25 W). With the LNA option (threshold −134 dBm) every duplex-offset limit is 3 dB tighter.
+
+| # | Spur | 5 W | 25 W | Derivation |
+|---|---|---|---|---|
+| S1 | RX LO spur at the duplex offset (600 kHz on 2 m, 2 MHz on 70 cm, ± half a channel) — mixes the own TX onto the channel | ≤ **−88 dBc** | ≤ **−95 dBc** | −131 − R1 |
+| S2 | TX spur at the duplex offset — lands in the own RX through the duplexer | ≤ **−88 dBc** | ≤ **−95 dBc** | −131 + I − P |
+| S3 | TX spur anywhere else outside the necessary bandwidth, incl. reference spurs at ±32 / ±36 MHz (in the 130–175 MHz passband at VHF, so the harmonic filter does not help) | ≤ −50 dBc | ≤ −57 dBc | R8 (ITU RR App. 3); **design target −67 dBc at the RFIC output**, 10 dB margin |
+| S4 | RX LO spur at any other offset ≥ 1 MHz — reciprocal mixing with a strong off-channel signal | ≤ −84 dBc `[PROP]` | ≤ −84 dBc `[PROP]` | an 84 dB blocking class: a −33 dBm blocker may raise the channel to the −117 dBm sensitivity level; confirm against the applicable standard |
+| S5 | LO spur in the adjacent channels (±12.5 / ±25 kHz) | ≤ −65 dBc `[PROP]` | ≤ −65 dBc `[PROP]` | adjacent-channel selectivity and adjacent-channel power of the order of 60–70 dB; confirm |
+
+**Where fractional-N spurs land** (corrected 2026-10-19 — the first version divided the offset by N, which is wrong). The integer-boundary spur sits at d = |f_VCO − k·f_ref| from the carrier, the VCO's distance to the nearest multiple of the reference. Frequency division does **not** change that offset in hertz (it lowers the level by 20·log10(N)), so the spur appears at **d** from the RF carrier too (as in `spec/integer-boundary-spurs.md`). It hits the duplex offset when the RF carrier is 600 kHz / 24 = **25 kHz** (2 m) or 2 MHz / 8 = **250 kHz** (70 cm) from a boundary channel k·f_ref / N. For 12.5 kHz channels in 144–146 MHz and 430–440 MHz (spur or its 2nd/3rd harmonic within ±6.25 kHz of the duplex offset):
+
+| Band | Channels | Hit with 32 MHz | Hit with 36 MHz | Hit with both |
+|---|---|---|---|---|
+| 2 m (600 kHz) | 161 | 3 | 6 | 2: 144.0125, 144.0250 MHz |
+| 70 cm (2 MHz) | 801 | 10 | 8 | 5: 431.750, 431.875, 432.125, 432.250, 436.250 MHz |
+
+Example: 432.250 MHz → VCO 3458 MHz, 2 MHz from 108 × 32 MHz = 96 × 36 MHz = 3456 MHz, so the boundary spur lands on the 2 MHz duplex offset with either reference.
+
+- The host's per-channel choice of 32 or 36 MHz (§7.2) should also avoid these hits; it removes most of them.
+- For the remaining channels the spur must meet S1/S2 after the 20·log10(N) division credit (27.6 dB VHF, 18.1 dB UHF) and the loop-filter attenuation at 600 kHz / 2 MHz. The PLL model in `spec/phase2-plan.md` (step P2.2) decides whether that holds or whether those channels are avoided by the host.
+- Reference spurs appear at ±f_ref (±32 / ±36 MHz) at RF, as S3 says; there the loop filter attenuates strongly.
+
+Count: for each channel f, d = |f·N − round(f·N/f_ref)·f_ref|; hit if m·d (m = 1…3) is within ±6.25 kHz of the duplex offset. The per-channel rule belongs in the host's channel planner next to the clock-harmonic table.

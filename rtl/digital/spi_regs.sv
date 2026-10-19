@@ -4,10 +4,12 @@
 //   [15] write, [14:8] address, [7:0] data.
 // MISO returns the addressed byte during the data half. The write
 // commits on the 16th rising SCLK, while CS is still low.
-// CTRL[3] is reserved. The slot width comes from the rate table.
+// CTRL[3] enables the hardware PTT gate (DIO3) since 2026-10-19. The slot
+// width comes from the rate table.
 // 0x04-0x07 and 0x0D-0x12 are reserved since 2026-10-18: DC and IQ
 // correction moved to the host. They read 0 and ignore writes. CHIP_ID
-// went from 0x11 to 0x12 with that change.
+// went from 0x11 to 0x12 with that change, and to 0x13 when IRQ_EN (0x14),
+// INFO (0x15) and the PTT gate bit were added (2026-10-19).
 // An SPI write of a non-shutdown mode raises clk_req in this domain,
 // which is how the host is asked to start the reference.
 
@@ -18,6 +20,7 @@ module spi_regs (
     input  logic       mosi,
     output logic       miso,
     input  logic [7:0] status,
+    input  logic [2:0] info,
     output logic [7:0] ctrl,
     output logic [7:0] duty_on,
     output logic [7:0] duty_off,
@@ -29,6 +32,7 @@ module spi_regs (
     output logic       band_tog,
     output logic       cfg_tog,
     output logic [7:0] clk_gate,
+    output logic [3:0] irq_en,
     output logic       clk_req
 );
 
@@ -37,6 +41,8 @@ module spi_regs (
     logic [7:0] ctrl_q, duty_on_q, duty_off_q, rate_q;
     logic [7:0] block_pd_q, wake_cycles_q, band_q, clk_gate_q;
     logic [7:0] status_s1, status_s2;
+    logic [2:0] info_s1, info_s2;
+    logic [3:0] irq_en_q;
     // shreg[15] is never read: the 16th bit arrives on mosi itself.
     /* verilator lint_off UNUSEDSIGNAL */
     logic [15:0] shreg;
@@ -52,6 +58,7 @@ module spi_regs (
     assign block_pd = block_pd_q;
     assign wake_cycles = wake_cycles_q;
     assign clk_gate = clk_gate_q;
+    assign irq_en = irq_en_q;
     assign clk_req = ctrl_q[1:0] != 2'b00;
 
     function automatic logic [7:0] read_reg(input logic [6:0] addr);
@@ -63,9 +70,11 @@ module spi_regs (
             7'h08: read_reg = block_pd_q;
             7'h09: read_reg = wake_cycles_q;
             7'h0A: read_reg = status_s2;
-            7'h0B: read_reg = 8'h12;
+            7'h0B: read_reg = 8'h13;
             7'h0C: read_reg = band_q;
             7'h13: read_reg = clk_gate_q;
+            7'h14: read_reg = {4'b0, irq_en_q};
+            7'h15: read_reg = {5'b0, info_s2};
             default: read_reg = 8'h00;
         endcase
     endfunction
@@ -111,6 +120,9 @@ module spi_regs (
             rd_byte <= 8'h00;
             status_s1 <= 8'h00;
             status_s2 <= 8'h00;
+            info_s1 <= 3'b000;
+            info_s2 <= 3'b000;
+            irq_en_q <= 4'h0;
             ctrl_q <= CTRL_RST;
             duty_on_q <= 8'd1;
             duty_off_q <= 8'd0;
@@ -127,6 +139,8 @@ module spi_regs (
         end else begin
             status_s1 <= status;
             status_s2 <= status_s1;
+            info_s1 <= info;
+            info_s2 <= info_s1;
             shreg <= {shreg[14:0], mosi};
             if (nbits == 5'd7)
                 rd_byte <= read_reg({shreg[5:0], mosi});
@@ -135,7 +149,7 @@ module spi_regs (
                     cfg_tog <= ~cfg_tog;
                     case (shreg[13:7])
                         7'h00: begin
-                            ctrl_q <= {1'b0, shreg[5:3], 1'b0, shreg[1:0], mosi};
+                            ctrl_q <= {1'b0, shreg[5:2], shreg[1:0], mosi};
                             if (shreg[6]) flag_tog <= ~flag_tog;
                         end
                         7'h01: duty_on_q <= {shreg[6:0], mosi};
@@ -148,6 +162,7 @@ module spi_regs (
                             band_tog <= ~band_tog;
                         end
                         7'h13: clk_gate_q <= {shreg[6:0], mosi};
+                        7'h14: irq_en_q <= {shreg[2:0], mosi};
                         default: ;
                     endcase
                 end

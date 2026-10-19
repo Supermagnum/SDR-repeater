@@ -9,6 +9,11 @@
 // The library ICG cells stay dont_use.
 // DC and IQ correction are done by the host since 2026-10-18 (area
 // decision (a)); the RX word is the half-band (or decimator) output.
+// SX1255 pin-out (Option P, 2026-10-19): ref_36 is the pin-11 strap and is
+// latched while reset is active; ptt_pin (DIO3) gates TX when CTRL[3] is
+// set; irq_n (DIO1) is low while an enabled condition holds. The active-high
+// RESET pin, its pull-down and the power-on reset are at chip top and drive
+// rst_n here.
 
 module digital_backend #(
     parameter int RELOCK_CYCLES = 64
@@ -16,6 +21,9 @@ module digital_backend #(
     input  logic               clk,
     input  logic               rst_n,
     input  logic               ref_36,
+    input  logic               ptt_pin,
+    input  logic               pll_lock,
+    output logic               irq_n,
     input  logic               sclk,
     // cs_n is both a synchronous frame qualifier and the asynchronous clear
     // of the SPI bit counter (aborted-frame recovery); timed against sclk in the SDC.
@@ -76,6 +84,10 @@ module digital_backend #(
     logic [RW-1:0] relock_cnt;
     logic relock_busy;
     logic flag_clear, band_write;
+    logic ref_36_l;
+    logic ptt_s1, ptt_s, lock_s1, lock_s;
+    logic [3:0] irq_en, irq_en_c;
+    logic [1:0] mode_eff;
     logic flag_t1, flag_t2, band_t1, band_t2, cfg_t1, cfg_t2;
     // Register copies are full bytes; unused bits are reserved:
     // CTRL[7:5,3], RATE[7:3], BLOCK_PD[7:5,2:1], BAND[7:1],
@@ -101,6 +113,9 @@ module digital_backend #(
     // LO divider select for the analogue block: 0 = /8 (70 cm), 1 = /24 (2 m).
     assign band_sel = band_c[0];
     assign status = {relock_busy, clk_error, fifo_under, fifo_over, sample_valid, blank, status_mode};
+    // PTT gate: with CTRL[3] set, TX mode runs only while ptt_pin is high;
+    // otherwise the core holds standby (reference and SPI stay up).
+    assign mode_eff = (ctrl_c[1:0] == 2'b11 && ctrl_c[3] && !ptt_s) ? 2'b01 : ctrl_c[1:0];
     assign valid_iq = sample_valid;
     assign bclk_oe = !slave_mode && (rx_en || tx_en);
     assign lrclk_oe = bclk_oe;
@@ -126,12 +141,35 @@ module digital_backend #(
         end
     end
 
+    // ref_36 strap: sampled on every clk edge while the reset synchroniser
+    // is in reset (rst_s1 low), held from one clk before the core is released.
+    // A change needs a reset (static false path in SDC). No reset on this flop:
+    // its value is defined by the clk edges during reset.
+    always_ff @(posedge clk) begin
+        if (!rst_s1) ref_36_l <= ref_36;
+    end
+
+    // PTT pin and PLL lock are asynchronous: two-flop synchronisers.
+    always_ff @(posedge clk or negedge rst_core_n) begin
+        if (!rst_core_n) begin
+            ptt_s1 <= 1'b0; ptt_s <= 1'b0;
+            lock_s1 <= 1'b0; lock_s <= 1'b0;
+            irq_n <= 1'b1;
+        end else begin
+            ptt_s1 <= ptt_pin; ptt_s <= ptt_s1;
+            lock_s1 <= pll_lock; lock_s <= lock_s1;
+            // IRQ_EN: [0] FIFO overflow, [1] FIFO underflow, [2] clk_error,
+            // [3] PLL not locked. Level: low while an enabled condition holds.
+            irq_n <= !(|(irq_en_c & {!lock_s, clk_error, fifo_under, fifo_over}));
+        end
+    end
+
     spi_regs u_spi (
         .sclk(sclk), .rst_n(rst_n), .cs_n(cs_n), .mosi(mosi), .miso(miso),
-        .status(status), .ctrl(ctrl), .duty_on(duty_on), .duty_off(duty_off),
+        .status(status), .info({lock_s, ptt_s, ref_36_l}), .ctrl(ctrl), .duty_on(duty_on), .duty_off(duty_off),
         .rate(rate), .block_pd(block_pd), .wake_cycles(wake_cycles), .band(band),
         .flag_tog(flag_tog), .band_tog(band_tog), .cfg_tog(cfg_tog),
-        .clk_gate(clk_gate),
+        .clk_gate(clk_gate), .irq_en(irq_en),
         .clk_req(clk_req)
     );
 
@@ -152,6 +190,7 @@ module digital_backend #(
             wake_c <= 8'd0;
             band_c <= 8'd0;
             clk_gate_c <= 8'h1F;
+            irq_en_c <= 4'h0;
         end else begin
             cfg_t1 <= cfg_tog; cfg_t2 <= cfg_t1;
             flag_t1 <= flag_tog; flag_t2 <= flag_t1;
@@ -167,12 +206,13 @@ module digital_backend #(
                 wake_c <= wake_cycles;
                 band_c <= band;
                 clk_gate_c <= clk_gate;
+                irq_en_c <= irq_en;
             end
         end
     end
 
     rate_table u_rate (
-        .ref_36(ref_36), .rate(rate_c[2:0]), .frame_clks(frame_clks),
+        .ref_36(ref_36_l), .rate(rate_c[2:0]), .frame_clks(frame_clks),
         .r0(r0), .r1(r1), .r2(r2), .sh1(sh1), .sh2(sh2), .norm(norm),
         .slot(slot), .bit_cell(bit_cell), .clk_error(rate_error)
     );
@@ -185,7 +225,7 @@ module digital_backend #(
             rx_run <= 1'b0;
             tx_run <= 1'b0;
         end else begin
-            run_en <= ctrl_c[1:0] != 2'b00;
+            run_en <= mode_eff != 2'b00;
             rx_run <= clk_gate_c[0] && rx_en && (block_pd_c[0] || !(ctrl_c[2] && blank));
             tx_run <= clk_gate_c[4] && tx_en && !block_pd_c[4];
         end
@@ -195,7 +235,7 @@ module digital_backend #(
     clk_gate u_g_tx (.clk(clk), .en(tx_run), .gclk(clk_tx));
 
     power_ctrl u_pwr (
-        .clk(clk_run), .rst_n(rst_core_n), .mode(ctrl_c[1:0]), .duty_en(ctrl_c[2]),
+        .clk(clk_run), .rst_n(rst_core_n), .mode(mode_eff), .duty_en(ctrl_c[2]),
         .duty_on(duty_on_c), .duty_off(duty_off_c), .wake_cycles(wake_c),
         .frame_tick(slave_mode ? rx_v : frame_done),
         .rx_en(rx_en), .tx_en(tx_en), .blank(blank),
