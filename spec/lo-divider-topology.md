@@ -101,7 +101,7 @@ Source: `analog/lo/step1/` (VACASK, PDK `a49358cc`) `[SCH]`. Ideal clocks and su
 
 ## 8. Step 2 — buffer and chains with the VCO (2026-10-20)
 
-Source: `analog/lo/step2/` (VCO from P2.3, 4 mA cap, D12) `[SCH]`, typical (1.2 V, 27 °C) and slow corner (mos_ss, 1.08 V, 125 °C). Buffer: per side 100 fF from the tank, self-biased CMOS inverter 2/4 µm, inverter 6/12 µm, cross-coupled anti-phase inverters; CML ÷2 / ÷3 (step 1), enabled after VCO start-up (D15); converter with a tapered clock driver (to 9/18 µm); TSPC flip-flops size 2; every output retimed by a TSPC flip-flop on the divided clock.
+Source: `analog/lo/step2/` (VCO from P2.3, 4 mA cap, D12) `[SCH]`, typical (1.2 V, 27 °C) and slow corner (mos_ss, 1.08 V, 125 °C). Buffer: per side 100 fF from the tank, self-biased CMOS inverter 2/4 µm, inverter 6/12 µm (final: 3/6 then 4/8 µm, see below), cross-coupled anti-phase inverters; CML ÷2 / ÷3 (step 1), enabled after VCO start-up (D15); converter with a tapered clock driver (to 9/18 µm); TSPC flip-flops size 2; every output retimed by a TSPC flip-flop on the divided clock.
 
 | Case | Phase error (max) | Duty | Buffer per side | Currents: buffer / CML / converter / logic (mA) |
 |---|---|---|---|---|
@@ -116,8 +116,8 @@ Source: `analog/lo/step2/` (VCO from P2.3, 4 mA cap, D12) `[SCH]`, typical (1.2 
 
 - **All 8 cases divide correctly**, systematic phase errors ≤ 0.46° (UHF) and ≤ 0.12° (VHF); random mismatch follows in step 3.
 - **UHF 25 % duty:** the TSPC output rises one gate later than it falls, so the pulses come out short at the slow corner. A 2× output PMOS (`pq=2`, now the default) gives 22.6–25.0 %. A 2 % short pulse costs a passive mixer about 0.1–0.2 dB of conversion gain and no overlap; accepted for now, final check with the mixer in Phase 3.
-- **Buffer at the bottom band, slow corner:** 0.43 V per side, just below the 0.45 V target (the ÷3 still divides; step 1 minimum 0.36 V at 1.08 V). With an extra 3/6 µm gain inverter per side (`bufm`, now the default) it gives **0.56 V** per side for +0.27 mA; shrinking the last inverter (`b2`) to win the current back is checked before step 3.
-- **LO current, worst case (VHF typ 4.20 GHz):** buffer + CML + converter + logic 4.6 mA; with VCO 3.6–4 mA and PLL about 1.5 mA, **about 9.7–10.1 mA** against D7 ≤ 10 mA. At the limit; the converter (0.6–0.7 mA, mostly its clock driver) and the buffer are the places to save in layout-aware sizing. UHF about 8.3 mA.
+- **Buffer at the bottom band, slow corner:** 0.43 V per side, just below the 0.45 V target (the ÷3 still divides; step 1 minimum 0.36 V at 1.08 V). **Final buffer:** an extra 3/6 µm gain inverter per side and the last inverter shrunk to 4/8 µm: VHF all four cases correct (≤ 0.12°), **0.53–0.56 V per side at the slow corner**, 0.64–0.65 V typical; buffer current 0.74–1.25 mA (worst VHF typical 4.20 GHz, +0.18 mA against the table above).
+- **LO current, worst case (VHF typ 4.20 GHz, final buffer):** buffer 1.25 + CML 2.49 + converter 0.70 + logic 0.36 = 4.80 mA; with the VCO (3.59 mA there) and the PLL (about 1.5 mA, `[HAND]`) **about 9.9 mA**; bottom band 4.30 + 4.00 + 1.5 = 9.8 mA. Against D7 ≤ 10 mA: inside, but only about 0.1 mA margin, and the PLL share is still a hand estimate; the converter (0.6–0.7 mA, mostly its clock driver) and the buffer are the places to save in layout-aware sizing. UHF about 8.3 mA.
 
 **Start-up trap (finding).** A CML divider that is on while its clock is absent free-runs (here about 2.2–3.1 GHz at 0.15–0.17 V). Step-1 check `div3s` at the slow corner: with the clock ramping up (5 or 20 ns) the ÷3 stays in that state at 4.41 GHz, even with 0.6 or 0.75 V final swing; enabled after the clock is up it divides at 3.12, 4.21 and 4.41 GHz. Clock shape, duty cycle (40–50 %), converter load and latch current were ruled out first (`div3x`).
 

@@ -29,6 +29,8 @@ Eighth run result: **all 8 cases divide correctly**, phase errors ≤ 0.46° (UH
 
 Ninth run result (`bufm`, VHF slow 3.12 GHz): buffer **0.56 V per side** (0.43 without), clock duty 54 %, skew +13 ps, phase errors unchanged (≤ 0.10°); buffer current 0.82 mA (+0.27). Now the default (`nobufm` for the old buffer). To win the current back, option `b2=<µm>` shrinks the last inverter: `python3 -u run_step2.py vhf b2=4` (all four VHF cases; the top band at typical sets the worst-case current).
 
+Tenth run result (`b2=4`, VHF): all four cases correct, phase errors ≤ 0.12°; buffer 0.64–0.65 V per side typical, **0.53–0.56 V** at the slow corner; buffer current 1.00 / 1.25 mA typical (3.12 / 4.20 GHz), 0.74 / 1.00 mA slow. Worst case (VHF typical 4.20 GHz) chain 4.80 mA, +0.19 mA against the old buffer. Now the default: three inverters per side, last 4/8 µm.
+
 Earlier, second run setup: every phase output is **retimed by a TSPC flip-flop on the same clock** (UHF: the NAND outputs; VHF: all 8 phases, true from complement and complement from true), so all outputs leave through identical paths; 1 GΩ leaks on the TSPC nodes for the operating point.
 
 ```bash

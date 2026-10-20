@@ -8,7 +8,7 @@ Run inside the container from this folder (needs ../../vco/step2/out/range.json)
     python3 -u run_step2.py vhf ss 4.20 en=off                         # CML divider on from t = 0 (default: 35 ns, D15)
     python3 -u run_step2.py uhf ss pq=3                                # UHF retiming output PMOS 3x (default 2)
     python3 -u run_step2.py vhf ss 3.12 nobufm                         # buffer without the extra gain inverter
-    python3 -u run_step2.py vhf b2=4                                   # last buffer inverter 4/8 um (default 6/12)
+    python3 -u run_step2.py vhf b2=6                                   # last buffer inverter 6/12 um (default 4/8)
 
 Circuit per run (one chain per run, as band_sel powers one chain):
   VCO       the P2.3 VCO netlist (analog/vco/step2/run_step2.py, sizes from range.json), its stand-in
@@ -61,9 +61,10 @@ PQ = next((float(a[3:]) for a in sys.argv[1:] if a.startswith("pq=")), 2.0)   # 
 # corner does not fully switch the first inverter)
 # Ninth run: bufm gave 0.56 V per side at VHF slow 3.12 GHz (0.43 V without) for +0.27 mA, so it is now the
 # default; "nobufm" removes it. Option b2=<um>: NMOS width of the last buffer inverter (PMOS 2x; default 6) - with
-# the gain stage it may shrink and win back the current (D7 limit).
+# the gain stage it may shrink and win back the current (D7 limit). Tenth run: 4/8 um keeps >= 0.53 V per side at
+# the slow corner; buffer 1.25 mA at VHF typical 4.20 GHz (1.07 mA with the old 2-stage 6/12 um buffer).
 BUFM = "nobufm" not in sys.argv[1:]
-B2 = next((float(a[3:]) for a in sys.argv[1:] if a.startswith("b2=")), 6.0)
+B2 = next((float(a[3:]) for a in sys.argv[1:] if a.startswith("b2=")), 4.0)   # tenth run: 4/8 um is the default
 CORNERS = [("tt", "mos_tt", "cap_typ", 1.2, 27), ("ss", "mos_ss", "cap_typ", 1.08, 125)]
 STANDIN = ("mb1 ", "mb2 ", "rl1 ", "rl2 ", "ib ", "ctb ", "cl1 ", "cl2 ")
 
