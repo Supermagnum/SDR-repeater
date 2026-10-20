@@ -126,7 +126,7 @@ RF frequency: **f_RF = (N_INT + N_FRAC / 2²⁴) · f_ref / D**, D = 8 (UHF) or 
 
 | Signal | Dir. (from AFE block) | Width | Meaning |
 |---|---|---|---|
-| `en_refbuf`, `en_pll`, `en_vco`, `en_lodiv` | out | 4 × 1 | LO chain enables |
+| `en_refbuf`, `en_pll`, `en_vco`, `en_lodiv` | out | 4 × 1 | LO chain enables; `en_lodiv` sequenced after `en_vco` (D15, §6) |
 | `en_lna`, `en_mix`, `en_tia`, `en_adc` | out | 4 × 1 | RX chain enables |
 | `en_dac`, `en_txmod`, `en_padrv` | out | 3 × 1 | TX chain enables |
 | `lna_gain`, `tia_gain` | out | 2 + 4 | RX gain steps (static during reception) |
@@ -160,6 +160,7 @@ The enable sequencer has to follow the back end's **effective** mode, including 
 
 - **Wake:** the back end already waits `WAKE` output frames before `valid_iq`. The host sets `WAKE` to cover the analogue settling plus PLL lock: at 500 kHz one frame is 2 µs, so the 125 µs PLL lock (`analog/pll-model/`) needs `WAKE` ≥ 63 when the PLL starts cold, and much less with `PLL_CTRL[0]`.
 - **Band change:** write `BAND`, `N_INT`/`N_FRAC`, start calibration, then wait for `pll_lock` (IRQ). The back end's 64-clock relock window is only a digital handshake.
+- **LO divider enable (D15):** `en_lodiv` rises about 1 µs (32–36 `clk` cycles) after `en_vco`. It is pulsed low for the same time and raised again after a write to `BAND` or `VCO_BAND`, and when calibration or lock fails (`PLL_STATUS[2]`, or no `pll_lock` within the lock window), before the next attempt. Reason: a CML divider on during VCO start-up can lock into its free-running state (P2.4 step 2, `spec/lo-divider-topology.md` §8). `AFE_FORCE` can still force it for test.
 - **TX protection:** `en_padrv` is held low while `pll_lock` is low or `TX_ATT[7]` is set, so an unlocked LO never reaches the PA.
 
 ---

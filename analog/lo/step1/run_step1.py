@@ -20,6 +20,7 @@ not the final sizing, is what this step checks.
 """
 import math
 import os
+import re
 import subprocess
 import sys
 
@@ -52,13 +53,17 @@ model isource   isource
 embed "clk.va" <<<FILE
 `include "constants.vams"
 `include "disciplines.vams"
-// Differential clock: sine (shape = 0) or smoothed square (shape > 0, tanh sharpness), common mode vcm
+// Differential clock: sine (shape = 0) or smoothed square (shape > 0, tanh sharpness), common mode vcm.
+// Amplitude envelope: 0 before t0, linear ramp over tr, then full (t0 = -1 s: full from the start).
 module clk(p, n);
     inout p, n;
     electrical p, n;
+    real env, w;
     analog begin
-        V(p) <+ {vcm} + {amp} * ({shape} > 0 ? tanh({shape} * sin(2 * `M_PI * {f:.6e} * $abstime)) : sin(2 * `M_PI * {f:.6e} * $abstime));
-        V(n) <+ {vcm} - {amp} * ({shape} > 0 ? tanh({shape} * sin(2 * `M_PI * {f:.6e} * $abstime)) : sin(2 * `M_PI * {f:.6e} * $abstime));
+        env = min(max(($abstime - ({t0})) / {tr:.4e}, 0.0), 1.0);
+        w = ({shape} > 0) ? tanh({shape} * (sin(2 * `M_PI * {f:.6e} * $abstime) - {offs})) : sin(2 * `M_PI * {f:.6e} * $abstime);
+        V(p) <+ {vcm} + {amp} * env * w;
+        V(n) <+ {vcm} - {amp} * env * w;
     end
 endmodule
 >>>FILE
@@ -74,11 +79,11 @@ def say(s=""):
     SUMMARY.append(s)
 
 
-def run(name, body, f, stop, corner, vcm, amp, shape=0.0):
+def run(name, body, f, stop, corner, vcm, amp, shape=0.0, offs=0.0, t0=-1.0, tr=1e-12):
     _, mos, vdd, temp = corner
     path = os.path.join(OUT, name + ".sim")
     with open(path, "w") as fh:
-        fh.write(HEADER.format(title=f"P2.4 step 1: {name}", mos=mos, vcm=vcm, amp=amp, shape=shape, f=f))
+        fh.write(HEADER.format(title=f"P2.4 step 1: {name}", mos=mos, vcm=vcm, amp=amp, shape=shape, f=f, offs=offs, t0=t0, tr=tr))
         fh.write(f"vdd (vdd 0) vsource dc={vdd}\nxclk (ckp ckn) clk\n" + body)
         fh.write("\ncontrol\n  abort always\n  options rawfile=\"binary\"\n"
                  f"  options temp={temp}\n"
@@ -417,8 +422,108 @@ def check_amp():
     say("")
 
 
+def check_div3x():
+    """Why does the ÷3 fail at slow corner / 4.21 GHz in the full chain (P2.4 step 2) although it passed here?
+
+    Step 2: buffer swing right (0.47 V per side), ckp/ckn skew only 4-6 ps, a differential clock stage did
+    not help; the ÷3 output came out at 2.1-2.7 GHz with 0.16 V instead of 1.40 GHz. Candidates tested one at
+    a time on the stand-alone ÷3 at slow corner: square instead of sine clock, clock duty cycle, output load
+    (the converter), latch current.
+    """
+    say("## CML ÷3 at slow corner: what breaks it at 4.21 GHz [SCH]")
+    say("")
+    say("Stand-alone ÷3 (0.5 mA per latch unless noted), clock 0.47 V per side around 0.52 V (as the step-2 buffer "
+        "delivers). Each cell: output frequency / expected, output amplitude.")
+    say("")
+    corner = CORNERS[1]
+    vdd = corner[2]
+    freqs = [3.12e9, 4.21e9, 4.41e9]
+    say("| Variant | " + " | ".join(f"{f/1e9:.2f} GHz" for f in freqs) + " |")
+    say("|---|" + "---|" * len(freqs) + "")
+    conv = ("xcv1 (co1 co1 vdd vdd) sg13_lv_pmos w=4u l=0.13u\nxcv2 (co2 co1 vdd vdd) sg13_lv_pmos w=4u l=0.13u\n"
+            "xcv3 (co1 q2n ctc 0) sg13_lv_nmos w=4u l=0.13u\nxcv4 (co2 q2p ctc 0) sg13_lv_nmos w=4u l=0.13u\n"
+            "icv (ctc 0) isource dc=0.3m\n")
+    variants = [("sine (as step 1)", 0.0, 0.0, 0.5e-3, ""),
+                ("square, 50 % duty", 4.0, 0.0, 0.5e-3, ""),
+                ("square, 45 % duty", 4.0, 0.156, 0.5e-3, ""),
+                ("square, 40 % duty", 4.0, 0.309, 0.5e-3, ""),
+                ("sine + converter load", 0.0, 0.0, 0.5e-3, conv),
+                ("square 50 % + converter load", 4.0, 0.0, 0.5e-3, conv),
+                ("square 50 % + load, 0.65 mA per latch", 4.0, 0.0, 0.65e-3, conv)]
+    for label, shape, offs, i, extra in variants:
+        cells = []
+        for f in freqs:
+            i_, rl, w = cml_params(i, vdd)
+            body, out = div_body(3, i_, rl, w, vdd)
+            name = f"d3x_{label.split(',')[0].replace(' ', '').replace('%', '').replace('+', '_')}_{offs}_{i*1e3:.2f}_{f/1e9:.2f}g"
+            try:
+                d = run(name, body + extra, f, (3 * 40 + 20) / f, corner, 0.52, 0.47, shape=shape, offs=offs)
+                fo, a = freq(d["time"], np.real(d[out[0]]) - np.real(d[out[1]]))
+                ok = abs(fo * 3 / f - 1) < 0.01 and a > 0.15
+                cells.append(f"{'OK' if ok else '**fail**'} {fo/1e9:.2f} / {f/3e9:.2f}, {a:.2f} V")
+            except RuntimeError as e:
+                cells.append("error")
+        say(f"| {label} | " + " | ".join(cells) + " |")
+    say("")
+
+
+def enable_at(body, t_en):
+    """Divider held off (tail currents zero) until t_en, then on within 100 ps; the start-up kick follows 200 ps
+    later. Models a divider enable that the sequencer raises after the VCO has reached full swing."""
+    body = re.sub(r"isource dc=([0-9.eE+-]+)",
+                  lambda m: f'isource type="pulse" val0=0 val1={m.group(1)} delay={t_en:.3e} rise=100p fall=100p width=1',
+                  body)
+    return body.replace("delay=20p", f"delay={t_en + 0.2e-9:.3e}")
+
+
+def check_div3s():
+    """Seventh run (2026-10-20): div3x showed the stand-alone ÷3 passes at slow corner / 4.21 GHz with every
+    clock shape, duty cycle and load tried, so the circuit itself is fast enough. Remaining difference to the
+    full chain: there the clock grows with the VCO start-up (tens of ns) while the ÷3 is already on, so it
+    free-runs first (2.37 GHz, small swing, as seen in step 2). Suspect: that free-running state is stable at
+    the slow corner and the full clock does not pull it back into ÷3. Tested: clock ramped up with the divider
+    on (with more final swing), and the divider enabled only after the clock is up."""
+    say("## CML ÷3 at slow corner: start-up with a growing clock [SCH]")
+    say("")
+    say("Stand-alone ÷3, 0.5 mA per latch, sine clock around 0.52 V. The clock ramps linearly from 0 to its final "
+        "swing over the ramp time (as the VCO starts up). Each cell: output frequency / expected, output amplitude "
+        "(measured over the last half of the run).")
+    say("")
+    corner = CORNERS[1]
+    vdd = corner[2]
+    freqs = [3.12e9, 4.21e9, 4.41e9]
+    say("| Variant | " + " | ".join(f"{f/1e9:.2f} GHz" for f in freqs) + " |")
+    say("|---|" + "---|" * len(freqs) + "")
+    #          label, final swing, clock start, ramp time, divider enable (None: on from the start)
+    variants = [("full clock from t = 0 (as div3x)", 0.47, -1.0, 1e-12, None),
+                ("ramp 5 ns, divider on", 0.47, 0.0, 5e-9, None),
+                ("ramp 20 ns, divider on", 0.47, 0.0, 20e-9, None),
+                ("clock off 5 ns, then step on", 0.47, 5e-9, 1e-12, None),
+                ("ramp 20 ns to 0.6 V, divider on", 0.60, 0.0, 20e-9, None),
+                ("ramp 20 ns to 0.75 V, divider on", 0.75, 0.0, 20e-9, None),
+                ("ramp 20 ns, divider enabled at 22 ns", 0.47, 0.0, 20e-9, 22e-9)]
+    for label, amp, t0, tr, t_en in variants:
+        cells = []
+        for f in freqs:
+            i_, rl, w = cml_params(0.5e-3, vdd)
+            body, out = div_body(3, i_, rl, w, vdd)
+            if t_en is not None:
+                body = enable_at(body, t_en)
+            name = f"d3s_{amp:.2f}_{t0*1e9:.0f}_{tr*1e9:.0f}_{(t_en or 0)*1e9:.0f}_{f/1e9:.2f}g"
+            stop = max(t0, 0) + tr + (t_en or 0) + (3 * 40 + 20) / f
+            try:
+                d = run(name, body, f, stop, corner, 0.52, amp, t0=t0, tr=tr)
+                fo, a = freq(d["time"], np.real(d[out[0]]) - np.real(d[out[1]]))
+                ok = abs(fo * 3 / f - 1) < 0.01 and a > 0.15
+                cells.append(f"{'OK' if ok else '**fail**'} {fo/1e9:.2f} / {f/3e9:.2f}, {a:.2f} V")
+            except RuntimeError:
+                cells.append("error")
+        say(f"| {label} | " + " | ".join(cells) + " |")
+    say("")
+
+
 CHECKS = {"cml2": lambda: check_cml(2), "cml3": lambda: check_cml(3), "tspc": check_tspc, "conv": check_conv,
-          "cmlx": check_cmlx, "amp": check_amp}
+          "cmlx": check_cmlx, "amp": check_amp, "div3x": check_div3x, "div3s": check_div3s}
 
 
 def main():

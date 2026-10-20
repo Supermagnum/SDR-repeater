@@ -195,3 +195,7 @@ Accepted as proposed in `spec/vco-topology.md` §5, after a comparison with comm
 - D12: the LO current budget stays ≤ 10 mA (D7); the **VCO tail current is capped at 4 mA** (this reverses the P2.3 review, where the cap was not chosen). Bottom-band phase noise about 2 dB worse, expected margin still about 6 dB; VCO step 3 to be rerun.
 - D13: UHF LO as **four phases at 25 % duty**.
 - D14: flip-flops after the first stage in **CMOS TSPC**; CML only if step 1 shows less than 1.3× speed margin at the slow corner, 1.08 V, 125 °C.
+
+## 2026-10-20 — P2.4 step 2: divider start-up, D15
+- Finding: with the dividers on while the VCO starts up, the CML ÷3 free-runs and at the slow corner stays there (VHF 4.20 GHz failed in the full chain; stand-alone `div3s` fails at 4.41 GHz with any clock ramp, also with 0.6–0.75 V final swing). Clock shape, duty cycle, load and latch current were ruled out (`div3x`).
+- D15: **sequenced divider enable** — the AFE sequencer raises `en_lodiv` about 1 µs after `en_vco` and pulses it low again after a band change or a failed PLL lock; both chains. With the divider enabled after start-up the VHF slow 4.20 GHz case divides correctly (8 phases, errors ≤ 0.12°). Circuit-level removal of the free-running state was not chosen.
