@@ -27,6 +27,8 @@ Seventh run result: **confirmed.** `div3s`: with the divider on during a clock r
 
 Eighth run result: **all 8 cases divide correctly**, phase errors ≤ 0.46° (UHF) / ≤ 0.12° (VHF); full table in `spec/lo-divider-topology.md` §8. UHF slow-corner duty 20.6–23.6 % with `pq=1`, 22.6–25.0 % with `pq=2` (now the default). VHF slow 3.12 GHz buffer 0.43 V per side (target 0.45), clock duty 43.7 %: option `bufm` adds a gain inverter per side — `python3 -u run_step2.py vhf ss 3.12 bufm`.
 
+Ninth run result (`bufm`, VHF slow 3.12 GHz): buffer **0.56 V per side** (0.43 without), clock duty 54 %, skew +13 ps, phase errors unchanged (≤ 0.10°); buffer current 0.82 mA (+0.27). Now the default (`nobufm` for the old buffer). To win the current back, option `b2=<µm>` shrinks the last inverter: `python3 -u run_step2.py vhf b2=4` (all four VHF cases; the top band at typical sets the worst-case current).
+
 Earlier, second run setup: every phase output is **retimed by a TSPC flip-flop on the same clock** (UHF: the NAND outputs; VHF: all 8 phases, true from complement and complement from true), so all outputs leave through identical paths; 1 GΩ leaks on the TSPC nodes for the operating point.
 
 ```bash
