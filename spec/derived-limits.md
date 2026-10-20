@@ -148,7 +148,7 @@ Phase 3 requirement: a harmonic-reject mixer, a switched VHF preselector, or bot
 The RTL already defines the divider select: `band_sel` 0 = ÷8 (UHF), 1 = ÷24 (VHF).
 With one VCO at **3.12–4.20 GHz**:
 - **UHF:** ÷8 covers 400–480 MHz from 3.20–3.84 GHz.
-- **VHF:** ÷24 covers 130–175 MHz from 3.12–4.20 GHz. The ÷24 is built as ÷12 then ÷2, so the final ÷2 provides the I/Q quadrature (the same for ÷8 = ÷4 then ÷2).
+- **VHF:** ÷24 covers 130–175 MHz from 3.12–4.20 GHz. Since D4 (2026-10-19) the ÷24 is built as ÷3 then an 8-phase ÷8 (Johnson counter), giving 45° phases for the harmonic-reject mixer; UHF ÷8 is ÷2 then a quadrature ÷4. Topology memo: `spec/lo-divider-topology.md`. (Superseded text: "÷12 then ÷2, the final ÷2 provides I/Q".)
 
 The 30 % tuning range needs a switched-capacitor bank or two VCO cores. The divider ratios are the RF engineer's choice; changing them only changes the comment on `band_sel`.
 

@@ -66,7 +66,7 @@ RX ≤ 25 mA and TX ≤ 60 mA for the whole chip (§6 of `spec/rf-frontend.md`).
 | **P2.1** | Owner decisions D1–D7 (§5) | Entries in `decisions.md` | — |
 | **P2.2** ✅ first run | System model in Python: linear PLL phase-noise model (VCO, PFD/CP, Σ-Δ, loop filter), spur map including the boundary channels, lock-time transient | `analog/pll-model/` with a check script like `vhf_lpf_check.py`; loop parameters (Icp, filter values, KVCO per band, number of bands) | Human review of the budget |
 | **P2.3** ✅ schematic (2026-10-20: 2.90–4.41 GHz, all bands, corners and −40/27/85 °C meet §2.1, worst margin +3.6 dB at 1 MHz; result review done, `spec/vco-topology.md` §9; open points there) | VCO: topology memo, schematic, capacitor bank, varactor; VACASK `pnoise` across bands, PDK corners and −40 to +85 °C, with the EM inductor model | Schematic, pnoise table vs §2.1 | Human topology review before schematic; result review after |
-| **P2.4** | Dividers and phase generation (÷2/÷3 prescaler stages, quadrature, 8-phase for VHF) | Transient across corners: maximum frequency, duty cycle, I/Q phase error (→ image rejection), 8-phase error (→ harmonic rejection) | Human review |
+| **P2.4** (topology accepted 2026-10-20; step 1 done: TSPC confirmed, CML ÷2 / ÷3 need ≥ 0.5 V-per-side clock at the slow corner; `spec/lo-divider-topology.md` §7) | Dividers and phase generation (÷2/÷3 prescaler stages, quadrature, 8-phase for VHF) | Transient across corners: maximum frequency, duty cycle, I/Q phase error (→ image rejection), 8-phase error (→ harmonic rejection) | Human review |
 | **P2.5** | PFD, charge pump, loop filter, multi-modulus divider, Σ-Δ modulator (digital, in the AFE/LO control block: `spec/analog-digital-interface.md` §5) | Schematics; CP mismatch and leakage → spur estimate fed back to P2.2 | Human review |
 | **P2.6** | PLL closed loop: behavioural top with transistor-level VCO and divider | Lock time, frequency error, phase noise vs offset, spurs on boundary channels | Compare with P2.2 |
 | **P2.7** | Layout of VCO and dividers, PEX, EM on the tank and LO routing; post-layout pnoise | `[PEX-RC]` / `[EM]` tagged results | Phase 2 review gate |
@@ -88,7 +88,7 @@ Tools: VACASK (`pss`/`pnoise`, settings in `analog/pn-validation/README.md`), ng
 
 ---
 
-## 5. Owner decisions (D1–D7 accepted as proposed 2026-10-19; D8–D11 2026-10-20)
+## 5. Owner decisions (D1–D7 accepted as proposed 2026-10-19; D8–D14 2026-10-20)
 
 | # | Decision | Decided |
 |---|---|---|
@@ -103,6 +103,9 @@ Tools: VACASK (`pss`/`pnoise`, settings in `analog/pn-validation/README.md`), ng
 | D9 | VCO tail (2026-10-20) | NMOS tail, RC-filtered bias (pole ≤ 10 kHz), tail capacitor 5–10 pF; class-C as a P2.3 variant |
 | D10 | VCO supply (2026-10-20) | Dedicated LDO, voltage set by the LV device limits (about 1.1 V after step 1) |
 | D11 | Varactor bias (2026-10-20) | AC-coupled `sg13_hv_svaricap` (coupling MIMs about 5×, gates biased through ≥ 200 kΩ), so the charge pump and loop filter stay on 1.2 V devices |
+| D12 | LO current (2026-10-20) | LO budget stays ≤ 10 mA (D7); the VCO tail current is capped at **4 mA** (`VCO_BIAS`), about 2 dB less phase-noise margin at the bottom of the band |
+| D13 | UHF LO waveform (2026-10-20) | Four phases at **25 % duty** from a Johnson ÷4 after a CML ÷2 (`spec/lo-divider-topology.md`) |
+| D14 | Divider flip-flops after the first stage (2026-10-20) | **CMOS true single-phase clock (TSPC)**; CML only if step 1 shows < 1.3× speed margin at slow corner / 1.08 V / 125 °C |
 
 ---
 
@@ -113,7 +116,7 @@ Tools: VACASK (`pss`/`pnoise`, settings in `analog/pn-validation/README.md`), ng
 | Real tank Q below the EM value (15.3 at 3.5 GHz) | VCO noise up | EM study done (P2.0, conservative value); bigger margin from higher swing or the HBT core |
 | Inductor L ±3 % (solver offset) | VCO band shifts ±1.5 % | Capacitor bank covers 3.12–4.20 GHz over 1.64–1.70 nH (P2.3) |
 | 29.6 % tuning range | Q of the capacitor bank, band gaps | Simulated (P2.3): covered at all corners; after the review (+5 % bank) the least margin is 73 MHz at the bottom edge (MIM best case) |
-| First divider at 4.2 GHz across corners | Lost lock at slow corner | CML first stage; check at slow 1.08 V 125 °C |
+| First divider at 4.2 GHz across corners | Lost lock at slow corner | Checked (P2.4 step 1): CML ÷2 / ÷3 divide over the whole window at slow 1.08 V 125 °C if the clock swing is ≥ 0.4 V per side; the VCO buffer is designed for ≥ 0.5 V |
 | Flicker and 2 f0 tail noise | Unfiltered tail mirror: flicker corner 615 kHz, about 3 dB at the 600 kHz duplex offset; tail noise near 2 f0 a second path (P2.0, `reports/phase2-review/p20-flicker.md`) | Tail and varactor-bias low-pass and a 2 f0 tail filter (or tail-less / HBT core) in the P2.3 topology memo; `pnoise` is validated for this region |
 | Σ-Δ area | Back end full | D3 |
 | Charge-pump leakage and mismatch | Reference and fractional spurs | P2.5 spur estimate, fed into P2.2 |

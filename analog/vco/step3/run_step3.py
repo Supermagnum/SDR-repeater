@@ -55,8 +55,8 @@ def load_sizing():
 
 
 def itail_for(f, meas):
-    """Per-band tail current: the step-2 rule (1.3 V at typical, cap 5 mA), interpolated over frequency."""
-    pts = sorted((v["f"], min(5e-3, S2.ITAIL * S2.A_TARGET / v["amp"])) for (c, vt), v in meas.items()
+    """Per-band tail current: the step-2 rule (1.3 V at typical, capped at S2.I_MAX = 4 mA, D12), interpolated."""
+    pts = sorted((v["f"], min(S2.I_MAX, S2.ITAIL * S2.A_TARGET / v["amp"])) for (c, vt), v in meas.items()
                  if abs(vt - S2.VTUNE_MID) < 1e-6)
     fs, cur = zip(*pts)
     return float(np.interp(f, fs, cur))

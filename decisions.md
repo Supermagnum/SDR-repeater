@@ -189,3 +189,9 @@ Accepted as proposed in `spec/vco-topology.md` §5, after a comparison with comm
 - Accepted: about 5 % more switched capacitance in the bank (`spec/vco-topology.md` §9, point 2), so the bottom edge keeps margin below 3.12 GHz at the MIM best-case corner with the ± 3 % inductance uncertainty. Step 2 sizing target 955 → 1003 fF; steps 2–3 to be rerun.
 - Not chosen at this review: the 4 mA cap on the tail current (the bottom bands keep 5 mA; the LO current budget D7 is checked again with the dividers in P2.4) and an amplitude calibration. The remaining items of §9 (supply pushing, real buffer and divider load, HBT comparison, tapped-inductor EM) stay open.
 - Rerun after the review (2026-10-20): range 2.90–4.41 GHz; bottom edge at the MIM best-case corner 3.036–3.047 GHz (73–84 MHz margin); phase noise unchanged within 1 dB, worst margin +3.6 dB (4.20 GHz, slow corner, 85 °C). P2.3 schematic phase closed; open points in `spec/vco-topology.md` §9.
+
+## 2026-10-20 — P2.4 divider topology, D12–D14
+- Topology as proposed in `spec/lo-divider-topology.md`: CML buffer after the VCO; UHF CML ÷2 then a Johnson ÷4 (quadrature); VHF CML ÷3 then a Johnson ÷8 (8 phases, D4); one chain powered per band.
+- D12: the LO current budget stays ≤ 10 mA (D7); the **VCO tail current is capped at 4 mA** (this reverses the P2.3 review, where the cap was not chosen). Bottom-band phase noise about 2 dB worse, expected margin still about 6 dB; VCO step 3 to be rerun.
+- D13: UHF LO as **four phases at 25 % duty**.
+- D14: flip-flops after the first stage in **CMOS TSPC**; CML only if step 1 shows less than 1.3× speed margin at the slow corner, 1.08 V, 125 °C.
