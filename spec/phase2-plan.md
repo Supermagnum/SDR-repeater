@@ -1,6 +1,6 @@
 # Phase 2 plan — LO and synthesizer
 
-Status: **draft for human review, 2026-10-19. Owner decisions D1–D7 accepted 2026-10-19; P2.2 first run done (`analog/pll-model/`).** Nothing in this plan has been designed or simulated yet. It turns `spec/rf-frontend.md` §5 and `spec/derived-limits.md` §9 into budgets, work steps and the decisions the owner has to make before circuit work starts. Topologies are proposals; per the agent rules they are chosen by a human.
+Status: **draft for human review, 2026-10-19. Owner decisions D1–D7 accepted 2026-10-19, D8–D10 (VCO topology, `spec/vco-topology.md`) 2026-10-20; P2.0 done; P2.2 first run done (`analog/pll-model/`).** Nothing in this plan has been designed or simulated yet. It turns `spec/rf-frontend.md` §5 and `spec/derived-limits.md` §9 into budgets, work steps and the decisions the owner has to make before circuit work starts. Topologies are proposals; per the agent rules they are chosen by a human.
 
 ---
 
@@ -65,7 +65,7 @@ RX ≤ 25 mA and TX ≤ 60 mA for the whole chip (§6 of `spec/rf-frontend.md`).
 | **P2.0** (EM stages 1–2 done: `reports/phase2-review/p20-stage1.md`, `p20-stage2.md`; Q 15.3 at 3.5 GHz accepted 2026-10-20; flicker check done: `reports/phase2-review/p20-flicker.md`) | Prerequisites: matched-mesh, de-embedded inductor study (Phase 0 follow-up); pnoise check of the flicker region | Tank Q to replace the provisional 14.9; flicker method | Owner accepts the EM result |
 | **P2.1** | Owner decisions D1–D7 (§5) | Entries in `decisions.md` | — |
 | **P2.2** ✅ first run | System model in Python: linear PLL phase-noise model (VCO, PFD/CP, Σ-Δ, loop filter), spur map including the boundary channels, lock-time transient | `analog/pll-model/` with a check script like `vhf_lpf_check.py`; loop parameters (Icp, filter values, KVCO per band, number of bands) | Human review of the budget |
-| **P2.3** | VCO: topology memo, schematic, capacitor bank, varactor; VACASK `pnoise` across bands, PDK corners and −40 to +85 °C, with the EM inductor model | Schematic, pnoise table vs §2.1 | Human topology review before schematic; result review after |
+| **P2.3** (topology accepted 2026-10-20: `spec/vco-topology.md`; step 1 device checks next) | VCO: topology memo, schematic, capacitor bank, varactor; VACASK `pnoise` across bands, PDK corners and −40 to +85 °C, with the EM inductor model | Schematic, pnoise table vs §2.1 | Human topology review before schematic; result review after |
 | **P2.4** | Dividers and phase generation (÷2/÷3 prescaler stages, quadrature, 8-phase for VHF) | Transient across corners: maximum frequency, duty cycle, I/Q phase error (→ image rejection), 8-phase error (→ harmonic rejection) | Human review |
 | **P2.5** | PFD, charge pump, loop filter, multi-modulus divider, Σ-Δ modulator (digital, in the AFE/LO control block: `spec/analog-digital-interface.md` §5) | Schematics; CP mismatch and leakage → spur estimate fed back to P2.2 | Human review |
 | **P2.6** | PLL closed loop: behavioural top with transistor-level VCO and divider | Lock time, frequency error, phase noise vs offset, spurs on boundary channels | Compare with P2.2 |
@@ -88,17 +88,20 @@ Tools: VACASK (`pss`/`pnoise`, settings in `analog/pn-validation/README.md`), ng
 
 ---
 
-## 5. Owner decisions (all accepted as proposed, 2026-10-19)
+## 5. Owner decisions (D1–D7 accepted as proposed 2026-10-19; D8–D10 2026-10-20)
 
 | # | Decision | Decided |
 |---|---|---|
 | D1 | VCO core type | NMOS cross-coupled first, HBT as comparison |
-| D2 | One wide-range VCO or two cores | One VCO with a 5–6-bit capacitor bank |
+| D2 | One wide-range VCO or two cores | One VCO with a 5–6-bit capacitor bank (bank size changed to 7 bits by D8) |
 | D3 | Where the Σ-Δ modulator lives | Separate small digital PLL block; the back end stays at 0.34 mm² |
 | D4 | VHF LO phases | 8-phase (÷3 then 8-phase ÷8) for the harmonic-reject mixer |
 | D5 | Loop bandwidth | 100–150 kHz; P2.2 picks **150 kHz** for lock time |
 | D6 | Integer-boundary channels on the duplex offset | Meet the spur limit in the PLL; host avoidance only if P2.2 shows it cannot |
 | D7 | LO current budget | ≤ 10 mA of the RX 25 mA |
+| D8 | Capacitor-bank size (2026-10-20) | **7 bits** (KVCO 14–47 MHz/V; keeps the ≈ 400 pF loop filter, `spec/vco-topology.md` §5) |
+| D9 | VCO tail (2026-10-20) | NMOS tail, RC-filtered bias (pole ≤ 10 kHz), tail capacitor 5–10 pF; class-C as a P2.3 variant |
+| D10 | VCO supply (2026-10-20) | Dedicated LDO, voltage set by the LV device limits (about 1.0–1.2 V) |
 
 ---
 

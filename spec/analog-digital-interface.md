@@ -115,9 +115,10 @@ Status: **draft for human review, 2026-10-19.** It records how the signed-off di
 | 0x24 | PLL_CTRL | 0x0E | [0] PLL on in standby (fast wake). [1] MASH enable (0 = integer-N). [2] dither enable. [5:3] charge-pump current, (code + 1) × 25 µA = 25–200 µA (reset code 1 = 50 µA, `analog/pll-model/`). [6] start band calibration (self-clearing) |
 | 0x25 | N_INT | — | Integer part of the feedback divider, 86–131 (3.12 GHz / 36 MHz = 86.7 … 4.20 GHz / 32 MHz = 131.25) |
 | 0x26–0x28 | N_FRAC | 0 | 24-bit fraction, MSB in 0x26. **A write to 0x28 commits N_INT and N_FRAC together**, applied at the next `div_clk` edge (handshake into the `div_clk` domain) |
-| 0x29 | VCO_BAND | 0x20 | [5:0] capacitor-bank code (6 bits, D2). Written by the calibration, or by the host when [7] = 1 (manual) |
+| 0x29 | VCO_BAND | 0x40 | [6:0] capacitor-bank code (7 bits, D8). Written by the calibration, or by the host when [7] = 1 (manual) |
 | 0x2A | PLL_STATUS | — | Read only. [0] lock (synchronised), [1] calibration busy, [2] calibration failed, [3] committed N not yet applied |
 | 0x2B | AFE_FORCE | 0x00 | Test: [7] override; [6:0] force individual enables (§6) on regardless of mode |
+| 0x2C | VCO_BIAS | 0x10 | [4:0] VCO tail-current DAC (D9): amplitude per band, written by the host with the band (or by a later amplitude loop). Range and step set in P2.3 |
 
 RF frequency: **f_RF = (N_INT + N_FRAC / 2²⁴) · f_ref / D**, D = 8 (UHF) or 24 (VHF). Resolution 0.08 Hz (VHF) and 0.24 Hz (UHF) at 32 MHz.
 
@@ -133,7 +134,8 @@ RF frequency: **f_RF = (N_INT + N_FRAC / 2²⁴) · f_ref / D**, D = 8 (UHF) or 
 | `filt_sel` | out | 3 | Filter corner |
 | `hr_en`, `lo8_en` | out | 2 | Harmonic-reject mixer, 8-phase LO |
 | `cp_cur` | out | 3 | Charge-pump current |
-| `vco_band` | out | 6 | Capacitor bank |
+| `vco_band` | out | 7 | Capacitor bank (D8) |
+| `vco_bias` | out | 5 | VCO tail-current DAC (D9) |
 | `div_n` | out | 8 | Modulus for the multi-modulus divider, updated each `div_clk` |
 | `div_clk` | in | 1 | Feedback-divider output (clocks the Σ-Δ and the calibration counter) |
 | `pll_lock` | in | 1 | Lock detector (also to the back end) |
@@ -167,6 +169,6 @@ The enable sequencer has to follow the back end's **effective** mode, including 
 1. Expose `rx_on` / `tx_on` from the back end (§5.4) at the next back-end layout run.
 2. Gain-step values and filter corners: confirm in the Phase 3/4 budget study.
 3. Multi-modulus divider range and `div_n` width (8 bits covers 86–131 plus the MASH 1-1-1 excursion of −3…+4).
-4. Band-calibration algorithm (counter on `div_clk` against `clk`, binary search over 6 bits) and its time inside the 150 µs wake budget.
+4. Band-calibration algorithm (counter on `div_clk` against `clk`, binary search over 7 bits, D8) and its time inside the 150 µs wake budget. The charge-pump code (`PLL_CTRL` [5:3]) and `VCO_BIAS` are set per band so loop bandwidth and swing stay constant while KVCO varies about 3× across the range.
 5. Whether the test-bypass ports (`adc_i/q`, `dac_i/q`) are bonded to anything at chip top or left for simulation only.
 6. Floorplan: digital blocks away from the VCO and LNA, converter lines short, separate supply pads per domain.

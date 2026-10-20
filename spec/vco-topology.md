@@ -1,0 +1,128 @@
+# VCO topology memo (P2.3)
+
+Status: **topology accepted by the owner, 2026-10-20 (D8–D10 as proposed, `decisions.md`). Step 1 device checks done 2026-10-20 (§8); D11 (varactor bias) open.** No schematic exists yet. Numbers here are hand estimates `[HAND]` from `analog/vco/tank_budget.py` and the P2.2 model (`analog/pll-model/`), on the accepted EM tank values (`spec/provisional-tank-q.md`) and the P2.0 phase-noise validation (`reports/phase2-review/p20-flicker.md`).
+
+---
+
+## 1. Requirements
+
+| Item | Value | Source |
+|---|---|---|
+| Range | 3.12–4.20 GHz (VHF ÷24: 130–175 MHz; UHF ÷8 uses 3.20–3.84 GHz) | `spec/rf-frontend.md` §5 |
+| Phase noise at 1 MHz | VHF ≤ −116, UHF ≤ −115 dBc/Hz (at the 600 kHz / 2 MHz duplex offsets: ≤ −108.4 / −117.9) | `spec/phase2-plan.md` §2.1 |
+| Current | VCO 2–4 mA of the ≤ 10 mA LO budget (D7) | §2.4 |
+| Structure | One VCO, switched-capacitor bank (D2: 5–6 bits), NMOS cross-coupled core first, HBT core as comparison (D1) | §5 |
+| Tank | L2n0, L 1.69 nH ± 3 %, Q 14.2 / 15.3 / 16.9 at 3.12 / 3.5 / 4.2 GHz | P2.0 |
+| Temperature, corners | −40 to +85 °C, PDK corners | `spec/rf-frontend.md` §6 |
+| Settling | Band calibration + lock inside 150 µs | §5 |
+
+## 2. Tank budget
+
+Design range 3.00–4.37 GHz (band edges ± 4 % for capacitor spread, parasitic uncertainty and temperature), on top of the ± 3 % L uncertainty:
+
+- Differential tank capacitance needed: **1 717 fF** at the low edge (L − 3 %) down to **762 fF** at the high edge (L + 3 %). Ratio 2.25; the bank and varactor must switch 955 fF.
+- **Everything fixed must fit in 762 fF differential** at the high edge: core transistors, inductor self-capacitance, the bank's off-capacitance, the varactor minimum, the buffer input and routing. Rough split `[HAND]`: core ≈ 40, inductor ≈ 45, bank off-state ≈ 320 (for an on/off ratio of 4), varactor ≈ 20, buffer ≈ 15, routing ≈ 25 fF → ≈ 465 fF, leaving ≈ 300 fF margin. **The bank's on/off ratio at an acceptable Q is the main tuning-range risk.**
+- Bank Q: each switched unit needs Q ≥ about 80 at 4.2 GHz so the bank costs ≤ 15 % of tank Q (assumed in the estimates below). This sets the switch size and therefore the off-capacitance; step 1 measures the trade-off.
+
+## 3. Proposed topology
+
+```
+                VDD_VCO (dedicated LDO, about 1.0–1.2 V, from VR_ANA1)
+                          │
+                    ┌─────┴─────┐  L2n0 (centre tap to VDD_VCO)
+                    │           │
+          tank+ ────┤           ├──── tank−    → CML buffer → ÷2 (CML) → dividers (P2.4)
+                    │           │
+    7-bit cap bank ═╪═══════════╪═  MIM + NMOS switch per bit, differential
+    varactor pair  ═╪═══════════╪═  sg13_hv_svaricap, well = Vtune (loop filter)
+                    │           │
+                M1 ─┴─┐     ┌───┴─ M2      NMOS LV cross-coupled pair (D1)
+                      └──┬──┘
+                         │ tail node ── C_tail (5–10 pF MIM): shunts tail noise near 2 f0
+                         │
+                        Mt   NMOS tail, long L (≥ 2 µm), current DAC 4–5 bits (amplitude per band)
+                         │
+                bias ── RC low-pass (pole ≤ 10 kHz) ── reference current
+```
+
+1. **Core: NMOS LV cross-coupled pair** (D1), because the simulation method is validated on exactly this circuit. Swing about 1.0 V differential (0.5 V per side): the peak gate–source, drain–source and gate–drain voltages must stay inside the LV device limits, which step 1 confirms from the PDK documentation. The VCO supply is set from that, not the other way round.
+2. **Tail: NMOS current source with two filters**, the two noise paths P2.0 measured:
+   - an RC low-pass on the tail bias (pole ≤ 10 kHz, MOS capacitor about 50 pF) against the reference mirror's flicker noise, which put the corner at 615 kHz without it;
+   - a capacitor at the tail node (5–10 pF) against the tail transistor's noise near 2 f0, which added 70–90 % on top in P2.0. A resonant 2 f0 tail filter (Hegazi) would do better but needs a second inductor and cannot follow a 30 % tuning range, so it is not proposed.
+   - The tail transistor's own flicker is reduced by area (long L); NMOS against PMOS flicker in SG13G2 is checked in step 1.
+3. **Amplitude per band:** the tail current is a 4–5-bit DAC, set per band so the swing stays at the reliability limit (about 2.5 mA at 4.2 GHz, 3.9 mA at 3.12 GHz, `[HAND]`). A peak detector for a closed amplitude loop is an option for P2.3; it adds a block to the AFE/LO control.
+4. **Capacitor bank: 7 bits, binary, differential MIM + NMOS switch** (proposed change from D2's 5–6 bits, §5 D8).
+5. **Varactor: `sg13_hv_svaricap`** (accumulation-mode, thick oxide, PDK device), gates on the tank, well on the tuning line. Small: about 10 fF swing with 7 bits. Its C–V curve and Q set the usable tuning window, assumed 0.6 V here; a wider window lowers KVCO further.
+6. **Supply: a dedicated LDO for the VCO.** Frequency pushing turns supply noise into phase noise exactly like tail noise; the LDO's own noise is budgeted in step 3.
+7. **Buffer:** a differential CML buffer between the tank and the first ÷2, so divider kick-back and the load change between ÷8 and ÷24 do not pull the tank. Its input capacitance is in the 762 fF budget.
+
+**Variant for comparison (D1): SiGe HBT cross-coupled core** (`npn13G2`), larger swing (≈ 1.6 V differential), low flicker. It is about 5 dB better on paper but needs 4–6 mA at the low edge (above the 4 mA VCO share of D7) and a higher supply. It is simulated in P2.3 as the comparison, not as the baseline.
+
+**Not proposed:**
+- Complementary (NMOS + PMOS) core: half the current for the same swing, but the PMOS pair adds capacitance that the 762 fF budget cannot spare at 30 % tuning range.
+- Two VCO cores: rejected in D2 (twice the inductor area).
+
+## 4. Estimates
+
+Leeson, tank Q × 0.85 for bank and varactor loss, current-limited swing (`analog/vco/tank_budget.py`) `[HAND]`:
+
+| Core | 3.12 GHz | 3.65 GHz | 4.20 GHz | Current |
+|---|---|---|---|---|
+| A: NMOS, 1.0 V swing, F = 3 | −124.8 | −123.1 | −121.7 dBc/Hz | 3.9 / 3.1 / 2.5 mA |
+| A′: same, F = 4 (residual tail and bias noise) | −123.5 | −121.9 | −120.4 dBc/Hz | same |
+| C: HBT, 1.6 V swing, F = 2.5 | −129.7 | −128.0 | −126.5 dBc/Hz | 6.3 / 4.9 / 3.9 mA |
+
+Against the ≤ −116 / −115 dBc/Hz targets, core A has about 4–9 dB of margin before the losses this estimate leaves out (varactor AM-to-PM, supply pushing, buffer loading, corners). The worst case is the high edge: phase noise scales with (f0 / Q)², and f0 rises faster than Q across the range.
+
+## 5. Decisions (accepted as proposed, 2026-10-20)
+
+| # | Decision | Proposal | Reason |
+|---|---|---|---|
+| **D8** | Capacitor-bank size (changes D2) | **7 bits** instead of 6 | P2.2 rerun: the band step grows as f³ across the range, so a 6-bit bank needs KVCO 29–94 MHz/V. At 94 MHz/V the loop-filter resistor noise fails the VHF duplex limit (−135.3 dBc/Hz against −136) unless the charge-pump current rises to 50 µA, which needs about 950 pF of loop filter (2.4×; ≈ 0.12 mm² instead of ≈ 0.05 mm² as MOS capacitors). 7 bits needs 14–47 MHz/V; at 48 MHz/V with 42 µA the model passes with the original ≈ 400 pF. Cost: one more calibration step and one more register bit (`VCO_BAND` [6:0]; [7] stays manual) |
+| **D9** | Tail treatment | **NMOS tail + RC-filtered bias + tail capacitor** (§3 item 2) | Removes both noise paths measured in P2.0 with standard parts; class-C biasing (gates biased below threshold through coupling capacitors, large tail capacitor) is evaluated as a variant in P2.3, not chosen now |
+| **D10** | VCO supply | **Dedicated LDO**, voltage set by the LV device limits (about 1.0–1.2 V) | Supply pushing; isolation from the dividers and the digital blocks |
+
+Interface consequences (applied to `spec/analog-digital-interface.md` on 2026-10-20): `VCO_BAND` becomes 7 bits; a new register for the VCO tail-current DAC (proposed 0x2C, `VCO_BIAS` [4:0]), written per band by the host or by the calibration; the charge-pump current code in `PLL_CTRL` [5:3] (25–200 µA) is also set per band to keep the loop bandwidth constant while KVCO varies about 3× across the range.
+
+## 6. Step 1 — device checks before the schematic
+
+All in VACASK on the pinned PDK, each a small testbench:
+
+1. **LV NMOS voltage limits** from the PDK documentation, and the resulting swing and VCO supply.
+2. **`sg13_hv_svaricap`:** C–V and Q at 3–4.4 GHz against tuning voltage; sets the varactor size and the tuning window.
+3. **Bank unit cell** (MIM + NMOS switch): on/off capacitance ratio against Q for a few switch widths; decides whether the 762 fF budget holds.
+4. **Flicker of NMOS against PMOS** current sources of equal area (tail choice).
+5. **Inductor model:** a lumped broadband model fitted to the de-embedded EM data (2.0–4.5 GHz), so pss/pnoise can use it; checked against the EM L and Q within 1 %.
+
+## 7. P2.3 after the review
+
+| Step | Work | Gate |
+|---|---|---|
+| 1 | Device checks (§6) | Result review: confirms or changes §2–3 |
+| 2 | Core schematic with the EM inductor model; bank, varactor, tail, buffer | — |
+| 3 | `pnoise` (16 000 points, offsets ≥ 30 kHz) across bands, PDK corners, −40/27/85 °C; tuning range and KVCO per band; supply pushing; HBT comparison | Result review against §1 |
+
+Simulation settings and method: `analog/pn-validation/README.md`. Offsets below 30 kHz need `pss_minpts` × offset ≥ 5·10⁸.
+
+## 8. Step 1 results (2026-10-20) and what they change
+
+Source: `analog/vco/step1/` (`run_step1.py`, results in its README). Typical corner, 27 °C.
+
+| Item | Result | Change to §2–3 |
+|---|---|---|
+| Swing `[DS]` | LV `VGS ≤ 1.65 V @ 125 °C` (process spec). With 10 % margin and drain headroom over a 0.35 V tail node: **1.5 V differential at a 1.1 V centre tap** | D10 LDO at about 1.1 V. Swing is current-limited at the low edge (about 1.05 V at 4 mA) and voltage-limited at the high edge (1.5 V at 3.3 mA) |
+| Bank cell `[SCH]` | 2 × `cap_rfcmim` 9 × 9 µm + LV NMOS switch, bottom plates to the switch. **About 100 µm of switch per 60 fF, 200 kΩ bias resistors**: whole 7-bit bank keeps 0.89 (all on, 3.12 GHz) / 0.97 (all off, 4.2 GHz) of tank Q; 391 fF off-state capacitance, **+226 fF** left in the 762 fF budget. 20 kΩ bias resistors made the off state lossy (Q_off 6–50) | Bias resistors ≥ 200 kΩ |
+| Tail `[SCH]` | At the real 0.35 V tail voltage the HV NMOS keeps 74 % of its current (no headroom), LV NMOS 85 %. **LV NMOS 160/4 µm**: flicker corner 0.14–0.32 MHz, at 600 kHz within 1.5× of the white floor; LV PMOS worst (3.2 MHz corner at 80/2 µm) | Tail: LV NMOS ≥ 160/4 µm |
+| Inductor `[EM]→[SCH]` | Lumped model `analog/vco/models/l2n0_lumped.inc`, L and Q within 0.71 % of EM (3.0–4.37 GHz); self-capacitance 30 fF. The EM layout has **no centre tap**; the model assumes one at the electrical midpoint | Tapped layout needs EM before P2.7 |
+| Varactor `[SCH]` | Per finger (3.74 × 0.3 µm per side): 3.7 → 2.1 fF differential from V_G − V_W = +1.2 to −1.2 V; steepest about 1.4 fF/V near **V_G − V_W ≈ −0.3 V**; Q 110–190 at 4.2 GHz. Needed: about 10 fF over the tuning window → **about 12 fingers** (two instances, `nx` = 6) for a 0.7 V window | See D11 |
+
+Phase noise with these numbers (Leeson, bank loss as measured, F = 3–4, 4 mA at the low edge): about −124 to −126 dBc/Hz at 1 MHz across the range, 8–10 dB under the targets `[HAND]`.
+
+**D11 — varactor bias (owner decision).** With the varactor gates at the tank DC (1.1 V), its steep region sits at a tuning voltage of about 1.4 V, above what a charge pump on the 1.2 V domain can deliver. Two common ways:
+
+| Option | How | Cost |
+|---|---|---|
+| **A (proposed): AC-coupled varactor** | Varactor gates connected to the tank through MIM capacitors (about 5× the varactor capacitance), gates DC-biased to about 0 V through large resistors, so the steep region falls at a tuning voltage of about 0.3–1.0 V; charge pump and loop filter stay on 1.2 V LV devices | Coupling MIMs and bias resistors (their noise reaches the varactor, so ≥ 100 kΩ, checked in step 3); about 30 % less varactor swing through the coupling capacitors (so about 17 fingers instead of 12) |
+| B: high-voltage charge pump | Charge pump and loop filter on the 2.7–3.6 V supply with HV devices; tuning window about 1 V or more | The ≈ 400 pF loop filter needs HV capacitors (lower density than LV MOS caps, or MIM at 1.5 fF/µm²): roughly 2× the filter area; KVCO halves, which helps noise |
+
+Note on the PDK: the VACASK conversion of `sg13_hv_svaricap` does not elaborate (`v(2,4)` in its well resistance); step 1 uses a local copy with those zero-coefficient terms removed. To be reported upstream.

@@ -173,3 +173,10 @@ P2.2 linear model (`analog/pll-model/`, all inputs `[PROP]`): passes at 150 kHz 
 - Design tank Q and L of SG13_Octagon_L2n0 from P2.0 stage 2 (`reports/phase2-review/p20-stage2.md`): Palace, filled metals + via fill-factor correction, 1 µm (converged), de-embedded. Q 14.2 / 15.3 / 15.5 / 16.9 at 3.12 / 3.5 / 3.65 / 4.2 GHz; L 1.69 nH. Replaces the provisional 14.9 (`spec/provisional-tank-q.md`).
 - openEMS 0.7 µm agrees within 1.6 % in Q; L differs by a constant 3 %, carried as ±3 % L uncertainty for VCO tuning (P2.3).
 - Stage 3 not run (not needed for the decision). The flicker-region pnoise check remains open in P2.0.
+
+## 2026-10-20 — VCO topology (P2.3), D8–D10
+Accepted as proposed in `spec/vco-topology.md` §5, after a comparison with common industry practice:
+- D8 capacitor bank 7 bits instead of D2's 5–6: KVCO 14–47 MHz/V instead of 29–94; at 94 MHz/V the loop-filter resistor noise failed the VHF duplex limit (P2.2 rerun: −135.3 against −136 dBc/Hz) unless the loop filter grew to about 950 pF. `VCO_BAND` becomes [6:0].
+- D9 VCO tail: NMOS current source, RC-filtered bias (pole ≤ 10 kHz), tail capacitor 5–10 pF; class-C biasing evaluated as a variant in P2.3. New register `VCO_BIAS` (0x2C) for the tail-current DAC.
+- D10 dedicated LDO for the VCO, voltage set by the LV device limits (about 1.0–1.2 V).
+- Core as D1 (NMOS cross-coupled, HBT comparison); varactor `sg13_hv_svaricap`; CML buffer before the dividers. Next: device checks (`spec/vco-topology.md` §6).
