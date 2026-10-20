@@ -2,7 +2,7 @@
 
 Phase 2 prerequisite (`spec/phase2-plan.md`, step P2.0; `reports/phase0-review/em-l2n0.md`). Goal: replace the **provisional tank Q** (openEMS 1 µm: 14.9 at 3.5 GHz) with a mesh-converged value, and explain the Phase 0 gap (Palace Q 18.7 vs openEMS 14.9).
 
-Status: **stage 1 done 2026-10-19** (results and analysis: `reports/phase2-review/p20-stage1.md`); stage 2 next.
+Status: **stages 1 and 2 done 2026-10-20** (`reports/phase2-review/p20-stage1.md`, `reports/phase2-review/p20-stage2.md`). Filled-metal Palace converged and agrees with openEMS 0.7 µm within 1.6 % in Q. Stage 3 is optional and not needed for the design value. Design Q 15.3 at 3.5 GHz accepted 2026-10-20 (`spec/provisional-tank-q.md`).
 
 ## Method
 
@@ -39,6 +39,7 @@ EM_NPROC=8 ./run_p20.sh stage3      # optional, heavy: oem05 pal1 pal2o3 palamr
 - **Do not run stage 2 blind.** Start with stage 1 and look at the times and memory in the logs. Reference points:
   - The upstream 115 µm spiral needed 2 m 20 s / 5.5 GB at 2 µm and 5 m / 9.7 GB at 1 µm on 16 cores. L2n0 with its 150 µm margin is larger.
   - openEMS at 0.5 µm has roughly 4–8× the cells of 1 µm (1.55 M) and a halved time step, so expect 10–15× the 1 µm run time.
+  - Measured on 8 processes: stage 1 about 54 min; stage 2 3 h 42 min, of which `oem07` alone took 2 h 55 min (6.6× `oem1`). `oem05` is estimated at 8–15 h.
 - No repository files are changed by the runs (everything goes to the git-ignored `out/` and `palace_model/`).
 
 ## What to send back

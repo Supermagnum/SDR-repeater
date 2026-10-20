@@ -11,9 +11,9 @@
 
 | Phase | Content | Status |
 |---|---|---|
-| 0 | Toolchain pinning, EM baseline (inductor L2n0) | Done. Matched-mesh EM study (P2.0): stage 1 done (`reports/phase2-review/p20-stage1.md`) — Palace surface model converged but reads Q high; best estimate Q ≈ 15.5–16 at 3.5–3.65 GHz; provisional 14.9 kept until stage 2 (filled-metal Palace, openEMS 0.7 µm) |
+| 0 | Toolchain pinning, EM baseline (inductor L2n0) | Done. Matched-mesh EM study (P2.0): stages 1–2 done (`reports/phase2-review/p20-stage1.md`, `p20-stage2.md`) — filled-metal Palace converged and agrees with openEMS 0.7 µm within 1.6 % in Q; L differs by a constant 3 %. Design Q 15.3 at 3.5 GHz (L 1.69 nH ± 3 %) accepted 2026-10-20, replacing the provisional 14.9 |
 | 1 | Digital back end (SPI, decimation, I2S, TX interpolation and Σ-Δ, power control) | **Signed off on `phase1l`** (section 7). Awaiting the human Phase 1 review gate |
-| 2 | LO: VCO 3.12–4.20 GHz, ÷8 / ÷24 dividers, quadrature | Plan in `spec/phase2-plan.md`; owner decisions D1–D7 accepted; P2.2 PLL model first run passes (`analog/pll-model/`, 150 kHz loop, VCO ≤ −116 dBc/Hz at 1 MHz); P2.0 (EM inductor study) and P2.3 onward not started; requirements in `spec/rf-frontend.md` §5; phase-noise simulation validated (`analog/pn-validation/`) |
+| 2 | LO: VCO 3.12–4.20 GHz, ÷8 / ÷24 dividers, quadrature | Plan in `spec/phase2-plan.md`; owner decisions D1–D7 accepted; P2.2 PLL model first run passes (`analog/pll-model/`, 150 kHz loop, VCO ≤ −116 dBc/Hz at 1 MHz); P2.0 EM study done and accepted (flicker check done); P2.3 onward not started; requirements in `spec/rf-frontend.md` §5; phase-noise simulation validated (`analog/pn-validation/`) |
 | 3 | RX: LNA, passive mixer, TIA, Σ-Δ modulator | Not started. Requirements in `spec/rf-frontend.md` §3 and `spec/derived-limits.md` |
 | 4 | TX: Σ-Δ DAC, reconstruction filter, IQ modulator, PA driver | Not started. Requirements in `spec/rf-frontend.md` §4 and `spec/derived-limits.md` |
 | 5 | Integration: single-chain die, pad ring, top level | Not started. Analogue–digital interface and the new AFE/LO control block drafted in `spec/analog-digital-interface.md` (needs `rx_on`/`tx_on` exposed from the back end at the next layout run) |
@@ -197,8 +197,8 @@ Closed since the previous handoff: output scale (FS 16 384), SPI/I2S I/O constra
 - **Derived limits** (`spec/derived-limits.md`) assume 25 W, 80 dB duplexer isolation, ≤ 1 dB desense, and a system NF of 8 dB with the attenuator front end (baseline) or 5 dB with an LNA (option), see `spec/derived-limits.md` §8. Reviewer to confirm isolation and power. Regulatory limit from ITU RR App. 3; confirm against current Nkom licence conditions.
 - **Phase 3/4 analogue requirements** derived from those limits: LO phase noise ≤ −136 dBc/Hz at the duplex offset (25 W, baseline; −139 with the LNA option), RX ADC DR ≥ 101 dB in 12.5 kHz (104), anti-alias ≥ 40 dB at ±8/9 MHz and ≥ 70 dB at ±32/36 MHz, TX reconstruction filter ≥ 51 dB at 600 kHz and ≥ 71 dB at 2 MHz (54 / 74 with the LNA option), VHF third-harmonic rejection (harmonic-reject mixer or preselector).
 - **500 kHz TX** is for simplex/LinHT use only; a repeater transmits at ≤ 200 kHz IQ.
-- **Tank Q** — provisional openEMS values 11.8 (2.4 GHz) / 14.9 (3.5 GHz); Palace about 20–26 % higher. Matched-mesh, de-embedded study required before Phase 2.
-- **VCO phase noise** — VACASK `pnoise` (oscillator mode) validated 2026-10-19 against the exact LC result (worst 0.19 dB, 100 kHz–20 MHz) and against transient noise on an SG13G2 oscillator (0.5 dB). Thermal region only; the flicker region close to the carrier is not yet validated (`analog/pn-validation/`).
+- **Tank Q** — EM design values from P2.0 (`spec/provisional-tank-q.md`): Q 14.2 / 15.3 / 16.9 at 3.12 / 3.5 / 4.2 GHz, L 1.69 nH ± 3 %. Conservative simulated values; confirmed only by measurement after fabrication.
+- **VCO phase noise** — VACASK `pnoise` (oscillator mode) validated 2026-10-19 against the exact LC result (worst 0.19 dB, 100 kHz–20 MHz) and against transient noise on an SG13G2 oscillator (0.5 dB). Flicker region validated 2026-10-20: exact case 0.2 dB, SG13G2 with a real tail by tone injection 0.48 dB (`reports/phase2-review/p20-flicker.md`). Settings for P2.3: `pss_minpts` 16 000, offsets ≥ 30 kHz. Transient noise is not a usable reference for transistor circuits (14 fs steps).
 - **LinHT interface facts** — provisional until Rev C is validated and its board files are read.
 
 ---

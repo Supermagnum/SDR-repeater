@@ -1,0 +1,50 @@
+Phase-noise validation level 4, transient-noise reference (slow: 1-3 h)
+
+// Level 2 with the ideal, noiseless tail replaced by an sg13_lv_nmos current mirror
+// (0.5 mA ideal reference, ratio 1:4 -> 2 mA, L = 0.5 um, no bias-node filter capacitor).
+// The mirror and the pair now contribute flicker noise, and the tail current is modulated
+// by the oscillation, so a 1/df^3 region is expected close to the carrier. There is no
+// closed form: the reference is VACASK transient noise (level4_tran.sim), which also
+// generates flicker noise (noisefmin).
+
+ground 0
+
+include "sg13g2_vacask_common.lib"
+include "cornerMOSlv.lib" section=mos_tt
+
+load "resistor.osdi"
+load "capacitor.osdi"
+load "inductor.osdi"
+
+model resistor  resistor
+model capacitor capacitor
+model inductor  inductor
+model vsource   vsource
+model isource   isource
+
+vdd  (vdd 0)  vsource dc=1.2
+l1   (vdd lp) inductor  l=1n
+r1   (lp vp)  resistor  r=1.466 noisy=1
+l2   (vdd lm) inductor  l=1n
+r2   (lm vm)  resistor  r=1.466 noisy=1
+c1   (vp 0)   capacitor c=1.8p
+c2   (vm 0)   capacitor c=1.8p
+m1   (vp vm tail 0) sg13_lv_nmos w=20u l=0.13u ng=4
+m2   (vm vp tail 0) sg13_lv_nmos w=20u l=0.13u ng=4
+iref (vdd nb) isource dc=0.5m
+mr   (nb nb 0 0)    sg13_lv_nmos w=20u l=0.5u ng=2
+mt   (tail nb 0 0)  sg13_lv_nmos w=80u l=0.5u ng=8
+// Start-up kick, well before the shooting window
+ik   (0 vm) isource type="pulse" val0=0 val1=1m delay=1n rise=50p fall=50p width=200p
+
+control
+  abort always
+  options rawfile="binary" strictsave=1
+  options reltol=1e-6 pss_tolscale=1e-3
+  // Noiseless start-up to the limit cycle, then a long noisy run. 80 us gives 28 kHz
+  // resolution with 2 Welch segments; flicker is generated down to noisefmin = 10 kHz,
+  // below the 50 kHz start of the fit.
+  analysis tst tran stop=80n step=5p maxstep=5p store="ss"
+  save v(vp) v(vm)
+  analysis tn4 tran stop=80.5u step=5p maxstep=5p ic="ss" icmode="uic" noisemode="zoh" noisefmax=50G noisefmin=10k oversample=1
+endc
