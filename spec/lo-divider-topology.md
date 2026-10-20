@@ -123,4 +123,4 @@ Source: `analog/lo/step2/` (VCO from P2.3, 4 mA cap, D12) `[SCH]`, typical (1.2 
 
 **D15 (owner, 2026-10-20): sequenced divider enable.** `en_lodiv` is raised by the AFE sequencer about 1 µs after `en_vco` (VCO start-up is tens of ns), and pulsed low again after a band change (`BAND`, `VCO_BAND` writes) and when the PLL fails to lock within its window. Applies to both chains (the ÷2 showed no trap, but the cost is nil). No extra current; a few gates in the AFE block (`spec/analog-digital-interface.md` §6).
 
-**Step 3 (next):** corners and temperature (typical, slow, fast; −40 / 27 / 125 °C) including the low-swing fast/85 °C VCO case, Monte Carlo of the phase and duty errors, the chain noise floor (target ≤ −150 dBc/Hz at the LO output), and the current at every corner.
+**Step 3 (prepared, `analog/lo/step3/`):** corners and temperature (typical, slow, fast; −40 / 27 / 125 °C) including the low-swing fast/85 °C VCO case, Monte Carlo of the phase and duty errors, the chain noise floor (target ≤ −150 dBc/Hz at the LO output), and the current at every corner.
