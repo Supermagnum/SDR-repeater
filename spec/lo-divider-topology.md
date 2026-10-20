@@ -1,6 +1,6 @@
 # LO divider and phase-generation topology memo (P2.4)
 
-Status: **topology accepted by the owner, 2026-10-20 (§4: D12 VCO capped at 4 mA, D13 and D14 as proposed). Step 1 done 2026-10-20 (§7): TSPC and the converter pass; the CML ÷2 / ÷3 need a clock of ≥ 0.5 V per side at the slow corner, which becomes the VCO-buffer requirement. Step 2 (buffer and both chains with the VCO) next.** Numbers are hand estimates `[HAND]` unless marked. Inputs: the simulated VCO (`spec/vco-topology.md` §9), D4 and D7 (`spec/phase2-plan.md` §5), `spec/rf-frontend.md` §3–5, `spec/derived-limits.md` §7.3–7.4.
+Status: **topology accepted by the owner, 2026-10-20 (§4: D12 VCO capped at 4 mA, D13 and D14 as proposed). Step 1 done 2026-10-20 (§7): TSPC and the converter pass; the CML ÷2 / ÷3 need a clock of ≥ 0.5 V per side at the slow corner, which becomes the VCO-buffer requirement. Step 2 (buffer and both chains with the VCO, `analog/lo/step2/`) in progress (§8): every case divides correctly once the CML divider is enabled after the VCO has full swing (D15, decided 2026-10-20); full rerun pending.** Numbers are hand estimates `[HAND]` unless marked. Inputs: the simulated VCO (`spec/vco-topology.md` §9), D4 and D7 (`spec/phase2-plan.md` §5), `spec/rf-frontend.md` §3–5, `spec/derived-limits.md` §7.3–7.4.
 
 ---
 
@@ -98,3 +98,20 @@ Source: `analog/lo/step1/` (VACASK, PDK `a49358cc`) `[SCH]`. Ideal clocks and su
 **LO current with D12** `[HAND]`: VHF ≈ VCO 4 + buffer 1 + ÷3 2.5 + Johnson and converter 0.6 + PLL 1.5 = **9.6 mA**; UHF ≈ 4 + 1 + 1.0 + 0.6 + 1.5 = **8.1 mA** (D7: ≤ 10 mA). The VHF margin is small; the buffer is the item to watch.
 
 **Buffer note for step 2:** the VCO tank swings about 0.41 V per side at the bottom band with the 4 mA cap, so a capacitor-coupled tap of the tank alone does not reach 0.5 V with margin. Step 2 designs the buffer for ≥ 0.5 V per side into the divider inputs at all corners.
+
+## 8. Step 2 — buffer and chains with the VCO (in progress, 2026-10-20)
+
+Source: `analog/lo/step2/` (VCO from P2.3, 4 mA cap) `[SCH]`. Buffer: capacitor-coupled self-biased CMOS inverters (2/4 then 6/12 µm) with cross-coupled anti-phase inverters; converter with a tapered clock driver (to 9/18 µm); TSPC flip-flops size 2; every output retimed by a TSPC flip-flop on the divided clock.
+
+Interim results (full rerun of the 8 cases with D15 pending):
+
+| Case | Result |
+|---|---|
+| Typical, all four | Correct; UHF phase errors ≤ 0.8°, duty about 25 %; VHF ≤ 0.18°, duty about 50 % |
+| UHF slow 3.20 / 3.84 GHz | Correct, phase errors ≤ 0.46°; **duty 21 %** instead of 25 % (TSPC output rises one gate later than it falls); `pq` check pending |
+| VHF slow 3.12 GHz | Correct, ≤ 0.07°; buffer 0.44–0.47 V per side (need 0.45), marginal |
+| VHF slow 4.20 GHz | Failed with the divider on from t = 0; **correct with the divider enabled at 35 ns**: ≤ 0.12°, duty 48.7–49.6 %; buffer 0.77, CML 2.51, converter 0.63, CMOS logic 0.30 mA |
+
+**Start-up trap (finding).** A CML divider that is on while its clock is absent free-runs (here about 2.2–3.1 GHz at 0.15–0.17 V). Step-1 check `div3s` at the slow corner: with the clock ramping up (5 or 20 ns) the ÷3 stays in that state at 4.41 GHz, even with 0.6 or 0.75 V final swing; enabled after the clock is up it divides at 3.12, 4.21 and 4.41 GHz. Clock shape, duty cycle (40–50 %), converter load and latch current were ruled out first (`div3x`).
+
+**D15 (owner, 2026-10-20): sequenced divider enable.** `en_lodiv` is raised by the AFE sequencer about 1 µs after `en_vco` (VCO start-up is tens of ns), and pulsed low again after a band change (`BAND`, `VCO_BAND` writes) and when the PLL fails to lock within its window. Applies to both chains (the ÷2 showed no trap, but the cost is nil). No extra current; a few gates in the AFE block (`spec/analog-digital-interface.md` §6).
