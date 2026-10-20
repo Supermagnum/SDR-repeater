@@ -180,3 +180,12 @@ Accepted as proposed in `spec/vco-topology.md` §5, after a comparison with comm
 - D9 VCO tail: NMOS current source, RC-filtered bias (pole ≤ 10 kHz), tail capacitor 5–10 pF; class-C biasing evaluated as a variant in P2.3. New register `VCO_BIAS` (0x2C) for the tail-current DAC.
 - D10 dedicated LDO for the VCO, voltage set by the LV device limits (about 1.0–1.2 V).
 - Core as D1 (NMOS cross-coupled, HBT comparison); varactor `sg13_hv_svaricap`; CML buffer before the dividers. Next: device checks (`spec/vco-topology.md` §6).
+
+## 2026-10-20 — VCO step 1 results; D11 varactor bias
+- Step 1 device checks (`spec/vco-topology.md` §8): 1.5 V differential swing at a 1.1 V centre tap (LV oxide limit with 10 % margin); bank cell about 100 µm of switch per 60 fF with 200 kΩ bias resistors (bank keeps 0.89–0.97 of tank Q, +226 fF budget margin); tail LV NMOS ≥ 160/4 µm; L2n0 lumped model within 0.71 %.
+- D11: **AC-coupled varactor** (option A): `sg13_hv_svaricap` behind coupling MIMs of about 5×, gates biased through ≥ 200 kΩ, so the steep part of the C–V curve falls in the 1.2 V charge-pump range. Option B (charge pump and loop filter on the 2.7–3.6 V supply) not chosen: about twice the loop-filter area.
+
+## 2026-10-20 — P2.3 VCO result review
+- Accepted: about 5 % more switched capacitance in the bank (`spec/vco-topology.md` §9, point 2), so the bottom edge keeps margin below 3.12 GHz at the MIM best-case corner with the ± 3 % inductance uncertainty. Step 2 sizing target 955 → 1003 fF; steps 2–3 to be rerun.
+- Not chosen at this review: the 4 mA cap on the tail current (the bottom bands keep 5 mA; the LO current budget D7 is checked again with the dividers in P2.4) and an amplitude calibration. The remaining items of §9 (supply pushing, real buffer and divider load, HBT comparison, tapped-inductor EM) stay open.
+- Rerun after the review (2026-10-20): range 2.90–4.41 GHz; bottom edge at the MIM best-case corner 3.036–3.047 GHz (73–84 MHz margin); phase noise unchanged within 1 dB, worst margin +3.6 dB (4.20 GHz, slow corner, 85 °C). P2.3 schematic phase closed; open points in `spec/vco-topology.md` §9.

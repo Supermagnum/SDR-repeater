@@ -1,6 +1,6 @@
 # P2.3 step 3 — VCO across bands, corners and temperature
 
-The step-2 VCO (`analog/vco/step2/`, sizes from its `out/range.json`) checked against the requirements in `spec/vco-topology.md` §1. Status: **done 2026-10-20** — all parts pass; results and open points in `spec/vco-topology.md` §9. One pss at the slow corner (4.20 GHz) needed the 8000-point fallback (offsets ≥ 62 kHz accurate).
+The step-2 VCO (`analog/vco/step2/`, sizes from its `out/range.json`) checked against the requirements in `spec/vco-topology.md` §1. Status: **done 2026-10-20, rerun after the review (5 % more bank range) also passes** — results and open points in `spec/vco-topology.md` §9. One pss at the slow corner (4.20 GHz) needed the 8000-point fallback (offsets ≥ 62 kHz accurate).
 
 ```bash
 cd /foss/designs/analog/vco/step3
