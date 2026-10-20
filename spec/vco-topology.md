@@ -1,6 +1,6 @@
 # VCO topology memo (P2.3)
 
-Status: **topology accepted by the owner, 2026-10-20 (D8–D10 as proposed, `decisions.md`). Step 1 device checks done 2026-10-20 (§8); D11 accepted 2026-10-20 (AC-coupled varactor). Steps 2–3 (schematic, bands, corners, temperature) done 2026-10-20: all bands and corners meet the phase-noise targets, worst margin +3.6 dB (§9). Result review 2026-10-20: 5 % more switched capacitance accepted and rerun (§9, final numbers); the other open points of §9 stay open. P2.3 schematic phase done.** Numbers here are hand estimates `[HAND]` from `analog/vco/tank_budget.py` and the P2.2 model (`analog/pll-model/`), on the accepted EM tank values (`spec/provisional-tank-q.md`) and the P2.0 phase-noise validation (`reports/phase2-review/p20-flicker.md`).
+Status: **topology accepted by the owner, 2026-10-20 (D8–D10 as proposed, `decisions.md`). Step 1 device checks done 2026-10-20 (§8); D11 accepted 2026-10-20 (AC-coupled varactor). Steps 2–3 (schematic, bands, corners, temperature) done 2026-10-20: all bands and corners meet the phase-noise targets, worst margin +3.6 dB (§9). Result review 2026-10-20: 5 % more switched capacitance accepted and rerun (§9, final numbers); the other open points of §9 stay open. P2.3 schematic phase done. Rerun with the 4 mA cap (D12) 2026-10-20: bottom band only 0.3–0.7 dB worse, worst margin unchanged at +3.6 dB (§9).** Numbers here are hand estimates `[HAND]` from `analog/vco/tank_budget.py` and the P2.2 model (`analog/pll-model/`), on the accepted EM tank values (`spec/provisional-tank-q.md`) and the P2.0 phase-noise validation (`reports/phase2-review/p20-flicker.md`).
 
 ---
 
@@ -139,23 +139,24 @@ Source: `analog/vco/step2/`, `analog/vco/step3/` (VACASK, PDK `a49358cc`) `[SCH]
 | Range at 5 corner combinations × −40 / 27 / 85 °C | Covered everywhere: top 4.34–4.55 GHz, bottom 2.77–3.05 GHz. Least margin at the bottom: MIM best-case corner, 3.036–3.047 GHz, 73–84 MHz below 3.12 GHz (32–45 MHz before the review), enough for the ± 3 % inductance uncertainty (about ± 47 MHz) |
 | KVCO | 13.1–38.6 MHz/V (D8 target 14–47) |
 | Peak V_GS / V_GD | ≤ 1.48 V at all corners (limit 1.5 V with margin, 1.65 V in the process specification) |
-| Tail current for about 1.3 V | 3.4–3.6 mA at the top, 5 mA (capped) at the bottom |
+| Tail current for about 1.3 V | 3.4–3.6 mA at the top; **capped at 4 mA** (D12) from about 3.65 GHz down (5 mA before D12) |
+| Swing at the bottom (4 mA) | 0.92 V differential typical; lowest 0.59 V (fast MOS, MIM worst case, 85 °C) and 0.64 V (slow, 85 °C) |
 | pss tolerance | reltol 1e-6 gives the same result as 1e-7 on the validated level 2 (0.00 dB); 1e-7 does not converge on the full VCO |
 
-Phase noise, typical, 27 °C (dBc/Hz), after the review (codes 97 / 67 / 45 / 28 / 11):
+Phase noise, typical, 27 °C (dBc/Hz), with the 4 mA cap (D12, rerun 2026-10-20; codes 97 / 67 / 45 / 28 / 11). In brackets: before D12 (5 mA cap).
 
 | VCO | I_tail | 600 kHz | 1 MHz | 2 MHz | Worst margin |
 |---|---|---|---|---|---|
-| 3.12 GHz | 5.0 mA | −119.3 | −124.7 | −131.3 | +8.7 dB (VHF 1 MHz) |
-| 3.40 GHz | 4.8 mA | −117.8 | −123.5 | −130.4 | +7.5 dB |
-| 3.65 GHz | 4.3 mA | −116.8 | −122.7 | −129.6 | +6.7 dB |
-| 3.90 GHz | 3.9 mA | −115.6 | −121.6 | −128.6 | +5.6 dB |
-| 4.20 GHz | 3.6 mA | −113.7 | −120.0 | −127.3 | **+4.0 dB** |
+| 3.12 GHz | 4.0 mA (5.0) | −119.1 | −124.4 (−124.7) | −130.9 | +8.4 dB (VHF 1 MHz) (+8.7) |
+| 3.40 GHz | 4.0 mA (4.8) | −117.8 | −123.4 (−123.5) | −130.2 | +7.4 dB (+7.5) |
+| 3.65 GHz | 3.96 mA (4.3) | −116.6 | −122.3 (−122.7) | −129.1 | +6.3 dB (+6.7) |
+| 3.90 GHz | 3.87 mA | −115.6 | −121.6 | −128.6 | +5.6 dB |
+| 4.20 GHz | 3.59 mA | −113.7 | −120.0 | −127.3 | **+4.0 dB** |
 
-Slow MOS corner, 85 °C (after the review): 3.12 / 3.65 / 4.20 GHz at 1 MHz −123.5 / −122.1 / −119.6 dBc/Hz, worst margin **+3.6 dB** (4.20 GHz, VHF 1 MHz). The UHF limits (3.20–3.84 GHz) have at least 8 dB margin. Noise contributions at 3.65 GHz, 1 MHz: core pair 50 %, inductor 20 %, varactor bias 9 %, bank bias about 10 %, tail 3 % (at 200 kΩ the bias resistors were 36 % and the stand-in buffer 26 %).
+Slow MOS corner, 85 °C, 4 mA cap: 3.12 / 3.65 / 4.20 GHz at 1 MHz −122.8 / −122.0 / −119.6 dBc/Hz (before D12 −123.5 / −122.1 / −119.6), worst margin **+3.6 dB** unchanged (4.20 GHz, VHF 1 MHz). The 4 mA cap costs 0.3–0.7 dB at the bottom, less than the 2 dB estimated. The UHF limits (3.20–3.84 GHz) have at least 8 dB margin. Noise contributions at 3.65 GHz, 1 MHz: core pair 50 %, inductor 20 %, varactor bias 9 %, bank bias about 10 %, tail 3 % (at 200 kΩ the bias resistors were 36 % and the stand-in buffer 26 %).
 
 **Open points for the result review:**
-1. **Current at the bottom of the band:** 5 mA is above the 4 mA VCO share of D7. At 4 mA the swing at 3.12 GHz falls to about 0.82 V and the phase noise by roughly 2 dB, still about 6 dB inside the limit. Proposal: cap `VCO_BIAS` at 4 mA. **Decided 2026-10-20 (D12, with P2.4): capped at 4 mA**; step 3 rerun pending.
+1. **Current at the bottom of the band:** 5 mA is above the 4 mA VCO share of D7. At 4 mA the swing at 3.12 GHz falls to about 0.82 V and the phase noise by roughly 2 dB, still about 6 dB inside the limit. Proposal: cap `VCO_BIAS` at 4 mA. **Decided 2026-10-20 (D12, with P2.4): capped at 4 mA**; rerun done (`analog/vco/step3/out/summary_4ma.txt`): range and corners unchanged, phase noise 0.3–0.7 dB worse at the bottom, bottom margin +6.8 dB at slow 85 °C.
 2. **Bottom-edge margin (accepted and done 2026-10-20: now 73–84 MHz):** with the MIM best-case corner the bottom edge sits 32 MHz below 3.12 GHz. Combined with the ± 3 % inductance uncertainty it could miss by about 10 MHz. Proposal: about 5 % more switched capacitance (design range down to about 2.9 GHz); the top edge keeps ≥ 4.3 GHz at the worst MIM corner.
-3. **Amplitude per corner:** at fast MOS / 85 °C the bottom-band swing falls to 0.69 V with the typical current. An amplitude calibration (peak detector setting `VCO_BIAS`) or a per-corner table is needed; it is not yet simulated.
+3. **Amplitude per corner:** at fast MOS / 85 °C the bottom-band swing falls to 0.69 V with the typical current (0.59 V with the 4 mA cap and the MIM worst case). The P2.4 chain divides correctly at the slow corner, 125 °C, bottom band (buffer 0.43 V per side, `spec/lo-divider-topology.md` §8); the fast-corner low-swing case is checked in P2.4 step 3. An amplitude calibration (peak detector setting `VCO_BIAS`) or a per-corner table is needed; it is not yet simulated.
 4. **Not yet simulated:** supply pushing (the LDO noise budget), the real CML buffer and divider load (P2.4), the HBT comparison (D1), a tapped L2n0 layout with EM (before P2.7).

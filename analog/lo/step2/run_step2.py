@@ -6,7 +6,8 @@ Run inside the container from this folder (needs ../../vco/step2/out/range.json)
     mkdir -p out && python3 -u run_step2.py | tee out/summary.txt     # 8 transients, about 1-2 h
     python3 -u run_step2.py uhf ss 3.84                                # or any of: uhf vhf tt ss <GHz>
     python3 -u run_step2.py vhf ss 4.20 en=off                         # CML divider on from t = 0 (default: 35 ns, D15)
-    python3 -u run_step2.py uhf ss pq=2                                # UHF retiming output PMOS 2x (duty check)
+    python3 -u run_step2.py uhf ss pq=3                                # UHF retiming output PMOS 3x (default 2)
+    python3 -u run_step2.py vhf ss 3.12 bufm                           # buffer with an extra gain inverter
 
 Circuit per run (one chain per run, as band_sel powers one chain):
   VCO       the P2.3 VCO netlist (analog/vco/step2/run_step2.py, sizes from range.json), its stand-in
@@ -53,7 +54,11 @@ _en = next((a[3:] for a in sys.argv[1:] if a.startswith("en=")), "35")
 EN_NS = None if _en == "off" else float(_en)
 # Option pq=<x>: output PMOS of the UHF retiming flip-flops x times wider (duty-cycle check: the TSPC output rises
 # one gate later than it falls, so the 25 % pulses come out narrower, 21 % at the slow corner)
-PQ = next((float(a[3:]) for a in sys.argv[1:] if a.startswith("pq=")), 1.0)
+PQ = next((float(a[3:]) for a in sys.argv[1:] if a.startswith("pq=")), 2.0)   # eighth run: 2 is the default
+# Option bufm: an extra 3/6 um gain inverter per side between the two buffer inverters (eighth run: VHF slow
+# 3.12 GHz gave only 0.43 V per side, clock duty 43.7 %, skew -20 ps: the small bottom-band tank swing at the slow
+# corner does not fully switch the first inverter)
+BUFM = "bufm" in sys.argv[1:]
 CORNERS = [("tt", "mos_tt", "cap_typ", 1.2, 27), ("ss", "mos_ss", "cap_typ", 1.08, 125)]
 STANDIN = ("mb1 ", "mb2 ", "rl1 ", "rl2 ", "ib ", "ctb ", "cl1 ", "cl2 ")
 
@@ -97,7 +102,8 @@ def buffer():
         s += (f"cc{side} ({src} x_bi{side}) capacitor c=100f\n"
               f"rf{side} (x_bi{side} x_bo{side}) resistor r=50k\n"
               + inv(f"b1{side}", f"x_bi{side}", f"x_bo{side}", "vbuf", 2, 4)
-              + inv(f"b2{side}", f"x_bo{side}", out, "vbuf", 6, 12))   # 4/8 gave 0.47 V at slow 3.12 GHz
+              + (inv(f"bm{side}", f"x_bo{side}", f"x_bm{side}", "vbuf", 3, 6) if BUFM else "")
+              + inv(f"b2{side}", f"x_bm{side}" if BUFM else f"x_bo{side}", out, "vbuf", 6, 12))   # 4/8 gave 0.47 V at slow 3.12 GHz
     s += inv("bxp", "x_bop", "x_bon", "vbuf", 0.5, 1) + inv("bxn", "x_bon", "x_bop", "vbuf", 0.5, 1)
     # Fourth run: at slow corner / 4.21 GHz the CML ÷3 divided wrongly (2.7 GHz out instead of 1.40 GHz) although
     # its clock had the right swing. Suspect: skew between ckp and ckn (two separate inverter chains) makes the
@@ -231,7 +237,7 @@ def main():
     corners = [c for c in CORNERS if c[0] in args] or CORNERS
     fsel = []
     for a in args:
-        if a.startswith(("en=", "pq=")):
+        if a.startswith(("en=", "pq=")) or a == "bufm":
             continue
         try:
             fsel.append(float(a) * 1e9)          # e.g. 3.84 selects the 3.84 GHz case
@@ -242,7 +248,8 @@ def main():
     print("# P2.4 step 2 — VCO buffer and divider chains with the VCO\n")
     print(f"VCO sizing from step 2: LSB {S2.LSB_FF:.2f} fF, fixed {S2.C_FIX_FF:.0f} fF; tail cap {S2.I_MAX*1e3:.0f} mA.")
     en_txt = "t = 0" if EN_NS is None else f"{EN_NS:g} ns"
-    print(f"CML divider enabled at {en_txt} (D15); UHF retiming output PMOS x{PQ:g}.\n")
+    print(f"CML divider enabled at {en_txt} (D15); UHF retiming output PMOS x{PQ:g}; "
+          f"buffer {'3' if BUFM else '2'} inverters per side.\n")
     for band in bands:
         for corner in corners:
             tag, mos, cap, vdd, temp = corner
