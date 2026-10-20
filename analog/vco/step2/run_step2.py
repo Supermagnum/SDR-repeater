@@ -54,7 +54,8 @@ LSB_FF = 7.5         # differential on-capacitance of the LSB, fF (D8: 7 bits); 
 C_FIX_FF = 0.0       # extra fixed differential capacitance, fF; set by size()
 NFING = 20           # varactor fingers (two instances of nx = NFING / 2)
 C_TOP_FF = 762.0     # wanted total at code 0 (4.37 GHz with L + 3 %, tank_budget.py)
-C_SWITCH_FF = 955.0  # wanted switched range (down to 3.00 GHz with L - 3 %)
+C_SWITCH_FF = 1003.0  # wanted switched range: 955 fF (3.00 GHz with L - 3 %) + 5 % (P2.3 review 2026-10-20:
+                      # the MIM best-case corner left only 32 MHz below 3.12 GHz)
 R_CELL = 3.4         # C_on / C_off of the bank cell (step 1, about 100 um per 60 fF)
 A_TARGET = 1.3       # wanted differential amplitude, V (1.5 V limit with margin)
 R_BIAS = 2e6         # bank and varactor bias resistors, ohm. First pnoise run: at 200 kOhm the varactor bias
