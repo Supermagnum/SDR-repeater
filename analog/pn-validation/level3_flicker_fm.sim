@@ -1,0 +1,85 @@
+Phase-noise validation level 3: flicker upconversion through a varactor, exact answer known
+
+// Level 1 oscillator (ideal LC tank, noisy R, noiseless tanh negative conductance) with part
+// of the tank capacitance made voltage-controlled:
+//   fixed 1.8678 pF + varactor q = (0.2 pF + 0.1 pF/V * V(ctl)) * V(t)   -> 2.0678 pF at V(ctl) = 0
+// V(ctl) carries only a 1/f noise voltage: S_v(f) = KF / f, KF = 1e-10 V^2 (1 A^2/Hz noise
+// current into a noiseless 1 ohm resistor). That is the path by which tail and varactor-bias
+// flicker reaches the phase of a real VCO: low-frequency noise -> frequency modulation.
+//
+// Expected (params.py): L(df) = kT/(R C^2 A^2 (2 pi df)^2) + K^2 KF / (2 df^3),
+// K = f0 * 0.1 pF / (2 * 2.0678 pF) = 84.6 MHz/V. Flicker corner about 1 MHz.
+
+ground 0
+
+load "resistor.osdi"
+load "capacitor.osdi"
+load "inductor.osdi"
+
+embed "negtanh.va" <<<FILE
+`include "constants.vams"
+`include "disciplines.vams"
+module negtanh(A, B);
+    inout A, B;
+    electrical A, B;
+    analog begin
+        I(A, B) <+ -6.0606e-3 * 0.2 * tanh(V(A, B) / 0.2);
+    end
+endmodule
+>>>FILE
+
+embed "varcap.va" <<<FILE
+`include "constants.vams"
+`include "disciplines.vams"
+// Linear voltage-controlled capacitor, charge-based; no current into the control pins
+module varcap(P, N, CP, CN);
+    inout P, N, CP, CN;
+    electrical P, N, CP, CN;
+    analog begin
+        I(P, N) <+ ddt((0.2e-12 + 0.1e-12 * V(CP, CN)) * V(P, N));
+    end
+endmodule
+>>>FILE
+
+embed "fnoise.va" <<<FILE
+`include "constants.vams"
+`include "disciplines.vams"
+// Pure 1/f noise current, PSD 1e-10 / f A^2/Hz; no DC current
+module fnoise(A, B);
+    inout A, B;
+    electrical A, B;
+    analog begin
+        I(A, B) <+ 0;
+        I(A, B) <+ flicker_noise(1e-10, 1.0, "fn");
+    end
+endmodule
+>>>FILE
+
+load "negtanh.va"
+load "varcap.va"
+load "fnoise.va"
+
+model resistor  resistor
+model capacitor capacitor
+model inductor  inductor
+model negtanh   negtanh
+model varcap    varcap
+model fnoise    fnoise
+model isource   isource
+
+ct  (t 0)       capacitor c=1.8678p
+cv  (t 0 ctl 0) varcap
+lt  (t 0)       inductor  l=1n
+rt  (t 0)       resistor  r=330 noisy=1
+gt  (t 0)       negtanh
+rc  (ctl 0)     resistor  r=1 noisy=0
+nc  (0 ctl)     fnoise
+iin (0 t)       isource dc=0   // zero-valued, only the gain reference for pnoise
+
+control
+  abort always
+  options rawfile="binary" strictsave=1
+  options reltol=1e-8 pss_tolscale=1e-6 pss_minpts=16000
+  save default
+  analysis pn3 pnoise oscillator=1 tper=285.7p tstab=60n ic={"t", 0.3} maxharm=32 truncharm=16 in="iin" out="t" outharm=1 values=[1e4, 3e4, 1e5, 3e5, 6e5, 1e6, 2e6, 5e6, 1e7, 2e7] writepss=1 writestab=1
+endc

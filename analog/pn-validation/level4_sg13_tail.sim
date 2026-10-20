@@ -1,0 +1,47 @@
+Phase-noise validation level 4: SG13G2 cross-coupled NMOS oscillator with a real MOS tail
+
+// Level 2 with the ideal, noiseless tail replaced by an sg13_lv_nmos current mirror
+// (0.5 mA ideal reference, ratio 1:4 -> 2 mA, L = 0.5 um, no bias-node filter capacitor).
+// The mirror and the pair now contribute flicker noise, and the tail current is modulated
+// by the oscillation, so a 1/df^3 region is expected close to the carrier. There is no
+// closed form: the reference is VACASK transient noise (level4_tran.sim), which also
+// generates flicker noise (noisefmin).
+
+ground 0
+
+include "sg13g2_vacask_common.lib"
+include "cornerMOSlv.lib" section=mos_tt
+
+load "resistor.osdi"
+load "capacitor.osdi"
+load "inductor.osdi"
+
+model resistor  resistor
+model capacitor capacitor
+model inductor  inductor
+model vsource   vsource
+model isource   isource
+
+vdd  (vdd 0)  vsource dc=1.2
+l1   (vdd lp) inductor  l=1n
+r1   (lp vp)  resistor  r=1.466 noisy=1
+l2   (vdd lm) inductor  l=1n
+r2   (lm vm)  resistor  r=1.466 noisy=1
+c1   (vp 0)   capacitor c=1.8p
+c2   (vm 0)   capacitor c=1.8p
+m1   (vp vm tail 0) sg13_lv_nmos w=20u l=0.13u ng=4
+m2   (vm vp tail 0) sg13_lv_nmos w=20u l=0.13u ng=4
+iref (vdd nb) isource dc=0.5m
+mr   (nb nb 0 0)    sg13_lv_nmos w=20u l=0.5u ng=2
+mt   (tail nb 0 0)  sg13_lv_nmos w=80u l=0.5u ng=8
+iin  (0 vp)   isource dc=0   // zero-valued, only the gain reference for pnoise
+// Start-up kick, well before the shooting window
+ik   (0 vm) isource type="pulse" val0=0 val1=1m delay=1n rise=50p fall=50p width=200p
+
+control
+  abort always
+  options rawfile="binary" strictsave=1
+  options reltol=1e-7 pss_tolscale=1e-4 pss_minpts=64000
+  save default
+  analysis pn4 pnoise oscillator=1 tper=285.7p tstab=80n maxharm=32 truncharm=16 in="iin" out=["vp", "vm"] outharm=1 values=[1e4, 3e4, 1e5, 2e5, 3e5, 6e5, 1e6, 2e6, 5e6, 1e7, 2e7] writepss=1 writestab=1
+endc

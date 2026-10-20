@@ -168,3 +168,8 @@ P2.2 linear model (`analog/pll-model/`, all inputs `[PROP]`): passes at 150 kHz 
 ## 2026-10-19 — P2.0 stage 1 (EM tank Q)
 - Palace (surface conductors) converged at 2 µm: L 1.672 nH, Q 19.70 at 3.65 GHz. openEMS not converged (Q 14.60 → 15.26 from 2 to 1 µm; extrapolated 15.5–15.9).
 - The upstream L6n2 measured-vs-simulated data (gds2palace v0.8.2) shows this Palace setup (surface conductors, merged vias without fill-factor correction) reading Q 24 % high at 3.5 GHz; scaled, L2n0 Q ≈ 15.6–15.9, matching openEMS. Provisional design Q 14.9 kept until stage 2 (filled metals + via correction, openEMS 0.7 µm).
+
+## 2026-10-20 — P2.0 EM result accepted (tank Q)
+- Design tank Q and L of SG13_Octagon_L2n0 from P2.0 stage 2 (`reports/phase2-review/p20-stage2.md`): Palace, filled metals + via fill-factor correction, 1 µm (converged), de-embedded. Q 14.2 / 15.3 / 15.5 / 16.9 at 3.12 / 3.5 / 3.65 / 4.2 GHz; L 1.69 nH. Replaces the provisional 14.9 (`spec/provisional-tank-q.md`).
+- openEMS 0.7 µm agrees within 1.6 % in Q; L differs by a constant 3 %, carried as ±3 % L uncertainty for VCO tuning (P2.3).
+- Stage 3 not run (not needed for the decision). The flicker-region pnoise check remains open in P2.0.

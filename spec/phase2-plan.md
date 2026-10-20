@@ -31,7 +31,7 @@ RF requirement (25 W, attenuator baseline): ≤ −136 dBc/Hz at the duplex offs
 | Same, referred to 1 MHz (−20 dB/decade) | −112.8 dBc/Hz | −111.9 dBc/Hz |
 | **VCO target at 1 MHz** (3 dB for the PLL's own contributions) | **≤ −116 dBc/Hz** | **≤ −115 dBc/Hz** |
 
-Feasibility: the validated SG13G2 test oscillator (ideal 1 nH inductor, tank Q 15.8, noiseless tail, about 2.4 mW) gave **−124 dBc/Hz at 1 MHz** at 3.69 GHz (`analog/pn-validation/`). The provisional EM tank Q is 14.9 at 3.5 GHz (`spec/provisional-tank-q.md`). A real VCO adds tail noise, varactor and capacitor-bank loss and wide-range penalties; 8 dB of margin over the target is a reasonable starting point but not a result. In figure-of-merit terms the target needs FoM ≥ 177 dB at 10 mW or ≥ 180 dB at 5 mW, which ordinary LC VCOs reach.
+Feasibility: the validated SG13G2 test oscillator (ideal 1 nH inductor, tank Q 15.8, noiseless tail, about 2.4 mW) gave **−124 dBc/Hz at 1 MHz** at 3.69 GHz (`analog/pn-validation/`). The EM tank Q (P2.0) is 15.3 at 3.5 GHz and 14.2 at the 3.12 GHz band edge (`spec/provisional-tank-q.md`), 0.3–0.9 dB worse than the test case. A real VCO adds tail noise, varactor and capacitor-bank loss and wide-range penalties; 8 dB of margin over the target is a reasonable starting point but not a result. In figure-of-merit terms the target needs FoM ≥ 177 dB at 10 mW or ≥ 180 dB at 5 mW, which ordinary LC VCOs reach.
 
 Not yet covered: the **flicker region** below about 100 kHz (not validated in VACASK) — it sets in-channel noise, not the duplex limit.
 
@@ -62,7 +62,7 @@ RX ≤ 25 mA and TX ≤ 60 mA for the whole chip (§6 of `spec/rf-frontend.md`).
 
 | Step | Work | Output | Gate |
 |---|---|---|---|
-| **P2.0** (stage 1 done, `reports/phase2-review/p20-stage1.md`; stage 2 next) | Prerequisites: matched-mesh, de-embedded inductor study (Phase 0 follow-up); pnoise check of the flicker region | Tank Q to replace the provisional 14.9; flicker method | Owner accepts the EM result |
+| **P2.0** (EM stages 1–2 done: `reports/phase2-review/p20-stage1.md`, `p20-stage2.md`; Q 15.3 at 3.5 GHz accepted 2026-10-20; flicker check done: `reports/phase2-review/p20-flicker.md`) | Prerequisites: matched-mesh, de-embedded inductor study (Phase 0 follow-up); pnoise check of the flicker region | Tank Q to replace the provisional 14.9; flicker method | Owner accepts the EM result |
 | **P2.1** | Owner decisions D1–D7 (§5) | Entries in `decisions.md` | — |
 | **P2.2** ✅ first run | System model in Python: linear PLL phase-noise model (VCO, PFD/CP, Σ-Δ, loop filter), spur map including the boundary channels, lock-time transient | `analog/pll-model/` with a check script like `vhf_lpf_check.py`; loop parameters (Icp, filter values, KVCO per band, number of bands) | Human review of the budget |
 | **P2.3** | VCO: topology memo, schematic, capacitor bank, varactor; VACASK `pnoise` across bands, PDK corners and −40 to +85 °C, with the EM inductor model | Schematic, pnoise table vs §2.1 | Human topology review before schematic; result review after |
@@ -106,9 +106,10 @@ Tools: VACASK (`pss`/`pnoise`, settings in `analog/pn-validation/README.md`), ng
 
 | Risk | Effect | Mitigation |
 |---|---|---|
-| Real tank Q below 12 | VCO noise up 2–3 dB | P2.0 EM study first; bigger margin from higher swing or the HBT core |
+| Real tank Q below the EM value (15.3 at 3.5 GHz) | VCO noise up | EM study done (P2.0, conservative value); bigger margin from higher swing or the HBT core |
+| Inductor L ±3 % (solver offset) | VCO band shifts ±1.5 % | Capacitor bank covers 3.12–4.20 GHz over 1.64–1.70 nH (P2.3) |
 | 29.6 % tuning range | Q of the capacitor bank, band gaps | Overlap between bands ≥ 30 %; corner simulation in P2.3 |
 | First divider at 4.2 GHz across corners | Lost lock at slow corner | CML first stage; check at slow 1.08 V 125 °C |
-| Flicker noise not validated | In-channel noise unknown | P2.0 validation step |
+| Flicker and 2 f0 tail noise | Unfiltered tail mirror: flicker corner 615 kHz, about 3 dB at the 600 kHz duplex offset; tail noise near 2 f0 a second path (P2.0, `reports/phase2-review/p20-flicker.md`) | Tail and varactor-bias low-pass and a 2 f0 tail filter (or tail-less / HBT core) in the P2.3 topology memo; `pnoise` is validated for this region |
 | Σ-Δ area | Back end full | D3 |
 | Charge-pump leakage and mismatch | Reference and fractional spurs | P2.5 spur estimate, fed into P2.2 |
