@@ -58,6 +58,7 @@ C_SWITCH_FF = 1003.0  # wanted switched range: 955 fF (3.00 GHz with L - 3 %) + 
                       # the MIM best-case corner left only 32 MHz below 3.12 GHz)
 R_CELL = 3.4         # C_on / C_off of the bank cell (step 1, about 100 um per 60 fF)
 A_TARGET = 1.3       # wanted differential amplitude, V (1.5 V limit with margin)
+I_MAX = 4e-3         # tail-current cap (D12, 2026-10-20: VCO at most 4 mA; was 5 mA)
 R_BIAS = 2e6         # bank and varactor bias resistors, ohm. First pnoise run: at 200 kOhm the varactor bias
                      # (rvp/rvn, 21 %) and the off MSB bias (rba6/rbb6, 15 %) were 36 % of the noise at 1 MHz
 C_TB = 2e-12         # buffer common node to ground: the buffer pair was 26 % at 1 MHz with an ideal tail
@@ -271,12 +272,12 @@ def do_range():
         code = int(round(min(127, max(0, (1 / F_TARGET ** 2 - b) / a))))
         m = tran(code, VTUNE_MID, f"c{code}_pick")
         print(f"\nBand for pnoise: code {code} at V_tune {VTUNE_MID} V -> {m['f']/1e9:.4f} GHz (target {F_TARGET/1e9} GHz)")
-        itail = min(5e-3, ITAIL * A_TARGET / m["amp"])
+        itail = min(I_MAX, ITAIL * A_TARGET / m["amp"])
         m2 = tran(code, VTUNE_MID, f"c{code}_pick_i", itail=itail)
         print(f"Tail current for {A_TARGET} V: {itail*1e3:.2f} mA -> {m2['amp']:.3f} V, {m2['f']/1e9:.4f} GHz, "
               f"peak V_GS {m2['vgs']:.2f} / V_GD {m2['vgd']:.2f} V")
         print("\nTail current per band for about 1.3 V (VCO_BIAS): " + ", ".join(
-            f"code {c}: {min(5e-3, ITAIL * A_TARGET / res[f'{c},{VTUNE_MID}']['amp'])*1e3:.1f} mA"
+            f"code {c}: {min(I_MAX, ITAIL * A_TARGET / res[f'{c},{VTUNE_MID}']['amp'])*1e3:.1f} mA"
             for c in (0, 32, 64, 96, 127) if f"{c},{VTUNE_MID}" in res))
         json.dump(dict(code=code, vtune=VTUNE_MID, f=m2["f"], itail=itail, lsb=LSB_FF, cfix=C_FIX_FF,
                        nfing=NFING, meas=res), open(os.path.join(OUT, "range.json"), "w"), indent=1)
