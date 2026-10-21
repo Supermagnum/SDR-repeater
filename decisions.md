@@ -209,3 +209,6 @@ Accepted as proposed in `spec/vco-topology.md` §5, after a comparison with comm
 - UHF counter failures traced to the CML-to-CMOS converter's duty (23–37 % at 1.92 GHz, slow); converter rebuilt as AC-coupled self-biased inverters (duty 47–52 %, slightly less current).
 - Buffer middle stage AC-coupled and self-biased (bottom-band margin at 125 °C).
 - Result: all corners divide (the ss −40 °C bottom-band case needs 0.33 V tank swing per side, the VCO gives about 0.43 V); 100/100 Monte Carlo samples; UHF raw image rejection 35.4–39.5 dB at 3σ; VHF phase σ ≤ 0.28°. LO total ≈ 9.65 mA typical, ≈ 10.3 mA at ff 1.32 V — for the result review. Noise floor still open.
+
+## 2026-10-21 — D7 reading (LO current)
+- Accepted (owner): D7 (LO ≤ 10 mA) is a **typical** figure, like the RX budget it is part of (≤ 25 mA against the SX1255's 18 mA typ, `spec/rf-frontend.md` §6). The LO meets it at typical (≈ 9.65 mA, VHF 4.20 GHz). The ±10 % supply corners are robustness checks; the LO runs from the on-chip regulator `VR_ANA1`, so the 1.32 V figure (≈ 10.3 mA) is recorded as a maximum, not held against D7. The margin depends on the PLL's hand estimate (1.5 mA) and is checked again with the real PLL in P2.5; above about 1.8 mA the LO buffer or converter has to give back current.

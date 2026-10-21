@@ -166,7 +166,7 @@ The UHF image target (≥ 40 dB) applies after host I/Q calibration, which remov
 | ss 1.08 V 125 °C | 2.16 / 2.41 mA | 3.68 / 4.11 mA |
 | ff 1.32 V −40 / 125 °C | 2.98–3.36 mA | 4.65–**5.23 mA** |
 
-LO total at typical, VHF 4.20 GHz: 4.56 + VCO 3.59 + PLL ≈ 1.5 (`[HAND]`) ≈ **9.65 mA** (D7 ≤ 10 mA). At the fast corner with 1.32 V the CMOS parts draw more: ≈ 10.3 mA. Whether D7 is a typical or worst-case limit, and whether the LO supply really reaches 1.32 V (it comes from an LDO, `VR_ANA1`), is a point for the result review.
+LO total at typical, VHF 4.20 GHz: 4.56 + VCO 3.59 + PLL ≈ 1.5 (`[HAND]`) ≈ **9.65 mA** (D7 ≤ 10 mA). At the fast corner with 1.32 V the CMOS parts draw more: ≈ 10.3 mA. Whether D7 is a typical or worst-case limit, and whether the LO supply really reaches 1.32 V (it comes from an LDO, `VR_ANA1`), was settled 2026-10-21 (owner, `decisions.md`): D7 is a typical figure and is met; the fast-corner figure is a maximum; the margin is checked again with the real PLL in P2.5.
 
 **Still open in step 3:** the divider chain's noise floor (target ≤ −150 dBc/Hz at the LO output, §1).
 

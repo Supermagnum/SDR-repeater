@@ -358,6 +358,76 @@ def check_swing(bands):
     print()
 
 
+def check_noise(bands, corners):
+    """Divider noise floor (sixth run). The full chains need a PSS period of 8 or 24 input cycles, too many
+    harmonics for the conversion matrix, and the output edges are set by the retiming flip-flops anyway. So the
+    edge-setting path is simulated: buffer -> CML ÷N -> converter -> one retiming-type TSPC flip-flop wired as a
+    toggle (÷2), PSS period 2N input cycles. Its output phase noise is referred to the real LO frequency assuming
+    the same edge jitter: L_LO = L_meas + 20 log10(f_LO / f_meas) (-6 dB UHF, -12 dB VHF). The tank source is ideal
+    (noiseless), so this is the chain's own noise; the divided VCO noise is added for comparison."""
+    from vacask.rawfile import rawread
+    print("## Divider noise floor (pss / pnoise) [SCH]\n")
+    print("Edge-setting path (buffer, CML ÷N, converter, one TSPC flip-flop as ÷2), ideal noiseless tank source, "
+          "referred to the LO output by 20 log10(f_LO / f_meas). Target: chain floor ≤ −150 dBc/Hz at the LO "
+          "output (§1). VCO noise divided down for comparison (P2.3, 4 mA cap, typical: 4.20 GHz −113.7 / −120.0 / "
+          "−127.3 / −142.1 dBc/Hz at 0.6 / 1 / 2 / 10 MHz; 3.84 GHz: the 3.90 GHz values −115.6 / −121.6 / −128.6 / −143.2).\n")
+    offs = [1e5, 6e5, 1e6, 2e6, 1e7, 2e7]
+    vco = {4.20e9: {6e5: -113.7, 1e6: -120.0, 2e6: -127.3, 1e7: -142.1},
+           3.84e9: {6e5: -115.6, 1e6: -121.6, 2e6: -128.6, 1e7: -143.2}}
+    print("| Band | Corner | VCO (GHz) | LO (MHz) | " + " | ".join(f"{o/1e6:g} MHz" for o in offs)
+          + " | Divided VCO at 0.6 / 1 / 2 / 10 MHz |")
+    print("|---|---|---|---|" + "---|" * len(offs) + "---|")
+    vals = ", ".join(f"{x:.0f}" for x in offs)
+    for band in bands:
+        f = CASES[band][-1]
+        nd = 2 if band == "uhf" else 3
+        ndiv = 8 if band == "uhf" else 24
+        for corner in corners:
+            ctag, mos, vdd, temp = corner
+            i_, rl, w = L1.cml_params(0.5e-3, vdd)
+            body, out = L1.div_body(nd, i_, rl, w, vdd)
+            body = body.replace("(vdd ", "(vdv ")
+            tper = 2 * nd / f
+            warm = round(40e-9 / tper) * tper
+            name = f"lo3_pn_{band}_{ctag}"
+            net = (f"vdd (vdd 0) vsource dc={vdd}\nvbufs (vbuf 0) vsource dc={vdd}\nvdvs (vdv 0) vsource dc={vdd}\n"
+                   f"vcvs (vcv 0) vsource dc={vdd}\nvdgs (vdg 0) vsource dc={vdd}\nxtank (tp tn) clk\n"
+                   + L2.buffer() + body + L2.converter(out[0], out[1], "x_clk")
+                   + L2.tspc("t1", "x_tq", "x_clk", "x_tq") + L2.inv("t1i", "x_tq", "x_tqb")   # inverting FF: toggles
+                   + "ctq (x_tq 0) capacitor c=10f\niin (0 x_tq) isource dc=0\n")
+            path = os.path.join(OUT, name + ".sim")
+            with open(path, "w") as fh:
+                fh.write(L1.HEADER.format(title=f"P2.4 step 3: {name}", mos=mos, vcm=1.1, amp=tank_amp(f), shape=0.0,
+                                          f=f, offs=0.0, t0=-1.0, tr=1e-12))
+                fh.write(net)
+                fh.write("\ncontrol\n  abort always\n  options rawfile=\"binary\"\n"
+                         f"  options temp={temp} reltol=1e-6 pss_tolscale=1e-3 pss_minpts=8000\n"
+                         f'  analysis warm tran stop={warm:.6e} step=5p maxstep=5p store="ss"\n'
+                         f'  analysis pn pnoise tper={tper:.9e} tstab=0 ic="ss" icmode="uic" maxharm=64 truncharm=32 '
+                         f'in="iin" out=["x_tq"] outharm=1 values=[{vals}] writepss=1\nendc\n')
+            log = os.path.join(OUT, name + ".log")
+            with open(log, "w") as fh:
+                r = subprocess.run(["vacask", name + ".sim"], cwd=OUT, stdout=fh, stderr=subprocess.STDOUT)
+            if r.returncode:
+                tail = [x for x in open(log).read().splitlines() if x.strip()][-3:]
+                print(f"| {band.upper()} | {ctag} | {f/1e9:.2f} | {f/ndiv/1e6:.0f} | pss/pnoise failed: {' / '.join(tail)} |")
+                continue
+            pss = rawread(os.path.join(OUT, "pn.pss.raw")).get()
+            t, v = np.real(pss["time"]), np.real(pss["x_tq"])
+            fm = 1 / tper
+            tt = np.linspace(t[0], t[0] + tper, 20000, endpoint=False)
+            a1 = 2 * abs(np.mean(np.interp(tt, t, v) * np.exp(-2j * np.pi * fm * (tt - t[0]))))
+            pn = rawread(os.path.join(OUT, "pn.raw")).get()
+            off = np.real(pn["frequency"])
+            lm = 10 * np.log10(np.real(pn["onoise"]) / (a1 * a1 / 2))
+            lo = lm + 20 * math.log10((f / ndiv) / fm)
+            dv = vco[f]
+            print(f"| {band.upper()} | {ctag} | {f/1e9:.2f} | {f/ndiv/1e6:.0f} | "
+                  + " | ".join(f"{x:.1f}" for x in lo) + " | "
+                  + " / ".join(f"{dv[o] - 20 * math.log10(ndiv):.1f}" for o in (6e5, 1e6, 2e6, 1e7)) + " |")
+    print()
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     args = sys.argv[1:]
@@ -367,9 +437,12 @@ def main():
     print(f"Chain as step 2 final: buffer {'3' if L2.BUFM else '2'} inverters per side, last {L2.B2:g}/{2*L2.B2:g} um; "
           f"UHF retiming output PMOS x{L2.PQ:g}; CML enable at {L2.EN_NS:g} ns.\n")
     print(f"Options: {LABEL}.\n")
+    if "noise" in args:
+        corners = [c for c in CORNERS if c[0] in args and c[0] in ("tt", "ss")] or CORNERS[:2]
+        check_noise(bands, corners)
     if "swing" in args:
         check_swing(bands)
-    if "corners" in args or not any(a in args for a in ("corners", "mc", "swing")):
+    if "corners" in args or not any(a in args for a in ("corners", "mc", "swing", "noise")):
         corners = [c for c in CORNERS if c[0] in args] or CORNERS
         check_corners(bands, corners)
     if "mc" in args:
