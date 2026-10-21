@@ -232,3 +232,7 @@ Next: step 1 device and block checks (`analog/pll/step1/`).
 - Charge pump: cascoded sources do not reach the window on 1.2 V; plain long-channel (L = 2 µm) sources do at typical and fast (slow 1.08 V: up side to 0.80–0.85 V → wider PMOS source in step 2, regulated supply). Replica amplifier must correct up to ±30 % mismatch.
 - Loop-filter C1/C2 as complementary thin-oxide MOS pairs (within D17); leakage a few µA at 125 °C, reference spur ≤ −102 dBc (model).
 - MMD first 2/3 cell in TSPC passes (÷3 to 2.9 GHz at the slow corner; 10/10 mismatch samples).
+
+## 2026-10-22 — P2.5 step 2a: PFD and charge pump core
+- Transistor-level PFD (static flip-flops, power-on reset) and charge pump (long-channel sources, current steering with matched complementary switch drivers, Miller-compensated replica loop, offset-current sink) pass at tt / ss / ff: no dead zone, INL ≤ 1 ps over a 4 ns range on the locked side, lock point 2.9–4.0 ns with a 10–16 µA offset current.
+- Lessons from the eight runs: switch pairs must be driven by complementary signals of equal delay; an ideal fast replica amplifier makes the loop oscillate (needs Miller compensation); the PFD needs a power-on reset.

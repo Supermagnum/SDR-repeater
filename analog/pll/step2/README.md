@@ -55,3 +55,5 @@ Eighth run: power-on reset for the PFD (rst forced for the first 1.5 ns), offset
 ```bash
 python3 -u run_step2.py lin | tee out/summary_lin2.txt      # 3 corners x 3 V_tune x 8 offsets (72 runs)
 ```
+
+Eighth run: **all corners pass** — INL ≤ 1.0 ps over dt 1–5 ns, lock point 2.9–4.0 ns, offset current 10–16 µA; the power-on reset removed the stuck-PFD cases. Summary in `spec/pll-topology.md` §8. Next: transistor-level replica amplifier and dummy-node follower.
