@@ -1,6 +1,6 @@
 # PLL topology memo (P2.5): PFD, charge pump, loop filter, feedback divider, Σ-Δ
 
-Status: **topology accepted by the owner 2026-10-21 (D16–D18 as proposed, §4). Step 1 done 2026-10-21 (§7): plain long-channel charge-pump sources with replica matching, complementary MOS loop-filter capacitors, TSPC 2/3 cell; tuning window 0.25–0.95 V. Step 2a (PFD and charge pump, `analog/pll/step2/`) prepared.** Numbers are hand estimates `[HAND]` or from the linear PLL model `[MODEL]` (`analog/pll-model/`, P2.2), unless marked. Inputs: `spec/phase2-plan.md` §2 and D3, D5, D6, D7, D11; the VCO (`spec/vco-topology.md` §9); the LO dividers (`spec/lo-divider-topology.md` §9, P2.4 accepted 2026-10-21); the register map (`spec/analog-digital-interface.md` §5).
+Status: **topology accepted by the owner 2026-10-21 (D16–D18 as proposed, §4). Step 1 done 2026-10-21 (§7): plain long-channel charge-pump sources with replica matching, complementary MOS loop-filter capacitors, TSPC 2/3 cell; tuning window 0.25–0.95 V. Step 2a (PFD and charge pump, `analog/pll/step2/`) core done 2026-10-22 (§8): no dead zone, INL ≤ 1 ps on the locked side at all corners; the two amplifiers are still behavioural.** Numbers are hand estimates `[HAND]` or from the linear PLL model `[MODEL]` (`analog/pll-model/`, P2.2), unless marked. Inputs: `spec/phase2-plan.md` §2 and D3, D5, D6, D7, D11; the VCO (`spec/vco-topology.md` §9); the LO dividers (`spec/lo-divider-topology.md` §9, P2.4 accepted 2026-10-21); the register map (`spec/analog-digital-interface.md` §5).
 
 ---
 
@@ -128,3 +128,31 @@ The "compliance" column of the run (5 % of the value at 0.6 V) mostly measures t
 **Changes to §2 from step 1:** charge pump with plain long-channel (L = 2 µm) sources instead of cascodes, plus the replica amplifier and offset current (D18 unchanged); C1 and C2 as complementary thin-oxide MOS pairs (D17 unchanged: MOS for C1/C2); tuning window 0.25–0.95 V (calibration aims at the middle, about 0.6 V); MMD first cell in TSPC confirmed.
 
 **Step 2 (next), in three parts:** (a) PFD with reset delay, charge pump with replica amplifier, dummy branch and offset current, loop filter — dead zone, up/down match across 0.25–0.95 V in transient, ripple; (b) the full MMD (6 cells with range extension) — every modulus 23–73, speed at slow corner; (c) Σ-Δ MASH 1-1-1, lock detector and calibration as RTL with a Python reference model.
+
+## 8. Step 2a — PFD and charge pump (2026-10-22)
+
+Source: `analog/pll/step2/` `[SCH]`; tt / ss / ff, V_tune 0.25 / 0.6 / 0.95 V, I_cp 100 µA, 36 MHz. Transistor-level PFD and pump; the replica amplifier and the dummy-node follower are still behavioural (Verilog-A).
+
+**Circuit as simulated:**
+- **PFD:** two static master-slave flip-flops (D = 1, transmission gates, NOR reset); reset = AND(UP, DN) through NAND + 2 inverters + NAND with a power-on reset; UP and DN buffered by two inverters each.
+- **Charge pump:** long-channel sources (L = 2 µm; NMOS 15 µm and PMOS 120 µm per 25 µA); current steering to the output or to a dummy node at V_tune. Each switch pair is driven by an inverter and a matched always-on transmission gate. Replica branch with an amplifier on the PMOS gate, Miller-compensated (2 pF) with the replica stage.
+- **Offset current (D18):** NMOS sink from the pump bias, 0.2 × the unit width.
+
+| Result | tt | ss (1.08 V, 125 °C) | ff (1.32 V, −40 °C) |
+|---|---|---|---|
+| Dead zone | none (±3 ps resolved) | none | none |
+| Reset pulse | 285 ps | 451 ps | 188 ps |
+| Static match (DC check, tt) | within 0.1 % at 0.25–0.95 V | — | — |
+| Replica node − V_tune | −2 mV | −2 mV | −1 … +20 mV |
+| Offset at dt = 0, no offset current | −20 … +54 ps | +33 … +75 ps | −50 … +30 ps |
+| Pump gain (both sides, no offset current) | 1.11–1.24 | 1.12–1.21 | 1.10–1.27 |
+| **INL on the locked side** (with offset current, dt 1–5 ns) | **≤ 0.4 ps** | **≤ 1.0 ps** | **≤ 0.2 ps** |
+| Lock point (UP lead) | 3.2–3.6 ns | 3.6–4.0 ns | 2.9–3.2 ns |
+| Offset current | 11–15 µA | 13–16 µA | 10–14 µA |
+
+**What it means:**
+- With the offset current the pump works on the UP side only, where it is linear to ≤ 1 ps over a 4 ns range. The Σ-Δ moves the divider edge by about ±1 ns, which is 0.05 % of nonlinearity at most. The offset and the two-sided gain mismatch no longer matter.
+- The offset current is about 10–16 % of I_cp (intended about 8 %), because the narrow sink does not mirror the wide diode exactly. A lock point of 2.9–4.0 ns leaves ample margin over ±1 ns. It can be trimmed to about 0.15 × in the final sizing; the in-band pump noise rises by about 1 dB at this offset (§4, D18).
+- The 15 % difference between the UP slope and the DC up current, and the offset at dt = 0, come from switching transients. They are harmless on one side, and are kept as known behaviour.
+
+**Still behavioural:** the replica amplifier (needs an input range of 0.25–0.95 V on 1.08–1.32 V, so a complementary input stage) and the dummy-node follower (same range, must take the steered 100–200 µA). Their transistor design is the next part of step 2a, then the MMD (2b) and the RTL (2c).
