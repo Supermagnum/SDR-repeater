@@ -34,3 +34,5 @@ Third run (typical): no dead zone, but gain 0.70 / 0.81 / 0.38 and offsets −36
 python3 -u run_step2.py dc tt | tee out/summary_dc_tt.txt     # 12 operating points, seconds
 python3 -u run_step2.py tt | tee out/summary_a_tt4.txt
 ```
+
+Fourth run, DC check (typical): **the static pump is correct** — up and down match within 0.1 % at all three V_tune, main = replica, currents 98–111 µA (+13 % slope over the window), replica node within 4 mV. So the transient errors are dynamic. Fifth run: the transient also prints min / mean / max of pg, vr, nb, pz, nz and the four source currents at dt = 0, to see which node moves.

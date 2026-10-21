@@ -216,7 +216,17 @@ def run(name, corner, vt, dt, icp):
         mm = t >= t[-1] - T
         tt = np.linspace(t[mm][0], t[mm][-1], 100000)
         w[sig] = float(np.mean(np.interp(tt, t[mm], v[mm]) > vdd / 2)) * T
-    return q, w, float(np.real(d["pg"])[-1]), float(np.real(d["vr"])[-1])
+    # Fifth run: waveform statistics over the last 10 cycles (min / mean / max) of the nodes that set the
+    # currents, and the mean source currents - the DC check was perfect (match within 0.1 %), so the fault
+    # is dynamic
+    stats = {}
+    for k in ("pg", "vr", "nb", "pz", "nz"):
+        v = np.real(d[k])[m]
+        stats[k] = (v.min(), np.trapezoid(v, t[m]) / (t[m][-1] - t[m][0]), v.max())
+    for k in ("vimu", "vimd", "viru", "vird"):
+        v = np.abs(np.real(d[f"{k}:flow(br)"])[m])
+        stats[k] = (v.min(), np.trapezoid(v, t[m]) / (t[m][-1] - t[m][0]), v.max())
+    return q, w, float(np.real(d["pg"])[-1]), float(np.real(d["vr"])[-1]), stats
 
 
 def check_dc(corners, icp):
@@ -268,18 +278,19 @@ def main():
         print("| V_tune (V) | " + " | ".join(f"{dt*1e12:+.0f} ps" for dt in DTS)
               + " | Offset at 0 (ps) | Gain (slope / I_cp) | Dead zone | Reset pulse UP / DN (ps) | Replica error (mV) |")
         print("|---|" + "---|" * len(DTS) + "---|---|---|---|---|")
+        diag = []
         for vt in VTS:
             qs, w0, rep = [], None, None
             for dt in DTS:
                 try:
-                    q, w, pg, vr = run(f"cp_{corner[0]}_{vt:.2f}_{dt*1e12:+.0f}", corner, vt, dt, ICP)
+                    q, w, pg, vr, st = run(f"cp_{corner[0]}_{vt:.2f}_{dt*1e12:+.0f}", corner, vt, dt, ICP)
                 except RuntimeError as e:
                     print(f"| {vt} | error: {str(e)[-150:]!r} |")
                     qs = None
                     break
                 qs.append(q / ICP)
                 if dt == 0.0:
-                    w0, rep = w, (vr - vt) * 1e3
+                    w0, rep, st0 = w, (vr - vt) * 1e3, st
             if qs is None:
                 continue
             qs = np.array(qs)
@@ -291,7 +302,17 @@ def main():
             dz = "none (±3 ps resolved)" if all(small) else "**≥ 3 ps**"
             print(f"| {vt} | " + " | ".join(f"{x*1e12:+.1f}" for x in qs)
                   + f" | {off*1e12:+.2f} | {slope:.3f} | {dz} | {w0['up']*1e12:.0f} / {w0['dn']*1e12:.0f} | {rep:+.2f} |")
+            diag.append((vt, st0))
         print()
+        if diag:
+            print("Node voltages (V) and source currents (µA) at dt = 0 over the last 10 cycles, min / mean / max:\n")
+            print("| V_tune | pg | vr | nb | pz | nz | main up | main down | replica up | replica down |")
+            print("|---|---|---|---|---|---|---|---|---|---|")
+            for vt, st in diag:
+                f3 = lambda k, sc=1.0: " / ".join(f"{x*sc:.3f}" if sc == 1.0 else f"{x*sc:.1f}" for x in st[k])  # noqa: E731
+                print(f"| {vt} | {f3('pg')} | {f3('vr')} | {f3('nb')} | {f3('pz')} | {f3('nz')} | "
+                      f"{f3('vimu', 1e6)} | {f3('vimd', 1e6)} | {f3('viru', 1e6)} | {f3('vird', 1e6)} |")
+            print()
 
 
 if __name__ == "__main__":
