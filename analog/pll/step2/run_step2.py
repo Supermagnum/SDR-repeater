@@ -186,7 +186,14 @@ def charge_pump(icp):
         + "ccm (pg vr) capacitor c=2p\ncvr (vr 0) capacitor c=0.2p\n")
 
 
-def run(name, corner, vt, dt, icp):
+def offset_sink(icp, frac=0.08):
+    """D18 offset current: an NMOS sink from V_tune mirrored from the pump bias nb (frac x I_cp), on all the
+    time, so the loop locks with UP pulses about frac x T_ref long and the pump works on one side only."""
+    u = icp / 25e-6
+    return f"mof (vt nb 0 0) sg13_lv_nmos w={15 * u * frac:.3f}u l=2u\n"
+
+
+def run(name, corner, vt, dt, icp, ioff=False):
     from vacask.rawfile import rawread
     _, mos, vdd, temp = corner
     path = os.path.join(OUT, name + ".sim")
@@ -201,7 +208,7 @@ def run(name, corner, vt, dt, icp):
                  f"vdd (vdd 0) vsource dc={vdd}\n"
                  f"xref (ref0) sqref\n"
                  f"xdiv (div0) sqdiv\n"
-                 f"vtn (vt 0) vsource dc={vt}\n" + pfd() + charge_pump(icp))
+                 f"vtn (vt 0) vsource dc={vt}\n" + pfd() + charge_pump(icp) + (offset_sink(icp) if ioff else ""))
         fh.write("\ncontrol\n  abort always\n  options rawfile=\"binary\"\n"
                  f"  options temp={temp}\n"
                  f"  analysis tr tran stop={ncyc / F_REF:.6e} step=5p maxstep=5p\nendc\n")
@@ -270,12 +277,47 @@ def check_dc(corners, icp):
     print()
 
 
+def check_lin(corners, icp):
+    """Seventh run: the pump with the D18 offset current (8 % of I_cp) around its locked operating point.
+    Locked, the net charge is zero at dt ~ 0.08 T_ref ~ 2.2 ns of UP lead; the Sigma-Delta moves the divider
+    edge by about +-1 ns around that. Over dt = 1.0-3.5 ns only the UP side is active, so the curve should be a
+    straight line: its deviation from the best-fit line (INL) is what folds Sigma-Delta noise into spurs."""
+    print("## Linearity around the locked point, with the 8 % offset current (D18) [SCH]\n")
+    print("Q / I_cp in ps per reference cycle against the UP lead dt; lock point = where Q = 0; INL = largest "
+          "deviation from the straight-line fit, in ps of phase (and as % of the ±1 ns range).\n")
+    dts = [1.0e-9, 1.5e-9, 2.0e-9, 2.5e-9, 3.0e-9, 3.5e-9]
+    print("| Corner | V_tune | " + " | ".join(f"{x*1e9:g} ns" for x in dts) + " | Lock point (ns) | Slope | INL (ps) |")
+    print("|---|---|" + "---|" * len(dts) + "---|---|---|")
+    for corner in corners:
+        for vt in VTS:
+            qs = []
+            for dt in dts:
+                try:
+                    q, *_ = run(f"lin_{corner[0]}_{vt:.2f}_{dt*1e9:.1f}", corner, vt, dt, icp, ioff=True)
+                    qs.append(q / icp)
+                except RuntimeError:
+                    qs.append(float("nan"))
+            qa, da = np.array(qs), np.array(dts)
+            ok = np.isfinite(qa)
+            if ok.sum() < 3:
+                print(f"| {corner[0]} | {vt} | error |")
+                continue
+            k, c = np.polyfit(da[ok], qa[ok], 1)
+            inl = np.max(np.abs(qa[ok] - (k * da[ok] + c)))
+            print(f"| {corner[0]} | {vt} | " + " | ".join(f"{x*1e12:+.0f}" for x in qa)
+                  + f" | {-c / k * 1e9:.2f} | {k:.3f} | {inl*1e12:.1f} ({inl / 2e-9 * 100:.2f} %) |")
+    print()
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     corners = [c for c in CORNERS if c[0] in sys.argv[1:]] or CORNERS
     print("# P2.5 step 2a — PFD and charge pump\n")
     if "dc" in sys.argv[1:]:
         check_dc(corners, ICP)
+        return
+    if "lin" in sys.argv[1:]:
+        check_lin(corners, ICP)
         return
     print(f"I_cp {ICP*1e6:.0f} µA, reference {F_REF/1e6:.0f} MHz. Q/I_cp is the net charge per reference cycle "
           "divided by I_cp, in ps (ideal: equal to the phase offset dt; positive = net up). Sign check at "

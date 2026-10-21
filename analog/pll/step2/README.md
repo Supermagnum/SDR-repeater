@@ -38,3 +38,10 @@ python3 -u run_step2.py tt | tee out/summary_a_tt4.txt
 Fourth run, DC check (typical): **the static pump is correct** — up and down match within 0.1 % at all three V_tune, main = replica, currents 98–111 µA (+13 % slope over the window), replica node within 4 mV. So the transient errors are dynamic. Fifth run: the transient also prints min / mean / max of pg, vr, nb, pz, nz and the four source currents at dt = 0, to see which node moves.
 
 Fifth run (typical): **the replica loop oscillates** — pg swings 0.2–1.19 V every cycle, replica and main up currents peak at 7–9 mA, the main up source node pz goes from −0.7 to +1.6 V; gain 0.36–0.55, offsets −275 … +307 ps. The PFD is now balanced (reset pulse 285 / 285 ps). Cause: the ideal fast amplifier. Sixth run: two-stage Miller compensation (transconductor 10 µS with gain 100 and clamped output, 2 pF from pg to vr; crossover ≈ 0.8 MHz, second pole ≈ 7 MHz).
+
+Sixth run (typical): **the replica loop is stable** (pg steady within 1 mV, replica within 2 mV of V_tune), no dead zone, PFD balanced (285 / 285 ps). Remaining: offset at dt = 0 of −20 / +22 / +54 ps (V_tune 0.25 / 0.6 / 0.95 V) and an up-side slope about 15 % above the DC up current (down side matches its DC current). Both matter only if the pump works on both sides of zero; with the D18 offset current it works on the UP side only. Seventh run: all three corners as before, and `lin` — the pump with the 8 % offset current (an NMOS sink mirrored from the pump bias) over dt = 1.0–3.5 ns around its locked point, giving the lock point and the INL:
+
+```bash
+python3 -u run_step2.py ss ff | tee out/summary_a_ssff.txt    # 54 runs
+python3 -u run_step2.py lin | tee out/summary_lin.txt          # 3 corners x 3 V_tune x 6 offsets (54 runs)
+```
