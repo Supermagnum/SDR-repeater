@@ -8,6 +8,7 @@ mkdir -p out
 python3 -u run_step3.py corners | tee out/summary_corners.txt    # 7 corners x 4 cases (28 runs)
 python3 -u run_step3.py mc | tee out/summary_mc.txt              # tt and ss, both bands, 25 samples each (100 runs)
 python3 -u run_step3.py mc n=5 uhf tt                            # quick trial first
+python3 -u run_step3.py noise | tee out/summary6_noise.txt       # divider noise floor (pss/pnoise)
 ```
 
 | Part | What | Pass |
@@ -89,5 +90,11 @@ python3 -u run_step3.py mc | tee out/summary5_mc.txt
 ```
 
 Fifth run result (2026-10-21): quick check 8 of 8 in both bands; full set — all corners divide except the ss −40 °C bottom band with the pessimistic swing (needs 0.33 V, VCO gives about 0.43 V); 100 of 100 Monte Carlo samples; results in `spec/lo-divider-topology.md` §9.
+
+Sixth run: the divider noise floor (`noise`, tt and ss, top frequency of each band, 4 pss/pnoise runs). The full chains would need a PSS period of 8 or 24 input cycles; the edges are set by the retiming flip-flops anyway, so the edge-setting path (buffer, CML ÷N, converter, one TSPC flip-flop as a toggle) is simulated and referred to the LO frequency:
+
+```bash
+python3 -u run_step3.py noise | tee out/summary6_noise.txt
+```
 
 The divider noise floor (target ≤ −150 dBc/Hz at the LO output) is the next part of step 3, after these two.
