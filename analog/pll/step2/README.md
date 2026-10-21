@@ -25,3 +25,5 @@ First run (typical, 2026-10-21): no dead zone (±3 ps resolved), but **offset +1
 - the output switch and the dummy switch of each pair were driven one inverter delay apart, so the source floated on every UP edge and dumped its charge into the output → each pair now driven by an inverter and a matched always-on transmission gate (complementary, equal delay);
 - the behavioural transconductor could drive the PMOS gate outside the supply → clamped 60 dB voltage amplifier;
 - reset delay chain shortened (NAND + 3 inverters, no load capacitors).
+
+Second run (typical): stalled — one simulation over 10 minutes. With 60 dB and 0.5 pF the ideal replica loop crossed over near 400 GHz and forced tiny time steps. Third run: amplifier 30 V/V, 20 pF on the replica node (loop crossover about 300 MHz, DC loop gain still about 8000).

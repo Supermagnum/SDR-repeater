@@ -16,7 +16,8 @@ Circuit (transistor level unless noted):
           in step 1 for headroom), current steering: each source goes to the output (UP / DN) or to a dummy node
           held at V_tune by a unity-gain buffer (no charge sharing); a replica branch (both switches on) and an
           amplifier set the PMOS gate so that replica up = replica down at V_tune (D18). The two amplifiers are
-          behavioural (Verilog-A: 60 dB voltage amplifier clamped to the supply; ideal follower); their transistor-level design follows once the pump works.
+          behavioural (Verilog-A: 30 V/V voltage amplifier clamped to the supply, 20 pF on the
+          replica node; ideal follower); their transistor-level design follows once the pump works.
   output  held by an ideal source at V_tune (0.25 / 0.6 / 0.95 V); its current, averaged over 10 reference
           cycles, gives the net charge per cycle Q(dt).
 Results per case: Q/I_cp against dt (ideal: equal to dt), the offset at dt = 0 (residual up/down mismatch x the
@@ -165,13 +166,13 @@ def charge_pump(icp):
         + f"mrp1 (rpz pg vdd vdd) sg13_lv_pmos w={wp:g}u l=2u\n"
         + f"mrp2 (vr 0 rpz vdd) sg13_lv_pmos w={swp:g}u l=0.13u\n"
         + "xamp (vr vt pg) ota\n"
-        # The amplifier and the replica PMOS form a two-stage loop (the replica is a common-source stage with
-        # the high-impedance node vr), so it is Miller-compensated from pg to vr (UGB about gm / Cc = 16 MHz).
-        # 10 MOhm to a fixed voltage only fixes the DC gain (about 60 dB) for the operating point.
-        # Second run: the transconductor version let pg leave the supply range at V_tune 0.25 V (replica at
+        # First run: a transconductor, Miller-compensated from pg to vr. Second run: the transconductor version let pg leave the supply range at V_tune 0.25 V (replica at
         # the rail, +937 mV). Now an ideal voltage amplifier, 60 dB, output clamped to 0 ... V_DD; with the
         # replica node vr as the only pole the loop is single-pole and stable.
-        + "cvr (vr 0) capacitor c=0.5p\n")
+        # Third run: with 60 dB and 0.5 pF the replica loop crossed over near 400 GHz, so the simulator crawled
+        # (one run > 10 min). Now 30 V/V and 20 pF on vr: loop gain at DC still about 30 x g_m x r_out ~ 8000,
+        # crossover about 300 MHz.
+        + "cvr (vr 0) capacitor c=20p\n")
 
 
 def run(name, corner, vt, dt, icp):
@@ -183,7 +184,7 @@ def run(name, corner, vt, dt, icp):
         fh.write(HEADER.format(title=f"P2.5 step 2a: {name}", mos=mos))
         # Verilog-A parameters are model parameters in VACASK (first run: "parameter not found" on the
         # instance), so each clock gets its own model
-        fh.write(f"model ota ota a=1000 vh={vdd}\n"
+        fh.write(f"model ota ota a=30 vh={vdd}\n"
                  f"model sqref sqclk f={F_REF:.6e} td=2e-9 vh={vdd}\n"
                  f"model sqdiv sqclk f={F_REF:.6e} td={2e-9 + dt:.6e} vh={vdd}\n"
                  f"vdd (vdd 0) vsource dc={vdd}\n"
