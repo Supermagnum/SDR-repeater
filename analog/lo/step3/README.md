@@ -97,4 +97,6 @@ Sixth run: the divider noise floor (`noise`, tt and ss, top frequency of each ba
 python3 -u run_step3.py noise | tee out/summary6_noise.txt
 ```
 
+Sixth run result: not usable — flat over offset (UHF −106.6 / −128.9, VHF ss −130.1 dBc/Hz) because the output was taken at the TSPC output node, which floats for part of each cycle (held only by the 1 GΩ leak): its sampled voltage noise is not phase noise. VHF typical did not converge. Seventh run: measured at the inverter after the flip-flop (always driven), with looser PSS settings as fallback.
+
 The divider noise floor (target ≤ −150 dBc/Hz at the LO output) is the next part of step 3, after these two.
