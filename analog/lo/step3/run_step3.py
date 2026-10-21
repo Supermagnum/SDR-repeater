@@ -51,13 +51,30 @@ L2.EN_NS = 2.0          # ideal clock is up at once; the divider still starts th
 #   k=<x>    CML regenerative pair width ratio (1)    sz=<n>   TSPC size of counter and retiming flip-flops (2)
 #   bufac    buffer: middle stage AC-coupled and self-biased (keeps its threshold at the signal centre)
 #   nokick   no start-up current pulse into the CML divider (silicon has none)
-OPT = {a.split("=")[0]: a.split("=")[1] for a in sys.argv[1:] if "=" in a and a.split("=")[0] in ("i", "sw", "k", "sz")}
+OPT = {a.split("=")[0]: a.split("=")[1] for a in sys.argv[1:] if "=" in a and a.split("=")[0] in ("i", "sw", "k", "sz", "ckdrv")}
 I_LATCH = float(OPT.get("i", 0.5)) * 1e-3
 SWING = float(OPT.get("sw", 0.4))
 L1.VARIANT["k"] = float(OPT.get("k", 1.0))
 SZ = float(OPT.get("sz", 2))
 BUFAC = "bufac" in sys.argv[1:]
 NOKICK = "nokick" in sys.argv[1:]
+# Fourth run: ckdrv=<x> scales the converter's clock-driver inverters (3/6 and 9/18 um) for faster x_clk edges
+# (third run: with size-3 flip-flops the 1.92 GHz UHF clock no longer reached full swing; suspect slow clock edges
+# make the TSPC counter miscount at the slow corner)
+CKDRV = float(OPT.get("ckdrv", 1.0))
+_converter = L2.converter
+
+
+def converter_scaled(dp, dn, y):
+    txt = _converter(dp, dn, y)
+    if CKDRV == 1.0:
+        return txt
+    sc = lambda m: f"w={float(m.group(1)) * CKDRV:g}u"   # noqa: E731
+    return "\n".join(re.sub(r"w=([\d.]+)u", sc, ln) if ln.startswith(("xcv3", "xcv4")) else ln
+                     for ln in txt.splitlines()) + "\n"
+
+
+L2.converter = converter_scaled
 L1.cml_params = lambda i, vdd: (I_LATCH, SWING / I_LATCH, max(1.0, 10.0 * I_LATCH / 1e-3))
 _tspc = L2.tspc
 L2.tspc = lambda *a, **kw: _tspc(*a, **{**kw, "sz": SZ})
@@ -83,7 +100,8 @@ def buffer_ac():
 if BUFAC:
     L2.buffer = buffer_ac
 LABEL = (f"CML {I_LATCH*1e3:g} mA per latch, swing {SWING:g} V, pair ratio {L1.VARIANT['k']:g}; TSPC size {SZ:g}; "
-         f"buffer {'AC-coupled middle stage' if BUFAC else 'as step 2'}; start-up pulse {'off' if NOKICK else 'on'}")
+         f"buffer {'AC-coupled middle stage' if BUFAC else 'as step 2'}; start-up pulse {'off' if NOKICK else 'on'}; "
+         f"clock driver x{CKDRV:g}")
 
 #           tag, section, V_DD, T (degC)
 CORNERS = [("tt", "mos_tt", 1.20, 27), ("ss", "mos_ss", 1.08, 125), ("ss-cold", "mos_ss", 1.08, -40),
@@ -179,7 +197,12 @@ def stages(d, band, f, vdd):
     sk = float(np.mean([ef[np.argmin(np.abs(ef - x))] - x for x in er])) if len(er) > 2 and len(ef) > 2 else float("nan")
     tu = np.linspace(t[m][0], t[m][-1], 200000)
     du = 100 * float(np.mean(np.interp(tu, t[m], cp[m]) > th))
-    return bad, "; ".join(info), du, sk
+    xc = np.interp(tu, t[m], np.real(d["x_clk"])[m])
+    xd = 100 * float(np.mean(xc > vdd / 2))
+    lo_, hi_ = 0.1 * vdd, 0.9 * vdd                                  # x_clk 10-90 % rise time
+    r1, r2 = L2.edges(tu, xc, lo_), L2.edges(tu, xc, hi_)
+    tr = float(np.median([r2[r2 > x][0] - x for x in r1 if np.any(r2 > x)])) if len(r1) > 2 else float("nan")
+    return bad, "; ".join(info) + f"; x_clk duty {xd:.1f} %, rise {tr*1e12:.0f} ps", du, sk
 
 
 def one(band, f, corner, rng=None, tag="", amp=None):
@@ -260,7 +283,7 @@ def check_mc(bands, corners, n):
                 for lab, node, fo, du, err in rows:
                     errs.setdefault(lab, []).append(err)
                     duties.setdefault(lab, []).append(du)
-                print(f"  {band} {ctag} sample {k + 1}/{n} done", file=sys.stderr)
+                print(f"  sample {k + 1} ({band} {ctag}) ok; " + res["stage"][1].split("; ")[-1])
             print(f"### {band.upper()}, {ctag} ({vdd} V, {temp} °C), VCO {f/1e9:.2f} GHz: "
                   f"{n - fails} of {n} samples divide correctly\n")
             if not errs:

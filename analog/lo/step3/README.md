@@ -47,4 +47,29 @@ python3 -u run_step3.py mc ss uhf n=8 sz=3 | tee out/summary_mc_uhf_sz3.txt
 python3 -u run_step3.py swing bufac | tee out/summary_swing_bufac.txt
 ```
 
+Third run result (2026-10-21):
+
+| Option | VHF ff 125 °C, 4.20 GHz | VHF slow MC (8) | Current |
+|---|---|---|---|
+| none (start-up pulse off, `nokick`) | **÷2 mode** | — | — |
+| `k=1.5` (wider latch pair) | OK | **8 of 8** | unchanged |
+| `sw=0.5` (CML swing 0.5 V) | OK | **8 of 8** | unchanged |
+| `i=0.65` | OK | 5 of 8 | +0.75 mA |
+
+- UHF `sz=3`: worse (5 of 8, and wrong phase order in passing samples); the 9/18 µm clock driver no longer reaches full swing at 1.92 GHz — points at the counter's clock edges.
+- `bufac`: VHF ss 125 °C now passes down to 0.25 V tank swing (0.29 V before), so the 125 °C bottom-band margin is restored; ss −40 °C still needs 0.33 V (VCO gives 0.43 V).
+
+Fourth run: the ÷3 fixes without the start-up pulse (silicon has none), and the UHF counter with a stronger clock driver (`ckdrv`); `bufac` in all runs; x_clk duty and rise time printed per sample:
+
+```bash
+cd /foss/designs/analog/lo/step3
+for o in "k=1.5" "sw=0.5" "k=1.5 sw=0.5"; do
+  python3 -u run_step3.py corners ff-hot vhf nokick bufac $o | tee "out/summary_ffhot_nk_${o// /_}.txt"
+  python3 -u run_step3.py mc ss vhf n=8 nokick bufac $o | tee "out/summary_mc_vhf_nk_${o// /_}.txt"
+done
+for o in "ckdrv=1" "ckdrv=1.5" "ckdrv=2"; do
+  python3 -u run_step3.py mc ss uhf n=8 bufac $o | tee "out/summary_mc_uhf_${o}.txt"
+done
+```
+
 The divider noise floor (target ≤ −150 dBc/Hz at the LO output) is the next part of step 3, after these two.
