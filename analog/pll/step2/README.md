@@ -57,3 +57,14 @@ python3 -u run_step2.py lin | tee out/summary_lin2.txt      # 3 corners x 3 V_tu
 ```
 
 Eighth run: **all corners pass** — INL ≤ 1.0 ps over dt 1–5 ns, lock point 2.9–4.0 ns, offset current 10–16 µA; the power-on reset removed the stuck-PFD cases. Summary in `spec/pll-topology.md` §8. Next: transistor-level replica amplifier and dummy-node follower.
+
+Ninth run: **transistor-level amplifiers** (default; option `ideal` keeps the behavioural ones):
+- replica amplifier and dummy-node buffer are rail-to-rail-input transconductors (NMOS pair with PMOS mirror and PMOS pair with NMOS mirror on one output; covers 0.25–0.95 V on 1.08–1.32 V); replica: 2 µA tails, Miller 5 pF; buffer: unity gain, 10 µA tails, 10 pF on the dummy node;
+- with the offset current, the dummy node receives −I_off on average when locked; a matching PMOS source from pg into the dummy node cancels it, so the buffer only handles the difference;
+- bias currents of the two amplifiers are still ideal references (the bias generator is its own block).
+
+```bash
+python3 -u run_step2.py dc tt | tee out/summary9_dc.txt       # static check, seconds
+python3 -u run_step2.py tt | tee out/summary9_tt.txt          # 27 runs
+python3 -u run_step2.py lin | tee out/summary9_lin.txt        # 72 runs, all corners
+```

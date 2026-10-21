@@ -41,6 +41,9 @@ F_REF = 36e6
 DTS = [-200e-12, -50e-12, -10e-12, -3e-12, 0.0, 3e-12, 10e-12, 50e-12, 200e-12]
 VTS = [0.25, 0.6, 0.95]
 ICP = next((float(a[4:]) for a in sys.argv[1:] if a.startswith("icp=")), 100.0) * 1e-6
+# Ninth run (2026-10-22): the replica amplifier and the dummy-node follower at transistor level (default);
+# option "ideal" keeps the behavioural Verilog-A blocks of runs 1-8 for comparison.
+IDEAL = "ideal" in sys.argv[1:]
 
 HEADER = """{title}
 
@@ -140,6 +143,31 @@ def pfd(vdd):
     return s
 
 
+def rr_ota(n, inp, inn, out, itail):
+    """Rail-to-rail-input transconductor for the 0.25-0.95 V range on 1.08-1.32 V: an NMOS pair with a PMOS
+    mirror load and a PMOS pair with an NMOS mirror load, both outputs on the same node (their output currents
+    add; near either rail one pair turns off and the other carries on). Non-inverting from inp to out.
+    Tail currents from ideal references into diodes (the bias generator is a separate block). Weak inversion:
+    g_m about 30 uS per pair at 2 uA tail."""
+    return (
+        # NMOS pair, tail from node tn
+        f"iref{n}n (vdd {n}bn) isource dc={itail:.3e}\n"
+        f"m{n}bn ({n}bn {n}bn 0 0) sg13_lv_nmos w=2u l=1u\n"
+        f"m{n}tn ({n}tn {n}bn 0 0) sg13_lv_nmos w=2u l=1u\n"
+        f"m{n}n1 ({n}a1 {inp} {n}tn 0) sg13_lv_nmos w=4u l=0.5u\n"
+        f"m{n}n2 ({out} {inn} {n}tn 0) sg13_lv_nmos w=4u l=0.5u\n"
+        f"m{n}pm1 ({n}a1 {n}a1 vdd vdd) sg13_lv_pmos w=2u l=1u\n"
+        f"m{n}pm2 ({out} {n}a1 vdd vdd) sg13_lv_pmos w=2u l=1u\n"
+        # PMOS pair, tail from node tp
+        f"iref{n}p ({n}bp 0) isource dc={itail:.3e}\n"
+        f"m{n}bp ({n}bp {n}bp vdd vdd) sg13_lv_pmos w=4u l=1u\n"
+        f"m{n}tp ({n}tp {n}bp vdd vdd) sg13_lv_pmos w=4u l=1u\n"
+        f"m{n}p1 ({n}b1 {inp} {n}tp vdd) sg13_lv_pmos w=8u l=0.5u\n"
+        f"m{n}p2 ({out} {inn} {n}tp vdd) sg13_lv_pmos w=8u l=0.5u\n"
+        f"m{n}nm1 ({n}b1 {n}b1 0 0) sg13_lv_nmos w=1u l=1u\n"
+        f"m{n}nm2 ({out} {n}b1 0 0) sg13_lv_nmos w=1u l=1u\n")
+
+
 def charge_pump(icp):
     u = icp / 25e-6
     wn, wp = 15 * u, 120 * u
@@ -167,14 +195,18 @@ def charge_pump(icp):
         + f"mp1 (pz0 pg vdd vdd) sg13_lv_pmos w={wp:g}u l=2u\nvimu (pz0 pz) vsource dc=0\n"
         + f"mp2 (vt upb pz vdd) sg13_lv_pmos w={swp:g}u l=0.13u\n"
         + f"mp3 (vdm upd pz vdd) sg13_lv_pmos w={swp:g}u l=0.13u\n"
-        # dummy node held at V_tune by a unity-gain buffer (behavioural)
-        + "xbuf (vt vdm) follower\n"
+        # dummy node held at V_tune by a unity-gain buffer
+        + ("xbuf (vt vdm) follower\n" if IDEAL else
+           # Ninth run: rail-to-rail transconductor in unity gain, 10 uA tails, 10 pF on the dummy node. The
+           # steered current pulses (100 uA for a few ns) are taken by the capacitor (about 40 mV); the buffer
+           # only has to supply the average, which the offset-current source below cancels.
+           rr_ota("db", "vt", "vdm", "vdm", 10e-6) + "cdm (vdm 0) capacitor c=10p\n")
         # replica: both switches on, its node vr compared with V_tune; the amplifier drives pg
         + f"mrn1 (rnz0 nb 0 0) sg13_lv_nmos w={wn:g}u l=2u\nvird (rnz rnz0) vsource dc=0\n"
         + f"mrn2 (vr vdd rnz 0) sg13_lv_nmos w={swn:g}u l=0.13u\n"
         + f"mrp1 (rpz0 pg vdd vdd) sg13_lv_pmos w={wp:g}u l=2u\nviru (rpz0 rpz) vsource dc=0\n"
         + f"mrp2 (vr 0 rpz vdd) sg13_lv_pmos w={swp:g}u l=0.13u\n"
-        + "xamp (vr vt pg) ota\n"
+        + ("xamp (vr vt pg) ota\n" if IDEAL else rr_ota("ra", "vr", "vt", "pg", 2e-6))
         # First run: a transconductor, Miller-compensated from pg to vr. Second run: the transconductor version let pg leave the supply range at V_tune 0.25 V (replica at
         # the rail, +937 mV). Now an ideal voltage amplifier, 60 dB, output clamped to 0 ... V_DD; with the
         # replica node vr as the only pole the loop is single-pole and stable.
@@ -186,7 +218,9 @@ def charge_pump(icp):
         # amplifier is a transconductor (gain 100, 10 MOhm output, i.e. 10 uS), Miller capacitor 2 pF from pg to
         # vr; with the 20 pF of PMOS gates on pg the loop crosses over near 0.8 MHz, second pole about 7 MHz.
         # The replica only has to follow V_tune, which moves slowly in a locked loop.
-        + "ccm (pg vr) capacitor c=2p\ncvr (vr 0) capacitor c=0.2p\n")
+        # Ninth run, transistor amplifier: g_m up to about 60 uS (both pairs on), Miller 5 pF -> crossover
+        # about 2 MHz; second pole about 10 MHz (20 pF of PMOS gates on pg).
+        + ("ccm (pg vr) capacitor c=2p\n" if IDEAL else "ccm (pg vr) capacitor c=5p\n") + "cvr (vr 0) capacitor c=0.2p\n")
 
 
 def offset_sink(icp, frac=0.2):
@@ -195,7 +229,12 @@ def offset_sink(icp, frac=0.2):
     u = icp / 25e-6
     # Eighth run: sized 0.08 the lock point came out at 0.75-1.05 ns instead of 2.2 ns (about 3.5 uA instead
     # of 8 uA - the narrow device does not mirror the 60 um diode); now 0.2 and measured through a probe
-    return f"mof (vof nb 0 0) sg13_lv_nmos w={15 * u * frac:.3f}u l=2u\nviof (vt vof) vsource dc=0\n"
+    # Ninth run: locked with the offset, the dummy node receives on average -I_off (the down source spends
+    # I_off x T / I_cp less time on it than the up source). A matching PMOS source from pg into the dummy node
+    # cancels that, so the dummy buffer only handles the mismatch of the two (sized from run 8: the 0.2 NMOS
+    # sink gave 10-16 uA; PMOS 0.12 x the 480 um main source).
+    return (f"mof (vof nb 0 0) sg13_lv_nmos w={15 * u * frac:.3f}u l=2u\nviof (vt vof) vsource dc=0\n"
+            f"mofp (vdm pg vdd vdd) sg13_lv_pmos w={120 * u * 0.12:.2f}u l=2u\n")
 
 
 def run(name, corner, vt, dt, icp, ioff=False):
@@ -322,6 +361,9 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     corners = [c for c in CORNERS if c[0] in sys.argv[1:]] or CORNERS
     print("# P2.5 step 2a — PFD and charge pump\n")
+    print("Amplifiers: " + ("behavioural (Verilog-A)" if IDEAL else
+          "transistor level (rail-to-rail-input transconductors: replica 2 µA tails, Miller 5 pF; dummy buffer "
+          "10 µA tails, 10 pF)") + ".\n")
     if "dc" in sys.argv[1:]:
         check_dc(corners, ICP)
         return
