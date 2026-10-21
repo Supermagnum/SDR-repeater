@@ -72,4 +72,20 @@ for o in "ckdrv=1" "ckdrv=1.5" "ckdrv=2"; do
 done
 ```
 
+Fourth run result (2026-10-21):
+- **VHF ÷3: fixed** by `k=1.5` or `sw=0.5` (or both), also without the start-up pulse: ff 125 °C correct, 8 of 8 slow-corner samples; no extra current.
+- **UHF: the cause is the CML-to-CMOS converter**, not the counter: at 1.92 GHz, slow corner, its output duty is 23–37 % (VHF at 1.40 GHz: 60–62 %), so the TSPC clock-high time is too short. A stronger clock driver loads the converter more and fails every sample (`ckdrv=1.5` and `2`: 0 of 8).
+
+Fifth run: the fixes are now the defaults (`k=1.5`, `sw=0.5`, `bufac`, no start-up pulse), plus a new converter built like the buffer (AC-coupled, self-biased inverters, `acconv`). Quick check first, then the full set:
+
+```bash
+cd /foss/designs/analog/lo/step3
+python3 -u run_step3.py mc ss uhf n=8 | tee out/summary5_mc_uhf_ss8.txt
+python3 -u run_step3.py mc ss vhf n=8 | tee out/summary5_mc_vhf_ss8.txt
+# if both pass 8 of 8:
+python3 -u run_step3.py corners | tee out/summary5_corners.txt
+python3 -u run_step3.py swing | tee out/summary5_swing.txt
+python3 -u run_step3.py mc | tee out/summary5_mc.txt
+```
+
 The divider noise floor (target ≤ −150 dBc/Hz at the LO output) is the next part of step 3, after these two.

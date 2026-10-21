@@ -51,16 +51,24 @@ L2.EN_NS = 2.0          # ideal clock is up at once; the divider still starts th
 #   k=<x>    CML regenerative pair width ratio (1)    sz=<n>   TSPC size of counter and retiming flip-flops (2)
 #   bufac    buffer: middle stage AC-coupled and self-biased (keeps its threshold at the signal centre)
 #   nokick   no start-up current pulse into the CML divider (silicon has none)
-OPT = {a.split("=")[0]: a.split("=")[1] for a in sys.argv[1:] if "=" in a and a.split("=")[0] in ("i", "sw", "k", "sz", "ckdrv")}
+#
+# Fourth run (2026-10-21): k=1.5 and sw=0.5 each fix the ÷3 (ff 125 degC and 8 of 8 slow MC samples, also without
+# the start-up pulse; no extra current); bufac restores the bottom-band margin at 125 degC. The UHF counter failures
+# come from the CML-to-CMOS converter: at 1.92 GHz, slow corner, its output duty is 23-37 % (VHF 1.40 GHz: 60-62 %),
+# so the TSPC clock-high time is too short; a stronger clock driver only loads it more (0 of 8). New: acconv, the
+# converter built like the buffer (AC-coupled, self-biased inverters, centred on the signal), for about 50 % duty.
+#
+# Fifth run: defaults are now the chosen fixes - k=1.5, sw=0.5, bufac, nokick (silicon has no start-up pulse),
+# acconv. To go back: k=1 / sw=0.4 / nobufac / kick / dcconv. Other options: i=<mA>, sz=<n>, ckdrv=<x>.
+OPT = {a.split("=")[0]: a.split("=")[1] for a in sys.argv[1:]
+       if "=" in a and a.split("=")[0] in ("i", "sw", "k", "sz", "ckdrv")}
 I_LATCH = float(OPT.get("i", 0.5)) * 1e-3
-SWING = float(OPT.get("sw", 0.4))
-L1.VARIANT["k"] = float(OPT.get("k", 1.0))
+SWING = float(OPT.get("sw", 0.5))
+L1.VARIANT["k"] = float(OPT.get("k", 1.5))
 SZ = float(OPT.get("sz", 2))
-BUFAC = "bufac" in sys.argv[1:]
-NOKICK = "nokick" in sys.argv[1:]
-# Fourth run: ckdrv=<x> scales the converter's clock-driver inverters (3/6 and 9/18 um) for faster x_clk edges
-# (third run: with size-3 flip-flops the 1.92 GHz UHF clock no longer reached full swing; suspect slow clock edges
-# make the TSPC counter miscount at the slow corner)
+BUFAC = "nobufac" not in sys.argv[1:]
+NOKICK = "kick" not in sys.argv[1:]
+ACCONV = "dcconv" not in sys.argv[1:]
 CKDRV = float(OPT.get("ckdrv", 1.0))
 _converter = L2.converter
 
@@ -74,7 +82,24 @@ def converter_scaled(dp, dn, y):
                      for ln in txt.splitlines()) + "\n"
 
 
-L2.converter = converter_scaled
+def converter_ac(dp, dn, y):
+    """CML-to-CMOS converter built like the buffer: each CML output AC-coupled (50 fF) into a self-biased 2/4 um
+    inverter (50 kOhm feedback), weak cross-coupled inverters for anti-phase, a second AC-coupled self-biased
+    stage on the true side, then the tapered clock driver (3/6, 9/18 um). Every stage switches at the centre of
+    its input, so the duty cycle stays near 50 % whatever the CML common mode and swing."""
+    s = ""
+    for side, src in (("p", dp), ("n", dn)):
+        s += (f"cca{side} ({src} x_ci{side}) capacitor c=50f\nrca{side} (x_ci{side} x_o2{side}) resistor r=50k\n"
+              + L2.inv(f"ca{side}", f"x_ci{side}", f"x_o2{side}", "vcv", 2, 4))
+    s += L2.inv("cxp", "x_o2p", "x_o2n", "vcv", 0.5, 1) + L2.inv("cxn", "x_o2n", "x_o2p", "vcv", 0.5, 1)
+    s += ("ccb (x_o2p x_cbi) capacitor c=50f\nrcb (x_cbi x_cy) resistor r=50k\n"
+          + L2.inv("cb", "x_cbi", "x_cy", "vcv", 2, 4)
+          + L2.inv("cv3", "x_cy", "x_cz", "vcv", 3 * CKDRV, 6 * CKDRV)
+          + L2.inv("cv4", "x_cz", y, "vcv", 9 * CKDRV, 18 * CKDRV))
+    return s
+
+
+L2.converter = converter_ac if ACCONV else converter_scaled
 L1.cml_params = lambda i, vdd: (I_LATCH, SWING / I_LATCH, max(1.0, 10.0 * I_LATCH / 1e-3))
 _tspc = L2.tspc
 L2.tspc = lambda *a, **kw: _tspc(*a, **{**kw, "sz": SZ})
@@ -101,7 +126,7 @@ if BUFAC:
     L2.buffer = buffer_ac
 LABEL = (f"CML {I_LATCH*1e3:g} mA per latch, swing {SWING:g} V, pair ratio {L1.VARIANT['k']:g}; TSPC size {SZ:g}; "
          f"buffer {'AC-coupled middle stage' if BUFAC else 'as step 2'}; start-up pulse {'off' if NOKICK else 'on'}; "
-         f"clock driver x{CKDRV:g}")
+         f"converter {'AC-coupled self-biased' if ACCONV else 'as step 2'}; clock driver x{CKDRV:g}")
 
 #           tag, section, V_DD, T (degC)
 CORNERS = [("tt", "mos_tt", 1.20, 27), ("ss", "mos_ss", 1.08, 125), ("ss-cold", "mos_ss", 1.08, -40),
