@@ -16,8 +16,8 @@ Circuit (transistor level unless noted):
           in step 1 for headroom), current steering: each source goes to the output (UP / DN) or to a dummy node
           held at V_tune by a unity-gain buffer (no charge sharing); a replica branch (both switches on) and an
           amplifier set the PMOS gate so that replica up = replica down at V_tune (D18). The two amplifiers are
-          behavioural (Verilog-A: 30 V/V voltage amplifier clamped to the supply, 20 pF on the
-          replica node; ideal follower); their transistor-level design follows once the pump works.
+          behavioural (Verilog-A: 100 V/V transconductor, 10 uS, output clamped to the supply,
+          Miller-compensated with the replica stage; ideal follower); their transistor-level design follows once the pump works.
   output  held by an ideal source at V_tune (0.25 / 0.6 / 0.95 V); its current, averaged over 10 reference
           cycles, gives the net charge per cycle Q(dt).
 Results per case: Q/I_cp against dt (ideal: equal to dt), the offset at dt = 0 (residual up/down mismatch x the
@@ -69,9 +69,11 @@ endmodule
 module ota(p, n, o);
     inout p, n, o;
     electrical p, n, o;
-    parameter real a = 1000;
+    parameter real a = 100;
     parameter real vh = 1.2;
-    analog V(o) <+ 0.5 * vh * (1 + tanh(2 * a * (V(p) - V(n)) / vh));
+    parameter real rout = 1e7;
+    // voltage gain a, output clamped to 0 ... vh, output resistance rout (transconductance a / rout)
+    analog I(o) <+ (V(o) - 0.5 * vh * (1 + tanh(2 * a * (V(p) - V(n)) / vh))) / rout;
 endmodule
 module follower(i, o);
     inout i, o;
@@ -176,7 +178,12 @@ def charge_pump(icp):
         # Third run: with 60 dB and 0.5 pF the replica loop crossed over near 400 GHz, so the simulator crawled
         # (one run > 10 min). Now 30 V/V and 20 pF on vr: loop gain at DC still about 30 x g_m x r_out ~ 8000,
         # crossover about 300 MHz.
-        + "cvr (vr 0) capacitor c=20p\n")
+        # Fifth run: pg swung 0.2-1.19 V every cycle (replica and main up currents peaking at 7-9 mA): the ideal
+        # fast amplifier made the replica loop oscillate. Sixth run: a proper two-stage compensation - the
+        # amplifier is a transconductor (gain 100, 10 MOhm output, i.e. 10 uS), Miller capacitor 2 pF from pg to
+        # vr; with the 20 pF of PMOS gates on pg the loop crosses over near 0.8 MHz, second pole about 7 MHz.
+        # The replica only has to follow V_tune, which moves slowly in a locked loop.
+        + "ccm (pg vr) capacitor c=2p\ncvr (vr 0) capacitor c=0.2p\n")
 
 
 def run(name, corner, vt, dt, icp):
@@ -188,7 +195,7 @@ def run(name, corner, vt, dt, icp):
         fh.write(HEADER.format(title=f"P2.5 step 2a: {name}", mos=mos))
         # Verilog-A parameters are model parameters in VACASK (first run: "parameter not found" on the
         # instance), so each clock gets its own model
-        fh.write(f"model ota ota a=30 vh={vdd}\n"
+        fh.write(f"model ota ota a=100 vh={vdd} rout=1e7\n"
                  f"model sqref sqclk f={F_REF:.6e} td=2e-9 vh={vdd}\n"
                  f"model sqdiv sqclk f={F_REF:.6e} td={2e-9 + dt:.6e} vh={vdd}\n"
                  f"vdd (vdd 0) vsource dc={vdd}\n"
@@ -246,7 +253,7 @@ def check_dc(corners, icp):
                 name = f"dc_{corner[0]}_{vt:.2f}_{uv}{dv}"
                 with open(os.path.join(OUT, name + ".sim"), "w") as fh:
                     fh.write(HEADER.format(title=f"P2.5 step 2a: {name}", mos=mos))
-                    fh.write(f"model ota ota a=30 vh={vdd}\nvdd (vdd 0) vsource dc={vdd}\nvtn (vt 0) vsource dc={vt}\n"
+                    fh.write(f"model ota ota a=100 vh={vdd} rout=1e7\nvdd (vdd 0) vsource dc={vdd}\nvtn (vt 0) vsource dc={vt}\n"
                              f"vup (up 0) vsource dc={uv * vdd}\nvdn (dn 0) vsource dc={dv * vdd}\n" + charge_pump(icp))
                     fh.write(f"\ncontrol\n  abort always\n  options rawfile=\"binary\"\n  options temp={temp}\n"
                              "  analysis op1 op\nendc\n")
