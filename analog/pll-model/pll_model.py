@@ -72,7 +72,7 @@ def loop(f, lf, kvco, icp, n_fb):
     return olg, t_ref, t_vco
 
 
-def noise(f, a, lf, n_fb, fpfd, n_lo):
+def noise(f, a, lf, n_fb, fpfd, n_lo, presc=1):
     olg, t_ref, t_vco = loop(f, lf, a.kvco, a.icp, n_fb)
     t_div = t_ref / n_fb             # divider-phase -> VCO phase, DC gain 1
     # VCO (dBc/Hz -> rad^2/Hz single sideband *2)
@@ -87,7 +87,8 @@ def noise(f, a, lf, n_fb, fpfd, n_lo):
     lref = np.interp(np.log10(f), np.log10(ref_f), ref_l)
     s_ref = 2 * 10 ** (lref / 10) * np.abs(t_ref) ** 2
     # MASH n-th order: divider-modulus noise (VCO cycles) -> VCO phase
-    sq = (2 * np.pi) ** 2 / (12 * fpfd) * (2 * np.sin(np.pi * f / fpfd)) ** (2 * (a.mash - 1))
+    # P2.5: with a prescaler P in front of the multi-modulus divider one modulus step is P VCO cycles
+    sq = presc ** 2 * (2 * np.pi) ** 2 / (12 * fpfd) * (2 * np.sin(np.pi * f / fpfd)) ** (2 * (a.mash - 1))
     s_sd = sq * np.abs(t_div) ** 2
     # Loop-filter resistor noise (R1, R3) -> control voltage -> VCO phase
     s = 2j * np.pi * f
@@ -137,13 +138,15 @@ def main():
     ap.add_argument("--mash", type=int, default=3)
     ap.add_argument("--s0", type=float, default=-45.0, help="raw boundary spur at the VCO, dBc [PROP]")
     ap.add_argument("--ileak", type=float, default=1e-9, help="CP leakage, A [PROP]")
+    ap.add_argument("--presc", action="store_true",
+                    help="P2.5 proposal: MMD clocked after the LO chain's first CML stage (÷2 UHF, ÷3 VHF)")
     ap.add_argument("--ref-profile", type=float, nargs=6,
                     default=[-110, -135, -150, -155, -158, -160],
                     help="TCXO L(f) at 100 Hz..10 MHz, dBc/Hz [PROP]")
     a = ap.parse_args()
 
     print(f"Loop: BW {a.bw/1e3:.0f} kHz, PM {a.pm:.0f} deg, Kvco {a.kvco/1e6:.0f} MHz/V, Icp {a.icp*1e6:.0f} uA, "
-          f"MASH {a.mash}, VCO {a.l1m:.0f} dBc/Hz @ 1 MHz")
+          f"MASH {a.mash}, VCO {a.l1m:.0f} dBc/Hz @ 1 MHz" + (", prescaler ÷2 UHF / ÷3 VHF before the MMD" if a.presc else ""))
     ok_all = True
     for ref in (32e6, 36e6):
         for band, (n_lo, dup, (flo, fhi)) in BANDS.items():
@@ -152,7 +155,8 @@ def main():
                 n_fb = fvco / ref
                 lf = design_loop(a.bw, a.pm, a.kvco, a.icp, n_fb)
                 f = np.array([dup])
-                pn = noise(f, a, lf, n_fb, ref, n_lo)
+                presc = (3 if band == "VHF" else 2) if a.presc else 1
+                pn = noise(f, a, lf, n_fb, ref, n_lo, presc)
                 p = pn["total"][0]
                 # integer-boundary spur at offset d = duplex offset
                 _, t_ref, _ = loop(f, lf, a.kvco, a.icp, n_fb)
