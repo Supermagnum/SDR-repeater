@@ -125,15 +125,18 @@ def dff_r(n, ck, r, q):
             + inv(f"{n}i2", y, yb) + nor2(f"{n}n2", yb, r, q))
 
 
-def pfd():
+def pfd(vdd):
     s = (inv("rb1", "ref0", "ref1", 1, 2) + inv("rb2", "ref1", "ref", 2, 4)
          + inv("db1", "div0", "div1", 1, 2) + inv("db2", "div1", "div", 2, 4))
     s += dff_r("fu", "ref", "rst", "up") + dff_r("fd", "div", "rst", "dn")
     s += nand2("ra", "up", "dn", "x_r0")
     # Second run: NAND + 5 inverters with 5 fF loads gave a 610-640 ps reset pulse (target 150-250 ps).
-    nodes = ["x_r0", "x_r1", "x_r2", "rst"]
-    for k in range(3):                                  # NAND + 3 inverters = AND with delay
-        s += inv(f"rd{k}", nodes[k], nodes[k + 1])
+    # Eighth run: the last inverter became a NAND with a power-on reset (porb low for the first 1.5 ns), so
+    # rst = AND(UP, DN) OR por: the flip-flops start from a defined state. Seventh run: at the slow corner
+    # some runs had DN stuck high for the whole simulation (the static latches started from the operating
+    # point in an undefined state); the chip's PFD gets the same reset from the sequencer (en_pll).
+    s += inv("rd0", "x_r0", "x_r1") + inv("rd1", "x_r1", "x_r2") + nand2("rd2", "x_r2", "porb", "rst")
+    s += f'vpor (porb 0) vsource type="pulse" val0=0 val1={vdd} delay=1.5n rise=0.1n fall=0.1n width=1\n'
     return s
 
 
@@ -186,11 +189,13 @@ def charge_pump(icp):
         + "ccm (pg vr) capacitor c=2p\ncvr (vr 0) capacitor c=0.2p\n")
 
 
-def offset_sink(icp, frac=0.08):
+def offset_sink(icp, frac=0.2):
     """D18 offset current: an NMOS sink from V_tune mirrored from the pump bias nb (frac x I_cp), on all the
     time, so the loop locks with UP pulses about frac x T_ref long and the pump works on one side only."""
     u = icp / 25e-6
-    return f"mof (vt nb 0 0) sg13_lv_nmos w={15 * u * frac:.3f}u l=2u\n"
+    # Eighth run: sized 0.08 the lock point came out at 0.75-1.05 ns instead of 2.2 ns (about 3.5 uA instead
+    # of 8 uA - the narrow device does not mirror the 60 um diode); now 0.2 and measured through a probe
+    return f"mof (vof nb 0 0) sg13_lv_nmos w={15 * u * frac:.3f}u l=2u\nviof (vt vof) vsource dc=0\n"
 
 
 def run(name, corner, vt, dt, icp, ioff=False):
@@ -208,7 +213,7 @@ def run(name, corner, vt, dt, icp, ioff=False):
                  f"vdd (vdd 0) vsource dc={vdd}\n"
                  f"xref (ref0) sqref\n"
                  f"xdiv (div0) sqdiv\n"
-                 f"vtn (vt 0) vsource dc={vt}\n" + pfd() + charge_pump(icp) + (offset_sink(icp) if ioff else ""))
+                 f"vtn (vt 0) vsource dc={vt}\n" + pfd(vdd) + charge_pump(icp) + (offset_sink(icp) if ioff else ""))
         fh.write("\ncontrol\n  abort always\n  options rawfile=\"binary\"\n"
                  f"  options temp={temp}\n"
                  f"  analysis tr tran stop={ncyc / F_REF:.6e} step=5p maxstep=5p\nendc\n")
@@ -240,6 +245,8 @@ def run(name, corner, vt, dt, icp, ioff=False):
     for k in ("vimu", "vimd", "viru", "vird"):
         v = np.abs(np.real(d[f"{k}:flow(br)"])[m])
         stats[k] = (v.min(), np.trapezoid(v, t[m]) / (t[m][-1] - t[m][0]), v.max())
+    if ioff:
+        stats["ioff"] = float(np.mean(np.abs(np.real(d["viof:flow(br)"])[m])))
     return q, w, float(np.real(d["pg"])[-1]), float(np.real(d["vr"])[-1]), stats
 
 
@@ -280,21 +287,23 @@ def check_dc(corners, icp):
 def check_lin(corners, icp):
     """Seventh run: the pump with the D18 offset current (8 % of I_cp) around its locked operating point.
     Locked, the net charge is zero at dt ~ 0.08 T_ref ~ 2.2 ns of UP lead; the Sigma-Delta moves the divider
-    edge by about +-1 ns around that. Over dt = 1.0-3.5 ns only the UP side is active, so the curve should be a
+    edge by about +-1 ns around that. Over dt = 1.0-5.0 ns only the UP side is active, so the curve should be a
     straight line: its deviation from the best-fit line (INL) is what folds Sigma-Delta noise into spurs."""
     print("## Linearity around the locked point, with the 8 % offset current (D18) [SCH]\n")
     print("Q / I_cp in ps per reference cycle against the UP lead dt; lock point = where Q = 0; INL = largest "
           "deviation from the straight-line fit, in ps of phase (and as % of the ±1 ns range).\n")
-    dts = [1.0e-9, 1.5e-9, 2.0e-9, 2.5e-9, 3.0e-9, 3.5e-9]
-    print("| Corner | V_tune | " + " | ".join(f"{x*1e9:g} ns" for x in dts) + " | Lock point (ns) | Slope | INL (ps) |")
-    print("|---|---|" + "---|" * len(dts) + "---|---|---|")
+    dts = [1.0e-9, 1.5e-9, 2.0e-9, 2.5e-9, 3.0e-9, 3.5e-9, 4.0e-9, 5.0e-9]
+    print("| Corner | V_tune | " + " | ".join(f"{x*1e9:g} ns" for x in dts)
+          + " | Lock point (ns) | Slope | INL (ps) | Offset current (µA) |")
+    print("|---|---|" + "---|" * len(dts) + "---|---|---|---|")
     for corner in corners:
         for vt in VTS:
-            qs = []
+            qs, io = [], float("nan")
             for dt in dts:
                 try:
-                    q, *_ = run(f"lin_{corner[0]}_{vt:.2f}_{dt*1e9:.1f}", corner, vt, dt, icp, ioff=True)
+                    q, _, _, _, st = run(f"lin_{corner[0]}_{vt:.2f}_{dt*1e9:.1f}", corner, vt, dt, icp, ioff=True)
                     qs.append(q / icp)
+                    io = st["ioff"]
                 except RuntimeError:
                     qs.append(float("nan"))
             qa, da = np.array(qs), np.array(dts)
@@ -305,7 +314,7 @@ def check_lin(corners, icp):
             k, c = np.polyfit(da[ok], qa[ok], 1)
             inl = np.max(np.abs(qa[ok] - (k * da[ok] + c)))
             print(f"| {corner[0]} | {vt} | " + " | ".join(f"{x*1e12:+.0f}" for x in qa)
-                  + f" | {-c / k * 1e9:.2f} | {k:.3f} | {inl*1e12:.1f} ({inl / 2e-9 * 100:.2f} %) |")
+                  + f" | {-c / k * 1e9:.2f} | {k:.3f} | {inl*1e12:.1f} ({inl / 2e-9 * 100:.2f} %) | {io*1e6:.1f} |")
     print()
 
 
