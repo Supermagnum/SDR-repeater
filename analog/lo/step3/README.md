@@ -99,4 +99,6 @@ python3 -u run_step3.py noise | tee out/summary6_noise.txt
 
 Sixth run result: not usable — flat over offset (UHF −106.6 / −128.9, VHF ss −130.1 dBc/Hz) because the output was taken at the TSPC output node, which floats for part of each cycle (held only by the 1 GΩ leak): its sampled voltage noise is not phase noise. VHF typical did not converge. Seventh run: measured at the inverter after the flip-flop (always driven), with looser PSS settings as fallback.
 
+Seventh run result: again flat over offset (UHF −107.4 / −126.5, VHF −113.0 / −130.0 dBc/Hz, tt / ss), typical worse than slow, also at the driven node: the method does not work on this dynamic CMOS path. Noise floor taken from a hand estimate (`spec/lo-divider-topology.md` §9, ≈ −157 / −161 dBc/Hz); simulation moves to P2.6. **Step 3 done.**
+
 The divider noise floor (target ≤ −150 dBc/Hz at the LO output) is the next part of step 3, after these two.

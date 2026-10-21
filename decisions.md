@@ -212,3 +212,6 @@ Accepted as proposed in `spec/vco-topology.md` §5, after a comparison with comm
 
 ## 2026-10-21 — D7 reading (LO current)
 - Accepted (owner): D7 (LO ≤ 10 mA) is a **typical** figure, like the RX budget it is part of (≤ 25 mA against the SX1255's 18 mA typ, `spec/rf-frontend.md` §6). The LO meets it at typical (≈ 9.65 mA, VHF 4.20 GHz). The ±10 % supply corners are robustness checks; the LO runs from the on-chip regulator `VR_ANA1`, so the 1.32 V figure (≈ 10.3 mA) is recorded as a maximum, not held against D7. The margin depends on the PLL's hand estimate (1.5 mA) and is checked again with the real PLL in P2.5; above about 1.8 mA the LO buffer or converter has to give back current.
+
+## 2026-10-21 — P2.4 step 3: noise floor
+- Driven pss/pnoise on the divider edge path gave flat, corner-inverted results (−107 to −130 dBc/Hz) at both a floating and a driven node: method not usable for dynamic CMOS logic. Hand estimate used: σ ≈ 0.1 ps → ≈ −157 dBc/Hz (UHF, 480 MHz) and ≈ −161 dBc/Hz (VHF, 175 MHz) at the LO output, target ≤ −150. Simulation of the floor moves to P2.6.
