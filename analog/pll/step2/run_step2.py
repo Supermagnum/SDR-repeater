@@ -145,25 +145,29 @@ def charge_pump(icp):
         # PMOS source floated (both its switches off) and later dumped that charge into the output. Now each
         # switch pair is driven by complementary signals of equal delay: an inverter for one, an always-on
         # transmission gate of matched delay for the other, both sized for the switch gates.
-        inv("su", "up", "upb", 2, 4) + tg("sut", "up", "upd", "vdd", "0", 2, 4)
-        + inv("sd", "dn", "dnb", 2, 4) + tg("sdt", "dn", "dnd", "vdd", "0", 2, 4)
+        # Fourth run: UP and DN first buffered by two inverters each (the PFD outputs carried unequal switch-gate
+        # loads through the transmission gates: reset pulse UP 380 / DN 450 ps)
+        inv("bu1", "up", "x_up1", 1, 2) + inv("bu2", "x_up1", "upq", 2, 4)
+        + inv("bd1", "dn", "x_dn1", 1, 2) + inv("bd2", "x_dn1", "dnq", 2, 4)
+        + inv("su", "upq", "upb", 2, 4) + tg("sut", "upq", "upd", "vdd", "0", 2, 4)
+        + inv("sd", "dnq", "dnb", 2, 4) + tg("sdt", "dnq", "dnd", "vdd", "0", 2, 4)
         # NMOS bias (fixed): reference current into a diode
         + f"iref (vdd nb) isource dc={icp:.4e}\n"
         + f"mnb (nb nb 0 0) sg13_lv_nmos w={wn:g}u l=2u\n"
         # main NMOS sink, steered to the output (DN) or to the dummy node (DN low)
-        + f"mn1 (nz nb 0 0) sg13_lv_nmos w={wn:g}u l=2u\n"
+        + f"mn1 (nz0 nb 0 0) sg13_lv_nmos w={wn:g}u l=2u\nvimd (nz nz0) vsource dc=0\n"
         + f"mn2 (vt dnd nz 0) sg13_lv_nmos w={swn:g}u l=0.13u\n"
         + f"mn3 (vdm dnb nz 0) sg13_lv_nmos w={swn:g}u l=0.13u\n"
         # main PMOS source, gate pg from the replica amplifier; to the output (UP) or the dummy node
-        + f"mp1 (pz pg vdd vdd) sg13_lv_pmos w={wp:g}u l=2u\n"
+        + f"mp1 (pz0 pg vdd vdd) sg13_lv_pmos w={wp:g}u l=2u\nvimu (pz0 pz) vsource dc=0\n"
         + f"mp2 (vt upb pz vdd) sg13_lv_pmos w={swp:g}u l=0.13u\n"
         + f"mp3 (vdm upd pz vdd) sg13_lv_pmos w={swp:g}u l=0.13u\n"
         # dummy node held at V_tune by a unity-gain buffer (behavioural)
         + "xbuf (vt vdm) follower\n"
         # replica: both switches on, its node vr compared with V_tune; the amplifier drives pg
-        + f"mrn1 (rnz nb 0 0) sg13_lv_nmos w={wn:g}u l=2u\n"
+        + f"mrn1 (rnz0 nb 0 0) sg13_lv_nmos w={wn:g}u l=2u\nvird (rnz rnz0) vsource dc=0\n"
         + f"mrn2 (vr vdd rnz 0) sg13_lv_nmos w={swn:g}u l=0.13u\n"
-        + f"mrp1 (rpz pg vdd vdd) sg13_lv_pmos w={wp:g}u l=2u\n"
+        + f"mrp1 (rpz0 pg vdd vdd) sg13_lv_pmos w={wp:g}u l=2u\nviru (rpz0 rpz) vsource dc=0\n"
         + f"mrp2 (vr 0 rpz vdd) sg13_lv_pmos w={swp:g}u l=0.13u\n"
         + "xamp (vr vt pg) ota\n"
         # First run: a transconductor, Miller-compensated from pg to vr. Second run: the transconductor version let pg leave the supply range at V_tune 0.25 V (replica at
@@ -215,10 +219,47 @@ def run(name, corner, vt, dt, icp):
     return q, w, float(np.real(d["pg"])[-1]), float(np.real(d["vr"])[-1])
 
 
+def check_dc(corners, icp):
+    """Fourth run: DC check of the pump with UP / DN forced (no PFD): output current, the four source currents,
+    the PMOS gate pg and the replica node. Third run gave gains of 0.4-0.8 and offsets of -370 ... +180 ps,
+    and the replica 15-75 mV off V_tune, which the transient alone cannot explain."""
+    from vacask.rawfile import rawread
+    print("## DC check: currents with UP / DN forced [SCH]\n")
+    print("Currents in µA (positive = into V_tune for I_out; source currents as magnitudes). Ideal: UP only → "
+          f"I_out = +{icp*1e6:.0f}; DN only → −{icp*1e6:.0f}; both → 0.\n")
+    print("| Corner | V_tune | UP, DN | I_out | Main up | Main down | Replica up | Replica down | pg (V) | vr − V_tune (mV) |")
+    print("|---|---|---|---|---|---|---|---|---|---|")
+    for corner in corners:
+        _, mos, vdd, temp = corner
+        for vt in VTS:
+            for uv, dv in ((1, 0), (0, 1), (1, 1), (0, 0)):
+                name = f"dc_{corner[0]}_{vt:.2f}_{uv}{dv}"
+                with open(os.path.join(OUT, name + ".sim"), "w") as fh:
+                    fh.write(HEADER.format(title=f"P2.5 step 2a: {name}", mos=mos))
+                    fh.write(f"model ota ota a=30 vh={vdd}\nvdd (vdd 0) vsource dc={vdd}\nvtn (vt 0) vsource dc={vt}\n"
+                             f"vup (up 0) vsource dc={uv * vdd}\nvdn (dn 0) vsource dc={dv * vdd}\n" + charge_pump(icp))
+                    fh.write(f"\ncontrol\n  abort always\n  options rawfile=\"binary\"\n  options temp={temp}\n"
+                             "  analysis op1 op\nendc\n")
+                with open(os.path.join(OUT, name + ".log"), "w") as fh:
+                    r = subprocess.run(["vacask", name + ".sim"], cwd=OUT, stdout=fh, stderr=subprocess.STDOUT)
+                if r.returncode:
+                    print(f"| {corner[0]} | {vt} | {uv}, {dv} | error |")
+                    continue
+                d = rawread(os.path.join(OUT, "op1.raw")).get()
+                g = lambda k: float(np.real(d[k])[0])   # noqa: E731
+                print(f"| {corner[0]} | {vt} | {uv}, {dv} | {g('vtn:flow(br)')*1e6:+.1f} | {abs(g('vimu:flow(br)'))*1e6:.1f} | "
+                      f"{abs(g('vimd:flow(br)'))*1e6:.1f} | {abs(g('viru:flow(br)'))*1e6:.1f} | {abs(g('vird:flow(br)'))*1e6:.1f} | "
+                      f"{g('pg'):.3f} | {(g('vr') - vt)*1e3:+.1f} |")
+    print()
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     corners = [c for c in CORNERS if c[0] in sys.argv[1:]] or CORNERS
     print("# P2.5 step 2a — PFD and charge pump\n")
+    if "dc" in sys.argv[1:]:
+        check_dc(corners, ICP)
+        return
     print(f"I_cp {ICP*1e6:.0f} µA, reference {F_REF/1e6:.0f} MHz. Q/I_cp is the net charge per reference cycle "
           "divided by I_cp, in ps (ideal: equal to the phase offset dt; positive = net up). Sign check at "
           "|dt| = 3 ps for the dead zone.\n")
