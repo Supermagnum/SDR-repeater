@@ -45,3 +45,13 @@ Sixth run (typical): **the replica loop is stable** (pg steady within 1 mV, repl
 python3 -u run_step2.py ss ff | tee out/summary_a_ssff.txt    # 54 runs
 python3 -u run_step2.py lin | tee out/summary_lin.txt          # 3 corners x 3 V_tune x 6 offsets (54 runs)
 ```
+
+Seventh run:
+- **Slow and fast corners (no offset current): pass** — no dead zone, replica loop steady (pg within 2 mV; replica 1–2 mV off V_tune, ff 0.6 V +20 mV), offsets −50 … +75 ps, gains 1.10–1.27, reset pulse 451 ps (ss) / 188 ps (ff).
+- **Linearity with the offset current: INL ≤ 0.6 ps** (≤ 0.03 % of the ±1 ns range) at tt, ff and ss 0.6 V — the pump is linear on the UP side. But the lock point came out at 0.75–1.05 ns instead of 2.2 ns: the 0.08-sized sink gave about 3.5 µA, not 8 µA. And two slow-corner cases (0.25 and partly 0.95 V) had DN stuck high for the whole run — the PFD's static latches started from an undefined operating point.
+
+Eighth run: power-on reset for the PFD (rst forced for the first 1.5 ns), offset sink sized 0.2 with a current probe (reported), offsets up to 5 ns:
+
+```bash
+python3 -u run_step2.py lin | tee out/summary_lin2.txt      # 3 corners x 3 V_tune x 8 offsets (72 runs)
+```
