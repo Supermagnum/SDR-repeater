@@ -1,6 +1,6 @@
 # PLL topology memo (P2.5): PFD, charge pump, loop filter, feedback divider, Σ-Δ
 
-Status: **topology accepted by the owner 2026-10-21 (D16–D18 as proposed, §4). Step 1 (device and block checks, `analog/pll/step1/`) prepared.** Numbers are hand estimates `[HAND]` or from the linear PLL model `[MODEL]` (`analog/pll-model/`, P2.2), unless marked. Inputs: `spec/phase2-plan.md` §2 and D3, D5, D6, D7, D11; the VCO (`spec/vco-topology.md` §9); the LO dividers (`spec/lo-divider-topology.md` §9, P2.4 accepted 2026-10-21); the register map (`spec/analog-digital-interface.md` §5).
+Status: **topology accepted by the owner 2026-10-21 (D16–D18 as proposed, §4). Step 1 first run 2026-10-21 (§7): MOS capacitors and the 2/3 cell pass; the cascoded charge pump does not reach the needed tuning window — second run with plain long-channel sources.** Numbers are hand estimates `[HAND]` or from the linear PLL model `[MODEL]` (`analog/pll-model/`, P2.2), unless marked. Inputs: `spec/phase2-plan.md` §2 and D3, D5, D6, D7, D11; the VCO (`spec/vco-topology.md` §9); the LO dividers (`spec/lo-divider-topology.md` §9, P2.4 accepted 2026-10-21); the register map (`spec/analog-digital-interface.md` §5).
 
 ---
 
@@ -70,7 +70,7 @@ The Σ-Δ share stays at least 17 dB below the total; the totals do not change. 
 | **PLL total** | **≈ 0.8–1.3 mA** (≤ 1.8 mA allowed) |
 | A separate CML prescaler (not proposed) would add | 1–1.5 mA |
 
-**Tuning window vs charge-pump compliance:** a cascoded current source on 1.2 V keeps its output current within about 1 % from roughly 0.25 to 0.95 V `[HAND]`. The VCO bands were sized for 0.3–1.0 V. Proposal: the band calibration targets 0.35–0.85 V (margin for temperature drift after lock); the 7-bit bank overlaps enough for that (P2.3: K_VCO 13–39 MHz/V, band step about 10–30 MHz) — checked in step 1.
+**Tuning window vs charge-pump compliance:** a cascoded current source on 1.2 V keeps its output current within about 1 % from roughly 0.25 to 0.95 V `[HAND]`. The VCO bands were sized for 0.3–1.0 V. ~~Proposal: the band calibration targets 0.35–0.85 V~~ — corrected in §7: one band step is about 6 MHz (bottom) to 20 MHz (top), i.e. 0.45–0.52 V of V_tune at K_VCO 13–39 MHz/V, so with drift margin the pump must cover **about 0.25–0.95 V**.
 
 **Loop-filter area** `[HAND]`: about 400 pF → about 0.05 mm² as thin-oxide MOS capacitors (≈ 8 fF/µm²) or 0.27 mm² as MIM (≈ 1.5 fF/µm²).
 
@@ -99,3 +99,17 @@ Small VACASK runs at typical and slow corner (1.08 V, 125 °C), fast where it ma
 | 1 | Device and block checks (§5) | Result review: confirms or changes §2 |
 | 2 | Schematics: reference buffer, PFD, CP, loop filter, MMD; Σ-Δ, lock detector and calibration as RTL with a Python reference model | — |
 | 3 | Corners and Monte Carlo: CP mismatch and leakage, MMD speed, PFD dead zone → raw spur level S0 and reference spur fed back to the P2.2 model; current | Result review against §1; then P2.6 (closed loop) |
+
+## 7. Step 1 results (2026-10-21)
+
+Source: `analog/pll/step1/` (VACASK, PDK `a49358cc`) `[SCH]`; tt 1.2 V 27 °C, ss 1.08 V 125 °C, ff 1.32 V −40 °C.
+
+**Tuning window needed (correction to §3):** the 7-bit bank spans 2.90–4.41 GHz, so one band step is ≈ 6 MHz at the bottom and ≈ 20 MHz at the top (the step grows with f³); at K_VCO 13.1 / 38.6 MHz/V that is **0.45–0.52 V of V_tune** just to reach from one band to the next. With margin for temperature drift after lock, the charge pump has to work over **≈ 0.25–0.95 V**, close to the VCO design window (0.3–1.0 V). The 0.35–0.85 V of §3 is too narrow.
+
+| Check | Result | Consequence |
+|---|---|---|
+| **Charge pump, wide-swing cascodes** | Down (NMOS) side within 1 % from 0.35–0.45 V upward; **up (PMOS) side only up to 0.65–0.80 V** (ss 200 µA: 0.40–0.65 V). Raw up/down mismatch 3–20 %. Leakage, switches off, 125 °C: 2–10 nA typical, 23–59 nA fast | **Fails the 0.25–0.95 V window**: two stacked devices plus the switch need too much of 1.2 V. Second run: plain current sources with long channels (L = 2 µm, one V_ov ≈ 0.15 V) and wider switches; the replica-feedback amplifier (D18) then removes the mismatch, and the few-% change of the absolute current only moves the loop gain slightly |
+| **MOS capacitors (D17)** | Thin NMOS 10–13 fF/µm² above 0.35 V but falls to 2–7 at 0.1–0.2 V; thin PMOS the mirror image; **NMOS + PMOS in parallel ≈ 7–12.5 fF/µm², spread 1.06–1.43× over 0.35–0.85 V**; thick NMOS only 1.2–4.4 fF/µm² (no better than MIM). Gate leakage at 125 °C for 355 pF: 0.04–3.8 µA (thin), 0.5–2.0 µA for the complementary pair | **C1 and C2 as complementary thin-oxide pairs** (NMOS to ground ∥ PMOS to V_DD), ≈ 0.04 mm² for C2. The leakage is far above the 100 nA I had assumed, but the reference spur it causes is still small: `pll_model.py --presc --ileak 2e-6` → ≤ −116 dBc, 10 µA → ≤ −102 dBc (limits TX −67, RX −84 dBc). It also adds a static phase offset like the D18 offset current; checked in closed loop (P2.6) |
+| **MMD 2/3 cell (D16)** | TSPC, size 2: ÷2 to ≥ 3.3 GHz, ÷3 to 2.9 GHz at the slow corner (fails at 3.3); 10 of 10 mismatch samples correct in each mode at 2.2 GHz | **Passes** (2.9 / 2.2 = 1.32×, just above the 1.3× rule); first cell in TSPC as proposed |
+
+Second run: `run_step1.py cp2` (plain long-channel current sources, compliance at 5 %, window 0.25–0.95 V).
