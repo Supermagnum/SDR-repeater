@@ -77,20 +77,23 @@ def mismatch(text, rng):
     return "\n".join(out) + "\n"
 
 
-def build(band, f, corner, rng=None, tag=""):
+def build(band, f, corner, rng=None, tag="", amp=None):
     ctag, mos, vdd, temp = corner
     body, names, ideal, ndiv, duty = L2.chain(band, vdd)
-    lo = (f"vbufs (vbuf 0) vsource dc={vdd}\nvdvs (vdv 0) vsource dc={vdd}\n"
-          f"vcvs (vcv 0) vsource dc={vdd}\nvdgs (vdg 0) vsource dc={vdd}\n" + L2.buffer() + body)
+    # Second run: supplies ramp up from 0 over 0.2-1.2 ns, so the operating point is the trivial all-zero one
+    # (first run: VHF ff / 125 degC failed to find a DC operating point)
+    sup = f'type="pulse" val0=0 val1={vdd} delay=0.2n rise=1n fall=1n width=1'
+    lo = (f"vbufs (vbuf 0) vsource {sup}\nvdvs (vdv 0) vsource {sup}\n"
+          f"vcvs (vcv 0) vsource {sup}\nvdgs (vdg 0) vsource {sup}\n" + L2.buffer() + body)
     if rng is not None:
         lo = mismatch(lo, rng)
     stop = 3e-9 + (24 * 8 if band == "uhf" else 20 * 24) / f
     name = f"lo3_{band}_{ctag}_{f/1e9:.2f}{tag}"
     path = os.path.join(OUT, name + ".sim")
     with open(path, "w") as fh:
-        fh.write(L1.HEADER.format(title=f"P2.4 step 3: {name}", mos=mos, vcm=1.1, amp=tank_amp(f), shape=0.0,
+        fh.write(L1.HEADER.format(title=f"P2.4 step 3: {name}", mos=mos, vcm=1.1, amp=amp or tank_amp(f), shape=0.0,
                                   f=f, offs=0.0, t0=-1.0, tr=1e-12))
-        fh.write(f"vdd (vdd 0) vsource dc={vdd}\nxtank (tp tn) clk\n" + lo)
+        fh.write(f"vdd (vdd 0) vsource {sup}\nxtank (tp tn) clk\n" + lo)
         fh.write("\ncontrol\n  abort always\n  options rawfile=\"binary\"\n"
                  f"  options temp={temp}\n"
                  f"  analysis tr tran stop={stop:.4e} step=5p maxstep=5p\nendc\n")
@@ -108,12 +111,40 @@ def run(path):
     return rawread(os.path.join(OUT, "tr.raw")).get()
 
 
-def one(band, f, corner, rng=None, tag=""):
+def stages(d, band, f, vdd):
+    """First stage whose frequency is wrong (second run), and the clock duty / skew at the CML input."""
+    t = np.real(d["time"])
+    nd = 2 if band == "uhf" else 3
+    ndiv = 8 if band == "uhf" else 24
+    dv = ("qp", "qn") if band == "uhf" else ("q2p", "q2n")
+    chk = [("buffer", np.real(d["ckp"]) - np.real(d["ckn"]), f),
+           ("CML", np.real(d[dv[0]]) - np.real(d[dv[1]]), f / nd),
+           ("converter", np.real(d["x_clk"]) - vdd / 2, f / nd),
+           ("counter", np.real(d["x_q1"]) - vdd / 2, f / ndiv)]
+    bad = "none"
+    info = []
+    for lab, v, fexp in chk:
+        fo, a = L1.freq(t, v, frac=0.5)
+        info.append(f"{lab} {fo/1e9:.3f}/{fexp/1e9:.3f} GHz {a:.2f} V")
+        if bad == "none" and abs(fo / fexp - 1) > 0.002:
+            bad = lab
+    m = t >= t[-1] * 0.5
+    cp, cn = np.real(d["ckp"]), np.real(d["ckn"])
+    th = 0.5 * (cp[m].max() + cp[m].min())
+    er, ef = L2.edges(t[m], cp[m], th), L2.edges(t[m], -cn[m], -th)
+    sk = float(np.mean([ef[np.argmin(np.abs(ef - x))] - x for x in er])) if len(er) > 2 and len(ef) > 2 else float("nan")
+    tu = np.linspace(t[m][0], t[m][-1], 200000)
+    du = 100 * float(np.mean(np.interp(tu, t[m], cp[m]) > th))
+    return bad, "; ".join(info), du, sk
+
+
+def one(band, f, corner, rng=None, tag="", amp=None):
     """Run one case; returns (ok, rows, result dict)."""
     vdd = corner[2]
-    path, names, ideal, ndiv, duty = build(band, f, corner, rng, tag)
+    path, names, ideal, ndiv, duty = build(band, f, corner, rng, tag, amp)
     d = run(path)
     res = L2.analyse(d, names, ideal, ndiv, duty, vdd, f)
+    res["stage"] = stages(d, band, f, vdd)
     rows = []
     ok = True
     for lab, node, fo, du, ph in res["rows"]:
@@ -132,8 +163,8 @@ def check_corners(bands, corners):
           + ", ".join(f"{f/1e9:.2f} GHz {tank_amp(f):.2f} V" for f in sorted({x for b in bands for x in CASES[b]}))
           + ". Systematic errors only (no mismatch).\n")
     print("| Band | Corner | V_DD | T (°C) | VCO (GHz) | Divides | Max phase error (°) | Duty (%) | "
-          "Buffer per side (V) | Chain current (mA): buffer / CML / converter / logic = total |")
-    print("|---|---|---|---|---|---|---|---|---|---|")
+          "Buffer per side (V) | ckp duty (%) / skew (ps) | First wrong stage | Chain current (mA): buffer / CML / converter / logic = total |")
+    print("|---|---|---|---|---|---|---|---|---|---|---|---|")
     for band in bands:
         for corner in corners:
             for f in CASES[band]:
@@ -141,16 +172,19 @@ def check_corners(bands, corners):
                 try:
                     ok, rows, res, duty = one(band, f, corner)
                 except RuntimeError as e:
-                    print(f"| {band.upper()} | {ctag} | {vdd} | {temp} | {f/1e9:.2f} | error | {str(e)[-200:]!r} | | | |")
+                    print(f"| {band.upper()} | {ctag} | {vdd} | {temp} | {f/1e9:.2f} | error | {str(e)[-200:]!r} | | | | | |")
                     continue
                 errs = [abs(r[4]) for r in rows if r[4] is not None]
                 dus = [r[3] for r in rows if r[3] is not None]
                 cur = [res[k] * 1e3 for k in ("vbufs", "vdvs", "vcvs", "vdgs")]
+                if not ok:
+                    print(f"<!-- {band} {ctag} {f/1e9:.2f}: {res['stage'][1]} -->")
                 c = res["clk"]
                 print(f"| {band.upper()} | {ctag} | {vdd} | {temp} | {f/1e9:.2f} | {'yes' if ok else '**NO**'} | "
                       f"{(max(errs) if errs else float('nan')):.2f} | "
                       f"{(min(dus) if dus else float('nan')):.1f}–{(max(dus) if dus else float('nan')):.1f} "
                       f"(ideal {duty:.0f}) | {min(c['amp_p'], c['amp_n']):.2f} | "
+                      f"{res['stage'][2]:.1f} / {res['stage'][3]*1e12:+.1f} | {res['stage'][0]} | "
                       + " / ".join(f"{x:.2f}" for x in cur) + f" = {sum(cur):.2f} |")
     print()
 
@@ -175,6 +209,9 @@ def check_mc(bands, corners, n):
                     continue
                 if not ok:
                     fails += 1
+                    st = res["stage"]
+                    print(f"  sample {k + 1} ({band} {ctag}) fails at: {st[0]}; ckp duty {st[2]:.1f} %, "
+                          f"skew {st[3]*1e12:+.1f} ps; {st[1]}")
                     continue
                 for lab, node, fo, du, err in rows:
                     errs.setdefault(lab, []).append(err)
@@ -205,6 +242,30 @@ def check_mc(bands, corners, n):
             print()
 
 
+def check_swing(bands):
+    """Second run: the bottom of each band failed at the slow corner with the pessimistic 0.27-0.29 V tank swing.
+    Minimum tank swing per side for which the chain divides, against the VCO's real swing there."""
+    print("## Minimum tank swing at the bottom of each band, slow corner [SCH]\n")
+    print("VCO swing per side at the bottom (VCO step 3, 4 mA cap): about 0.32 V at mos_ss / MIM worst case / 85 °C, "
+          "0.43 V at −40 °C; 125 °C not simulated (expect about 0.29–0.30 V).\n")
+    amps = (0.25, 0.29, 0.33, 0.37, 0.42)
+    print("| Band | Corner | VCO (GHz) | " + " | ".join(f"{a:.2f} V" for a in amps) + " |")
+    print("|---|---|---|" + "---|" * len(amps))
+    for band in bands:
+        f = CASES[band][0]
+        for corner in [c for c in CORNERS if c[0] in ("ss", "ss-cold")]:
+            cells = []
+            for a in amps:
+                try:
+                    ok, rows, res, duty = one(band, f, corner, amp=a, tag=f"_a{a:.2f}")
+                    st = res["stage"]
+                    cells.append("OK" if ok else f"fails ({st[0]}; duty {st[2]:.0f} %)")
+                except RuntimeError:
+                    cells.append("error")
+            print(f"| {band.upper()} | {corner[0]} | {f/1e9:.2f} | " + " | ".join(cells) + " |")
+    print()
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     args = sys.argv[1:]
@@ -213,7 +274,9 @@ def main():
     print("# P2.4 step 3 — LO chains across corners, Monte Carlo\n")
     print(f"Chain as step 2 final: buffer {'3' if L2.BUFM else '2'} inverters per side, last {L2.B2:g}/{2*L2.B2:g} um; "
           f"UHF retiming output PMOS x{L2.PQ:g}; CML enable at {L2.EN_NS:g} ns.\n")
-    if "corners" in args or not any(a in args for a in ("corners", "mc")):
+    if "swing" in args:
+        check_swing(bands)
+    if "corners" in args or not any(a in args for a in ("corners", "mc", "swing")):
         corners = [c for c in CORNERS if c[0] in args] or CORNERS
         check_corners(bands, corners)
     if "mc" in args:
