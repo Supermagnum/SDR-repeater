@@ -1,6 +1,6 @@
 # PLL topology memo (P2.5): PFD, charge pump, loop filter, feedback divider, Σ-Δ
 
-Status: **topology accepted by the owner 2026-10-21 (D16–D18 as proposed, §4). Step 1 first run 2026-10-21 (§7): MOS capacitors and the 2/3 cell pass; the cascoded charge pump does not reach the needed tuning window — second run with plain long-channel sources.** Numbers are hand estimates `[HAND]` or from the linear PLL model `[MODEL]` (`analog/pll-model/`, P2.2), unless marked. Inputs: `spec/phase2-plan.md` §2 and D3, D5, D6, D7, D11; the VCO (`spec/vco-topology.md` §9); the LO dividers (`spec/lo-divider-topology.md` §9, P2.4 accepted 2026-10-21); the register map (`spec/analog-digital-interface.md` §5).
+Status: **topology accepted by the owner 2026-10-21 (D16–D18 as proposed, §4). Step 1 done 2026-10-21 (§7): plain long-channel charge-pump sources with replica matching, complementary MOS loop-filter capacitors, TSPC 2/3 cell; tuning window 0.25–0.95 V. Step 2a (PFD and charge pump, `analog/pll/step2/`) prepared.** Numbers are hand estimates `[HAND]` or from the linear PLL model `[MODEL]` (`analog/pll-model/`, P2.2), unless marked. Inputs: `spec/phase2-plan.md` §2 and D3, D5, D6, D7, D11; the VCO (`spec/vco-topology.md` §9); the LO dividers (`spec/lo-divider-topology.md` §9, P2.4 accepted 2026-10-21); the register map (`spec/analog-digital-interface.md` §5).
 
 ---
 
@@ -112,4 +112,19 @@ Source: `analog/pll/step1/` (VACASK, PDK `a49358cc`) `[SCH]`; tt 1.2 V 27 °C, s
 | **MOS capacitors (D17)** | Thin NMOS 10–13 fF/µm² above 0.35 V but falls to 2–7 at 0.1–0.2 V; thin PMOS the mirror image; **NMOS + PMOS in parallel ≈ 7–12.5 fF/µm², spread 1.06–1.43× over 0.35–0.85 V**; thick NMOS only 1.2–4.4 fF/µm² (no better than MIM). Gate leakage at 125 °C for 355 pF: 0.04–3.8 µA (thin), 0.5–2.0 µA for the complementary pair | **C1 and C2 as complementary thin-oxide pairs** (NMOS to ground ∥ PMOS to V_DD), ≈ 0.04 mm² for C2. The leakage is far above the 100 nA I had assumed, but the reference spur it causes is still small: `pll_model.py --presc --ileak 2e-6` → ≤ −116 dBc, 10 µA → ≤ −102 dBc (limits TX −67, RX −84 dBc). It also adds a static phase offset like the D18 offset current; checked in closed loop (P2.6) |
 | **MMD 2/3 cell (D16)** | TSPC, size 2: ÷2 to ≥ 3.3 GHz, ÷3 to 2.9 GHz at the slow corner (fails at 3.3); 10 of 10 mismatch samples correct in each mode at 2.2 GHz | **Passes** (2.9 / 2.2 = 1.32×, just above the 1.3× rule); first cell in TSPC as proposed |
 
-Second run: `run_step1.py cp2` (plain long-channel current sources, compliance at 5 %, window 0.25–0.95 V).
+**Second run (`cp2`): plain current sources, L = 2 µm** (NMOS 15 µm, PMOS 60 µm per 25 µA), switches NMOS 8 / PMOS 16 µm:
+
+| Corner | Up side usable to | Down side | Raw mismatch over 0.25–0.95 V | Leakage, 125 °C |
+|---|---|---|---|---|
+| tt 1.2 V | 1.00 V | to 0.25 V (mismatch at 0.25 V only +1…+3 %) | +3 … −15 % | 2.5–14 nA net |
+| ff 1.32 V | 1.05 V | to 0.25 V | +3 … −21 % | up to 90 nA net |
+| ss 1.08 V | **0.80–0.85 V** | to 0.25 V | +3 … −32 % (the up side leaves saturation above 0.85 V) | — |
+
+The "compliance" column of the run (5 % of the value at 0.6 V) mostly measures the current's slope with output voltage (channel-length modulation), not loss of saturation; that slope is what the replica amplifier removes. **Conclusion:**
+- Plain long-channel sources reach 0.25–0.95 V at typical and fast; only the slow corner at 1.08 V ends at 0.80–0.85 V on the up side. Step 2 makes the PMOS source twice as wide (V_ov ≈ 0.1 V) and its switch 24 µm, and runs the pump from the regulated analogue supply (`VR_ANA1`, a few % tolerance rather than −10 %).
+- The replica amplifier must correct up to about ±30 % mismatch to ≤ 1 % → loop gain ≥ 30–40 dB, output range covering the PMOS gate over the window.
+- Leakage (pump plus MOS capacitors) totals a few µA at 125 °C; reference spur ≤ −102 dBc even at 10 µA (§7 table above).
+
+**Changes to §2 from step 1:** charge pump with plain long-channel (L = 2 µm) sources instead of cascodes, plus the replica amplifier and offset current (D18 unchanged); C1 and C2 as complementary thin-oxide MOS pairs (D17 unchanged: MOS for C1/C2); tuning window 0.25–0.95 V (calibration aims at the middle, about 0.6 V); MMD first cell in TSPC confirmed.
+
+**Step 2 (next), in three parts:** (a) PFD with reset delay, charge pump with replica amplifier, dummy branch and offset current, loop filter — dead zone, up/down match across 0.25–0.95 V in transient, ripple; (b) the full MMD (6 cells with range extension) — every modulus 23–73, speed at slow corner; (c) Σ-Δ MASH 1-1-1, lock detector and calibration as RTL with a Python reference model.

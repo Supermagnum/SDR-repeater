@@ -21,3 +21,5 @@ Second run: plain long-channel current sources (`cp2`):
 ```bash
 python3 -u run_step1.py cp2 | tee out/summary_cp2.txt
 ```
+
+Second run result: plain long-channel sources reach 0.25–0.95 V at typical and fast; at the slow corner (1.08 V) the up side ends at 0.80–0.85 V → step 2 widens the PMOS source and switch and uses the regulated supply. Raw mismatch up to ±30 % (for the replica amplifier). **Step 1 done**; summary in `spec/pll-topology.md` §7.

@@ -226,3 +226,9 @@ Accepted as proposed (the owner accepted them as common industry practice):
 - D17: loop-filter C1 and C2 as MOS capacitors, C3 as MIM (≈ 0.06 mm²).
 - D18: charge pump with an offset current of about 5–10 % of I_cp and replica-feedback up/down matching.
 Next: step 1 device and block checks (`analog/pll/step1/`).
+
+## 2026-10-21 — P2.5 step 1 results
+- Tuning window corrected to 0.25–0.95 V (one bank step is 0.45–0.52 V of V_tune).
+- Charge pump: cascoded sources do not reach the window on 1.2 V; plain long-channel (L = 2 µm) sources do at typical and fast (slow 1.08 V: up side to 0.80–0.85 V → wider PMOS source in step 2, regulated supply). Replica amplifier must correct up to ±30 % mismatch.
+- Loop-filter C1/C2 as complementary thin-oxide MOS pairs (within D17); leakage a few µA at 125 °C, reference spur ≤ −102 dBc (model).
+- MMD first 2/3 cell in TSPC passes (÷3 to 2.9 GHz at the slow corner; 10/10 mismatch samples).
