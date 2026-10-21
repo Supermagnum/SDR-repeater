@@ -88,4 +88,6 @@ python3 -u run_step3.py swing | tee out/summary5_swing.txt
 python3 -u run_step3.py mc | tee out/summary5_mc.txt
 ```
 
+Fifth run result (2026-10-21): quick check 8 of 8 in both bands; full set — all corners divide except the ss −40 °C bottom band with the pessimistic swing (needs 0.33 V, VCO gives about 0.43 V); 100 of 100 Monte Carlo samples; results in `spec/lo-divider-topology.md` §9.
+
 The divider noise floor (target ≤ −150 dBc/Hz at the LO output) is the next part of step 3, after these two.

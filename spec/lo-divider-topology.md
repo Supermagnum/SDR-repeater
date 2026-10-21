@@ -1,6 +1,6 @@
 # LO divider and phase-generation topology memo (P2.4)
 
-Status: **topology accepted by the owner, 2026-10-20 (§4: D12 VCO capped at 4 mA, D13 and D14 as proposed). Step 1 done 2026-10-20 (§7): TSPC and the converter pass; the CML ÷2 / ÷3 need a clock of ≥ 0.5 V per side at the slow corner, which becomes the VCO-buffer requirement. Step 2 (buffer and both chains with the VCO, `analog/lo/step2/`) done 2026-10-20 (§8): all 8 cases divide, phase errors ≤ 0.46°, with the CML divider enabled after VCO start-up (D15); LO current at the 10 mA limit. Step 3 next.** Numbers are hand estimates `[HAND]` unless marked. Inputs: the simulated VCO (`spec/vco-topology.md` §9), D4 and D7 (`spec/phase2-plan.md` §5), `spec/rf-frontend.md` §3–5, `spec/derived-limits.md` §7.3–7.4.
+Status: **topology accepted by the owner, 2026-10-20 (§4: D12 VCO capped at 4 mA, D13 and D14 as proposed). Step 1 done 2026-10-20 (§7): TSPC and the converter pass; the CML ÷2 / ÷3 need a clock of ≥ 0.5 V per side at the slow corner, which becomes the VCO-buffer requirement. Step 2 (buffer and both chains with the VCO, `analog/lo/step2/`) done 2026-10-20 (§8): all 8 cases divide, phase errors ≤ 0.46°, with the CML divider enabled after VCO start-up (D15); LO current at the 10 mA limit. Step 3 (corners, temperature, Monte Carlo) done 2026-10-21 (§9): four circuit fixes; every corner and all 100 Monte Carlo samples divide; divider noise floor still to do.** Numbers are hand estimates `[HAND]` unless marked. Inputs: the simulated VCO (`spec/vco-topology.md` §9), D4 and D7 (`spec/phase2-plan.md` §5), `spec/rf-frontend.md` §3–5, `spec/derived-limits.md` §7.3–7.4.
 
 ---
 
@@ -123,4 +123,51 @@ Source: `analog/lo/step2/` (VCO from P2.3, 4 mA cap, D12) `[SCH]`, typical (1.2 
 
 **D15 (owner, 2026-10-20): sequenced divider enable.** `en_lodiv` is raised by the AFE sequencer about 1 µs after `en_vco` (VCO start-up is tens of ns), and pulsed low again after a band change (`BAND`, `VCO_BAND` writes) and when the PLL fails to lock within its window. Applies to both chains (the ÷2 showed no trap, but the cost is nil). No extra current; a few gates in the AFE block (`spec/analog-digital-interface.md` §6).
 
-**Step 3 (prepared, `analog/lo/step3/`):** corners and temperature (typical, slow, fast; −40 / 27 / 125 °C) including the low-swing fast/85 °C VCO case, Monte Carlo of the phase and duty errors, the chain noise floor (target ≤ −150 dBc/Hz at the LO output), and the current at every corner.
+Step 3: §9.
+
+## 9. Step 3 — corners, temperature, Monte Carlo (2026-10-21)
+
+Source: `analog/lo/step3/` `[SCH]`. The VCO replaced by an ideal sine on the tank nodes at the **lowest VCO swing** for that frequency (0.27 V per side at 3.12 GHz … 0.52 V at 4.20 GHz), so every corner sees a pessimistic clock. Corners: tt 1.2 V 27 °C; ss 1.08 V 125 / −40 °C; ff 1.32 V −40 / 125 °C; sf, fs 1.2 V 27 °C. Monte Carlo: PDK mismatch (σV_T 3.9 / 2.2 mV·µm, σβ 0.5 / 0.33 %·µm, σW 4 nm, σL 2 nm) on every LO transistor, as gate offset sources and width changes; 25 samples per case.
+
+**Problems found and fixed** (five runs; each fix costs no extra current):
+
+| # | Problem | Cause | Fix |
+|---|---|---|---|
+| 1 | VHF ÷3 divides by 2 (2.10 GHz, 0.05–0.17 V) at ff 125 °C and in 8 of 12 slow-corner samples, despite D15 | Weak latch regeneration: a low-swing mode locked to f/2 is stable; which mode the ÷3 lands in depends on start-up | Regenerative pair **1.5×** wider and CML swing **0.5 V** (was 0.4); the ÷3 reference follows the swing (V_DD − I·R_L/2). Each alone passes; both kept. No start-up pulse needed |
+| 2 | UHF counter miscounts in 5 of 12 slow-corner samples | The CML-to-CMOS converter's output duty fell to 23–37 % at 1.92 GHz, too short a clock-high time for the TSPC flip-flops (larger flip-flops or a stronger clock driver made it worse) | **Converter built like the buffer:** CML outputs AC-coupled (50 fF) into self-biased 2/4 µm inverters (50 kΩ), anti-phase cross-coupling, a second AC-coupled self-biased stage, then the 3/6 → 9/18 µm clock driver. Clock duty now 47–52 %; converter current 0.32–0.80 mA (was 0.55–0.80) |
+| 3 | Bottom of the band: buffer duty drifts to 58–69 % with a small tank swing | The middle buffer inverter's fixed threshold | **Middle buffer stage AC-coupled and self-biased** (50 fF, 50 kΩ) |
+| 4 | VHF ff 125 °C: no DC operating point | Simulation only (floating TSPC nodes) | Supplies ramp from 0 in the testbench |
+
+**Corners (final circuit):** all 28 cases divide except the bottom band at ss −40 °C (UHF 3.20, VHF 3.12 GHz) with the pessimistic 0.27–0.29 V tank swing. Minimum tank swing per side at the bottom of the band:
+
+| Corner | Minimum swing | VCO gives (P2.3, 4 mA) | Margin |
+|---|---|---|---|
+| ss 125 °C | < 0.25 V (both bands) | ≈ 0.29–0.30 V (from 0.32 V at 85 °C) | > 15 % |
+| ss −40 °C | 0.33 V (both bands) | ≈ 0.43 V (0.87 V differential, MIM worst case) | ≈ 30 % |
+
+So the ss −40 °C failures come from combining the cold slow corner with the hot fast-corner VCO swing; with the VCO's own swing there it passes. Systematic errors: UHF phase ≤ 0.49°, duty 24.0–25.8 %; VHF phase ≤ 0.13°, duty 47.9–51.1 %.
+
+**Monte Carlo (final circuit): 100 of 100 samples divide.**
+
+| Case | Largest phase σ | Quadrature error (Q+ vs I+) | Raw image rejection at 3σ (phase only) | Duty σ |
+|---|---|---|---|---|
+| UHF tt, 3.84 GHz | 0.47° (2.7 ps) | −0.11° ± 0.37° | 39.5 dB | ≤ 0.19 % |
+| UHF ss 125 °C | 0.77° (4.5 ps) | −0.12° ± 0.61° | 35.4 dB | ≤ 0.28 % |
+| VHF tt, 4.20 GHz | 0.17° (2.7 ps) | — | — | ≤ 0.25 % |
+| VHF ss 125 °C | 0.28° (4.4 ps) | — | — | ≤ 0.10 % |
+
+The UHF image target (≥ 40 dB) applies after host I/Q calibration, which removes this static error; raw 35–40 dB is in line with the estimate in §3 (0.2–0.5° typical). For VHF, about 0.2–0.3° σ is the input to the harmonic-reject mixer budget in Phase 3 (§3: about 1° gives about 40 dB HR3 untrimmed).
+
+**Chain current (buffer + CML + converter + logic):**
+
+| Corner | UHF 3.20 / 3.84 GHz | VHF 3.12 / 4.20 GHz |
+|---|---|---|
+| tt 1.2 V 27 °C | 2.53 / 2.79 mA | 4.14 / **4.56 mA** |
+| ss 1.08 V 125 °C | 2.16 / 2.41 mA | 3.68 / 4.11 mA |
+| ff 1.32 V −40 / 125 °C | 2.98–3.36 mA | 4.65–**5.23 mA** |
+
+LO total at typical, VHF 4.20 GHz: 4.56 + VCO 3.59 + PLL ≈ 1.5 (`[HAND]`) ≈ **9.65 mA** (D7 ≤ 10 mA). At the fast corner with 1.32 V the CMOS parts draw more: ≈ 10.3 mA. Whether D7 is a typical or worst-case limit, and whether the LO supply really reaches 1.32 V (it comes from an LDO, `VR_ANA1`), is a point for the result review.
+
+**Still open in step 3:** the divider chain's noise floor (target ≤ −150 dBc/Hz at the LO output, §1).
+
+**Final circuit** (step-3 defaults in `analog/lo/step3/run_step3.py`, on top of `analog/lo/step2/run_step2.py`): buffer 2/4 → AC-coupled self-biased 3/6 → 4/8 µm per side, anti-phase cross-coupling; CML ÷2 / ÷3 0.5 mA per latch, swing 0.5 V, regenerative pair 1.5×, enabled after VCO start-up (D15); AC-coupled self-biased converter with 3/6 → 9/18 µm clock driver; TSPC flip-flops size 2; all outputs retimed (UHF retiming output PMOS 2×).
