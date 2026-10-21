@@ -103,21 +103,50 @@ def cp_body(units, tag, vout, sw_on=True):
         f"v{tag}u ({tag}ou 0) vsource dc={vout}\n")
 
 
-def check_cp():
-    say("## Charge-pump current sources: compliance and raw up/down mismatch [SCH]\n")
-    say("Wide-swing cascode mirrors, unit cell per 25 µA (NMOS 7.5/1 µm, PMOS 30/1 µm, cascodes L 0.5 µm), "
-        "switches on. Compliance: output range where the current stays within 1 % of its value at 0.6 V. "
-        "Mismatch: (I_up − I_down) / I_cp — what the replica amplifier must remove. Tuning window to support: "
-        "0.35–0.85 V (calibration target), 0.3–1.0 V (VCO design).\n")
+def cp2_body(units, tag, vout, sw_on=True):
+    """Second run: plain (non-cascoded) current sources with long channels, L = 2 um (NMOS 15 um, PMOS 60 um per
+    25 uA, V_ov about 0.15 V), wider switches (NMOS 8 um, PMOS 16 um). Each side then needs only about one V_ov
+    plus the switch drop, so the output can swing to within about 0.25 V of each rail. The up/down mismatch this
+    leaves is removed in the schematic by the replica-feedback amplifier (D18); the absolute current only sets
+    the loop gain and may vary by a few %."""
+    i = 25e-6 * units
+    wn, wp = 15 * units, 60 * units
+    vdd_sw = "vdd" if sw_on else "0"
+    vss_sw = "0" if sw_on else "vdd"
+    return (f"ir{tag}n (vdd {tag}nr) isource dc={i:.4e}\n"
+            f"m{tag}n1 ({tag}nr {tag}nr 0 0) sg13_lv_nmos w={wn:g}u l=2u\n"
+            f"m{tag}n4 ({tag}nz {tag}nr 0 0) sg13_lv_nmos w={wn:g}u l=2u\n"
+            f"m{tag}n6 ({tag}od {vdd_sw} {tag}nz 0) sg13_lv_nmos w=8u l=0.13u\n"
+            f"v{tag}d ({tag}od 0) vsource dc={vout}\n"
+            f"ir{tag}p ({tag}pr 0) isource dc={i:.4e}\n"
+            f"m{tag}p1 ({tag}pr {tag}pr vdd vdd) sg13_lv_pmos w={wp:g}u l=2u\n"
+            f"m{tag}p4 ({tag}pz {tag}pr vdd vdd) sg13_lv_pmos w={wp:g}u l=2u\n"
+            f"m{tag}p6 ({tag}ou {vss_sw} {tag}pz vdd) sg13_lv_pmos w=16u l=0.13u\n"
+            f"v{tag}u ({tag}ou 0) vsource dc={vout}\n")
+
+
+def check_cp2():
+    check_cp(cp2_body, "plain long-channel current sources (second run)", 0.05)
+
+
+def check_cp(body=None, label="wide-swing cascode current sources", tol=0.01):
+    body = body or cp_body
+    say(f"## Charge pump, {label}: compliance and raw up/down mismatch [SCH]\n")
+    say(("Wide-swing cascode mirrors, unit cell per 25 µA (NMOS 7.5/1 µm, PMOS 30/1 µm, cascodes L 0.5 µm)"
+         if body is cp_body else "Plain mirrors, L = 2 µm, unit cell per 25 µA (NMOS 15/2 µm, PMOS 60/2 µm), switches "
+         "NMOS 8 µm / PMOS 16 µm") +
+        f", switches on. Compliance: output range where the current stays within {tol*100:g} % of its value at "
+        "0.6 V. Mismatch: (I_up − I_down) / I_cp — what the replica amplifier must remove. Window needed "
+        "(first run): about 0.25–0.95 V (band step 0.45–0.52 V of V_tune plus drift margin).\n")
     vs = np.round(np.arange(0.15, 1.051, 0.05), 3)
-    say("| Corner | I_cp (µA) | Down: compliance (V) | Up: compliance (V) | Mismatch at 0.35 / 0.6 / 0.85 V (%) | "
-        "Worst mismatch 0.35–0.85 V (%) |")
+    say("| Corner | I_cp (µA) | Down: compliance (V) | Up: compliance (V) | Mismatch at 0.25 / 0.6 / 0.95 V (%) | "
+        "Worst mismatch 0.25–0.95 V (%) |")
     say("|---|---|---|---|---|---|")
     for corner in CORNERS:
         for units in (1, 4, 8):
             idn, iup = [], []
             for v in vs:
-                d = sim(f"cp_{corner[0]}_{units}_{v:.2f}", corner, cp_body(units, "a", v), "  analysis op1 op")
+                d = sim(f"cp_{corner[0]}_{units}_{v:.2f}", corner, body(units, "a", v), "  analysis op1 op")
                 idn.append(float(np.real(d["vad:flow(br)"])[0]))     # current into the output node from the source
                 iup.append(-float(np.real(d["vau:flow(br)"])[0]))
             idn, iup = np.abs(np.array(idn)), np.abs(np.array(iup))
@@ -125,7 +154,7 @@ def check_cp():
             k = int(np.argmin(np.abs(vs - 0.6)))
 
             def comp(i):
-                ok = np.abs(i / i[k] - 1) <= 0.01
+                ok = np.abs(i / i[k] - 1) <= tol
                 lo = k
                 while lo > 0 and ok[lo - 1]:
                     lo -= 1
@@ -134,8 +163,8 @@ def check_cp():
                     hi += 1
                 return f"{vs[lo]:.2f}–{vs[hi]:.2f}"
             mm = (iup - idn) / i0 * 100
-            sel = (vs >= 0.349) & (vs <= 0.851)
-            pick = [int(np.argmin(np.abs(vs - x))) for x in (0.35, 0.6, 0.85)]
+            sel = (vs >= 0.249) & (vs <= 0.951)
+            pick = [int(np.argmin(np.abs(vs - x))) for x in (0.25, 0.6, 0.95)]
             say(f"| {corner[0]} | {i0*1e6:.0f} | {comp(idn)} | {comp(iup)} | "
                 + " / ".join(f"{mm[p]:+.1f}" for p in pick) + f" | {np.max(np.abs(mm[sel])):.1f} |")
     say("")
@@ -143,8 +172,8 @@ def check_cp():
     say("| Corner | V_out (V) | Down leakage (nA) | Up leakage (nA) | Net (nA) |")
     say("|---|---|---|---|---|")
     for corner in (("tt-hot", "mos_tt", 1.2, 125), ("ff-hot", "mos_ff", 1.32, 125)):
-        for v in (0.35, 0.6, 0.85):
-            d = sim(f"cpleak_{corner[0]}_{v:.2f}", corner, cp_body(8, "a", v, sw_on=False), "  analysis op1 op")
+        for v in (0.25, 0.6, 0.95):
+            d = sim(f"cpleak_{corner[0]}_{v:.2f}", corner, body(8, "a", v, sw_on=False), "  analysis op1 op")
             idn = float(np.real(d["vad:flow(br)"])[0])
             iup = float(np.real(d["vau:flow(br)"])[0])
             say(f"| {corner[0]} | {v:.2f} | {abs(idn)*1e9:.2f} | {abs(iup)*1e9:.2f} | {(idn + iup)*1e9:+.2f} |")
@@ -262,7 +291,7 @@ def check_mmd():
     say("")
 
 
-CHECKS = {"cp": check_cp, "cap": check_cap, "mmd": check_mmd}
+CHECKS = {"cp": check_cp, "cap": check_cap, "mmd": check_mmd, "cp2": check_cp2}
 
 
 def main():
