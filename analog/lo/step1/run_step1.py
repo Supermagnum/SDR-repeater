@@ -340,7 +340,7 @@ def check_cmlx():
                                 f"mga (orn q1p tg 0) sg13_lv_nmos w={w:.2f}u l=0.13u\n"
                                 f"mgb (orn q2p tg 0) sg13_lv_nmos w={w:.2f}u l=0.13u\n"
                                 f"mgr (orp vref tg 0) sg13_lv_nmos w={w:.2f}u l=0.13u\n"
-                                f"ig (tg 0) isource dc={i_:.4e}\nvref (vref 0) vsource dc={vdd - 0.2:.3f}\n")
+                                f"ig (tg 0) isource dc={i_:.4e}\nvref (vref 0) vsource dc={vdd - i_ * rl / 2:.3f}\n")   # output common mode (0.2 V below V_DD by default)
                         return (gate + cml_dff("a", "orn", "orp", "q1p", "q1n", i_, rl, w) +
                                 cml_dff("b", "q1p", "q1n", "q2p", "q2n", i_, rl, w) + kick("q1p"))
                     out = ("q2p", "q2n")
@@ -375,7 +375,7 @@ def div_body(n_div, i_, rl, w, vdd):
             f"mga (orn q1p tg 0) sg13_lv_nmos w={w:.2f}u l=0.13u\n"
             f"mgb (orn q2p tg 0) sg13_lv_nmos w={w:.2f}u l=0.13u\n"
             f"mgr (orp vref tg 0) sg13_lv_nmos w={w:.2f}u l=0.13u\n"
-            f"ig (tg 0) isource dc={i_:.4e}\nvref (vref 0) vsource dc={vdd - 0.2:.3f}\n")
+            f"ig (tg 0) isource dc={i_:.4e}\nvref (vref 0) vsource dc={vdd - i_ * rl / 2:.3f}\n")   # output common mode (0.2 V below V_DD by default)
     return (gate + cml_dff("a", "orn", "orp", "q1p", "q1n", i_, rl, w) +
             cml_dff("b", "q1p", "q1n", "q2p", "q2n", i_, rl, w) + kick("q1p")), ("q2p", "q2n")
 

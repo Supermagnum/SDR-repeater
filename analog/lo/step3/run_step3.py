@@ -41,6 +41,50 @@ _spec.loader.exec_module(L2)
 L1 = L2.L1
 L2.EN_NS = 2.0          # ideal clock is up at once; the divider still starts through the D15 enable
 
+# ---------------------------------------------------------------- design options (third run, 2026-10-21)
+# Second run: (1) the VHF ÷3 locks into a low-swing ÷2 mode (2.10 GHz out at 4.20 GHz, 0.05-0.17 V) at ff / 125 degC
+# without mismatch and in 8 of 12 slow-corner Monte Carlo samples, although it is enabled after the clock is up
+# (D15); (2) the UHF Johnson counter miscounts at 1.92 GHz in 5 of 12 slow-corner samples; (3) at the bottom of the
+# band the buffer output duty cycle drifts to 58-69 % with a small tank swing (slow corner, cold), and the chain
+# then fails. Options to test the fixes (labels printed in the header):
+#   i=<mA>   CML current per latch (default 0.5)      sw=<V>   CML swing I*R_L (default 0.4)
+#   k=<x>    CML regenerative pair width ratio (1)    sz=<n>   TSPC size of counter and retiming flip-flops (2)
+#   bufac    buffer: middle stage AC-coupled and self-biased (keeps its threshold at the signal centre)
+#   nokick   no start-up current pulse into the CML divider (silicon has none)
+OPT = {a.split("=")[0]: a.split("=")[1] for a in sys.argv[1:] if "=" in a and a.split("=")[0] in ("i", "sw", "k", "sz")}
+I_LATCH = float(OPT.get("i", 0.5)) * 1e-3
+SWING = float(OPT.get("sw", 0.4))
+L1.VARIANT["k"] = float(OPT.get("k", 1.0))
+SZ = float(OPT.get("sz", 2))
+BUFAC = "bufac" in sys.argv[1:]
+NOKICK = "nokick" in sys.argv[1:]
+L1.cml_params = lambda i, vdd: (I_LATCH, SWING / I_LATCH, max(1.0, 10.0 * I_LATCH / 1e-3))
+_tspc = L2.tspc
+L2.tspc = lambda *a, **kw: _tspc(*a, **{**kw, "sz": SZ})
+if NOKICK:
+    L1.kick = lambda node: ""
+
+
+def buffer_ac():
+    """Buffer with the middle stage AC-coupled (50 fF) and self-biased (50 kOhm), so its trip point follows the
+    centre of the first stage's output instead of a fixed threshold."""
+    s = ""
+    for side, src, out in (("p", "tp", "ckp"), ("n", "tn", "ckn")):
+        s += (f"cc{side} ({src} x_bi{side}) capacitor c=100f\nrf{side} (x_bi{side} x_bo{side}) resistor r=50k\n"
+              + L2.inv(f"b1{side}", f"x_bi{side}", f"x_bo{side}", "vbuf", 2, 4)
+              + f"ccm{side} (x_bo{side} x_mi{side}) capacitor c=50f\nrfm{side} (x_mi{side} x_bm{side}) resistor r=50k\n"
+              + L2.inv(f"bm{side}", f"x_mi{side}", f"x_bm{side}", "vbuf", 3, 6)
+              + L2.inv(f"b2{side}", f"x_bm{side}", out, "vbuf", L2.B2, 2 * L2.B2))
+    s += L2.inv("bxp", "x_bop", "x_bon", "vbuf", 0.5, 1) + L2.inv("bxn", "x_bon", "x_bop", "vbuf", 0.5, 1)
+    s += L2.inv("bop", "ckp", "ckn", "vbuf", 1, 2) + L2.inv("bon", "ckn", "ckp", "vbuf", 1, 2)
+    return s
+
+
+if BUFAC:
+    L2.buffer = buffer_ac
+LABEL = (f"CML {I_LATCH*1e3:g} mA per latch, swing {SWING:g} V, pair ratio {L1.VARIANT['k']:g}; TSPC size {SZ:g}; "
+         f"buffer {'AC-coupled middle stage' if BUFAC else 'as step 2'}; start-up pulse {'off' if NOKICK else 'on'}")
+
 #           tag, section, V_DD, T (degC)
 CORNERS = [("tt", "mos_tt", 1.20, 27), ("ss", "mos_ss", 1.08, 125), ("ss-cold", "mos_ss", 1.08, -40),
            ("ff", "mos_ff", 1.32, -40), ("ff-hot", "mos_ff", 1.32, 125), ("sf", "mos_sf", 1.20, 27),
@@ -274,6 +318,7 @@ def main():
     print("# P2.4 step 3 — LO chains across corners, Monte Carlo\n")
     print(f"Chain as step 2 final: buffer {'3' if L2.BUFM else '2'} inverters per side, last {L2.B2:g}/{2*L2.B2:g} um; "
           f"UHF retiming output PMOS x{L2.PQ:g}; CML enable at {L2.EN_NS:g} ns.\n")
+    print(f"Options: {LABEL}.\n")
     if "swing" in args:
         check_swing(bands)
     if "corners" in args or not any(a in args for a in ("corners", "mc", "swing")):
