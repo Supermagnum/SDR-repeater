@@ -203,3 +203,9 @@ Accepted as proposed in `spec/vco-topology.md` §5, after a comparison with comm
 ## 2026-10-20 — VCO rerun with the 4 mA cap; P2.4 step 2 done
 - VCO step 3 rerun with D12 (`analog/vco/step3/out/summary_4ma.txt`): range and corners unchanged (2.90–4.44 GHz typical, bottom edge 3.040–3.050 GHz at the MIM best case); bottom-band phase noise 0.3–0.7 dB worse than with 5 mA, worst margin still +3.6 dB (4.20 GHz, slow, 85 °C).
 - P2.4 step 2: all 8 cases (UHF / VHF, typical / slow, two frequencies) divide correctly with D15; phase errors ≤ 0.46° (UHF), ≤ 0.12° (VHF); UHF retiming output PMOS 2× for the 25 % duty (22.6–25.0 % at slow); LO current about 9.7–10.1 mA at VHF worst case, at the D7 limit.
+
+## 2026-10-21 — P2.4 step 3: circuit fixes from corners and Monte Carlo
+- VHF ÷3 could lock into a low-swing ÷2 mode (ff 125 °C; slow corner with mismatch). Fixed by a 1.5× regenerative pair and 0.5 V CML swing (reference tracking the swing); more latch current did not help.
+- UHF counter failures traced to the CML-to-CMOS converter's duty (23–37 % at 1.92 GHz, slow); converter rebuilt as AC-coupled self-biased inverters (duty 47–52 %, slightly less current).
+- Buffer middle stage AC-coupled and self-biased (bottom-band margin at 125 °C).
+- Result: all corners divide (the ss −40 °C bottom-band case needs 0.33 V tank swing per side, the VCO gives about 0.43 V); 100/100 Monte Carlo samples; UHF raw image rejection 35.4–39.5 dB at 3σ; VHF phase σ ≤ 0.28°. LO total ≈ 9.65 mA typical, ≈ 10.3 mA at ff 1.32 V — for the result review. Noise floor still open.
