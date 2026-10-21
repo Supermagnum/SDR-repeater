@@ -20,3 +20,8 @@ python3 -u run_step2.py icp=200                                     # other pump
 | Dead zone | ±3 ps still gives the right sign |
 | Reset pulse | 100–300 ps at every corner (both switches fully on) |
 | Replica error | vr within a few mV of V_tune |
+
+First run (typical, 2026-10-21): no dead zone (±3 ps resolved), but **offset +131 / +143 ps at dt = 0** (V_tune 0.6 / 0.95 V), gain 1.14–1.16, reset pulse 606–643 ps (too long), replica 16–20 mV off; at 0.25 V the replica loop ran to the rail (+937 mV) and the result is void. Causes and second-run fixes:
+- the output switch and the dummy switch of each pair were driven one inverter delay apart, so the source floated on every UP edge and dumped its charge into the output → each pair now driven by an inverter and a matched always-on transmission gate (complementary, equal delay);
+- the behavioural transconductor could drive the PMOS gate outside the supply → clamped 60 dB voltage amplifier;
+- reset delay chain shortened (NAND + 3 inverters, no load capacitors).

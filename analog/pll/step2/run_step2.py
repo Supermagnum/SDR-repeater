@@ -10,14 +10,13 @@ Run inside the container from this folder:
 Circuit (transistor level unless noted):
   clocks  REF and DIV: ideal 36 MHz near-squares (DIV delayed by dt), each sharpened by two inverters
   PFD     two static master-slave D flip-flops (D = 1, transmission gates, NOR-based asynchronous reset), reset
-          = AND(UP, DN) through a delay chain (NAND + 5 inverters, about 150-250 ps) so both pump switches turn
+          = AND(UP, DN) through a delay chain (NAND + 3 inverters, about 150-250 ps) so both pump switches turn
           fully on every cycle (no dead zone)
   CP      long-channel current sources (L = 2 um; NMOS 15 um and PMOS 120 um per 25 uA - PMOS twice as wide as
           in step 1 for headroom), current steering: each source goes to the output (UP / DN) or to a dummy node
           held at V_tune by a unity-gain buffer (no charge sharing); a replica branch (both switches on) and an
           amplifier set the PMOS gate so that replica up = replica down at V_tune (D18). The two amplifiers are
-          behavioural (Verilog-A: transconductor 0.1 mS, 20 uA output limit, Miller-compensated with the
-          replica stage; ideal follower); their transistor-level design follows once the pump works.
+          behavioural (Verilog-A: 60 dB voltage amplifier clamped to the supply; ideal follower); their transistor-level design follows once the pump works.
   output  held by an ideal source at V_tune (0.25 / 0.6 / 0.95 V); its current, averaged over 10 reference
           cycles, gives the net charge per cycle Q(dt).
 Results per case: Q/I_cp against dt (ideal: equal to dt), the offset at dt = 0 (residual up/down mismatch x the
@@ -69,9 +68,9 @@ endmodule
 module ota(p, n, o);
     inout p, n, o;
     electrical p, n, o;
-    parameter real gm = 1e-4;
-    parameter real imax = 20e-6;
-    analog I(o) <+ -imax * tanh(gm * (V(p) - V(n)) / imax);
+    parameter real a = 1000;
+    parameter real vh = 1.2;
+    analog V(o) <+ 0.5 * vh * (1 + tanh(2 * a * (V(p) - V(n)) / vh));
 endmodule
 module follower(i, o);
     inout i, o;
@@ -81,7 +80,6 @@ endmodule
 >>>FILE
 load "pllva.va"
 model follower follower
-model ota ota gm=1e-4 imax=20e-6
 """
 
 
@@ -90,10 +88,10 @@ def inv(n, a, y, wn=0.5, wp=1.0):
             f"x{n}n ({y} {a} 0 0) sg13_lv_nmos w={wn:g}u l=0.13u\n")
 
 
-def tg(n, a, b, cn, cp):
+def tg(n, a, b, cn, cp, wn=1.0, wp=2.0):
     """Transmission gate between a and b, on when cn = 1 (NMOS gate) and cp = 0 (PMOS gate)."""
-    return (f"x{n}n ({a} {cn} {b} 0) sg13_lv_nmos w=1u l=0.13u\n"
-            f"x{n}p ({a} {cp} {b} vdd) sg13_lv_pmos w=2u l=0.13u\n")
+    return (f"x{n}n ({a} {cn} {b} 0) sg13_lv_nmos w={wn:g}u l=0.13u\n"
+            f"x{n}p ({a} {cp} {b} vdd) sg13_lv_pmos w={wp:g}u l=0.13u\n")
 
 
 def nor2(n, a, b, y):
@@ -129,9 +127,10 @@ def pfd():
          + inv("db1", "div0", "div1", 1, 2) + inv("db2", "div1", "div", 2, 4))
     s += dff_r("fu", "ref", "rst", "up") + dff_r("fd", "div", "rst", "dn")
     s += nand2("ra", "up", "dn", "x_r0")
-    nodes = ["x_r0", "x_r1", "x_r2", "x_r3", "x_r4", "rst"]
-    for k in range(5):                                  # NAND + 5 inverters = AND with delay
-        s += inv(f"rd{k}", nodes[k], nodes[k + 1]) + f"crd{k} ({nodes[k + 1]} 0) capacitor c=5f\n"
+    # Second run: NAND + 5 inverters with 5 fF loads gave a 610-640 ps reset pulse (target 150-250 ps).
+    nodes = ["x_r0", "x_r1", "x_r2", "rst"]
+    for k in range(3):                                  # NAND + 3 inverters = AND with delay
+        s += inv(f"rd{k}", nodes[k], nodes[k + 1])
     return s
 
 
@@ -140,18 +139,24 @@ def charge_pump(icp):
     wn, wp = 15 * u, 120 * u
     swn, swp = max(2.0, 2 * u), max(6.0, 6 * u)
     return (
-        inv("su", "up", "upb", 1, 2) + inv("sd", "dn", "dnb", 1, 2)
+        # Second run: offset +131 ps at dt = 0, far more than the up/down current difference explains. The
+        # output switch and the dummy switch were driven one inverter delay apart, so on each UP edge the
+        # PMOS source floated (both its switches off) and later dumped that charge into the output. Now each
+        # switch pair is driven by complementary signals of equal delay: an inverter for one, an always-on
+        # transmission gate of matched delay for the other, both sized for the switch gates.
+        inv("su", "up", "upb", 2, 4) + tg("sut", "up", "upd", "vdd", "0", 2, 4)
+        + inv("sd", "dn", "dnb", 2, 4) + tg("sdt", "dn", "dnd", "vdd", "0", 2, 4)
         # NMOS bias (fixed): reference current into a diode
         + f"iref (vdd nb) isource dc={icp:.4e}\n"
         + f"mnb (nb nb 0 0) sg13_lv_nmos w={wn:g}u l=2u\n"
         # main NMOS sink, steered to the output (DN) or to the dummy node (DN low)
         + f"mn1 (nz nb 0 0) sg13_lv_nmos w={wn:g}u l=2u\n"
-        + f"mn2 (vt dn nz 0) sg13_lv_nmos w={swn:g}u l=0.13u\n"
+        + f"mn2 (vt dnd nz 0) sg13_lv_nmos w={swn:g}u l=0.13u\n"
         + f"mn3 (vdm dnb nz 0) sg13_lv_nmos w={swn:g}u l=0.13u\n"
         # main PMOS source, gate pg from the replica amplifier; to the output (UP) or the dummy node
         + f"mp1 (pz pg vdd vdd) sg13_lv_pmos w={wp:g}u l=2u\n"
         + f"mp2 (vt upb pz vdd) sg13_lv_pmos w={swp:g}u l=0.13u\n"
-        + f"mp3 (vdm up pz vdd) sg13_lv_pmos w={swp:g}u l=0.13u\n"
+        + f"mp3 (vdm upd pz vdd) sg13_lv_pmos w={swp:g}u l=0.13u\n"
         # dummy node held at V_tune by a unity-gain buffer (behavioural)
         + "xbuf (vt vdm) follower\n"
         # replica: both switches on, its node vr compared with V_tune; the amplifier drives pg
@@ -163,8 +168,10 @@ def charge_pump(icp):
         # The amplifier and the replica PMOS form a two-stage loop (the replica is a common-source stage with
         # the high-impedance node vr), so it is Miller-compensated from pg to vr (UGB about gm / Cc = 16 MHz).
         # 10 MOhm to a fixed voltage only fixes the DC gain (about 60 dB) for the operating point.
-        + "rpg (pg vpgb) resistor r=1e7\nvpgb (vpgb 0) vsource dc=0.5\n"
-        + "ccm (pg vr) capacitor c=1p\ncvr (vr 0) capacitor c=0.2p\n")
+        # Second run: the transconductor version let pg leave the supply range at V_tune 0.25 V (replica at
+        # the rail, +937 mV). Now an ideal voltage amplifier, 60 dB, output clamped to 0 ... V_DD; with the
+        # replica node vr as the only pole the loop is single-pole and stable.
+        + "cvr (vr 0) capacitor c=0.5p\n")
 
 
 def run(name, corner, vt, dt, icp):
@@ -176,7 +183,8 @@ def run(name, corner, vt, dt, icp):
         fh.write(HEADER.format(title=f"P2.5 step 2a: {name}", mos=mos))
         # Verilog-A parameters are model parameters in VACASK (first run: "parameter not found" on the
         # instance), so each clock gets its own model
-        fh.write(f"model sqref sqclk f={F_REF:.6e} td=2e-9 vh={vdd}\n"
+        fh.write(f"model ota ota a=1000 vh={vdd}\n"
+                 f"model sqref sqclk f={F_REF:.6e} td=2e-9 vh={vdd}\n"
                  f"model sqdiv sqclk f={F_REF:.6e} td={2e-9 + dt:.6e} vh={vdd}\n"
                  f"vdd (vdd 0) vsource dc={vdd}\n"
                  f"xref (ref0) sqref\n"
