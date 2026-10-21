@@ -55,6 +55,10 @@ Sensitivity:
 - **VCO noise is the binding term at VHF:** L(1 MHz) = −115 dBc/Hz still passes (−136.3), −114 fails (−135.4). The VCO target of **≤ −116 dBc/Hz at 1 MHz** in the plan stands, with no slack below −115.
 - **Loop-filter area:** ≈ 400 pF is about 0.05 mm² as MOS capacitors or 0.27 mm² as MIM (densities `[PROP]`). The charge-pump current sets it: halving Icp halves the capacitance and raises the charge-pump noise share.
 
+## P2.5 option `--presc` (2026-10-21)
+
+Proposal D16 (`spec/pll-topology.md`): the multi-modulus divider is clocked after the LO chain's first CML stage (÷2 UHF, ÷3 VHF), so one modulus step is P VCO cycles and the Σ-Δ quantisation noise at the VCO rises by 20·log10(P). `python3 pll_model.py --presc`: Σ-Δ share at the duplex offset −161 … −164 dBc/Hz (VHF, was −170 … −173) and −158 … −161 (UHF, was −164 … −167); totals unchanged (−137.1 … −139.5 dBc/Hz at the plan's VCO target); with the simulated VCO (`--l1m -120 --kvco 39e6`) −140.4 … −143.2 dBc/Hz.
+
 ## What this model does not cover
 
 - Non-linear effects: charge-pump mismatch folding Σ-Δ noise into the band, PFD dead zone, cycle slips. They set the real S0; the model only gives the budget (S0 ≤ −35 dBc at VHF).

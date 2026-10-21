@@ -215,3 +215,7 @@ Accepted as proposed in `spec/vco-topology.md` §5, after a comparison with comm
 
 ## 2026-10-21 — P2.4 step 3: noise floor
 - Driven pss/pnoise on the divider edge path gave flat, corner-inverted results (−107 to −130 dBc/Hz) at both a floating and a driven node: method not usable for dynamic CMOS logic. Hand estimate used: σ ≈ 0.1 ps → ≈ −157 dBc/Hz (UHF, 480 MHz) and ≈ −161 dBc/Hz (VHF, 175 MHz) at the LO output, target ≤ −150. Simulation of the floor moves to P2.6.
+
+## 2026-10-21 — P2.4 accepted; P2.5 topology proposed
+- P2.4 (LO dividers and phase generation) accepted by the owner as in `spec/lo-divider-topology.md` §9. Carried forward: divider noise-floor simulation (P2.6), the −40 °C bottom-band swing margin (relies on the VCO's cold swing), layout (P2.7).
+- P2.5 topology memo `spec/pll-topology.md` with proposals D16 (feedback divider clocked from the LO chain's first CML stage), D17 (MOS loop-filter capacitors C1/C2, MIM C3), D18 (charge-pump offset current and replica matching); estimated PLL current 0.8–1.3 mA.
