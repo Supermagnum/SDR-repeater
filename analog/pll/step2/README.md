@@ -27,3 +27,10 @@ First run (typical, 2026-10-21): no dead zone (±3 ps resolved), but **offset +1
 - reset delay chain shortened (NAND + 3 inverters, no load capacitors).
 
 Second run (typical): stalled — one simulation over 10 minutes. With 60 dB and 0.5 pF the ideal replica loop crossed over near 400 GHz and forced tiny time steps. Third run: amplifier 30 V/V, 20 pF on the replica node (loop crossover about 300 MHz, DC loop gain still about 8000).
+
+Third run (typical): no dead zone, but gain 0.70 / 0.81 / 0.38 and offsets −368 / −303 / +183 ps at V_tune 0.25 / 0.6 / 0.95 V; the up current in particular is far too small and non-monotonic at 0.95 V; reset pulse UP 380 / DN 450 ps; replica 15–75 mV off. Fourth run: a DC check with UP / DN forced (`dc`), which prints the output current, the main and replica source currents (zero-volt probes), the PMOS gate and the replica node — to find which branch is wrong; UP and DN now buffered before the switch drivers (equal loads on the PFD outputs).
+
+```bash
+python3 -u run_step2.py dc tt | tee out/summary_dc_tt.txt     # 12 operating points, seconds
+python3 -u run_step2.py tt | tee out/summary_a_tt4.txt
+```
