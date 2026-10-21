@@ -375,8 +375,8 @@ def check_noise(bands, corners):
     vco = {4.20e9: {6e5: -113.7, 1e6: -120.0, 2e6: -127.3, 1e7: -142.1},
            3.84e9: {6e5: -115.6, 1e6: -121.6, 2e6: -128.6, 1e7: -143.2}}
     print("| Band | Corner | VCO (GHz) | LO (MHz) | " + " | ".join(f"{o/1e6:g} MHz" for o in offs)
-          + " | Divided VCO at 0.6 / 1 / 2 / 10 MHz |")
-    print("|---|---|---|---|" + "---|" * len(offs) + "---|")
+          + " | Divided VCO at 0.6 / 1 / 2 / 10 MHz | PSS settings |")
+    print("|---|---|---|---|" + "---|" * len(offs) + "---|---|")
     vals = ", ".join(f"{x:.0f}" for x in offs)
     for band in bands:
         f = CASES[band][-1]
@@ -394,26 +394,35 @@ def check_noise(bands, corners):
                    f"vcvs (vcv 0) vsource dc={vdd}\nvdgs (vdg 0) vsource dc={vdd}\nxtank (tp tn) clk\n"
                    + L2.buffer() + body + L2.converter(out[0], out[1], "x_clk")
                    + L2.tspc("t1", "x_tq", "x_clk", "x_tq") + L2.inv("t1i", "x_tq", "x_tqb")   # inverting FF: toggles
-                   + "ctq (x_tq 0) capacitor c=10f\niin (0 x_tq) isource dc=0\n")
+                   + "ctq (x_tqb 0) capacitor c=10f\niin (0 x_tqb) isource dc=0\n")
+            # Second noise run: the first measured at the flip-flop output x_tq, which floats (only the 1 GOhm
+            # leak) for part of each cycle; its sampled voltage noise came out flat over offset (-107 to -130
+            # dBc/Hz), i.e. not phase noise. Now measured at the inverter after it (x_tqb), which is driven at all
+            # times, so voltage noise appears only at the edges.
             path = os.path.join(OUT, name + ".sim")
-            with open(path, "w") as fh:
-                fh.write(L1.HEADER.format(title=f"P2.4 step 3: {name}", mos=mos, vcm=1.1, amp=tank_amp(f), shape=0.0,
-                                          f=f, offs=0.0, t0=-1.0, tr=1e-12))
-                fh.write(net)
-                fh.write("\ncontrol\n  abort always\n  options rawfile=\"binary\"\n"
-                         f"  options temp={temp} reltol=1e-6 pss_tolscale=1e-3 pss_minpts=8000\n"
-                         f'  analysis warm tran stop={warm:.6e} step=5p maxstep=5p store="ss"\n'
-                         f'  analysis pn pnoise tper={tper:.9e} tstab=0 ic="ss" icmode="uic" maxharm=64 truncharm=32 '
-                         f'in="iin" out=["x_tq"] outharm=1 values=[{vals}] writepss=1\nendc\n')
             log = os.path.join(OUT, name + ".log")
-            with open(log, "w") as fh:
-                r = subprocess.run(["vacask", name + ".sim"], cwd=OUT, stdout=fh, stderr=subprocess.STDOUT)
+            # VHF typical did not converge at reltol 1e-6 (50 shooting iterations): looser settings next
+            for opts, npts in (("reltol=1e-6 pss_tolscale=1e-3", 8000), ("reltol=1e-5 pss_tolscale=1e-3", 8000),
+                               ("reltol=1e-5 pss_tolscale=1e-2", 4000)):
+                with open(path, "w") as fh:
+                    fh.write(L1.HEADER.format(title=f"P2.4 step 3: {name}", mos=mos, vcm=1.1, amp=tank_amp(f),
+                                              shape=0.0, f=f, offs=0.0, t0=-1.0, tr=1e-12))
+                    fh.write(net)
+                    fh.write("\ncontrol\n  abort always\n  options rawfile=\"binary\"\n"
+                             f"  options temp={temp} {opts} pss_minpts={npts}\n"
+                             f'  analysis warm tran stop={warm:.6e} step=5p maxstep=5p store="ss"\n'
+                             f'  analysis pn pnoise tper={tper:.9e} tstab=0 ic="ss" icmode="uic" maxharm=64 '
+                             f'truncharm=32 in="iin" out=["x_tqb"] outharm=1 values=[{vals}] writepss=1\nendc\n')
+                with open(log, "w") as fh:
+                    r = subprocess.run(["vacask", name + ".sim"], cwd=OUT, stdout=fh, stderr=subprocess.STDOUT)
+                if not r.returncode:
+                    break
             if r.returncode:
                 tail = [x for x in open(log).read().splitlines() if x.strip()][-3:]
                 print(f"| {band.upper()} | {ctag} | {f/1e9:.2f} | {f/ndiv/1e6:.0f} | pss/pnoise failed: {' / '.join(tail)} |")
                 continue
             pss = rawread(os.path.join(OUT, "pn.pss.raw")).get()
-            t, v = np.real(pss["time"]), np.real(pss["x_tq"])
+            t, v = np.real(pss["time"]), np.real(pss["x_tqb"])
             fm = 1 / tper
             tt = np.linspace(t[0], t[0] + tper, 20000, endpoint=False)
             a1 = 2 * abs(np.mean(np.interp(tt, t, v) * np.exp(-2j * np.pi * fm * (tt - t[0]))))
@@ -424,7 +433,7 @@ def check_noise(bands, corners):
             dv = vco[f]
             print(f"| {band.upper()} | {ctag} | {f/1e9:.2f} | {f/ndiv/1e6:.0f} | "
                   + " | ".join(f"{x:.1f}" for x in lo) + " | "
-                  + " / ".join(f"{dv[o] - 20 * math.log10(ndiv):.1f}" for o in (6e5, 1e6, 2e6, 1e7)) + " |")
+                  + " / ".join(f"{dv[o] - 20 * math.log10(ndiv):.1f}" for o in (6e5, 1e6, 2e6, 1e7)) + f" | {opts} |")
     print()
 
 
