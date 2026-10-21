@@ -80,9 +80,8 @@ module follower(i, o);
 endmodule
 >>>FILE
 load "pllva.va"
-model sqclk sqclk
-model ota ota
 model follower follower
+model ota ota gm=1e-4 imax=20e-6
 """
 
 
@@ -160,7 +159,7 @@ def charge_pump(icp):
         + f"mrn2 (vr vdd rnz 0) sg13_lv_nmos w={swn:g}u l=0.13u\n"
         + f"mrp1 (rpz pg vdd vdd) sg13_lv_pmos w={wp:g}u l=2u\n"
         + f"mrp2 (vr 0 rpz vdd) sg13_lv_pmos w={swp:g}u l=0.13u\n"
-        + "xamp (vr vt pg) ota gm=1e-4 imax=20e-6\n"
+        + "xamp (vr vt pg) ota\n"
         # The amplifier and the replica PMOS form a two-stage loop (the replica is a common-source stage with
         # the high-impedance node vr), so it is Miller-compensated from pg to vr (UGB about gm / Cc = 16 MHz).
         # 10 MOhm to a fixed voltage only fixes the DC gain (about 60 dB) for the operating point.
@@ -175,9 +174,13 @@ def run(name, corner, vt, dt, icp):
     ncyc = 25
     with open(path, "w") as fh:
         fh.write(HEADER.format(title=f"P2.5 step 2a: {name}", mos=mos))
-        fh.write(f"vdd (vdd 0) vsource dc={vdd}\n"
-                 f"xref (ref0) sqclk f={F_REF:.6e} td=2e-9 vh={vdd}\n"
-                 f"xdiv (div0) sqclk f={F_REF:.6e} td={2e-9 + dt:.6e} vh={vdd}\n"
+        # Verilog-A parameters are model parameters in VACASK (first run: "parameter not found" on the
+        # instance), so each clock gets its own model
+        fh.write(f"model sqref sqclk f={F_REF:.6e} td=2e-9 vh={vdd}\n"
+                 f"model sqdiv sqclk f={F_REF:.6e} td={2e-9 + dt:.6e} vh={vdd}\n"
+                 f"vdd (vdd 0) vsource dc={vdd}\n"
+                 f"xref (ref0) sqref\n"
+                 f"xdiv (div0) sqdiv\n"
                  f"vtn (vt 0) vsource dc={vt}\n" + pfd() + charge_pump(icp))
         fh.write("\ncontrol\n  abort always\n  options rawfile=\"binary\"\n"
                  f"  options temp={temp}\n"
