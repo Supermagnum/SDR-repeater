@@ -1,6 +1,6 @@
 # PLL topology memo (P2.5): PFD, charge pump, loop filter, feedback divider, Σ-Δ
 
-Status: **proposal for owner review, 2026-10-21 (decisions D16–D18 in §4).** Numbers are hand estimates `[HAND]` or from the linear PLL model `[MODEL]` (`analog/pll-model/`, P2.2), unless marked. Inputs: `spec/phase2-plan.md` §2 and D3, D5, D6, D7, D11; the VCO (`spec/vco-topology.md` §9); the LO dividers (`spec/lo-divider-topology.md` §9, P2.4 accepted 2026-10-21); the register map (`spec/analog-digital-interface.md` §5).
+Status: **topology accepted by the owner 2026-10-21 (D16–D18 as proposed, §4). Step 1 (device and block checks, `analog/pll/step1/`) prepared.** Numbers are hand estimates `[HAND]` or from the linear PLL model `[MODEL]` (`analog/pll-model/`, P2.2), unless marked. Inputs: `spec/phase2-plan.md` §2 and D3, D5, D6, D7, D11; the VCO (`spec/vco-topology.md` §9); the LO dividers (`spec/lo-divider-topology.md` §9, P2.4 accepted 2026-10-21); the register map (`spec/analog-digital-interface.md` §5).
 
 ---
 
@@ -74,7 +74,7 @@ The Σ-Δ share stays at least 17 dB below the total; the totals do not change. 
 
 **Loop-filter area** `[HAND]`: about 400 pF → about 0.05 mm² as thin-oxide MOS capacitors (≈ 8 fF/µm²) or 0.27 mm² as MIM (≈ 1.5 fF/µm²).
 
-## 4. Decisions for the owner
+## 4. Decisions (accepted as proposed, 2026-10-21)
 
 | # | Decision | Proposal | Reason |
 |---|---|---|---|

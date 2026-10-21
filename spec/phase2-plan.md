@@ -67,7 +67,7 @@ RX ≤ 25 mA and TX ≤ 60 mA for the whole chip (§6 of `spec/rf-frontend.md`).
 | **P2.2** ✅ first run | System model in Python: linear PLL phase-noise model (VCO, PFD/CP, Σ-Δ, loop filter), spur map including the boundary channels, lock-time transient | `analog/pll-model/` with a check script like `vhf_lpf_check.py`; loop parameters (Icp, filter values, KVCO per band, number of bands) | Human review of the budget |
 | **P2.3** ✅ schematic (2026-10-20: 2.90–4.41 GHz, all bands, corners and −40/27/85 °C meet §2.1, worst margin +3.6 dB at 1 MHz; result review done, `spec/vco-topology.md` §9; open points there) | VCO: topology memo, schematic, capacitor bank, varactor; VACASK `pnoise` across bands, PDK corners and −40 to +85 °C, with the EM inductor model | Schematic, pnoise table vs §2.1 | Human topology review before schematic; result review after |
 | **P2.4** ✅ (topology accepted 2026-10-20; step 1 done: TSPC confirmed, CML ÷2 / ÷3 need ≥ 0.5 V-per-side clock at the slow corner; `spec/lo-divider-topology.md` §7; step 2 done, all 8 cases divide with D15, phase errors ≤ 0.46°, §8; step 3 done 2026-10-21: four fixes, all corners and 100/100 Monte Carlo samples divide, noise floor ≈ −157 / −161 dBc/Hz by hand estimate (simulation in P2.6), §9; accepted by the owner 2026-10-21) | Dividers and phase generation (÷2/÷3 prescaler stages, quadrature, 8-phase for VHF) | Transient across corners: maximum frequency, duty cycle, I/Q phase error (→ image rejection), 8-phase error (→ harmonic rejection) | Human review |
-| **P2.5** (topology memo `spec/pll-topology.md` 2026-10-21, D16–D18 for review) | PFD, charge pump, loop filter, multi-modulus divider, Σ-Δ modulator (digital, in the AFE/LO control block: `spec/analog-digital-interface.md` §5) | Schematics; CP mismatch and leakage → spur estimate fed back to P2.2 | Human review |
+| **P2.5** (topology accepted 2026-10-21, D16–D18, `spec/pll-topology.md`; step 1 prepared) | PFD, charge pump, loop filter, multi-modulus divider, Σ-Δ modulator (digital, in the AFE/LO control block: `spec/analog-digital-interface.md` §5) | Schematics; CP mismatch and leakage → spur estimate fed back to P2.2 | Human review |
 | **P2.6** | PLL closed loop: behavioural top with transistor-level VCO and divider | Lock time, frequency error, phase noise vs offset, spurs on boundary channels | Compare with P2.2 |
 | **P2.7** | Layout of VCO and dividers, PEX, EM on the tank and LO routing; post-layout pnoise | `[PEX-RC]` / `[EM]` tagged results | Phase 2 review gate |
 
@@ -88,7 +88,7 @@ Tools: VACASK (`pss`/`pnoise`, settings in `analog/pn-validation/README.md`), ng
 
 ---
 
-## 5. Owner decisions (D1–D7 accepted as proposed 2026-10-19; D8–D15 2026-10-20)
+## 5. Owner decisions (D1–D7 accepted as proposed 2026-10-19; D8–D15 2026-10-20; D16–D18 2026-10-21)
 
 | # | Decision | Decided |
 |---|---|---|
@@ -107,6 +107,9 @@ Tools: VACASK (`pss`/`pnoise`, settings in `analog/pn-validation/README.md`), ng
 | D13 | UHF LO waveform (2026-10-20) | Four phases at **25 % duty** from a Johnson ÷4 after a CML ÷2 (`spec/lo-divider-topology.md`) |
 | D14 | Divider flip-flops after the first stage (2026-10-20) | **CMOS true single-phase clock (TSPC)**; CML only if step 1 shows < 1.3× speed margin at slow corner / 1.08 V / 125 °C |
 | D15 | Divider start-up (2026-10-20) | **Sequenced enable:** `en_lodiv` about 1 µs after `en_vco`, re-pulsed after a band change or a failed lock (a CML divider on during VCO start-up can stay free-running at the slow corner) |
+| D16 | PLL feedback-divider clock (2026-10-21) | From the LO chain's first CML stage (÷2 UHF / ÷3 VHF); MMD in CMOS; own CML prescaler is the fallback |
+| D17 | Loop-filter capacitors (2026-10-21) | MOS capacitors for C1 and C2, MIM for C3 (≈ 0.06 mm²) |
+| D18 | Charge-pump linearisation (2026-10-21) | Offset current ≈ 5–10 % of I_cp plus replica-feedback up/down matching |
 
 ---
 

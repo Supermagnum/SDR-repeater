@@ -219,3 +219,10 @@ Accepted as proposed in `spec/vco-topology.md` §5, after a comparison with comm
 ## 2026-10-21 — P2.4 accepted; P2.5 topology proposed
 - P2.4 (LO dividers and phase generation) accepted by the owner as in `spec/lo-divider-topology.md` §9. Carried forward: divider noise-floor simulation (P2.6), the −40 °C bottom-band swing margin (relies on the VCO's cold swing), layout (P2.7).
 - P2.5 topology memo `spec/pll-topology.md` with proposals D16 (feedback divider clocked from the LO chain's first CML stage), D17 (MOS loop-filter capacitors C1/C2, MIM C3), D18 (charge-pump offset current and replica matching); estimated PLL current 0.8–1.3 mA.
+
+## 2026-10-21 — P2.5 topology, D16–D18
+Accepted as proposed (the owner accepted them as common industry practice):
+- D16: the PLL's multi-modulus divider takes its clock from the LO chain's first CML stage (÷2 UHF / ÷3 VHF); MMD in CMOS. Σ-Δ quantisation noise +6 / +9.5 dB, still ≥ 17 dB below the total (`pll_model.py --presc`); the first divider stage runs whenever the PLL runs. Fallback: own CML prescaler (+1–1.5 mA).
+- D17: loop-filter C1 and C2 as MOS capacitors, C3 as MIM (≈ 0.06 mm²).
+- D18: charge pump with an offset current of about 5–10 % of I_cp and replica-feedback up/down matching.
+Next: step 1 device and block checks (`analog/pll/step1/`).
