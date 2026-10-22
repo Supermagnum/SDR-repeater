@@ -143,29 +143,39 @@ def pfd(vdd):
     return s
 
 
-def rr_ota(n, inp, inn, out, itail):
-    """Rail-to-rail-input transconductor for the 0.25-0.95 V range on 1.08-1.32 V: an NMOS pair with a PMOS
-    mirror load and a PMOS pair with an NMOS mirror load, both outputs on the same node (their output currents
-    add; near either rail one pair turns off and the other carries on). Non-inverting from inp to out.
-    Tail currents from ideal references into diodes (the bias generator is a separate block). Weak inversion:
-    g_m about 30 uS per pair at 2 uA tail."""
+def rr_ota(n, inp, inn, out, itail, b=1):
+    """Rail-to-rail-input symmetric transconductor (tenth run). An NMOS pair and a PMOS pair; each pair's two
+    drain currents are brought to the output through current mirrors (gain b), so the output node sees only
+    mirror output devices and can sit anywhere from about 0.2 V to V_DD - 0.2 V whatever the input common mode.
+    Ninth run: the simple version took the output from the pair drains, so with the PMOS-gate output near 0.49 V
+    and the input near 0.95 V the NMOS pair ran out of drain voltage (replica 147 mV off at 0.95 V).
+    Non-inverting from inp to out. Tail currents from ideal references (the bias generator is a separate block)."""
+    bw = lambda w: f"{w * b:g}"   # noqa: E731
     return (
-        # NMOS pair, tail from node tn
+        # NMOS pair: inp side -> PMOS mirror -> pull-up at out; inn side -> PMOS mirror -> NMOS mirror -> pull-down
         f"iref{n}n (vdd {n}bn) isource dc={itail:.3e}\n"
         f"m{n}bn ({n}bn {n}bn 0 0) sg13_lv_nmos w=2u l=1u\n"
         f"m{n}tn ({n}tn {n}bn 0 0) sg13_lv_nmos w=2u l=1u\n"
         f"m{n}n1 ({n}a1 {inp} {n}tn 0) sg13_lv_nmos w=4u l=0.5u\n"
-        f"m{n}n2 ({out} {inn} {n}tn 0) sg13_lv_nmos w=4u l=0.5u\n"
-        f"m{n}pm1 ({n}a1 {n}a1 vdd vdd) sg13_lv_pmos w=2u l=1u\n"
-        f"m{n}pm2 ({out} {n}a1 vdd vdd) sg13_lv_pmos w=2u l=1u\n"
-        # PMOS pair, tail from node tp
+        f"m{n}n2 ({n}a2 {inn} {n}tn 0) sg13_lv_nmos w=4u l=0.5u\n"
+        f"m{n}pa1 ({n}a1 {n}a1 vdd vdd) sg13_lv_pmos w=2u l=1u\n"
+        f"m{n}pa1o ({out} {n}a1 vdd vdd) sg13_lv_pmos w={bw(2)}u l=1u\n"
+        f"m{n}pa2 ({n}a2 {n}a2 vdd vdd) sg13_lv_pmos w=2u l=1u\n"
+        f"m{n}pa2o ({n}c2 {n}a2 vdd vdd) sg13_lv_pmos w=2u l=1u\n"
+        f"m{n}nc2 ({n}c2 {n}c2 0 0) sg13_lv_nmos w=1u l=1u\n"
+        f"m{n}nc2o ({out} {n}c2 0 0) sg13_lv_nmos w={bw(1)}u l=1u\n"
+        # PMOS pair: inn side -> NMOS mirror -> PMOS mirror -> pull-up; inp side -> NMOS mirror -> pull-down
         f"iref{n}p ({n}bp 0) isource dc={itail:.3e}\n"
         f"m{n}bp ({n}bp {n}bp vdd vdd) sg13_lv_pmos w=4u l=1u\n"
         f"m{n}tp ({n}tp {n}bp vdd vdd) sg13_lv_pmos w=4u l=1u\n"
         f"m{n}p1 ({n}b1 {inp} {n}tp vdd) sg13_lv_pmos w=8u l=0.5u\n"
-        f"m{n}p2 ({out} {inn} {n}tp vdd) sg13_lv_pmos w=8u l=0.5u\n"
-        f"m{n}nm1 ({n}b1 {n}b1 0 0) sg13_lv_nmos w=1u l=1u\n"
-        f"m{n}nm2 ({out} {n}b1 0 0) sg13_lv_nmos w=1u l=1u\n")
+        f"m{n}p2 ({n}b2 {inn} {n}tp vdd) sg13_lv_pmos w=8u l=0.5u\n"
+        f"m{n}nb1 ({n}b1 {n}b1 0 0) sg13_lv_nmos w=1u l=1u\n"
+        f"m{n}nb1o ({out} {n}b1 0 0) sg13_lv_nmos w={bw(1)}u l=1u\n"
+        f"m{n}nb2 ({n}b2 {n}b2 0 0) sg13_lv_nmos w=1u l=1u\n"
+        f"m{n}nb2o ({n}d2 {n}b2 0 0) sg13_lv_nmos w=1u l=1u\n"
+        f"m{n}pd2 ({n}d2 {n}d2 vdd vdd) sg13_lv_pmos w=2u l=1u\n"
+        f"m{n}pd2o ({out} {n}d2 vdd vdd) sg13_lv_pmos w={bw(2)}u l=1u\n")
 
 
 def charge_pump(icp):
@@ -200,7 +210,9 @@ def charge_pump(icp):
            # Ninth run: rail-to-rail transconductor in unity gain, 10 uA tails, 10 pF on the dummy node. The
            # steered current pulses (100 uA for a few ns) are taken by the capacitor (about 40 mV); the buffer
            # only has to supply the average, which the offset-current source below cancels.
-           rr_ota("db", "vt", "vdm", "vdm", 10e-6) + "cdm (vdm 0) capacitor c=10p\n")
+           # Tenth run: mirror gain 3, so the buffer can supply up to about 30 uA (ninth run: 10 uA was not
+           # enough; the dummy node sagged and the INL grew to 20-95 ps)
+           rr_ota("db", "vt", "vdm", "vdm", 10e-6, b=3) + "cdm (vdm 0) capacitor c=10p\n")
         # replica: both switches on, its node vr compared with V_tune; the amplifier drives pg
         + f"mrn1 (rnz0 nb 0 0) sg13_lv_nmos w={wn:g}u l=2u\nvird (rnz rnz0) vsource dc=0\n"
         + f"mrn2 (vr vdd rnz 0) sg13_lv_nmos w={swn:g}u l=0.13u\n"
@@ -278,7 +290,7 @@ def run(name, corner, vt, dt, icp, ioff=False):
     # currents, and the mean source currents - the DC check was perfect (match within 0.1 %), so the fault
     # is dynamic
     stats = {}
-    for k in ("pg", "vr", "nb", "pz", "nz"):
+    for k in ("pg", "vr", "nb", "pz", "nz", "vdm"):
         v = np.real(d[k])[m]
         stats[k] = (v.min(), np.trapezoid(v, t[m]) / (t[m][-1] - t[m][0]), v.max())
     for k in ("vimu", "vimd", "viru", "vird"):
@@ -333,16 +345,18 @@ def check_lin(corners, icp):
           "deviation from the straight-line fit, in ps of phase (and as % of the ±1 ns range).\n")
     dts = [1.0e-9, 1.5e-9, 2.0e-9, 2.5e-9, 3.0e-9, 3.5e-9, 4.0e-9, 5.0e-9]
     print("| Corner | V_tune | " + " | ".join(f"{x*1e9:g} ns" for x in dts)
-          + " | Lock point (ns) | Slope | INL (ps) | Offset current (µA) |")
-    print("|---|---|" + "---|" * len(dts) + "---|---|---|---|")
+          + " | Lock point (ns) | Slope | INL (ps) | Offset current (µA) | Dummy node − V_tune at 2.5 ns, min / mean / max (mV) |")
+    print("|---|---|" + "---|" * len(dts) + "---|---|---|---|---|")
     for corner in corners:
         for vt in VTS:
-            qs, io = [], float("nan")
+            qs, io, vd = [], float("nan"), None
             for dt in dts:
                 try:
                     q, _, _, _, st = run(f"lin_{corner[0]}_{vt:.2f}_{dt*1e9:.1f}", corner, vt, dt, icp, ioff=True)
                     qs.append(q / icp)
                     io = st["ioff"]
+                    if abs(dt - 2.5e-9) < 1e-12:
+                        vd = st["vdm"]
                 except RuntimeError:
                     qs.append(float("nan"))
             qa, da = np.array(qs), np.array(dts)
@@ -353,7 +367,8 @@ def check_lin(corners, icp):
             k, c = np.polyfit(da[ok], qa[ok], 1)
             inl = np.max(np.abs(qa[ok] - (k * da[ok] + c)))
             print(f"| {corner[0]} | {vt} | " + " | ".join(f"{x*1e12:+.0f}" for x in qa)
-                  + f" | {-c / k * 1e9:.2f} | {k:.3f} | {inl*1e12:.1f} ({inl / 2e-9 * 100:.2f} %) | {io*1e6:.1f} |")
+                  + f" | {-c / k * 1e9:.2f} | {k:.3f} | {inl*1e12:.1f} ({inl / 2e-9 * 100:.2f} %) | {io*1e6:.1f} | "
+                  + (" / ".join(f"{(x - vt)*1e3:+.0f}" for x in vd) if vd else "—") + " |")
     print()
 
 
@@ -362,8 +377,8 @@ def main():
     corners = [c for c in CORNERS if c[0] in sys.argv[1:]] or CORNERS
     print("# P2.5 step 2a — PFD and charge pump\n")
     print("Amplifiers: " + ("behavioural (Verilog-A)" if IDEAL else
-          "transistor level (rail-to-rail-input transconductors: replica 2 µA tails, Miller 5 pF; dummy buffer "
-          "10 µA tails, 10 pF)") + ".\n")
+          "transistor level (rail-to-rail-input symmetric transconductors: replica 2 µA tails, Miller 5 pF; "
+          "dummy buffer 10 µA tails, mirror gain 3, 10 pF)") + ".\n")
     if "dc" in sys.argv[1:]:
         check_dc(corners, ICP)
         return

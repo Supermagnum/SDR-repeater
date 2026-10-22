@@ -68,3 +68,10 @@ python3 -u run_step2.py dc tt | tee out/summary9_dc.txt       # static check, se
 python3 -u run_step2.py tt | tee out/summary9_tt.txt          # 27 runs
 python3 -u run_step2.py lin | tee out/summary9_lin.txt        # 72 runs, all corners
 ```
+
+Ninth run (transistor amplifiers): typical without offset current fine at 0.25 / 0.6 V (offset −9 / +24 ps, replica within 6 mV), but **at 0.95 V the replica sat 147 mV low**; with the offset current the **INL grew to 20–95 ps** (slopes 0.80–1.09). Causes: the simple transconductor took its output from the input-pair drains, so with the output near 0.49 V and the input near 0.95 V the NMOS pair had no drain voltage left; and the dummy buffer (10 µA) could not hold the dummy node. Tenth run: symmetric transconductors (each pair's currents mirrored to the output, so the output range is independent of the input common mode), the dummy buffer with mirror gain 3 (about 30 µA), and the dummy-node voltage printed in the linearity table. The DC check's single-state rows (UP only, DN only) put the full 100 µA on the dummy node permanently, which no small buffer holds — only its "both" and "none" rows and the replica columns are meaningful there.
+
+```bash
+python3 -u run_step2.py dc tt | tee out/summary10_dc.txt
+python3 -u run_step2.py lin | tee out/summary10_lin.txt
+```
