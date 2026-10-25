@@ -214,12 +214,12 @@ Source: `rtl/afe/sdm.sv`, `lockdet.sv`, `bandcal.sv`, tests and Python reference
 | Block | Function | Result |
 |---|---|---|
 | Σ-Δ | MASH 1-1-1, 24-bit, LSB dither (LFSR x²³ + x¹⁸ + 1). On a load, {N_INT, N_FRAC} is divided by P = 2 / 3 (D16) with a 32-cycle restoring divider; the error is ≤ 2⁻²⁴ in M, < 0.3 Hz at RF. div_n = M_int + y, y in −3 … +4. Integer-N mode (`PLL_CTRL[1]` = 0) | Bit-exact against the Python model for 7 settings × 2000 cycles; mean within 2·10⁻³ of M; range correct |
-| Lock detector | UP / DN sampled at reference + window (≈ 6.5 ns, from an analogue delay cell, to cover the 2.9–4 ns locked UP pulse plus ±1 ns Σ-Δ wander); 64 good cycles → lock, 4 bad → unlock | Lock after 64 cycles; held with ±1 ns wander; cleared by UP or DN errors within 4–6 cycles |
-| Band calibration | Successive approximation over the 7-bit bank with V_tune held (hold output). For each trial: 16 cycles settling, then the prescaler output (f_VCO / 4P, ≤ 550 MHz) counted for 128 reference cycles against K·M/4. Ends on the highest code whose frequency is ≥ target | Six targets 3.12–4.20 GHz on a VCO model: correct within the counting resolution (≤ 0.06 %, a band step is 0.2–0.5 %); **29.2 µs** per calibration (wake budget 150 µs with the 125 µs lock) |
+| Lock detector | UP / DN sampled at reference + window (≈ 6.5 ns, from an analogue delay cell, to cover the 2.9–4 ns locked UP pulse plus ±1 ns Σ-Δ wander); 64 good cycles → lock, 4 bad → unlock. **Made two-sided in step 4 (§12):** sampling DN at the reference edge only saw an early divider when it led by more than T_ref − t_w ≈ 21 ns | Lock after 64 cycles; held with ±1 ns wander; cleared by UP or DN errors within 4–6 cycles |
+| Band calibration | Successive approximation over the 7-bit bank with V_tune held (hold output). For each trial: 16 cycles settling, then the prescaler output (f_VCO / 4P, ≤ 550 MHz) counted for 128 reference cycles against K·M/4. Ends on the highest code whose frequency is ≥ target | Six targets 3.12–4.20 GHz on a VCO model: correct within the counting resolution (0.06 % at P = 2, 0.08–0.11 % at P = 3 — corrected in step 4; a band step is 0.2–0.5 %); **29.2 µs** per calibration (30.5 µs since step 4, §12) |
 
 **Notes:**
 - The calibration counts the prescaler output, not the MMD output. That gives about 1600 counts per step instead of about 128, so 128 reference cycles per step are enough.
-- The total of 29 µs calibration plus 125 µs lock is 154 µs, at the 150 µs wake budget. If needed: K = 64 (15 µs, resolution 0.12 %, still below a band step), or a faster loop after the calibration.
+- The total of 29 µs calibration plus 125 µs lock is 154 µs (155.5 µs with the step-4 first-trial settling), at the 150 µs wake budget. If needed: K = 64 (15 µs, resolution 0.12 %, still below a band step), or a faster loop after the calibration.
 - Still to come: the window delay cell, the hold switch on V_tune, and the bias generator. The four RTL blocks are integrated into the AFE/LO control block at Phase 5.
 
 ## 11. Step 3 — Monte Carlo, fractional spurs, current (2026-10-25)
@@ -263,3 +263,25 @@ Mismatch barely changes the linearity: the replica loop absorbs up/down mismatch
 | **PLL total** | **1.01** | budget ≤ 1.8 mA (D7) |
 
 **Against §1:** boundary spur met with ≥ 22 dB margin; no dead zone; current 1.0 mA of 1.8 mA; calibration plus lock at the 150 µs wake budget (§10). **Still open, for P2.5 step 4 or P2.6:** the amplifier bias generator (amplifier biases are still ideal), the lock-detector window delay cell, the V_tune hold switch; the reference spur at 36 MHz from the offset current and loop-filter leakage (step 1 leakage model ≤ −102 dBc) and the divider noise floor in closed loop (P2.6).
+
+## 12. Step 4 — bias generator, window delay cell, hold switch (2026-10-25)
+
+P2.5 result review: accepted by the owner 2026-10-25, with step 4 for the three blocks that were still ideal or missing. Source: `analog/pll/step4/run_step4.py`, `rtl/afe/lockdet.sv`, `rtl/afe/bandcal.sv`.
+
+**Bias generator.** V_REF / R_B = 0.4 V / 40 kΩ = 10 µA master current. A rail-to-rail transconductor (the step-2a design) drives the master PMOS gate so that V_REF sits across R_B; it is biased from the generator's own outputs, so a start-up circuit (weak pull-up, sensing NMOS, pull-down on the PMOS gate) removes the zero-current state. All outputs are mirrors of 1 µA unit fingers (PMOS 2/2 µm, NMOS 1/2 µm):
+
+| Output | Value | Use |
+|---|---|---|
+| I_cp DAC, `PLL_CTRL`[5:3] | (code + 1) × 25 µA: segments 25 (always on) + 25 + 50 + 100 µA, PMOS series switches | Charge-pump reference (NMOS diode `nb`) |
+| Amplifier tails | 2 µA (replica amplifier), 10 µA (dummy buffer), sources and sinks | Step-2a transconductors |
+| Window cells | 4 µA each | Delay cells below |
+
+I_cp follows V_REF / R_B. With R_B of the same resistor type as the loop-filter R1, the product I_cp · R1, and so the loop bandwidth, does not depend on the resistor's absolute value. V_REF (0.4 V) comes from the chip reference (shared block, not yet designed; an ideal source until then). In the final pump the source segments switch with the code too, so the current density stays as in step 2a.
+
+**Window delay cell, and the lock detector made two-sided.** A rising edge sets a flip-flop, which releases a MIM capacitor (≈ 33 fF) charged by 4 µA; an inverter pair is the threshold, and its output resets the flip-flop (self-timed strobe, so the 2.5 ns MMD output pulse is enough). Delay ≈ C · V_th / I + gate delays: target 7 ns, allowed 5–12 ns (above the 4.7 ns locked UP pulse including reset; below T_ref / 2). Two identical cells: reference + t_w samples UP (divider late by more than t_w), divider + t_w samples DN (divider early by more than t_w). The step-2c detector sampled both at the reference strobe only, and a DN pulse ends at the reference edge, so an early divider was seen only beyond T_ref − t_w ≈ 21 ns; with a frequency error below about 1.2 % it could report lock. Two-sided, a phase walk of 0.25 ns per cycle (≈ 0.9 % frequency error) no longer locks (`test_lockdet.py`, three tests pass).
+
+**V_tune hold switch.** During band calibration, transmission gates (NMOS 10 µm, PMOS 20 µm) connect the charge-pump node and the C2 node of the loop filter to V_DD / 2 from a 2 × 1 kΩ divider that is on only during hold (≈ 0.6 mA for ≈ 30 µs per calibration). Holding the C2 node directly avoids the R1·C2 = 3.4 µs time constant; the expected time constant is ≈ 0.4 µs. The first calibration trial now settles for 64 reference cycles (`bandcal.sv` SETTLE0) so that the loop filter can come from anywhere in 0–1.2 V; later trials only change the bank (16 cycles). Calibration 30.5 µs instead of 29.2 µs. Limit: V_tune within 10 mV on average over the first count (0.4 MHz at the VCO, a tenth of a count).
+
+**Correction (counting resolution):** one count is 4 / (K·M) — 0.06 % at P = 2 (≈ 1600 counts) but 0.08–0.11 % at P = 3 (920–1250 counts), not ≤ 0.06 % everywhere. The decision is exact to about two counts (gate ± one prescaler cycle, truncated target); still below a band step (0.2–0.5 %). The calibration test now uses that tolerance.
+
+Results: pending (`run_step4.py`: `bias`, `start`, `win`, `hold`, `lin`).

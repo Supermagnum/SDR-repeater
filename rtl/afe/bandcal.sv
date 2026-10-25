@@ -6,13 +6,16 @@
 // M = N / P from the Sigma-Delta (m_full, 7.24 fixed point). The bank code rises as the frequency falls; the
 // search keeps a bit when the trial frequency is still at or above the target, so it ends on the highest code
 // whose frequency is >= target (VCO just above the wanted frequency at mid V_tune).
-// K = 128: about 1600 counts, resolution about 0.06 % (one bank step is 0.2-0.5 %); 7 x (16 + 128 + 6)
-// reference cycles = 29 us at 36 MHz.
+// K = 128: about 1600 counts, resolution about 0.06 % (one bank step is 0.2-0.5 %). The first trial settles for
+// SETTLE0 = 64 cycles (step 4): the hold switch brings the loop filter from anywhere in 0-1.2 V to mid-window
+// (time constant about 0.4 us); later trials only change the bank. 64 + 6 x 16 + 7 x (128 + 6) reference cycles
+// = 30.5 us at 36 MHz.
 `timescale 1ns / 1ps
 
 module bandcal #(
     parameter K_LOG2 = 7,          // K = 128 reference cycles per measurement
-    parameter SETTLE = 16
+    parameter SETTLE = 16,
+    parameter SETTLE0 = 64         // first trial: loop filter settles to the hold voltage
 ) (
     input  wire        clk,        // reference clock
     input  wire        rst_n,
@@ -56,7 +59,7 @@ module bandcal #(
             end
             S_SETTLE: begin                               // new code settles; counter cleared
                 t <= t + 8'd1;
-                if (t == SETTLE - 1) begin clr <= 0; gate <= 1; t <= 8'd0; st <= S_MEAS; end
+                if (t == ((bitn == 3'd6) ? SETTLE0 : SETTLE) - 1) begin clr <= 0; gate <= 1; t <= 8'd0; st <= S_MEAS; end
             end
             S_MEAS: begin                                 // count for K reference cycles
                 t <= t + 8'd1;

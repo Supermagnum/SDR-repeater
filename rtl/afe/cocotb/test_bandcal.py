@@ -1,5 +1,5 @@
 """Band calibration against a VCO model: for targets across the range the result is the highest code whose
-frequency is >= target (and the next code is below it); about 29 us per calibration."""
+frequency is >= target (and the next code is below it), within the counting resolution; about 30.5 us per calibration (first trial settles 64 cycles)."""
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ReadOnly, RisingEdge, Timer
@@ -49,8 +49,11 @@ async def calibrate(dut):
         await Timer(1, unit="ns")
         dt = cocotb.utils.get_sim_time("us") - t0
         code = int(dut.band.value)
-        assert f_vco(code) >= f_target * (1 - 6e-4), f"code {code}: {f_vco(code)/1e9:.4f} < {f_target/1e9}"
-        assert code == 127 or f_vco(code + 1) < f_target * (1 + 6e-4), f"code {code} not the highest"
+        # counting resolution: the gate opens for K reference cycles +- one f2 cycle and the target is truncated,
+        # so the decision is exact to about two counts out of K * M / 4 (P = 2: about 1600, P = 3: 920-1250)
+        tol = 2 / (128 * n / p / 4)
+        assert f_vco(code) >= f_target * (1 - tol), f"code {code}: {f_vco(code)/1e9:.4f} < {f_target/1e9}"
+        assert code == 127 or f_vco(code + 1) < f_target * (1 + tol), f"code {code} not the highest"
         assert not int(dut.fail.value)
         dut._log.info(f"target {f_target/1e9:.3f} GHz (P {p}): code {code} = {f_vco(code)/1e9:.4f} GHz, "
                       f"next {f_vco(min(code + 1, 127))/1e9:.4f} GHz, {dt:.1f} us")
