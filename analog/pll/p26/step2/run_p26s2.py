@@ -211,28 +211,39 @@ def check_lo():
                     text = re.sub(r"(\) resistor r=(\S+))(?=\s|$)(?!\s+noisy)",
                                   lambda m: m.group(1) + ("" if m.group(2) == "1G" else " noisy=1"), text)
                 warm = round(60e-9 * f_lo) / f_lo
-                an = (f"  options strictsave=1\n"
-                      f'  analysis warm tran stop={warm:.6e} step=5p maxstep=5p store="ss"\n'
-                      f"  save v({node})\n"
-                      f'  analysis tr tran stop={tstop:.4e} step=5p maxstep=5p ic="ss" icmode="uic"'
-                      + (' noisemode="zoh" noisefmax=50G noisefmin=50k oversample=1' if noisy else ""))
-                text = re.sub(r"  analysis tr tran stop=\S+ step=5p maxstep=5p", an, text)
-                open(path, "w").write(text)
-                try:
-                    d = L3.run(path)
-                except RuntimeError as e:
-                    print(f"| {band.upper()} | {corner[0]} | {f/1e9:.2f} | {f_lo/1e6:.0f} | error: {str(e)[-150:]!r} |")
+                # Second trial: with DC supplies the VHF operating point failed (homotopy, as at ff / 125 degC in
+                # P2.4), and the UHF noisy transient failed again. Now the warm-up starts from the all-zero state
+                # (icmode "uic", like a power-on step with the clock already up), and the noisy transient is tried
+                # with a falling noise bandwidth (50 / 20 / 10 GHz; the output edges take about 20-30 ps, so
+                # 20 GHz still holds most of the noise that moves them).
+                base = text
+                d, used = None, None
+                for nf in (["50G", "20G", "10G"] if noisy else [None]):
+                    an = (f"  options strictsave=1\n"
+                          f'  analysis warm tran stop={warm:.6e} step=5p maxstep=5p icmode="uic" store="ss"\n'
+                          f"  save v({node})\n"
+                          f'  analysis tr tran stop={tstop:.4e} step=5p maxstep=5p ic="ss" icmode="uic"'
+                          + (f' noisemode="zoh" noisefmax={nf} noisefmin=50k oversample=1' if nf else ""))
+                    open(path, "w").write(re.sub(r"  analysis tr tran stop=\S+ step=5p maxstep=5p", an, base))
+                    try:
+                        d, used = L3.run(path), nf
+                        break
+                    except RuntimeError as e:
+                        err = str(e)
+                if d is None:
+                    print(f"| {band.upper()} | {corner[0]} | {f/1e9:.2f} | {f_lo/1e6:.0f} | {'noisy' if noisy else 'noiseless'} "
+                          f"run failed: {err[-150:]!r} |")
                     break
                 t, v = np.real(d["time"]), np.real(d[node])
-                out[noisy] = (node,) + tie_spectrum(t, v, corner[2] / 2, f_lo)
+                out[noisy] = (node,) + tie_spectrum(t, v, corner[2] / 2, f_lo) + (used,)
             if len(out) < 2:
                 continue
-            node, fr, L, jit = out[True]
-            _, fr0, L0, _ = out[False]
+            node, fr, L, jit, used = out[True]
+            _, fr0, L0, _, _ = out[False]
             band_avg = lambda fr_, L_, a, b: 10 * math.log10(np.mean(10 ** (L_[(fr_ >= a) & (fr_ <= b)] / 10)))  # noqa: E731
             vals = [band_avg(fr, L, *r) for r in ((1e6, 3e6), (3e6, 10e6), (10e6, 30e6))]
             res[f"{band}_{corner[0]}"] = dict(f_lo=f_lo, floor=vals[1], fr=fr.tolist(), L=L.tolist())
-            print(f"| {band.upper()} | {corner[0]} | {f/1e9:.2f} | {f_lo/1e6:.0f} | {node} | {len(fr)*2} | "
+            print(f"| {band.upper()} | {corner[0]} | {f/1e9:.2f} | {f_lo/1e6:.0f} | {node} (noise to {used}Hz) | {len(fr)*2} | "
                   f"{jit*1e15:.0f} | " + " | ".join(f"{x:.1f}" for x in vals)
                   + f" | {band_avg(fr0, L0, 3e6, 10e6):.1f} |")
     json.dump(res, open(os.path.join(OUT, "lo_noise.json"), "w"))
