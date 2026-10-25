@@ -263,7 +263,9 @@ def check_total():
     fom, fc = c.get("fom", -218.0), c.get("fc", 20e3)
     print(f"Inputs: charge pump FoM {fom:.1f} dBc/Hz, 1/f corner {fc/1e3:.0f} kHz ({'cp, tt, 50 µA' if c else 'P2.2 proposal'}); "
           "VCO L(1 MHz) per band from P2.3 / D20 (typical); LO floor "
-          + (", ".join(f"{k} {v['floor']:.1f}" for k, v in lo.items()) if lo else "not yet simulated (P2.4 hand estimate used)")
+          + ((", ".join(f"{k} {v['floor']:.1f}" for k, v in lo.items())
+              + ("; UHF: P2.4 hand estimate −157 corrected by the VHF simulation-to-estimate difference"
+                 if "uhf_tt" not in lo else "")) if lo else "not yet simulated (P2.4 hand estimate used)")
           + "; loop D19 (60 kHz / 55°); reference TCXO profile and Σ-Δ as P2.2.\n")
     print("| Ref | Band | RF (MHz) | VCO (GHz) | L(1 MHz) VCO | PN at duplex (dBc/Hz, RF) | of which VCO / CP / R / SD | "
           "LO floor | Total with floor | Limit | Margin |")
@@ -283,7 +285,15 @@ def check_total():
                 lf = pm.design_loop(60e3, 62.0, a.kvco, a.icp, n_fb)
                 pn = pm.noise(np.array([dup]), a, lf, n_fb, ref, n_lo, 3 if band == "VHF" else 2)
                 key = f"{band.lower()}_tt"
-                floor = lo[key]["floor"] if key in lo else (-157.0 if band == "UHF" else -161.0)
+                hand = -157.0 if band == "UHF" else -161.0
+                if key in lo:
+                    floor = lo[key]["floor"]
+                elif "vhf_tt" in lo:
+                    # UHF transient noise does not converge (2026-10-25): the P2.4 hand estimate, corrected by the
+                    # amount the VHF simulation came out worse than its own hand estimate
+                    floor = hand + (lo["vhf_tt"]["floor"] - (-161.0))
+                else:
+                    floor = hand
                 tot = 10 * math.log10(10 ** (pn["total"][0] / 10) + 10 ** (floor / 10))
                 print(f"| {ref/1e6:.0f} | {band} | {frf/1e6:.0f} | {fvco/1e9:.3f} | {a.l1m:.1f} | {pn['total'][0]:.1f} | "
                       f"{pn['vco'][0]:.1f} / {pn['cp'][0]:.1f} / {pn['r'][0]:.1f} / {pn['sd'][0]:.1f} | {floor:.1f} | "
