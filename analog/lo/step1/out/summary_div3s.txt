@@ -1,0 +1,16 @@
+# P2.4 step 1 — divider speed checks
+
+## CML ÷3 at slow corner: start-up with a growing clock [SCH]
+
+Stand-alone ÷3, 0.5 mA per latch, sine clock around 0.52 V. The clock ramps linearly from 0 to its final swing over the ramp time (as the VCO starts up). Each cell: output frequency / expected, output amplitude (measured over the last half of the run).
+
+| Variant | 3.12 GHz | 4.21 GHz | 4.41 GHz |
+|---|---|---|---|
+| full clock from t = 0 (as div3x) | OK 1.04 / 1.04, 0.32 V | OK 1.40 / 1.40, 0.32 V | OK 1.47 / 1.47, 0.32 V |
+| ramp 5 ns, divider on | OK 1.04 / 1.04, 0.32 V | OK 1.40 / 1.40, 0.32 V | **fail** 2.90 / 1.47, 0.17 V |
+| ramp 20 ns, divider on | OK 1.04 / 1.04, 0.32 V | OK 1.40 / 1.40, 0.32 V | **fail** 2.62 / 1.47, 0.17 V |
+| clock off 5 ns, then step on | OK 1.04 / 1.04, 0.32 V | OK 1.40 / 1.40, 0.32 V | **fail** 3.13 / 1.47, 0.17 V |
+| ramp 20 ns to 0.6 V, divider on | OK 1.04 / 1.04, 0.33 V | OK 1.40 / 1.40, 0.32 V | **fail** 2.21 / 1.47, 0.15 V |
+| ramp 20 ns to 0.75 V, divider on | OK 1.04 / 1.04, 0.33 V | OK 1.40 / 1.40, 0.33 V | **fail** 2.20 / 1.47, 0.14 V |
+| ramp 20 ns, divider enabled at 22 ns | OK 1.04 / 1.04, 0.32 V | OK 1.40 / 1.40, 0.32 V | OK 1.47 / 1.47, 0.32 V |
+

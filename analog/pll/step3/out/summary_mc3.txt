@@ -1,0 +1,12 @@
+# P2.5 step 3 — charge-pump Monte Carlo, spurs, current
+
+## Charge-pump Monte Carlo, 3 samples per case [SCH]
+
+Q(dt) at dt = 1-5 ns with the offset current; INL = largest deviation from the straight line (ps). Transistor mismatch on every device of PFD, pump and amplifiers.
+
+| Corner | V_tune | Nominal INL (ps) | INL mean / max (ps) | Lock point mean / min / max (ns) | Slope mean / sigma | Offset current mean / sigma (µA) | Supply current (mA) |
+|---|---|---|---|---|---|---|---|
+| tt | 0.25 | 0.6 | 0.6 / 0.6 | 2.77 / 2.77 / 2.77 | 0.945 / 0.004 | 9.6 / 0.0 | 0.39 |
+| tt | 0.6 | 0.4 | 0.4 / 0.4 | 2.78 / 2.77 / 2.78 | 1.058 / 0.004 | 10.9 / 0.0 | 0.43 |
+| tt | 0.95 | 2.0 | 2.3 / 3.7 | 3.07 / 3.03 / 3.09 | 1.030 / 0.006 | 11.9 / 0.0 | 0.41 |
+

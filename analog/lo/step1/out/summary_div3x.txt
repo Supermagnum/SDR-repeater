@@ -1,0 +1,16 @@
+# P2.4 step 1 — divider speed checks
+
+## CML ÷3 at slow corner: what breaks it at 4.21 GHz [SCH]
+
+Stand-alone ÷3 (0.5 mA per latch unless noted), clock 0.47 V per side around 0.52 V (as the step-2 buffer delivers). Each cell: output frequency / expected, output amplitude.
+
+| Variant | 3.12 GHz | 4.21 GHz | 4.41 GHz |
+|---|---|---|---|
+| sine (as step 1) | OK 1.04 / 1.04, 0.32 V | OK 1.40 / 1.40, 0.32 V | OK 1.47 / 1.47, 0.32 V |
+| square, 50 % duty | OK 1.04 / 1.04, 0.33 V | OK 1.40 / 1.40, 0.33 V | OK 1.47 / 1.47, 0.33 V |
+| square, 45 % duty | OK 1.04 / 1.04, 0.33 V | OK 1.40 / 1.40, 0.33 V | OK 1.47 / 1.47, 0.33 V |
+| square, 40 % duty | OK 1.04 / 1.04, 0.33 V | OK 1.40 / 1.40, 0.33 V | OK 1.47 / 1.47, 0.33 V |
+| sine + converter load | OK 1.04 / 1.04, 0.32 V | OK 1.40 / 1.40, 0.31 V | OK 1.47 / 1.47, 0.31 V |
+| square 50 % + converter load | OK 1.04 / 1.04, 0.33 V | OK 1.40 / 1.40, 0.32 V | OK 1.47 / 1.47, 0.32 V |
+| square 50 % + load, 0.65 mA per latch | OK 1.04 / 1.04, 0.33 V | OK 1.40 / 1.40, 0.33 V | OK 1.47 / 1.47, 0.33 V |
+

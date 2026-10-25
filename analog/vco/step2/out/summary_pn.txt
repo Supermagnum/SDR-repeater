@@ -1,0 +1,41 @@
+
+## Phase noise, code 48, V_tune 0.65 V, I_tail 4.12 mA (pss/pnoise, pss_minpts 16000)
+
+pss failed with reltol=1e-7 pss_tolscale=1e-4, pss_minpts 16000:   Elapsed time: 880.903 | PSS failed to converge in 50 iterations. | PSS analysis failed. | Analysis 'pn' aborted.
+pss converged with reltol=1e-6 pss_tolscale=1e-3, pss_minpts 16000
+f0 3.6459 GHz, differential amplitude 1.184 V
+
+| Offset | L (dBc/Hz) | Limit at the VCO | Margin |
+|---|---|---|---|
+| 30 kHz | -80.3 | — | — |
+| 100 kHz | -92.8 | — | — |
+| 300 kHz | -107.9 | — | — |
+| 600 kHz | -116.8 | -108.4 | +8.4 dB |
+| 1000 kHz | -122.6 | -116.0 | +6.6 dB |
+| 2000 kHz | -129.6 | -117.9 | +11.7 dB |
+| 10000 kHz | -144.2 | — | — |
+
+Slope (dB/decade) between offsets: 30-100 kHz -24.0, 100-300 kHz -31.6, 300-600 kHz -29.7, 600-1000 kHz -26.1, 1000-2000 kHz -23.2, 2000-10000 kHz -20.9
+(-20 = thermal, -30 = flicker region)
+
+## Noise contributions (share of the output noise)
+
+| Instance | 600 kHz | 1000 kHz | 2000 kHz |
+|---|---|---|---|
+| m1:nsg13_lv_nmos | 20.3 % | 25.0 % | 28.7 % |
+| m2:nsg13_lv_nmos | 20.2 % | 25.0 % | 28.6 % |
+| xl:r1n | 5.1 % | 7.0 % | 8.7 % |
+| xl:r1p | 5.1 % | 7.0 % | 8.7 % |
+| rvp | 9.1 % | 4.6 % | 1.4 % |
+| rvn | 9.1 % | 4.6 % | 1.4 % |
+| xl:r2n | 2.3 % | 3.2 % | 4.0 % |
+| xl:r2p | 2.3 % | 3.2 % | 4.0 % |
+| mt:nsg13_lv_nmos | 2.3 % | 2.7 % | 3.0 % |
+| rbb6 | 3.9 % | 1.9 % | 0.6 % |
+| rba6 | 3.9 % | 1.9 % | 0.6 % |
+| rbb3 | 2.9 % | 1.6 % | 0.6 % |
+| rba3 | 2.9 % | 1.6 % | 0.6 % |
+| rbb2 | 1.7 % | 1.2 % | 0.5 % |
+| rba2 | 1.7 % | 1.2 % | 0.5 % |
+
+Sum of all instances / onoise at 1 MHz: 100 % (100 % expected)

@@ -1,6 +1,7 @@
 # Regenerated simulation and extraction output. Keep decks and scripts.
-out/
-**/out/
+**/out/*
+# Keep the short text summaries of each run (owner rule 2026-10-25: all design files on GitHub)
+!**/out/summary_*.txt
 sim/em/**/output/
 sim/em/**/palace_model/
 sim/em/**/vendor/
@@ -14,7 +15,15 @@ signoff_*.txt
 rtl/cocotb/test_backend_1j.py
 *.orig
 *.rej
-analog/pn-validation/out/
 analog/pn-validation/out_m*/
 rf_toolcheck.txt
 vacask_*.txt
+rtl/afe/cocotb/sim_build/
+rtl/afe/cocotb/results.xml
+**/results.xml
+# KiCad automatic backups and caches
+*-backups/
+fp-info-cache
+*.kicad_prl
+__pycache__/
+*.pyc

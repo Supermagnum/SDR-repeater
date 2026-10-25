@@ -1,0 +1,31 @@
+# P2.4 step 3 — LO chains across corners, Monte Carlo
+
+Chain as step 2 final: buffer 3 inverters per side, last 4/8 um; UHF retiming output PMOS x2; CML enable at 2 ns.
+
+Options: CML 0.5 mA per latch, swing 0.4 V, pair ratio 1; TSPC size 2; buffer AC-coupled middle stage; start-up pulse on; clock driver x1.
+
+## Monte Carlo, 8 samples per case [SCH]
+
+Mismatch on every LO transistor (V_T, beta, W, L; PDK values), top frequency of each band (largest error in degrees). Phase error of each output against its ideal position, relative to the first output; duty cycle per output. UHF image rejection from the I/Q quadrature error alone (gain matched): IRR = 10 log10((1 + cos e) / (1 - cos e)), at the 3-sigma error.
+
+  sample 1 (uhf ss) fails at: counter; ckp duty 48.6 %, skew -2.5 ps; buffer 3.840/3.840 GHz 1.11 V; CML 1.920/1.920 GHz 0.27 V; converter 1.920/1.920 GHz 0.51 V; counter 1.385/0.480 GHz 0.55 V; x_clk duty 23.3 %, rise 1660 ps
+  sample 2 (uhf ss) fails at: counter; ckp duty 49.6 %, skew -7.3 ps; buffer 3.840/3.840 GHz 1.11 V; CML 1.920/1.920 GHz 0.27 V; converter 1.920/1.920 GHz 0.55 V; counter 0.859/0.480 GHz 0.63 V; x_clk duty 26.5 %, rise 84 ps
+  sample 3 (uhf ss) ok; x_clk duty 32.5 %, rise 72 ps
+  sample 4 (uhf ss) ok; x_clk duty 31.2 %, rise 73 ps
+  sample 5 (uhf ss) ok; x_clk duty 30.6 %, rise 73 ps
+  sample 6 (uhf ss) fails at: counter; ckp duty 49.0 %, skew +0.1 ps; buffer 3.840/3.840 GHz 1.11 V; CML 1.920/1.920 GHz 0.27 V; converter 1.920/1.920 GHz 0.52 V; counter 1.383/0.480 GHz 0.57 V; x_clk duty 23.9 %, rise 1654 ps
+  sample 7 (uhf ss) ok; x_clk duty 36.8 %, rise 71 ps
+  sample 8 (uhf ss) ok; x_clk duty 28.6 %, rise 79 ps
+### UHF, ss (1.08 V, 125 °C), VCO 3.84 GHz: 5 of 8 samples divide correctly
+
+| Output | Phase error mean (°) | sigma (°) | max abs (°) | Duty mean (%) | sigma (%) |
+|---|---|---|---|---|---|
+| I+ | +0.00 | 0.00 | 0.00 | 22.9 | 1.98 |
+| Q+ | -0.39 | 1.57 | 3.11 | 22.3 | 0.83 |
+| I- | -0.66 | 0.93 | 2.09 | 22.3 | 1.49 |
+| Q- | -0.92 | 1.56 | 3.49 | 23.1 | 0.91 |
+
+Quadrature error (Q+ vs I+): mean -0.39°, sigma 1.57° -> IRR at mean + 3 sigma (5.10°): **27.0 dB** (target ≥ 40 dB after host calibration, so before calibration this is the raw value)
+
+Largest phase sigma: 1.57° (9.1 ps)
+
