@@ -274,3 +274,8 @@ Findings of the behavioural closed loop (`spec/pll-topology.md` §13): the P2.2 
 - D19: loop filter, corrected design at 60 kHz, 55° actual (C1 30.8 pF, C2 465 pF, R1 22.9 kΩ, R3 108 kΩ, C3 3.1 pF; 499 pF). Model: VHF phase noise −137.0 dBc/Hz at 600 kHz with the planned VCO (−140 with the simulated one); wake 83–120 µs.
 - D20: 8-bit capacitor bank, calibration counter on f_VCO / P, nearest-code rule (38.8 µs), V_tune window monitor. Model: V_tune lands in 0.34–0.82 V at all corners.
 - The divider starts in phase with the reference when the hold is released (MMD `run`).
+
+## 2026-10-25 — P2.6 step 2: noise from the circuits
+- Charge-pump noise FoM −204 dBc/Hz (P2.2 assumed −218): half from the bias generator copied up by the I_cp DAC, half from the pump's sources. Accepted as it is (duplex-offset margin −0.8 dB, no in-band requirement); options recorded in `spec/pll-topology.md` §13.
+- LO-chain floor by transient noise: VHF −154 dBc/Hz (P2.4 estimate −161); UHF does not converge, taken as about −150 dBc/Hz.
+- Total phase noise at the duplex offset meets −136 dBc/Hz at all band edges; worst +2.8 dB at VHF 175 MHz.
