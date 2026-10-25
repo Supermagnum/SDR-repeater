@@ -8,6 +8,7 @@ Run inside the container from this folder:
     python3 -u run_p26s2.py lo | tee out/summary_lo.txt          # LO-chain noise floor, transient noise, a few h
     python3 -u run_p26s2.py lo tstop=1u                          # shorter trial (coarser spectrum)
     python3 -u run_p26s2.py total | tee out/summary_total.txt    # total phase noise from out/*.json (seconds)
+    python3 -u run_p26s2.py cp contrib                           # plus the per-device noise contributions (UP, tt)
 
 cp     The step-4 charge pump with its bias generator (all transistor level, offset pair on), output held at
        V_tune through a noiseless 1 Ohm sense resistor; small-signal noise analysis with the pump forced into the
@@ -118,6 +119,41 @@ def check_cp():
         print(f"| {cname} | {icp*1e6:.0f} | {a(1e5):.2e} / {a(1e6):.2e} | {fom:.1f} | {corner/1e3:.0f} kHz |")
     json.dump(res, open(os.path.join(OUT, "cp_noise.json"), "w"))
     print()
+    if "contrib" in ARGS:
+        cp_contrib(S4, S2)
+
+
+def cp_contrib(S4, S2):
+    """Which devices make the UP-state noise (tt, 50 uA): per-instance contributions of the noise analysis."""
+    _, mos, vdd, temp = next(c for c in S2.CORNERS if c[0] == "tt")
+    icp = 50e-6
+    body = (f"vdd (vdd 0) vsource dc={vdd}\n"
+            "rs (vt vtx) resistor r=1 noisy=0\nvtn (vtx 0) vsource dc=0.6\n"
+            f"vup (up 0) vsource dc={vdd}\nvdn (dn 0) vsource dc=0\n"
+            + S4.use_bias(S2.charge_pump(icp) + S2.offset_sink(icp) + S4.biasgen()))
+    body = re.sub(r"(\) resistor r=\S+)(?=\s|$)(?!\s+noisy)", r"\1 noisy=1", body)
+    d = S4.sim("cpn_contrib", mos, temp, f"model ota ota a=100 vh={vdd} rout=1e7\n" + body,
+               "analysis op1 op\n  save full\n  analysis n1 noise out=[\"vt\", \"vtx\"] in=\"vtn\" "
+               "from=100 to=100M mode=\"dec\" points=20", "n1.raw")
+    allnames = [x.decode() if isinstance(x, bytes) else x for x in getattr(d, "names", [])]
+    names = [k for k in allnames if k.startswith("n(") and "," not in k]
+    if not names:
+        print("(no per-instance contributions in n1.raw)")
+        return
+    f = np.real(d["frequency"])
+    tot = np.real(d["onoise"])
+    groups = {}
+    for k in names:
+        inst = k[2:-1]
+        groups[inst] = groups.get(inst, 0) + np.abs(np.real(d[allnames.index(k)]))
+    show = [1e4, 1e5, 6e5, 2e6]
+    cols = [int(np.argmin(np.abs(f - x))) for x in show]
+    print("## UP-state noise contributions (tt, 50 µA)\n")
+    print("| Instance | " + " | ".join(f"{f[c]/1e3:.0f} kHz" for c in cols) + " |")
+    print("|---|" + "---|" * len(cols))
+    for g in sorted(groups, key=lambda g: -groups[g][cols[2]])[:15]:
+        print(f"| {g} | " + " | ".join(f"{100*groups[g][c]/tot[c]:.1f} %" for c in cols) + " |")
+    print()
 
 
 # ------------------------------------------------------------------------------------------------------ lo
@@ -161,9 +197,24 @@ def check_lo():
             out = {}
             for noisy in (True, False):
                 path, names, _, _, _ = L3.build(band, f, corner, tag=f"_tn{int(noisy)}", amp=amp_c)
+                node = names[0][1]
                 text = open(path).read()
-                text = re.sub(r"(\) resistor r=\S+)(?=\s|$)(?!\s+noisy)", r"\1 noisy=1", text) if noisy else text
-                an = (f"  analysis tr tran stop={tstop:.4e} step=5p maxstep=5p"
+                # First trial (2026-10-25): the noisy transient from t = 0 failed at once (NR / timestep too small)
+                # in both bands. Now as in the validated analog/pn-validation level 2: a noiseless warm-up
+                # transient, stored, then the noisy transient from that state. Every source must then be the same
+                # at the start of the second analysis, so the supply ramps and the D15 enable become DC (the clock
+                # is up from t = 0, so the divider still starts with the clock present), the warm-up lasts whole
+                # output periods (the tank sine continues in phase), and only the measured node is saved.
+                text = re.sub(r'type="pulse" val0=0 val1=(\S+) delay=\S+ rise=\S+ fall=\S+ width=1', r"dc=\1", text)
+                if noisy:
+                    # device and resistor noise; the 1 GOhm leak resistors on dynamic nodes are simulation aids
+                    text = re.sub(r"(\) resistor r=(\S+))(?=\s|$)(?!\s+noisy)",
+                                  lambda m: m.group(1) + ("" if m.group(2) == "1G" else " noisy=1"), text)
+                warm = round(60e-9 * f_lo) / f_lo
+                an = (f"  options strictsave=1\n"
+                      f'  analysis warm tran stop={warm:.6e} step=5p maxstep=5p store="ss"\n'
+                      f"  save v({node})\n"
+                      f'  analysis tr tran stop={tstop:.4e} step=5p maxstep=5p ic="ss" icmode="uic"'
                       + (' noisemode="zoh" noisefmax=50G noisefmin=50k oversample=1' if noisy else ""))
                 text = re.sub(r"  analysis tr tran stop=\S+ step=5p maxstep=5p", an, text)
                 open(path, "w").write(text)
@@ -172,7 +223,6 @@ def check_lo():
                 except RuntimeError as e:
                     print(f"| {band.upper()} | {corner[0]} | {f/1e9:.2f} | {f_lo/1e6:.0f} | error: {str(e)[-150:]!r} |")
                     break
-                node = names[0][1]
                 t, v = np.real(d["time"]), np.real(d[node])
                 out[noisy] = (node,) + tie_spectrum(t, v, corner[2] / 2, f_lo)
             if len(out) < 2:
