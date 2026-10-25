@@ -404,3 +404,30 @@ All band edges meet the 25 W limit (−136 dBc/Hz); the 5 W limit (−129) with 
 First trial (2 µs): **the VCO never started** — from power-on its tail bias charges through the D9 filter (1 MΩ / 50 pF, 50 µs) and the varactor bias through 2 MΩ (≈ 1.4 µs). The rest behaved as expected without a clock (pump drove V_tune up to its limit, 1.1 V). **Finding for the chip:** the VCO bias filters need a start-up bypass (a switch across the filter resistors, closed by the sequencer during the first part of the wake), otherwise the VCO alone would take ≈ 250 µs to settle, beyond the 150 µs wake budget. Common practice for RC-filtered bias; to be added to the VCO schematic and the sequencer (`spec/analog-digital-interface.md` §6). Second trial: the VCO started, died and came back only after ≈ 1.5 µs at a quarter of its swing — the bank's off-state bottom plates are biased through 2 MΩ (MSB plate ≈ 1.5 pF, 3 µs); while they are low the tank swing turns the off switches on. So **every VCO bias resistor (bank, varactor, tail filter) needs the start-up bypass**. Third trial: bypass on all of them until 200 ns, VCO kick at 220 ns, divider enabled at 500 ns — **the VCO now starts cleanly** (0.90 V differential from 0.25 µs, steady), the CML ÷3 and the ripple divider count correctly from 0.7 µs (divider period within 0.45 % of the reference), and the pump pulls the frequency towards the target; not yet locked in 2 µs: the VCO ran 0.45 % above the step-2 band prediction (no stand-in buffer load here), so V_tune had to travel towards ≈ 0.17 V. Fourth trial: band two codes lower, pump output and V_tune both printed, 8 µs.
 
 **Fourth trial result (8 µs, band 127):** the whole chain works at transistor level — VCO 0.89–0.93 V differential throughout, divider counting from 0.9 µs, and the loop pulls the VCO from 3.4609 GHz (−1430 ppm) to 3.4555 GHz (+140 ppm) with V_tune at the VCO moving from 0.97 to 0.65–0.67 V, the right direction and a sensible end point; UP 4.0 ns and DN 0.29 ns per cycle near the end (D18 lock: ≈ 3.0 / 0.25 ns); bias generator steady (pbias 0.716 V). **Polarity, levels, start-up and the interfaces are confirmed.** Not yet phase-locked at 8 µs: the pump output swings by up to 0.6 V from cycle to cycle. That is the test scaling, not the design: scaling the filter to 10 × the bandwidth (C / 100) makes the ripple from each pump pulse 100 × larger (≈ 1.3 V on 0.31 pF instead of 13 mV on 30.8 pF), so the pump runs into its compliance limits every cycle and the acquisition becomes slow and non-linear. Ripple scales with the square of the speed-up whichever way the filter is scaled. Optional cleaner check: 5 × scaling (25 × ripple), 16 µs.
+
+**Full-lock run (5 × scaling, 20 µs) `[SCH]`: locked.** Frequency within 0.2 % at 2 µs, crossing the target at 5.6 µs, within 15 ppm at 11 µs and 7 ppm from 16 µs; at the end divider period 27.7780 ns (reference 27.7778 ns), VCO 3.45598 GHz, V_tune 0.77 V, UP 3.50 ns / DN 0.29 ns per cycle (the D18 operating point with the real offset current, ≈ 11 µA), VCO 0.97 V differential, bias generator steady. The last 7 ppm is the loop tracking the VCO's own slow drift: its amplitude still rises (0.95 → 0.97 V over 6 µs) because the tail-bias filter capacitor was only charged to ≈ 98 % when its bypass opened after 4 time constants; the remaining 2 % charges through the 1 MΩ filter (50 µs). So the bypass should stay closed for ≥ 6–7 time constants (≈ 0.4 µs with 1 kΩ / 50 pF). **Step 3 done: the PLL locks at transistor level from power-on.**
+
+### Step 4: spurs with the final loop `[MODEL]` (`analog/pll/p26/step4/spurs.py`)
+
+| Spur | Worst case | Limit | Margin |
+|---|---|---|---|
+| Reference spur (± f_ref) from the D18 offset current, leakage up to 5 µA (MOS capacitors, 125 °C) | −109.3 dBc at RF (UHF, 32 MHz, top band, 5 µA); −88.5 … −100 dBc at the VCO | −67 dBc (TX elsewhere) | 42 dB |
+| Fractional spur at the boundary offset, pump INL 3.9 ps (step-3 Monte Carlo worst) | −123.0 dBc VHF, −126.0 dBc UHF | −95 dBc | 28 dB |
+| Same with 10 ps INL | −116.5 dBc VHF | −95 dBc | 21 dB |
+| Integer-boundary spur (coupling) | budget: raw ≤ −35 dBc (VHF) / −15 dBc (UHF) at the VCO before the loop | −95 dBc after the loop | layout target for P2.7 |
+
+The R3 / C3 pole (≈ 480 kHz) takes 36–38 dB off the offset-current ripple at 32–36 MHz.
+
+### P2.6 summary (2026-10-26)
+
+| Item | Result | Against |
+|---|---|---|
+| Loop | 60 kHz / 55° (D19; P2.2 had a 2π sizing error, corrected) | — |
+| Band calibration | 8-bit bank with even steps (0.24–0.29 V of V_tune), finer counter, nearest code (D20): V_tune lands in 0.34–0.82 V at all corners; 38.8 µs | window 0.25–0.95 V |
+| Wake | calibration + settling to 10 Hz at RF: 83–120 µs (model) | ≤ 150 µs |
+| Phase noise at the duplex offset | −138.8 … −145.3 dBc/Hz at RF, worst +2.8 dB (VHF 175 MHz) | −136 dBc/Hz (25 W) |
+| Spurs | reference −109 dBc, boundary −123 dBc | −67 / −95 dBc |
+| Transistor-level loop | locks from power-on (scaled filter), polarity and interfaces right | — |
+| Charge-pump noise | FoM −204 dBc/Hz (accepted; options recorded) | P2.2 assumed −218 |
+
+**Open for the owner / next steps:** (1) V_tune window monitor comparators (D20) — not yet designed; (2) start-up bypass switches on all VCO bias resistors (bank, varactor, tail filter), closed ≥ 0.4 µs at wake, in the VCO schematic and the sequencer (`spec/analog-digital-interface.md` §6) — found in step 3; (3) UHF LO-chain floor is an estimate (transient noise does not converge on the UHF chain); (4) charge-pump in-band noise improvement only if an in-band requirement appears. Then P2.7 (layout).
