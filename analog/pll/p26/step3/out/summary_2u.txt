@@ -6,18 +6,18 @@ VCO 3.456 GHz = 3 x 32 x 36 MHz, band code 125; I_cp 100 µA; loop filter D19 sc
 
 | t (µs) | V_tune at the VCO (V) | Divider period / reference period − 1 (ppm) | VCO from the divider (GHz) | VCO amplitude (V diff.) |
 |---|---|---|---|---|
-| 0.25 | 0.4304 | +887413 | 1.8311 | 0.121 |
-| 0.41 | 0.6822 | +872547 | 1.8456 | 0.000 |
-| 0.57 | 0.8634 | +1997379 | 1.1530 | 0.000 |
-| 0.73 | 1.0215 | +nan | nan | 0.000 |
-| 0.89 | 1.0672 | +2699693 | 0.9341 | 0.000 |
-| 1.05 | 1.0875 | +nan | nan | 0.000 |
-| 1.20 | 1.1187 | +nan | nan | 0.001 |
-| 1.36 | 1.1284 | +nan | nan | 0.001 |
-| 1.52 | 1.1207 | +nan | nan | 0.007 |
-| 1.68 | 1.0233 | +2574785 | 0.9668 | 0.210 |
-| 1.84 | 0.8628 | +nan | nan | 0.239 |
-| 2.00 | 0.6652 | +2422243 | 1.0099 | 0.257 |
+| 0.25 | 0.5622 | +887488 | 1.8310 | 0.897 |
+| 0.41 | 0.7763 | +872524 | 1.8456 | 0.899 |
+| 0.57 | 0.9380 | +452970 | 2.3786 | 0.901 |
+| 0.73 | 0.9261 | -4477 | 3.4715 | 0.901 |
+| 0.89 | 0.9376 | -4544 | 3.4718 | 0.902 |
+| 1.05 | 0.9555 | -4561 | 3.4718 | 0.903 |
+| 1.20 | 0.9162 | -4543 | 3.4718 | 0.904 |
+| 1.36 | 0.9093 | -4506 | 3.4716 | 0.904 |
+| 1.52 | 0.9028 | -4447 | 3.4714 | 0.905 |
+| 1.68 | 0.8842 | -4369 | 3.4712 | 0.906 |
+| 1.84 | 0.8316 | -4277 | 3.4708 | 0.906 |
+| 2.00 | 0.8100 | -4157 | 3.4704 | 0.907 |
 
-Last µs: divider period 99.9500 ns (reference 27.7778 ns, +2598201.8 ppm) → **not locked**; VCO 0.96048 GHz (target 3.456); V_tune 0.9606 V; UP 24.00 ns, DN 0.09 ns per cycle (D18: UP ≈ 2.8 + 0.25 ns, DN ≈ 0.25 ns); divider edge 15.01 ns after the reference edge; VCO amplitude 0.257 V differential; bias node pbias 0.716 V.
+Last µs: divider period 27.6563 ns (reference 27.7778 ns, -4373.4 ppm) → **not locked**; VCO 3.47118 GHz (target 3.456); V_tune 0.8679 V; UP 5.41 ns, DN 0.29 ns per cycle (D18: UP ≈ 2.8 + 0.25 ns, DN ≈ 0.25 ns); divider edge 5.26 ns after the reference edge; VCO amplitude 0.907 V differential; bias node pbias 0.716 V.
 
