@@ -7,5 +7,5 @@ Ideal noiseless tank sine (typical VCO swing), 1 µs with device and resistor no
 | Band | Corner | VCO (GHz) | LO (MHz) | Node | Edges | RMS jitter (fs) | L 1–3 MHz | L 3–10 MHz | L 10–30 MHz | Numerical floor 3–10 MHz |
 |---|---|---|---|---|---|---|---|---|---|---|
 | UHF | tt | 3.84 | 480 | error: " (unknown)\nNR solver failed to converge.\nLeaving core NR loop in iteration 10.\nTimestep too small. Transient analysis aborted.\nAnalysis 'tr' aborted.\n" |
-| VHF | tt | 4.20 | 175 | error: " (unknown)\nNR solver failed to converge.\nLeaving core NR loop in iteration 10.\nTimestep too small. Transient analysis aborted.\nAnalysis 'tr' aborted.\n" |
+| VHF | tt | 4.20 | 175 | error: "iled to converge.\nLeaving core NR loop in iteration 50.\nHomotopy failed, 240 step(s) tried.\nOperating point analysis failed.\nAnalysis 'warm' aborted.\n" |
 
