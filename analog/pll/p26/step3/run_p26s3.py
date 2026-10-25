@@ -10,7 +10,7 @@ Run inside the container from this folder (needs ../../../vco/step2/out/range.js
 
 Everything at transistor level except the 36 MHz reference (ideal square) and the supplies:
   VCO       P2.3 / D20 circuit (8-bit trimmed bank, AC-coupled varactor, 4 mA), its stand-in buffer removed
-  LO        P2.4 step-3 buffer (AC-coupled, self-biased) -> CML ÷3 enabled after 50 ns (D15) -> CML-to-CMOS
+  LO        P2.4 step-3 buffer (AC-coupled, self-biased) -> CML ÷3 enabled after 400 ns (D15) -> CML-to-CMOS
             converter (AC-coupled)
   divider   five TSPC toggle flip-flops in a ripple chain, ÷32, instead of the MMD (integer-N: the MMD and the
             Sigma-Delta are RTL, P2.5 steps 2b / 2c). VCO = 3 x 32 x 36 MHz = 3.456 GHz (VHF arrangement, P = 3)
@@ -57,7 +57,7 @@ F_VCO = P * NDIV * F_REF
 S = opt("s", 10.0)
 ICP = opt("icp", 100.0) * 1e-6
 TSTOP = opt("tstop", 8.0) * 1e-6
-T_EN = 50e-9
+T_EN = 400e-9     # D15: after the VCO is up (first run: 50 ns, but the VCO only starts at about 0.15 us here)
 VDD = 1.2
 LF = dict(C1=30.8e-12, C2=465.2e-12, R1=22.9e3, R3=107.8e3, C3=3.08e-12)   # D19
 
@@ -79,14 +79,40 @@ def vco_body(V, code):
         ln = re.sub(r"^iref ", "irefvco ", ln)
         ln = re.sub(r"\btail\b", "vco_tail", ln)
         keep.append(ln)
+    # First run (2026-10-25): the VCO never started. From power-on its tail bias charges through the D9 filter
+    # (1 MOhm, 50 pF: 50 us) and the varactor gate bias through 2 MOhm into about 0.7 pF (1.4 us), so the tail
+    # had no current within the 2 us. That is also a wake-time problem for the chip (the 150 us budget): the
+    # filter resistors need a start-up bypass switch, closed by the sequencer for the first part of the wake
+    # (common practice for RC-filtered bias). Modelled as time switches (1 kOhm until 100 ns), and a second VCO
+    # kick once the tail is biased.
+    keep.append("model tswb tsw t0=1e-7 ron=1000 roff=1e15\n"
+                "xsw1 (vco_nb vco_nbf) tswb\nxsw2 (vgp vvb) tswb\nxsw3 (vgn vvb) tswb\n"
+                'ik2 (0 tn) isource type="pulse" val0=0 val1=1m delay=120n rise=50p fall=50p width=200p')
     return "\n".join(keep) + "\n"
+
+
+TSW = """
+embed "tsw.va" <<<FILE
+`include "constants.vams"
+`include "disciplines.vams"
+module tsw(p, n);
+    inout p, n;
+    electrical p, n;
+    parameter real t0 = 1e-7;
+    parameter real ron = 1e3;
+    parameter real roff = 1e15;
+    analog I(p, n) <+ V(p, n) * (1 / roff + (1 / ron - 1 / roff) * 0.5 * (1 - tanh(($abstime - t0) / 2e-9)));
+endmodule
+>>>FILE
+load "tsw.va"
+"""
 
 
 def header(V):
     """VCO header (MOS lv/hv, MIM corners, inductor) plus the PLL Verilog-A clock source."""
     s2 = load("pll_step2_h", "analog/pll/step2/run_step2.py")
     emb = s2.HEADER[s2.HEADER.index("embed"):]
-    return V.HEADER.format(title="P2.6 step 3: transistor-level closed loop") + "\n" + emb
+    return V.HEADER.format(title="P2.6 step 3: transistor-level closed loop") + "\n" + emb + TSW
 
 
 def lo_and_divider(L1, L2):
@@ -167,12 +193,16 @@ def main():
     td = rises(g("div0"), VDD / 2)
     tr_ = rises(g("ref0"), VDD / 2)
     print("## Course of the loop\n")
-    print("| t (µs) | V_tune at the VCO (V) | Divider period / reference period − 1 (ppm) | VCO (GHz) |")
-    print("|---|---|---|---|")
+    print("| t (µs) | V_tune at the VCO (V) | Divider period / reference period − 1 (ppm) | VCO from the divider (GHz) | "
+          "VCO amplitude (V diff.) |")
+    print("|---|---|---|---|---|")
+    vdiff = g("tp") - g("tn")
     for x in np.linspace(0.25e-6, TSTOP, 12):
         m = (td > x - 0.25e-6) & (td <= x)
         per = np.mean(np.diff(td[m])) if m.sum() > 2 else float("nan")
-        print(f"| {x*1e6:.2f} | {np.interp(x, t, g('n3')):.4f} | {(per * F_REF - 1)*1e6:+.0f} | {P*NDIV/per/1e9:.4f} |")
+        mw = (t > x - 20e-9) & (t <= x)
+        a = (vdiff[mw].max() - vdiff[mw].min()) / 2 if mw.sum() > 2 else float("nan")
+        print(f"| {x*1e6:.2f} | {np.interp(x, t, g('n3')):.4f} | {(per * F_REF - 1)*1e6:+.0f} | {P*NDIV/per/1e9:.4f} | {a:.3f} |")
     last = td[td > TSTOP - 1e-6]
     per = np.mean(np.diff(last)) if len(last) > 3 else float("nan")
     # locked pulse widths over the last 20 reference cycles
