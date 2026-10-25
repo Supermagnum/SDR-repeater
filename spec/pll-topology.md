@@ -1,6 +1,6 @@
 # PLL topology memo (P2.5): PFD, charge pump, loop filter, feedback divider, Σ-Δ
 
-Status: **topology accepted by the owner 2026-10-21 (D16–D18 as proposed, §4). Step 1 done 2026-10-21 (§7): plain long-channel charge-pump sources with replica matching, complementary MOS loop-filter capacitors, TSPC 2/3 cell; tuning window 0.25–0.95 V. Step 2a (PFD and charge pump, `analog/pll/step2/`) done 2026-10-25 (§8): fully transistor level, no dead zone, INL ≤ 3.6 ps on the locked side except the slow corner at the very top of the window. Step 2b (MMD) done 2026-10-25 as RTL (§9): pulse-swallow divider with a 4/5 prescaler from two 2/3 cells, N 16–127, new ratio every cycle.** Numbers are hand estimates `[HAND]` or from the linear PLL model `[MODEL]` (`analog/pll-model/`, P2.2), unless marked. Inputs: `spec/phase2-plan.md` §2 and D3, D5, D6, D7, D11; the VCO (`spec/vco-topology.md` §9); the LO dividers (`spec/lo-divider-topology.md` §9, P2.4 accepted 2026-10-21); the register map (`spec/analog-digital-interface.md` §5).
+Status: **topology accepted by the owner 2026-10-21 (D16–D18 as proposed, §4). Step 1 done 2026-10-21 (§7): plain long-channel charge-pump sources with replica matching, complementary MOS loop-filter capacitors, TSPC 2/3 cell; tuning window 0.25–0.95 V. Step 2a (PFD and charge pump, `analog/pll/step2/`) done 2026-10-25 (§8): fully transistor level, no dead zone, INL ≤ 3.6 ps on the locked side except the slow corner at the very top of the window. Step 2b (MMD) and 2c (Σ-Δ, lock detector, band calibration) done 2026-10-25 as RTL (§9–10), all tests pass. Step 3 (corners, Monte Carlo, spur levels, current) next.** Numbers are hand estimates `[HAND]` or from the linear PLL model `[MODEL]` (`analog/pll-model/`, P2.2), unless marked. Inputs: `spec/phase2-plan.md` §2 and D3, D5, D6, D7, D11; the VCO (`spec/vco-topology.md` §9); the LO dividers (`spec/lo-divider-topology.md` §9, P2.4 accepted 2026-10-21); the register map (`spec/analog-digital-interface.md` §5).
 
 ---
 
@@ -206,3 +206,18 @@ Consequences:
 - Current: the two TSPC cells ≈ 0.2–0.3 mA at 2.2 GHz; the counters < 0.1 mA. That fits the §3 estimate.
 
 **Next:** 2c — the Σ-Δ modulator (MASH 1-1-1, 24 bits, dither), lock detector and band calibration as RTL against a Python reference model.
+
+## 10. Step 2c — Σ-Δ, lock detector, band calibration (2026-10-25)
+
+Source: `rtl/afe/sdm.sv`, `lockdet.sv`, `bandcal.sv`, tests and Python reference models in `rtl/afe/cocotb/` `[RTL]`.
+
+| Block | Function | Result |
+|---|---|---|
+| Σ-Δ | MASH 1-1-1, 24-bit, LSB dither (LFSR x²³ + x¹⁸ + 1). On a load, {N_INT, N_FRAC} is divided by P = 2 / 3 (D16) with a 32-cycle restoring divider; the error is ≤ 2⁻²⁴ in M, < 0.3 Hz at RF. div_n = M_int + y, y in −3 … +4. Integer-N mode (`PLL_CTRL[1]` = 0) | Bit-exact against the Python model for 7 settings × 2000 cycles; mean within 2·10⁻³ of M; range correct |
+| Lock detector | UP / DN sampled at reference + window (≈ 6.5 ns, from an analogue delay cell, to cover the 2.9–4 ns locked UP pulse plus ±1 ns Σ-Δ wander); 64 good cycles → lock, 4 bad → unlock | Lock after 64 cycles; held with ±1 ns wander; cleared by UP or DN errors within 4–6 cycles |
+| Band calibration | Successive approximation over the 7-bit bank with V_tune held (hold output). For each trial: 16 cycles settling, then the prescaler output (f_VCO / 4P, ≤ 550 MHz) counted for 128 reference cycles against K·M/4. Ends on the highest code whose frequency is ≥ target | Six targets 3.12–4.20 GHz on a VCO model: correct within the counting resolution (≤ 0.06 %, a band step is 0.2–0.5 %); **29.2 µs** per calibration (wake budget 150 µs with the 125 µs lock) |
+
+**Notes:**
+- The calibration counts the prescaler output, not the MMD output. That gives about 1600 counts per step instead of about 128, so 128 reference cycles per step are enough.
+- The total of 29 µs calibration plus 125 µs lock is 154 µs, at the 150 µs wake budget. If needed: K = 64 (15 µs, resolution 0.12 %, still below a band step), or a faster loop after the calibration.
+- Still to come: the window delay cell, the hold switch on V_tune, and the bias generator. The four RTL blocks are integrated into the AFE/LO control block at Phase 5.

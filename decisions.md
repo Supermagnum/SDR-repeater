@@ -243,3 +243,8 @@ Next: step 1 device and block checks (`analog/pll/step1/`).
 
 ## 2026-10-25 — P2.5 step 2b: MMD structure
 - The multi-modulus divider is a pulse-swallow divider (divide-by-4/5 prescaler from two 2/3 cells + program and swallow counters at ≤ 550 MHz) instead of a six-cell Vaucher chain with range extension: the chain mixed program bits of two ratios when the ratio changes every cycle and the chain length changes within the operating range. D16 (clocking from the LO chain's first stage) is unchanged. RTL `rtl/afe/mmd.sv`; every ratio 16–127 and 786 cycles with a new ratio each cycle pass.
+
+## 2026-10-25 — P2.5 step 2c: Σ-Δ, lock detector, band calibration (RTL)
+- Σ-Δ MASH 1-1-1 with dither, including the division of {N_INT, N_FRAC} by P (D16); bit-exact against the Python reference model.
+- Lock detector with a sampling window of about 6.5 ns (covers the D18 locked UP pulse plus Σ-Δ wander).
+- Band calibration counts the prescaler output (not the MMD output) for 128 reference cycles per step: 29 µs in total; with the 125 µs lock this is at the 150 µs wake budget (K = 64 is the reserve).
