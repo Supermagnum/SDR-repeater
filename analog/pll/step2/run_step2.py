@@ -260,7 +260,7 @@ def offset_sink(icp, frac=0.1):
             f"mofp (vofp pg vdd vdd) sg13_lv_pmos w={wp:g}u l=2u ng={fn(wp, 6)}\nviofp (vofp vdm) vsource dc=0\n")
 
 
-def run(name, corner, vt, dt, icp, ioff=False):
+def run(name, corner, vt, dt, icp, ioff=False, post=None):
     from vacask.rawfile import rawread
     _, mos, vdd, temp = corner
     path = os.path.join(OUT, name + ".sim")
@@ -275,7 +275,9 @@ def run(name, corner, vt, dt, icp, ioff=False):
                  f"vdd (vdd 0) vsource dc={vdd}\n"
                  f"xref (ref0) sqref\n"
                  f"xdiv (div0) sqdiv\n"
-                 f"vtn (vt 0) vsource dc={vt}\n" + pfd(vdd) + charge_pump(icp) + (offset_sink(icp) if ioff else ""))
+                 f"vtn (vt 0) vsource dc={vt}\n"
+                 # post: optional netlist transform (P2.5 step 3 applies transistor mismatch here)
+                 + (post or (lambda x: x))(pfd(vdd) + charge_pump(icp) + (offset_sink(icp) if ioff else "")))
         fh.write("\ncontrol\n  abort always\n  options rawfile=\"binary\"\n"
                  f"  options temp={temp}\n"
                  f"  analysis tr tran stop={ncyc / F_REF:.6e} step=5p maxstep=5p\nendc\n")
@@ -309,6 +311,8 @@ def run(name, corner, vt, dt, icp, ioff=False):
         stats[k] = (v.min(), np.trapezoid(v, t[m]) / (t[m][-1] - t[m][0]), v.max())
     if ioff:
         stats["ioff"] = float(np.mean(np.abs(np.real(d["viof:flow(br)"])[m])))
+    # supply current of PFD, pump and amplifiers (P2.5 step 3, current budget)
+    stats["ivdd"] = float(np.mean(np.abs(np.real(d["vdd:flow(br)"])[m])))
     return q, w, float(np.real(d["pg"])[-1]), float(np.real(d["vr"])[-1]), stats
 
 
