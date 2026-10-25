@@ -1,5 +1,15 @@
 # P2.3 step 2 — first VCO schematic
 
+**8-bit bank (D20, 2026-10-25):** the scripts now build an 8-bit bank by default (same range, LSB about half;
+`bits=7` reproduces the P2.3 runs below). Rerun for D20:
+
+```bash
+cd /foss/designs/analog/vco/step2
+python3 -u run_step2.py range | tee out/summary_8bit.txt     # sizing, range, KVCO, tail currents (~15 min)
+python3 -u run_step2.py steps | tee out/summary_steps.txt    # band steps at the carry transitions (~15 min)
+cd ../step3 && python3 -u run_step3.py range bands | tee out/summary_8bit.txt   # corners + phase noise (~2 h)
+```
+
 Generated VACASK netlist of the whole VCO as decided in `spec/vco-topology.md` (D8–D11, step 1 sizes), typical corner, 27 °C. Status: **done 2026-10-20.** Result with 2 MΩ bias resistors and the buffer node decoupled (code 48, 3.65 GHz, 4.12 mA, 1.18 V differential, reltol 1e-6): **−116.8 dBc/Hz at 600 kHz (+8.4 dB), −122.6 at 1 MHz (+6.6 dB), −129.6 at 2 MHz (+11.7 dB)**. Contributions at 1 MHz: core pair 50 %, inductor 20 %, varactor bias 9 %, bank bias about 10 %, tail 3 %. Corners, temperature and the other bands: step 3.
 
 Earlier: first phase-noise result 2026-10-20 (code 48, 3.65 GHz, 4.12 mA, 1.19 V differential; pss converged at reltol 1e-6, not at 1e-7): **−119.2 dBc/Hz at 1 MHz** (target −116), −113.6 at 600 kHz (limit −108.4 at the VCO), −126.5 at 2 MHz (limit −117.9). Slope about −25 dB/decade from 300 kHz to 2 MHz: a noise source other than the tank adds about 2.4 dB at 1 MHz. `contrib` at 1 MHz: buffer pair 26 %, core pair 22 %, varactor bias resistors 21 %, off MSB bank bias resistors 15 %, inductor 9 %. Next run: bank and varactor bias resistors 2 MΩ (their noise above the R·C corner falls as 1/R), 2 pF on the buffer's common node. Earlier: third run prepared 2026-10-20 (second run: range 2.95–4.41 GHz covers the band; KVCO 13.6–38.6 MHz/V; 1.3 V needs 3.4 mA at the top and 5 mA (capped) at the bottom; pss failed again at both tolerances, so pss now starts from a stored transient).

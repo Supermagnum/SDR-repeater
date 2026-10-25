@@ -50,6 +50,8 @@ def load_sizing():
         sys.exit("analog/vco/step2/out/range.json missing: run step 2 'range' first")
     r = json.load(open(rj))
     S2.LSB_FF, S2.C_FIX_FF, S2.NFING = r["lsb"], r["cfix"], r["nfing"]
+    S2.NBITS = r.get("nbits", 7)          # 8 since D20; range.json files from P2.3 have no entry (7 bits)
+    S2.CMAX = (1 << S2.NBITS) - 1
     meas = {tuple(float(x) for x in k.split(",")): v for k, v in r["meas"].items()}
     return r, meas
 
@@ -71,11 +73,12 @@ def tran(code, vt, tag, itail, temp):
 
 
 def code_for(f, temp, tag):
-    """Bank code for frequency f at V_tune mid: fit 1/f^2 against code from codes 0 and 127, verify."""
+    """Bank code for frequency f at V_tune mid: fit 1/f^2 against code from the end codes, verify."""
+    cm = S2.CMAX
     m0 = tran(0, S2.VTUNE_MID, f"{tag}_c0", 3.5e-3, temp)
-    m1 = tran(127, S2.VTUNE_MID, f"{tag}_c127", 3.5e-3, temp)
+    m1 = tran(cm, S2.VTUNE_MID, f"{tag}_c{cm}", 3.5e-3, temp)
     y0, y1 = 1 / m0["f"] ** 2, 1 / m1["f"] ** 2
-    return int(round(min(127, max(0, (1 / f ** 2 - y0) / (y1 - y0) * 127))))
+    return int(round(min(cm, max(0, (1 / f ** 2 - y0) / (y1 - y0) * cm))))
 
 
 def pnoise(code, vt, f0, itail, temp, tag):
@@ -154,7 +157,7 @@ def do_reltol():
 def do_range(meas):
     print("## 2. Tuning range and swing at corners (60 ns transients)\n")
     i_top, i_bot = itail_for(4.4e9, meas), itail_for(2.95e9, meas)
-    print(f"Top: code 0 at 1.0 V, I_tail {i_top*1e3:.2f} mA. Bottom: code 127 at 0.3 V, I_tail {i_bot*1e3:.2f} mA. "
+    print(f"Top: code 0 at 1.0 V, I_tail {i_top*1e3:.2f} mA. Bottom: code {S2.CMAX} at 0.3 V, I_tail {i_bot*1e3:.2f} mA. "
           f"Needed: top >= 4.20 GHz, bottom <= 3.12 GHz; peak V_GS / V_GD <= {S2.V_OX} V.\n")
     print("| MOS | CAP | T (degC) | f top (GHz) | f bottom (GHz) | Covers | Amp top / bottom (V) | Peak V_GS | Peak V_GD |")
     print("|---|---|---|---|---|---|---|---|---|")
@@ -163,7 +166,7 @@ def do_range(meas):
         for t in TEMPS:
             try:
                 a = tran(0, 1.0, f"{mos}_{cap}_{t}_top", i_top, t)
-                b = tran(127, 0.3, f"{mos}_{cap}_{t}_bot", i_bot, t)
+                b = tran(S2.CMAX, 0.3, f"{mos}_{cap}_{t}_bot", i_bot, t)
             except RuntimeError as e:
                 print(f"| {mos} | {cap} | {t} | failed: {str(e).splitlines()[0]} |")
                 continue
@@ -196,9 +199,9 @@ def do_bands(meas, mos="mos_tt", cap="cap_typ", temp=27, bands=BANDS, title=None
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    what = sys.argv[1:] or ["reltol", "range", "bands", "worst"]
+    what = [a for a in sys.argv[1:] if "=" not in a] or ["reltol", "range", "bands", "worst"]
     r, meas = load_sizing()
-    print(f"# P2.3 step 3\n\nSizing from step 2: LSB {S2.LSB_FF:.2f} fF, fixed {S2.C_FIX_FF:.0f} fF, "
+    print(f"# P2.3 step 3\n\nSizing from step 2 ({S2.NBITS}-bit bank): LSB {S2.LSB_FF:.2f} fF, fixed {S2.C_FIX_FF:.0f} fF, "
           f"varactor {S2.NFING} fingers, bias resistors {S2.R_BIAS/1e6:g} MOhm.\n")
     if "reltol" in what:
         do_reltol()

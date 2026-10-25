@@ -129,6 +129,8 @@ Note on the PDK: the VACASK conversion of `sg13_hv_svaricap` does not elaborate 
 
 ## 9. Steps 2–3 results (2026-10-20): first schematic, bands, corners
 
+**D20 (2026-10-25, P2.6 step 1): the bank becomes 8 bits** (same 2.90–4.41 GHz range, LSB about 5.8 fF on-state) so that one band step is 0.23–0.30 V of V_tune instead of 0.45–0.59 V (`spec/pll-topology.md` §13). The step-2/3 scripts build 8 bits by default (`bits=7` gives the results below); rerun pending: range, KVCO, band steps at the carry transitions (`run_step2.py steps`), corners and phase noise.
+
 Source: `analog/vco/step2/`, `analog/vco/step3/` (VACASK, PDK `a49358cc`) `[SCH]`. Ideal still: supplies (LDO), reference current, bias-filter R and C, tail capacitor, buffer (a stand-in for the CML buffer of P2.4).
 
 **Circuit as simulated:** L2n0 lumped model, centre tap at 1.1 V; LV NMOS pair 32/0.13 µm; tail LV NMOS 160/4 µm, mirror 1:8, bias RC 1 MΩ / 50 pF, tail capacitor 8 pF; 7-bit bank, on-state LSB 11.5 fF after the review (10.9 fF before; sized automatically: the bank switches C_on − C_off, and the fixed capacitance without a fixed capacitor was only about 420 fF), about 100 µm of switch per 60 fF, plus a 204 fF fixed MIM (224 fF before the review); varactor 20 fingers AC-coupled through MIMs of about 5×, gates at 0.3 V; **2 MΩ** bank and varactor bias resistors.
