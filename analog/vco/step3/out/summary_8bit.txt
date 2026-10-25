@@ -1,0 +1,43 @@
+# P2.3 step 3
+
+Sizing from step 2 (8-bit bank): LSB 5.71 fF, fixed 203 fF, varactor 20 fingers, bias resistors 2 MOhm.
+
+## 2. Tuning range and swing at corners (60 ns transients)
+
+Top: code 0 at 1.0 V, I_tail 3.40 mA. Bottom: code 255 at 0.3 V, I_tail 4.00 mA. Needed: top >= 4.20 GHz, bottom <= 3.12 GHz; peak V_GS / V_GD <= 1.5 V.
+
+| MOS | CAP | T (degC) | f top (GHz) | f bottom (GHz) | Covers | Amp top / bottom (V) | Peak V_GS | Peak V_GD |
+|---|---|---|---|---|---|---|---|---|
+| mos_tt | cap_typ | -40 | 4.431 | 2.903 | yes | 1.42 / 0.94 | 1.42 | 1.42 |
+| mos_tt | cap_typ | 27 | 4.437 | 2.901 | yes | 1.34 / 0.85 | 1.34 | 1.34 |
+| mos_tt | cap_typ | 85 | 4.443 | 2.898 | yes | 1.25 / 0.73 | 1.26 | 1.25 |
+| mos_ss | cap_wcs | -40 | 4.343 | 2.780 | yes | 1.44 / 0.87 | 1.44 | 1.44 |
+| mos_ss | cap_wcs | 27 | 4.347 | 2.777 | yes | 1.36 / 0.77 | 1.37 | 1.36 |
+| mos_ss | cap_wcs | 85 | 4.351 | 2.773 | yes | 1.28 / 0.64 | 1.30 | 1.28 |
+| mos_ss | cap_bcs | -40 | 4.532 | 3.050 | yes | 1.48 / 1.03 | 1.48 | 1.48 |
+| mos_ss | cap_bcs | 27 | 4.539 | 3.049 | yes | 1.40 / 0.94 | 1.40 | 1.40 |
+| mos_ss | cap_bcs | 85 | 4.545 | 3.047 | yes | 1.32 / 0.82 | 1.33 | 1.32 |
+| mos_ff | cap_wcs | -40 | 4.343 | 2.774 | yes | 1.33 / 0.82 | 1.33 | 1.33 |
+| mos_ff | cap_wcs | 27 | 4.349 | 2.772 | yes | 1.24 / 0.72 | 1.25 | 1.24 |
+| mos_ff | cap_wcs | 85 | 4.354 | 2.768 | yes | 1.14 / 0.59 | 1.16 | 1.14 |
+| mos_ff | cap_bcs | -40 | 4.530 | 3.041 | yes | 1.37 / 0.95 | 1.37 | 1.37 |
+| mos_ff | cap_bcs | 27 | 4.538 | 3.041 | yes | 1.28 / 0.86 | 1.28 | 1.28 |
+| mos_ff | cap_bcs | 85 | 4.547 | 3.040 | yes | 1.18 / 0.73 | 1.19 | 1.18 |
+
+## 3. Phase noise across the band (typical, 27 degC)
+
+  mos_tt_cap_typ_27_3.12: code 196 -> 3.1171 GHz, 0.925 V at 4.00 mA; pnoise ...
+  mos_tt_cap_typ_27_3.40: code 134 -> 3.3983 GHz, 1.024 V at 4.00 mA; pnoise ...
+  mos_tt_cap_typ_27_3.65: code 91 -> 3.6520 GHz, 1.169 V at 3.96 mA; pnoise ...
+  mos_tt_cap_typ_27_3.90: code 55 -> 3.9077 GHz, 1.252 V at 3.87 mA; pnoise ...
+  mos_tt_cap_typ_27_4.20: code 21 -> 4.2047 GHz, 1.302 V at 3.59 mA; pnoise ...
+
+Typical, 27 degC (dBc/Hz); limits VHF -108.4 @ 0.6 MHz, -116 @ 1 MHz; UHF -115 @ 1 MHz, -117.9 @ 2 MHz
+
+| Band | f (GHz) | Code | I_tail (mA) | Amplitude (V) | L @ 0.1 MHz | L @ 0.3 MHz | L @ 0.6 MHz | L @ 1 MHz | L @ 2 MHz | L @ 10 MHz | Worst margin |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 3.12 GHz | 3.120 | 196 | 4.00 | 0.922 | -97.2 | -111.0 | -119.2 | -124.4 | -130.9 | -145.1 | +8.4 dB (VHF 1 MHz) |
+| 3.40 GHz | 3.401 | 134 | 4.00 | 1.022 | -94.3 | -108.9 | -117.7 | -123.4 | -130.2 | -144.5 | +7.4 dB (VHF 1 MHz) |
+| 3.65 GHz | 3.655 | 91 | 3.96 | 1.171 | -92.5 | -107.8 | -116.9 | -122.7 | -129.6 | -144.1 | +6.7 dB (VHF 1 MHz) |
+| 3.90 GHz | 3.911 | 55 | 3.87 | 1.256 | -90.4 | -106.1 | -115.5 | -121.5 | -128.6 | -143.2 | +5.5 dB (VHF 1 MHz) |
+| 4.20 GHz | 4.207 | 21 | 3.59 | 1.307 | -88.7 | -103.9 | -113.6 | -119.9 | -127.2 | -142.0 | +3.9 dB (VHF 1 MHz) |

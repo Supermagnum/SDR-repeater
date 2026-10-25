@@ -129,7 +129,10 @@ Note on the PDK: the VACASK conversion of `sg13_hv_svaricap` does not elaborate 
 
 ## 9. Steps 2–3 results (2026-10-20): first schematic, bands, corners
 
-**D20 (2026-10-25, P2.6 step 1): the bank becomes 8 bits** (same 2.90–4.41 GHz range, LSB about 5.8 fF on-state) so that one band step is 0.23–0.30 V of V_tune instead of 0.45–0.59 V (`spec/pll-topology.md` §13). The step-2/3 scripts build 8 bits by default (`bits=7` gives the results below); rerun pending: range, KVCO, band steps at the carry transitions (`run_step2.py steps`), corners and phase noise.
+**D20 (2026-10-25, P2.6 step 1): the bank becomes 8 bits** (same 2.90–4.41 GHz range, LSB about 5.8 fF on-state) so that one band step is 0.23–0.30 V of V_tune instead of 0.45–0.59 V (`spec/pll-topology.md` §13). The step-2/3 scripts build 8 bits by default (`bits=7` gives the results below); first rerun 2026-10-25 `[SCH]`:
+- Sizing: LSB 5.71 fF (on-state), fixed 203 fF. Range 2.910–4.408 GHz typical; at all 15 corner / temperature cases 2.77–3.05 GHz bottom and 4.34–4.55 GHz top (covers); peak V_GS / V_GD ≤ 1.48 V; KVCO 13.1–38.6 MHz/V; tail current per band as before (3.4–4.0 mA).
+- Phase noise in five bands, typical: −124.4 / −123.4 / −122.7 / −121.5 / −119.9 dBc/Hz at 1 MHz (3.12–4.20 GHz), worst margin +3.9 dB — the same as with 7 bits to within 0.1 dB.
+- **Band steps not uniform:** at the carries the step grows towards the MSB — 3→4: 1.07 ×, 63→64: 1.38 ×, **127→128: about 2.8 × a normal step (0.72 V of V_tune)**, 191→192: 1.45 × (ratios against the local mean, which includes the carry itself). Small cells switch relatively less capacitance (perimeter and switch parasitics in the off state do not scale with the cell), so a plain binary weighting is not enough. Fix: each bit trimmed in size so the step at its carry equals the single-LSB steps beside it (`trim()` in `run_step2.py`, bottom-up, two passes, then re-sizing for the range); systematic, so it holds over corners to first order. Second run pending.
 
 Source: `analog/vco/step2/`, `analog/vco/step3/` (VACASK, PDK `a49358cc`) `[SCH]`. Ideal still: supplies (LDO), reference current, bias-filter R and C, tail capacitor, buffer (a stand-in for the CML buffer of P2.4).
 

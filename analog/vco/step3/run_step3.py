@@ -50,6 +50,7 @@ def load_sizing():
         sys.exit("analog/vco/step2/out/range.json missing: run step 2 'range' first")
     r = json.load(open(rj))
     S2.LSB_FF, S2.C_FIX_FF, S2.NFING = r["lsb"], r["cfix"], r["nfing"]
+    S2.TRIM[:len(r.get("trim", []))] = r.get("trim", [])
     S2.NBITS = r.get("nbits", 7)          # 8 since D20; range.json files from P2.3 have no entry (7 bits)
     S2.CMAX = (1 << S2.NBITS) - 1
     meas = {tuple(float(x) for x in k.split(",")): v for k, v in r["meas"].items()}

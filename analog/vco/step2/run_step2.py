@@ -56,6 +56,7 @@ NBITS = next((int(a[5:]) for a in sys.argv[1:] if a.startswith("bits=")), 8)   #
 CMAX = (1 << NBITS) - 1
 LSB_FF = 7.5 / 2 ** (NBITS - 7)   # differential on-capacitance of the LSB, fF; resized by size()
 C_FIX_FF = 0.0       # extra fixed differential capacitance, fF; set by size()
+TRIM = [1.0] * 16    # per-bit size factor (MIM and switch), set by trim(): equal band steps at the carries
 NFING = 20           # varactor fingers (two instances of nx = NFING / 2)
 C_TOP_FF = 762.0     # wanted total at code 0 (4.37 GHz with L + 3 %, tank_budget.py)
 C_SWITCH_FF = 1003.0  # wanted switched range: 955 fF (3.00 GHz with L - 3 %) + 5 % (P2.3 review 2026-10-20:
@@ -130,9 +131,9 @@ def netlist(title, code, vtune, analysis, itail=ITAIL, extra=""):
              "mr (nb nb 0 0) sg13_lv_nmos w=20u l=4u ng=4\n"
              f"iref (vdd nb) isource dc={itail / 8:.6g}\n")
     for k in range(NBITS):
-        c_mim = 2 * LSB_FF * 2 ** k                      # each MIM is twice the differential value
+        c_mim = 2 * LSB_FF * 2 ** k * TRIM[k]            # each MIM is twice the differential value
         s = side(c_mim)
-        w = SW_PER_FF * LSB_FF * 2 ** k
+        w = SW_PER_FF * LSB_FF * 2 ** k * TRIM[k]
         ng = max(1, int(round(w / 2.5)))
         on = (code >> k) & 1
         n.append(f"xb{k}p (tp a{k} 0) cap_rfcmim w={s:.3f}u l={s:.3f}u\n"
@@ -211,7 +212,7 @@ def c_of(f):
     return 1e15 / ((2 * math.pi * f) ** 2 * 1.70e-9)
 
 
-def size():
+def size(passes=2):
     """Scale the bank and add fixed capacitance so code 0 / 127 land at C_TOP / C_TOP + C_SWITCH (two passes).
 
     First run (2026-10-20): with LSB 7.5 fF of ON capacitance the bank switched only about 644 fF (the
@@ -220,7 +221,7 @@ def size():
     """
     global LSB_FF, C_FIX_FF
     print("## Sizing (bank scale and fixed capacitor, two passes)\n")
-    for it in range(2):
+    for it in range(passes):
         m0, m1 = tran(0, VTUNE_MID, f"size{it}_c0"), tran(CMAX, VTUNE_MID, f"size{it}_c{CMAX}")
         c0, c1 = c_of(m0["f"]), c_of(m1["f"])
         dc = c1 - c0
@@ -237,8 +238,34 @@ def size():
     print(f"result: LSB {LSB_FF:.2f} fF (on-state), fixed {C_FIX_FF:.0f} fF differential, varactor {NFING} fingers\n")
 
 
+def trim(passes=2):
+    """D20 first run (2026-10-25): with plain binary sizing the band step at the carries grew towards the MSB
+    (127 -> 128: about 2.8 x a normal step, 0.72 V of V_tune), because small cells switch relatively less
+    capacitance (perimeter and switch parasitics in the off state do not scale with the cell). Each bit k is
+    therefore trimmed so that the step at the carry (2^k - 1 -> 2^k) equals the mean of the single-LSB steps
+    beside it; bits are done from the bottom up, since a bit's error shows in all higher carries."""
+    print("## Bank trim (equal steps at the carries)\n")
+    lsb_sw = C_SWITCH_FF / CMAX
+    for p in range(passes):
+        rows = []
+        for k in range(1, NBITS):
+            c = 1 << k
+            f = {x: tran(x, VTUNE_MID, f"trim{p}_c{x}")["f"] for x in (c - 2, c - 1, c, c + 1)}
+            carry = f[c - 1] - f[c]
+            lsb = 0.5 * ((f[c - 2] - f[c - 1]) + (f[c] - f[c + 1]))
+            dc = (carry - lsb) * 2 * c_of(f[c]) / f[c]          # excess switched capacitance of bit k, fF
+            old = TRIM[k]
+            TRIM[k] = old - dc / (c * lsb_sw)                   # bit k switches about TRIM[k] c lsb_sw
+            rows.append(f"bit {k}: carry {carry/1e6:.2f} / LSB {lsb/1e6:.2f} MHz -> trim {old:.4f} -> {TRIM[k]:.4f}")
+        print(f"pass {p+1}: " + "; ".join(rows) + "\n")
+
+
 def do_range():
     size()
+    trim()
+    # the trim takes a few % of switched capacitance off the larger bits: size again, then touch up the trim
+    size(passes=1)
+    trim(passes=1)
     print("## Tuning range and swing (noiseless transient, 60 ns, last 20 ns measured)\n")
     print(f"I_tail {ITAIL*1e3:.1f} mA, VDD_VCO {VCT} V. Peak V_GS / V_GD of the core against {V_OX} V.\n")
     print("| Code | V_tune | f (GHz) | Diff. amplitude (V) | Peak V_GS | Peak V_GD | Tail min | Drain min |")
@@ -284,6 +311,7 @@ def do_range():
             f"code {c}: {min(I_MAX, ITAIL * A_TARGET / res[f'{c},{VTUNE_MID}']['amp'])*1e3:.1f} mA"
             for c in CODES if f"{c},{VTUNE_MID}" in res))
         json.dump(dict(code=code, vtune=VTUNE_MID, f=m2["f"], itail=itail, lsb=LSB_FF, cfix=C_FIX_FF, nbits=NBITS,
+                       trim=TRIM[:NBITS],
                        nfing=NFING, meas=res), open(os.path.join(OUT, "range.json"), "w"), indent=1)
 
 
@@ -300,6 +328,7 @@ def do_steps():
         sys.exit("out/range.json missing: run 'python3 run_step2.py range' first")
     r = json.load(open(rj))
     LSB_FF, C_FIX_FF, NFING = r["lsb"], r["cfix"], r["nfing"]
+    TRIM[:len(r.get("trim", []))] = r.get("trim", [])
     meas = r["meas"]
     kv = {}
     for c in CODES:
@@ -336,6 +365,7 @@ def do_pn():
     global LSB_FF, C_FIX_FF, NFING
     r = json.load(open(rj))
     code, vt, f0 = r["code"], r["vtune"], r["f"]
+    TRIM[:len(r.get("trim", []))] = r.get("trim", [])
     LSB_FF, C_FIX_FF, NFING, itail = r.get("lsb", LSB_FF), r.get("cfix", C_FIX_FF), r.get("nfing", NFING), \
         r.get("itail", ITAIL)
     vals = ", ".join(f"{x:.0f}" for x in OFFSETS)
