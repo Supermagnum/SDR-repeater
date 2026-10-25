@@ -44,11 +44,13 @@ MM = {"n": (3.9e-3, 0.005), "p": (2.2e-3, 0.0033)}      # A_VT (V um), A_beta (u
 DW, DL = 4e-9, 2e-9
 
 
-def mismatch(rng):
-    """Netlist transform: random V_T (series gate source), beta and W, L on every sg13_lv MOS line."""
+def mismatch(seed):
+    """Netlist transform: random V_T (series gate source), beta and W, L on every sg13_lv MOS line.
+    The generator is re-seeded on every call, so all dt points of one sample see the same chip."""
     pat = re.compile(r"^(\S+) \((\S+) (\S+) (\S+) (\S+)\) sg13_lv_(n|p)mos w=([\d.]+)u l=([\d.]+)u(.*)$")
 
     def apply(text):
+        rng = np.random.default_rng(seed)
         out, k = [], 0
         for ln in text.splitlines():
             m = pat.match(ln)
@@ -95,7 +97,7 @@ def check_mc(cases, n):
         res = [curve(corner, vt, "nom", None)]
         for k in range(n):
             try:
-                res.append(curve(corner, vt, f"s{k}", mismatch(np.random.default_rng(3000 + k))))
+                res.append(curve(corner, vt, f"s{k}", mismatch(3000 + k)))
             except RuntimeError as e:
                 print(f"  sample {k} failed: {str(e)[-200:]}", file=sys.stderr)
         with open(os.path.join(OUT, f"mc_{cname}_{vt:.2f}.json"), "w") as fh:
