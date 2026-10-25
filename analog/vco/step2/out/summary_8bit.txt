@@ -4,34 +4,49 @@ pass 1: LSB 3.75 fF, fixed 0 fF -> code 0 5.925 GHz (425 fF), code 255 3.726 GHz
 pass 2: LSB 5.80 fF, fixed 190 fF -> code 0 4.442 GHz (755 fF), code 255 2.898 GHz (1774 fF), switched 1018 fF
 result: LSB 5.71 fF (on-state), fixed 203 fF differential, varactor 20 fingers
 
+## Bank trim (equal steps at the carries)
+
+pass 1: bit 1: carry 11.02 / LSB 10.49 MHz -> trim 1.0000 -> 0.9767; bit 2: carry 12.08 / LSB 10.36 MHz -> trim 1.0000 -> 0.9612; bit 3: carry 14.11 / LSB 10.11 MHz -> trim 1.0000 -> 0.9536; bit 4: carry 17.48 / LSB 9.64 MHz -> trim 1.0000 -> 0.9518; bit 5: carry 23.29 / LSB 8.61 MHz -> trim 1.0000 -> 0.9498; bit 6: carry 33.38 / LSB 7.06 MHz -> trim 1.0000 -> 0.9454; bit 7: carry 50.47 / LSB 5.13 MHz -> trim 1.0000 -> 0.9344
+
+pass 2: bit 1: carry 10.95 / LSB 11.00 MHz -> trim 0.9767 -> 0.9787; bit 2: carry 10.84 / LSB 10.85 MHz -> trim 0.9612 -> 0.9614; bit 3: carry 10.56 / LSB 10.63 MHz -> trim 0.9536 -> 0.9545; bit 4: carry 10.06 / LSB 10.09 MHz -> trim 0.9518 -> 0.9520; bit 5: carry 8.86 / LSB 9.07 MHz -> trim 0.9498 -> 0.9505; bit 6: carry 6.80 / LSB 7.36 MHz -> trim 0.9454 -> 0.9465; bit 7: carry 2.33 / LSB 5.32 MHz -> trim 0.9344 -> 0.9385
+
+## Sizing (bank scale and fixed capacitor, two passes)
+
+pass 1: LSB 5.71 fF, fixed 203 fF -> code 0 4.491 GHz (739 fF), code 255 2.975 GHz (1683 fF), switched 944 fF
+result: LSB 6.07 fF (on-state), fixed 202 fF differential, varactor 20 fingers
+
+## Bank trim (equal steps at the carries)
+
+pass 1: bit 1: carry 11.28 / LSB 11.11 MHz -> trim 0.9787 -> 0.9713; bit 2: carry 11.17 / LSB 10.97 MHz -> trim 0.9614 -> 0.9569; bit 3: carry 11.10 / LSB 10.72 MHz -> trim 0.9545 -> 0.9501; bit 4: carry 10.85 / LSB 10.15 MHz -> trim 0.9520 -> 0.9477; bit 5: carry 10.31 / LSB 9.11 MHz -> trim 0.9505 -> 0.9464; bit 6: carry 9.43 / LSB 7.39 MHz -> trim 0.9465 -> 0.9422; bit 7: carry 9.21 / LSB 5.31 MHz -> trim 0.9385 -> 0.9328
+
 ## Tuning range and swing (noiseless transient, 60 ns, last 20 ns measured)
 
 I_tail 3.5 mA, VDD_VCO 1.1 V. Peak V_GS / V_GD of the core against 1.5 V.
 
 | Code | V_tune | f (GHz) | Diff. amplitude (V) | Peak V_GS | Peak V_GD | Tail min | Drain min |
 |---|---|---|---|---|---|---|---|
-| 0 | 0.30 | 4.4082 | 1.344 | 1.35 | 1.34 | 0.44 | 0.45 |
-| 0 | 0.65 | 4.4230 | 1.345 | 1.35 | 1.35 | 0.44 | 0.45 |
-| 0 | 1.00 | 4.4352 | 1.350 | 1.36 | 1.35 | 0.44 | 0.44 |
-| 64 | 0.30 | 3.8298 | 1.158 | 1.20 | 1.16 | 0.48 | 0.52 |
-| 64 | 0.65 | 3.8400 | 1.159 | 1.20 | 1.16 | 0.48 | 0.52 |
-| 64 | 1.00 | 3.8485 | 1.163 | 1.20 | 1.16 | 0.48 | 0.52 |
-| 128 | 0.30 | 3.4234 | 0.962 | 1.07 | 0.96 | 0.49 | 0.60 |
-| 128 | 0.65 | 3.4312 | 0.963 | 1.07 | 0.96 | 0.49 | 0.60 |
-| 128 | 1.00 | 3.4375 | 0.966 | 1.07 | 0.97 | 0.49 | 0.60 |
-| 192 | 0.30 | 3.1278 | 0.858 | 1.02 | 0.86 | 0.49 | 0.65 |
-| 192 | 0.65 | 3.1339 | 0.859 | 1.02 | 0.86 | 0.49 | 0.65 |
-| 192 | 1.00 | 3.1389 | 0.862 | 1.02 | 0.86 | 0.49 | 0.65 |
-| 255 | 0.30 | 2.9011 | 0.773 | 0.98 | 0.77 | 0.48 | 0.69 |
-| 255 | 0.65 | 2.9062 | 0.775 | 0.98 | 0.77 | 0.48 | 0.69 |
-| 255 | 1.00 | 2.9103 | 0.777 | 0.98 | 0.78 | 0.48 | 0.69 |
+| 0 | 0.30 | 4.4143 | 1.345 | 1.35 | 1.35 | 0.44 | 0.45 |
+| 0 | 0.65 | 4.4291 | 1.346 | 1.35 | 1.35 | 0.44 | 0.44 |
+| 0 | 1.00 | 4.4414 | 1.352 | 1.36 | 1.35 | 0.44 | 0.44 |
+| 64 | 0.30 | 3.8335 | 1.159 | 1.20 | 1.16 | 0.48 | 0.52 |
+| 64 | 0.65 | 3.8437 | 1.160 | 1.20 | 1.16 | 0.48 | 0.52 |
+| 64 | 1.00 | 3.8522 | 1.164 | 1.21 | 1.16 | 0.48 | 0.52 |
+| 128 | 0.30 | 3.4329 | 0.966 | 1.07 | 0.97 | 0.49 | 0.60 |
+| 128 | 0.65 | 3.4407 | 0.968 | 1.07 | 0.97 | 0.49 | 0.60 |
+| 128 | 1.00 | 3.4471 | 0.970 | 1.08 | 0.97 | 0.49 | 0.60 |
+| 192 | 0.30 | 3.1348 | 0.861 | 1.02 | 0.86 | 0.49 | 0.65 |
+| 192 | 0.65 | 3.1410 | 0.863 | 1.02 | 0.86 | 0.49 | 0.65 |
+| 192 | 1.00 | 3.1460 | 0.866 | 1.02 | 0.87 | 0.49 | 0.65 |
+| 255 | 0.30 | 2.9050 | 0.776 | 0.98 | 0.78 | 0.48 | 0.69 |
+| 255 | 0.65 | 2.9101 | 0.778 | 0.98 | 0.78 | 0.48 | 0.69 |
+| 255 | 1.00 | 2.9142 | 0.780 | 0.98 | 0.78 | 0.48 | 0.68 |
 
-Range: 2.910-4.408 GHz (needed 3.12-4.20, design 3.00-4.37 GHz): covers the band.
-KVCO at code 0: 38.6 MHz/V (needed about 14-47 MHz/V over the range, D8)
-KVCO at code 128: 20.2 MHz/V (needed about 14-47 MHz/V over the range, D8)
+Range: 2.914-4.414 GHz (needed 3.12-4.20, design 3.00-4.37 GHz): covers the band.
+KVCO at code 0: 38.8 MHz/V (needed about 14-47 MHz/V over the range, D8)
+KVCO at code 128: 20.3 MHz/V (needed about 14-47 MHz/V over the range, D8)
 KVCO at code 255: 13.1 MHz/V (needed about 14-47 MHz/V over the range, D8)
 
-Band for pnoise: code 91 at V_tune 0.65 V -> 3.6560 GHz (target 3.65 GHz)
-Tail current for 1.3 V: 4.00 mA -> 1.174 V, 3.6517 GHz, peak V_GS 1.22 / V_GD 1.17 V
+Band for pnoise: code 92 at V_tune 0.65 V -> 3.6508 GHz (target 3.65 GHz)
+Tail current for 1.3 V: 4.00 mA -> 1.173 V, 3.6466 GHz, peak V_GS 1.22 / V_GD 1.17 V
 
 Tail current per band for about 1.3 V (VCO_BIAS): code 0: 3.4 mA, code 64: 3.9 mA, code 128: 4.0 mA, code 192: 4.0 mA, code 255: 4.0 mA
