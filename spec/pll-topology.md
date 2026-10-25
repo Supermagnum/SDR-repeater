@@ -396,3 +396,7 @@ All within the 150 µs maximum of `spec/rf-frontend.md` (50 µs typical is met o
 | UHF 480 MHz (2 MHz) | −143.7 (+7.7) | −143.8 (+7.8) | VCO −145.5, LO floor −150 |
 
 All band edges meet the 25 W limit (−136 dBc/Hz); the 5 W limit (−129) with 10 dB or more. The tightest case is the top of VHF, where the VCO (its weakest band) dominates; the next two items are the loop-filter resistors and the charge pump. **Step 2 done.** Next: step 3 (transistor-level interface check), step 4 (spurs and summary), and the V_tune monitor comparators (D20).
+
+### Step 3 (prepared): transistor-level closed loop
+
+`analog/pll/p26/step3/run_p26s3.py`: VCO (8-bit trimmed bank), LO buffer, CML ÷3 with the D15 enable, converter, a TSPC ripple ÷32 in place of the MMD (integer-N; the MMD and Σ-Δ are RTL), PFD, charge pump with bias generator and offset pair, the D19 loop filter scaled to 10 × the bandwidth (C / 100, R × 10) so that a few µs of transient show the loop pulling in from power-on. VCO 3.456 GHz = 3 × 32 × 36 MHz. Checks: lock, polarity, V_tune, the locked UP / DN widths, no oscillation of the loop or the bias generator.
