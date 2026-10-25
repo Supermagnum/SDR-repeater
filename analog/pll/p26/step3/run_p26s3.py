@@ -151,7 +151,9 @@ def main():
     V = load("vco_step2", "analog/vco/step2/run_step2.py")
     V.OUT = OUT
     code, r = pick_code()
-    code = int(opt("code", code))
+    # Third run: at code 125 the VCO ran 0.45 % above the step-2 prediction (here without the step-2 stand-in
+    # buffer's load), so V_tune would have to settle near 0.17 V; two codes lower in frequency put it near mid-window
+    code = int(opt("code", code + 2))
     V.LSB_FF, V.C_FIX_FF, V.NFING = r["lsb"], r["cfix"], r["nfing"]
     V.NBITS = r.get("nbits", 8)
     V.CMAX = (1 << V.NBITS) - 1
@@ -201,16 +203,17 @@ def main():
     td = rises(g("div0"), VDD / 2)
     tr_ = rises(g("ref0"), VDD / 2)
     print("## Course of the loop\n")
-    print("| t (µs) | V_tune at the VCO (V) | Divider period / reference period − 1 (ppm) | VCO from the divider (GHz) | "
-          "VCO amplitude (V diff.) |")
-    print("|---|---|---|---|---|")
+    print("| t (µs) | Pump output vt (V) | V_tune at the VCO (V) | Divider period / reference period − 1 (ppm) | "
+          "VCO from the divider (GHz) | VCO amplitude (V diff.) |")
+    print("|---|---|---|---|---|---|")
     vdiff = g("tp") - g("tn")
     for x in np.linspace(0.25e-6, TSTOP, 12):
         m = (td > x - 0.25e-6) & (td <= x)
         per = np.mean(np.diff(td[m])) if m.sum() > 2 else float("nan")
         mw = (t > x - 20e-9) & (t <= x)
         a = (vdiff[mw].max() - vdiff[mw].min()) / 2 if mw.sum() > 2 else float("nan")
-        print(f"| {x*1e6:.2f} | {np.interp(x, t, g('n3')):.4f} | {(per * F_REF - 1)*1e6:+.0f} | {P*NDIV/per/1e9:.4f} | {a:.3f} |")
+        print(f"| {x*1e6:.2f} | {np.interp(x, t, g('vt')):.4f} | {np.interp(x, t, g('n3')):.4f} | {(per * F_REF - 1)*1e6:+.0f} | "
+              f"{P*NDIV/per/1e9:.4f} | {a:.3f} |")
     last = td[td > TSTOP - 1e-6]
     per = np.mean(np.diff(last)) if len(last) > 3 else float("nan")
     # locked pulse widths over the last 20 reference cycles
@@ -224,7 +227,7 @@ def main():
     locked = abs(per * F_REF - 1) < 1e-4
     print(f"\nLast µs: divider period {per*1e9:.4f} ns (reference {1e9/F_REF:.4f} ns, {(per*F_REF-1)*1e6:+.1f} ppm) → "
           f"{'**locked**' if locked else '**not locked**'}; VCO {P*NDIV/per/1e9:.5f} GHz (target {F_VCO/1e9:.3f}); "
-          f"V_tune {np.mean(g('n3')[m]):.4f} V; UP {wu*1e9:.2f} ns, DN {wd*1e9:.2f} ns per cycle (D18: UP ≈ 2.8 + 0.25 ns, "
+          f"pump output {np.mean(g('vt')[m]):.4f} V, V_tune at the VCO {np.mean(g('n3')[m]):.4f} V; UP {wu*1e9:.2f} ns, DN {wd*1e9:.2f} ns per cycle (D18: UP ≈ 2.8 + 0.25 ns, "
           f"DN ≈ 0.25 ns); divider edge {lead*1e9:.2f} ns after the reference edge; VCO amplitude {amp:.3f} V "
           f"differential; bias node pbias {np.mean(g('pbias')[m]):.3f} V.\n")
 
