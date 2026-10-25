@@ -30,3 +30,8 @@ def sdm(m, cycles, dither=True, mash=True):
 def f_vco(code):
     """VCO model for the calibration test: 4.41 GHz at code 0 to 2.90 GHz at code 127, C linear in code."""
     return 4.41e9 / (1 + code * ((4.41 / 2.90) ** 2 - 1) / 127) ** 0.5
+
+
+def f_vco8(code):
+    """8-bit bank (D20): the same 2.90-4.41 GHz range in 256 codes."""
+    return f_vco(code * 127 / 255)

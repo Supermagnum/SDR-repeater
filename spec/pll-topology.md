@@ -320,3 +320,58 @@ First run: the start-up circuit never let go (its 1 µA pull-up was as strong as
 Same as step 3 with ideal sources (INL 0.4–2.0 ps, lock point 2.75–3.05 ns). The pump, both amplifiers and the bias generator together draw 0.43–0.50 mA (step 3 without the bias generator: 0.39–0.43 mA); the PLL total stays ≈ 1.05 mA of the 1.8 mA budget.
 
 **Step 4 done; P2.5 complete.** No block of the PLL core is ideal any more except V_REF (chip reference, shared block) and the loop-filter passives (device checks in step 1). Next: P2.6, the closed loop.
+
+## 13. P2.6 — closed loop: plan and step 1 (2026-10-25)
+
+**Plan.** P2.6 checks the PLL as a whole (`spec/phase2-plan.md` P2.6) in four steps:
+
+| Step | Work | Tool |
+|---|---|---|
+| 1 | Behavioural closed loop built from the circuit results: band calibration, acquisition, lock detector, settling, where V_tune ends up; channels across both bands, three corners | Python (`analog/pll/p26/step1/`), runs anywhere |
+| 2 | Noise inputs from circuits instead of proposals: charge-pump and bias noise (VACASK noise analysis of the step-4 pump), the LO-chain / divider noise floor (the P2.4 pss/pnoise method failed; transient noise or a driven CML-only pnoise), the simulated VCO (P2.3 §9); total phase noise in the P2.2 model | VACASK + Python |
+| 3 | Transistor-level interface check: transistor VCO, first LO stage, PFD, pump and bias generator with behavioural MMD / Σ-Δ, loop filter scaled to about 10 × the bandwidth so a few µs of transient show a locked loop (polarity, levels, start-up) | VACASK |
+| 4 | Spurs (reference spur from the offset current and leakage, boundary spurs with the final loop), summary against P2.2, P2.6 review | Python |
+
+### Step 1 results `[MODEL]` (`closed_loop.py`)
+
+Three findings.
+
+**1. The loop filter was sized with a 2π error (P2.2).** `pll_model.design_loop` used K_φ·K_VCO/N = I_cp · 2π K_VCO / N instead of I_cp · K_VCO / N (the PFD gain is I_cp / 2π per radian). The filter therefore assumed 2π too much loop gain: with C1 39 pF, C2 355 pF, R1 9.5 kΩ, R3 34 kΩ the loop is **about 42 kHz with 35° phase margin**, not 150 kHz / 55°. P2.2's noise and lock-time functions were correct, so its phase-noise results describe that 42 kHz loop; its "150 kHz locks in 125 µs" did too (a 42 kHz, 35° loop). The step-3 spur model and the step-4 hold test used the same filter values. Fixed in `pll_model.py` (with a check that prints the actual unity-gain frequency and phase margin of the designed filter). Re-run with the correction:
+
+| Loop (corrected design) | PN at 600 kHz, VHF worst (dBc/Hz, RF; limit −136) | Linear lock, 2 MHz step to 10 Hz at RF | Filter (C1 / C2 / R1 / R3 / C3) | Total C |
+|---|---|---|---|---|
+| 150 kHz, 48° | **−133.2 (fails)** | 19 µs | 6.2 pF / 56.5 pF / 59.7 kΩ / 213 kΩ / 0.62 pF | 63 pF |
+| 100 kHz, 48° | −135.6 (fails) | 28 µs | 14.0 / 127 / 39.8 k / 142 k / 1.40 | 143 pF |
+| 75 kHz, 48° | −136.6 | 37 µs | 24.9 / 226 / 29.8 k / 107 k / 2.49 | 253 pF |
+| **60 kHz, 55°** (proposal D19) | **−136.9** (−140.0 with the simulated VCO) | 64 µs | **30.8 pF / 465 pF / 22.9 kΩ / 108 kΩ / 3.1 pF** | 499 pF |
+
+The noise at 600 kHz (VHF) needs the loop well below 150 kHz: above about 75 kHz the in-band noise (charge pump, R1, Σ-Δ) is not filtered enough two to three octaves out. The P2.2 inputs are still proposals (VCO −116 dBc/Hz at 1 MHz; the simulated VCO is −120 to −124, which gives 3–4 dB more margin); step 2 replaces them.
+
+**2. Where V_tune lands after the band calibration.** One band step is 0.45–0.59 V of V_tune (P2.5 step 1) out of a 0.7 V window, and the counting resolution at P = 3 is 0.08–0.11 %, up to half a band step at the bottom of the range. The RTL rule (highest code whose count ≥ target, `bandcal.sv`) leaves V_tune anywhere in one band step below the hold voltage, plus the counting error:
+
+| Bank, counter | Rule | Calibration (µs) | tt (window 0.25–0.95 V) | ss (0.25–0.85 V) | ff (0.25–0.95 V) |
+|---|---|---|---|---|---|
+| **as designed: 7 bits, count f / 4P** | highest | 30.5 | 0.02–0.89 V, **20 % outside** | −0.04–0.85 V, **32 %** | 0.10–1.00 V, **9 %** |
+| 7 bits, count f / 4P | nearest | 34.7 | 0.18–1.04 V, 0.8 % | 0.14–0.92 V, 4.7 % | 0.28–1.08 V, 3.7 % |
+| 7 bits, count f / P | nearest | 34.7 | 0.27–0.88 V, 0 % | 0.20–0.81 V, 4.0 % | 0.35–0.95 V, 0.1 % |
+| 8 bits, count f / 4P | highest | 34.7 | 0.30–0.91 V, 0 % | 0.23–0.84 V, 0.2 % | 0.37–1.01 V, 0.2 % |
+| **8 bits, count f / P** (proposal D20) | **nearest** | 38.8 | **0.42–0.74 V, 0 %** | **0.34–0.67 V, 0 %** | **0.49–0.82 V, 0 %** |
+
+2858 channels per case (every 0.5 MHz of VCO frequency, both bands). 'nearest' = one extra trial on the next code, keep the count closer to the target. 'count f / P' = the counter's two lowest bits as TSPC ripple stages on the first LO-stage output (≤ 1.92 GHz on UHF, ≤ 1.40 GHz on VHF) instead of the MMD prescaler output: 4 × the counts. 8 bits = the same 2.90–4.41 GHz range in 256 codes (band step 0.23–0.30 V of V_tune).
+
+**3. Wake time.** With the as-built filter, settling to 10 Hz at RF took 113–217 µs after calibration (wake 145–250 µs): the slow, poorly damped 42 kHz loop, and an arbitrary divider phase at the release of the hold (a phase step of up to one reference period). With the corrected 60 kHz filter:
+
+| Case | Settled to 100 / 10 Hz at RF after release | Wake (calibration + 10 Hz) |
+|---|---|---|
+| As designed calibration, 60 kHz loop, random divider phase | 49–62 / 65–83 µs | 96–114 µs |
+| Same, divider started on a reference edge | 32–57 / 52–78 µs | 83–108 µs |
+| D20 calibration (38.8 µs), 60 kHz loop | 36–59 / 60–82 µs | 99–120 µs |
+
+All within the 150 µs maximum of `spec/rf-frontend.md` (50 µs typical is met only by the fast-wake mode, PLL kept on in standby). No cycle slips in any run; the lock detector reports lock 1.8–3.5 µs after release, long before the frequency has settled — it indicates phase capture, not settling (firmware should wait for the settling time, or a second, tighter criterion is added). A simple fast-lock mode (4 × I_cp, R1 / 2 for 15 µs) did not help in this model (the switch-back transient costs what the wider loop gains) and is not proposed.
+
+**Proposals for the owner:**
+- **D19 — loop filter:** corrected design at 60 kHz, 55° actual phase margin: C1 30.8 pF, C2 465 pF, R1 22.9 kΩ, R3 108 kΩ, C3 3.1 pF (499 pF, ≈ 0.062 mm² as MOS capacitors, +25 % on the as-built 398 pF). Re-check with it: step-3 spur model (done: linear pump −126 dBc VHF / −126 dBc UHF; 10 ps INL −116.5 dBc VHF; measured INL ≤ 3.9 ps, so the 22 dB margin stays), step-4 hold test (C2 larger: τ ≈ 0.5 µs, still inside the 64-cycle first settle), and P2.6 steps 2–4.
+- **D20 — band calibration:** 8-bit capacitor bank (P2.3 bank re-sized: LSB ≈ 5.8 fF, same range; `VCO_BAND` register 7 → 8 bits), counter clocked at f / P through two TSPC ripple stages, 'nearest' rule (one extra trial). V_tune then lands in 0.34–0.82 V at all corners, which leaves ≥ 0.09 V to the window edges for drift after lock. In addition a V_tune window monitor (two comparators, e.g. 0.30 / 0.90 V, a status bit) so firmware can re-calibrate between transmissions if temperature drift after lock pushes V_tune towards an edge.
+- Divider started on a reference edge at the release of the hold (MMD reset released synchronously): saves 5–25 µs; a small RTL change.
+
+**Decided by the owner 2026-10-25: D19, D20 and the in-phase divider start, as proposed.** Done in the same step (RTL, all tests pass): `bandcal.sv` 8 bits, counter on f1 = f_VCO / P, nearest-code rule (38.8 µs; eight targets, each the code nearest the target); `mmd.sv` input `run` (counters held while the V_tune hold is on; first output one ratio after `run` rises, measured N + 5 … N + 11 input cycles); register map: `VCO_BAND` 8 bits, manual-band bit to `PLL_CTRL`[7], V_tune-monitor flags `PLL_STATUS`[4:5]. During the hold the PFD is kept in reset as well (`hold` drives its reset), so the pump does not fight the hold switch. Still to do for D19/D20: the VCO bank with 8 bits (P2.3 step-2/3 rerun), the step-4 hold test with the D19 filter (`run_step4.py hold`, filter values updated), the V_tune monitor comparators.
