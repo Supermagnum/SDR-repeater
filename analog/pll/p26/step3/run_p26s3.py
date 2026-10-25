@@ -10,7 +10,7 @@ Run inside the container from this folder (needs ../../../vco/step2/out/range.js
 
 Everything at transistor level except the 36 MHz reference (ideal square) and the supplies:
   VCO       P2.3 / D20 circuit (8-bit trimmed bank, AC-coupled varactor, 4 mA), its stand-in buffer removed
-  LO        P2.4 step-3 buffer (AC-coupled, self-biased) -> CML ÷3 enabled after 400 ns (D15) -> CML-to-CMOS
+  LO        P2.4 step-3 buffer (AC-coupled, self-biased) -> CML ÷3 enabled after 500 ns (D15) -> CML-to-CMOS
             converter (AC-coupled)
   divider   five TSPC toggle flip-flops in a ripple chain, ÷32, instead of the MMD (integer-N: the MMD and the
             Sigma-Delta are RTL, P2.5 steps 2b / 2c). VCO = 3 x 32 x 36 MHz = 3.456 GHz (VHF arrangement, P = 3)
@@ -57,7 +57,7 @@ F_VCO = P * NDIV * F_REF
 S = opt("s", 10.0)
 ICP = opt("icp", 100.0) * 1e-6
 TSTOP = opt("tstop", 8.0) * 1e-6
-T_EN = 400e-9     # D15: after the VCO is up (first run: 50 ns, but the VCO only starts at about 0.15 us here)
+T_EN = 500e-9     # D15: after the VCO is up (first run: 50 ns; the VCO starts after its bias bypass opens at 0.2 us)
 VDD = 1.2
 LF = dict(C1=30.8e-12, C2=465.2e-12, R1=22.9e3, R3=107.8e3, C3=3.08e-12)   # D19
 
@@ -85,9 +85,17 @@ def vco_body(V, code):
     # filter resistors need a start-up bypass switch, closed by the sequencer for the first part of the wake
     # (common practice for RC-filtered bias). Modelled as time switches (1 kOhm until 100 ns), and a second VCO
     # kick once the tail is biased.
-    keep.append("model tswb tsw t0=1e-7 ron=1000 roff=1e15\n"
-                "xsw1 (vco_nb vco_nbf) tswb\nxsw2 (vgp vvb) tswb\nxsw3 (vgn vvb) tswb\n"
-                'ik2 (0 tn) isource type="pulse" val0=0 val1=1m delay=120n rise=50p fall=50p width=200p')
+    # Second run: the VCO started briefly, died, and only came back after about 1.5 us at a quarter of its swing.
+    # The bank's off-state bottom plates are biased to 1.2 V through 2 MOhm (MSB about 1.5 pF: 3 us); while they
+    # are still low, the tank swing pulls them below ground and the off switches conduct (here the MSB is off at
+    # code 125). So every VCO bias resistor (bank, varactor, tail filter) gets the bypass, open at 200 ns; the
+    # bypass loads the tank, so the second kick comes after it opens.
+    sw = ["model tswb tsw t0=2e-7 ron=1000 roff=1e15"]
+    for ln in keep:
+        m = re.match(r"^(rba\d+|rbb\d+|rvp|rvn|rbf) \((\S+) (\S+)\) resistor", ln)
+        if m:
+            sw.append(f"xsw_{m.group(1)} ({m.group(2)} {m.group(3)}) tswb")
+    keep += sw + ['ik2 (0 tn) isource type="pulse" val0=0 val1=1m delay=220n rise=50p fall=50p width=200p']
     return "\n".join(keep) + "\n"
 
 
