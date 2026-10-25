@@ -212,7 +212,7 @@ def charge_pump(icp):
            # only has to supply the average, which the offset-current source below cancels.
            # Tenth run: mirror gain 3, so the buffer can supply up to about 30 uA (ninth run: 10 uA was not
            # enough; the dummy node sagged and the INL grew to 20-95 ps)
-           rr_ota("db", "vt", "vdm", "vdm", 10e-6, b=3) + "cdm (vdm 0) capacitor c=10p\n")
+           rr_ota("db", "vt", "vdm", "vdmo", 10e-6, b=3) + "vidb (vdmo vdm) vsource dc=0\ncdm (vdm 0) capacitor c=10p\n")
         # replica: both switches on, its node vr compared with V_tune; the amplifier drives pg
         + f"mrn1 (rnz0 nb 0 0) sg13_lv_nmos w={wn:g}u l=2u\nvird (rnz rnz0) vsource dc=0\n"
         + f"mrn2 (vr vdd rnz 0) sg13_lv_nmos w={swn:g}u l=0.13u\n"
@@ -246,7 +246,7 @@ def offset_sink(icp, frac=0.2):
     # cancels that, so the dummy buffer only handles the mismatch of the two (sized from run 8: the 0.2 NMOS
     # sink gave 10-16 uA; PMOS 0.12 x the 480 um main source).
     return (f"mof (vof nb 0 0) sg13_lv_nmos w={15 * u * frac:.3f}u l=2u\nviof (vt vof) vsource dc=0\n"
-            f"mofp (vdm pg vdd vdd) sg13_lv_pmos w={120 * u * 0.12:.2f}u l=2u\n")
+            f"mofp (vofp pg vdd vdd) sg13_lv_pmos w={120 * u * 0.12:.2f}u l=2u\nviofp (vofp vdm) vsource dc=0\n")
 
 
 def run(name, corner, vt, dt, icp, ioff=False):
@@ -335,6 +335,45 @@ def check_dc(corners, icp):
     print()
 
 
+def check_buf(corners, icp):
+    """Eleventh run: DC check of the dummy-node buffer. Tenth run: the dummy node sat 20-118 mV above V_tune
+    in the transient although the average current into it is only a few uA; at 0.95 V (tt) that pushed the
+    PMOS source towards its limit and the INL rose to 47 ps. Both switches to the dummy (UP = DN = 0), with
+    and without the offset-current pair; prints the dummy node, the buffer's output current and the two
+    offset currents."""
+    from vacask.rawfile import rawread
+    if IDEAL:
+        print("(buffer check needs the transistor buffer)")
+        return
+    print("## DC check of the dummy-node buffer (UP = DN = 0) [SCH]\n")
+    print("| Corner | V_tune | Offset pair | vdm − V_tune (mV) | Buffer output (µA, + = into vdm) | Offset sink on V_tune (µA) | "
+          "Offset source into vdm (µA) |")
+    print("|---|---|---|---|---|---|---|")
+    for corner in corners:
+        _, mos, vdd, temp = corner
+        for vt in (0.25, 0.6, 0.8, 0.95):
+            for io in (False, True):
+                name = f"buf_{corner[0]}_{vt:.2f}_{int(io)}"
+                with open(os.path.join(OUT, name + ".sim"), "w") as fh:
+                    fh.write(HEADER.format(title=f"P2.5 step 2a: {name}", mos=mos))
+                    fh.write(f"model ota ota a=100 vh={vdd} rout=1e7\nvdd (vdd 0) vsource dc={vdd}\nvtn (vt 0) vsource dc={vt}\n"
+                             "vup (up 0) vsource dc=0\nvdn (dn 0) vsource dc=0\n" + charge_pump(icp)
+                             + (offset_sink(icp) if io else ""))
+                    fh.write(f"\ncontrol\n  abort always\n  options rawfile=\"binary\"\n  options temp={temp}\n"
+                             "  analysis op1 op\nendc\n")
+                with open(os.path.join(OUT, name + ".log"), "w") as fh:
+                    r = subprocess.run(["vacask", name + ".sim"], cwd=OUT, stdout=fh, stderr=subprocess.STDOUT)
+                if r.returncode:
+                    print(f"| {corner[0]} | {vt} | {'on' if io else 'off'} | error |")
+                    continue
+                d = rawread(os.path.join(OUT, "op1.raw")).get()
+                g = lambda k: float(np.real(d[k])[0])   # noqa: E731
+                print(f"| {corner[0]} | {vt} | {'on' if io else 'off'} | {(g('vdm') - vt)*1e3:+.1f} | "
+                      f"{g('vidb:flow(br)')*1e6:+.2f} | " + (f"{abs(g('viof:flow(br)'))*1e6:.1f} | {abs(g('viofp:flow(br)'))*1e6:.1f} |"
+                                                            if io else "— | — |"))
+    print()
+
+
 def check_lin(corners, icp):
     """Seventh run: the pump with the D18 offset current (8 % of I_cp) around its locked operating point.
     Locked, the net charge is zero at dt ~ 0.08 T_ref ~ 2.2 ns of UP lead; the Sigma-Delta moves the divider
@@ -381,6 +420,9 @@ def main():
           "dummy buffer 10 µA tails, mirror gain 3, 10 pF)") + ".\n")
     if "dc" in sys.argv[1:]:
         check_dc(corners, ICP)
+        return
+    if "buf" in sys.argv[1:]:
+        check_buf(corners, ICP)
         return
     if "lin" in sys.argv[1:]:
         check_lin(corners, ICP)
