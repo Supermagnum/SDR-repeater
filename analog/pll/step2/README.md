@@ -75,3 +75,9 @@ Ninth run (transistor amplifiers): typical without offset current fine at 0.25 /
 python3 -u run_step2.py dc tt | tee out/summary10_dc.txt
 python3 -u run_step2.py lin | tee out/summary10_lin.txt
 ```
+
+Tenth run: **replica fixed** (within 4 mV at 0.25–0.95 V); **INL ≤ 1.8 ps in 7 of 9 cases** (tt / ss / ff at 0.25 and 0.6 V, ff 0.95 V), but 47 ps (tt 0.95 V) and 16 ps (ss 0.95 V). The dummy node sits 20–118 mV above V_tune in all cases (118 mV at tt 0.95 V, i.e. at 1.07 V, where the PMOS source runs short of drain voltage while steered to the dummy). The average current into the dummy node is only a few µA, so this is not overload. Eleventh run: a DC check of the buffer alone (`buf`: both switches to the dummy, with and without the offset pair; dummy voltage, buffer current, offset currents):
+
+```bash
+python3 -u run_step2.py buf | tee out/summary11_buf.txt     # 24 operating points, seconds
+```
