@@ -262,3 +262,9 @@ Next: step 1 device and block checks (`analog/pll/step1/`).
 - P2.5 result review: accepted by the owner, with a step 4 before P2.6 for the blocks still ideal or missing: amplifier and I_cp bias generator, lock-detector window delay cell, V_tune hold switch.
 - Found while designing the delay cell: the step-2c lock detector sampled DN only at the reference strobe and missed an early divider below ≈ 21 ns; now two-sided (DN sampled at divider + window, a second identical delay cell).
 - Band calibration: first trial settles 64 reference cycles (hold switch), 30.5 µs in total; counting resolution corrected to 0.08–0.11 % at P = 3.
+
+## 2026-10-25 — P2.5 step 4 results
+- Bias generator (V_REF / R_B master current, I_cp DAC 25–200 µA, amplifier tails): I_cp within 2 % of V_REF / R_B over corners and ±10 % supply; start-up within 0.6 µs. First run's start-up circuit did not turn off (fixed).
+- Window delay cell 5.5–10.0 ns over corners, MIM corners, R_B ±20 % and supply (allowed 5–12 ns).
+- V_tune hold switch: time constant 0.4 µs, V_tune within 2.2 mV during the first count, leakage ≤ 8 nA at fast-hot; held voltage 0.50–0.64 V depending on corner.
+- Pump linearity with the real bias as with ideal sources (INL ≤ 2.1 ps). P2.5 complete; next P2.6.

@@ -284,4 +284,39 @@ I_cp follows V_REF / R_B. With R_B of the same resistor type as the loop-filter 
 
 **Correction (counting resolution):** one count is 4 / (K·M) — 0.06 % at P = 2 (≈ 1600 counts) but 0.08–0.11 % at P = 3 (920–1250 counts), not ≤ 0.06 % everywhere. The decision is exact to about two counts (gate ± one prescaler cycle, truncated target); still below a band step (0.2–0.5 %). The calibration test now uses that tolerance.
 
-Results: pending (`run_step4.py`: `bias`, `start`, `win`, `hold`, `lin`).
+### Results (second run, 2026-10-25) `[SCH]`
+
+First run: the start-up circuit never let go (its 1 µA pull-up was as strong as the device meant to overpower it), so it sank 7–13 µA from the PMOS gate and the master current came out at 16–25 µA; and the hold test had no supply. Both fixed (pull-up ≈ 0.1 µA, sensing NMOS 4/1 µm; supply added).
+
+**Bias generator:**
+
+| Case | Master (µA) | Amplifier error vx − V_REF (mV) | I_cp code 0 / 3 / 7 (µA) | I_cp mirror error, worst code | Start-up device (nA) |
+|---|---|---|---|---|---|
+| tt | 10.11 | +4.3 | 25.0 / 99.9 / 199.7 | 1.2 % | 0.2 |
+| tt 1.08 / 1.32 V | 10.08 / 10.13 | +3.1 / +5.2 | 24.8–25.1 / 99.3–100.3 / 198.7–200.5 | 1.4 / 1.0 % | 0.2 |
+| ss | 10.09 | +3.8 | 24.9 / 99.6 / 199.2 | 1.3 % | 2.4 |
+| ff / ff hot | 10.12 / 10.23 | +4.9 / +9.1 | 25.0–25.6 / 100.1–101.8 / 200.3–203.5 | 1.1 / 0.5 % | 0.0 / 42 |
+| tt, R_B −20 / +20 % | 12.62 / 8.43 | +3.8 / +4.6 | follows the master (+24.6 / −16.6 %) | 1.3 / 1.1 % | 0.2 |
+
+- I_cp is set by V_REF / R_B within 2 % over corners and ±10 % supply; it follows R_B as intended (the loop bandwidth does not, because R1 is the same resistor type).
+- The tail sources are within 1 %; the two tail sinks come out 11–25 % high (their drains sit 0.25–0.3 V higher than the reference diode's). Harmless for the amplifiers; can be trimmed in layout sizing.
+- Start-up: settled within 0.6 µs of a 0.1 µs supply ramp at all corners; immediate with a 20 µs ramp; the start-up device ends at ≤ 0.1 µA (≤ 1 % of the master, still decaying 5 µs after a fast ramp) and at a few nA in DC.
+
+**Window delay cell** (MIM 4.7 × 4.7 µm, 4 µA): 7.44 ns typical; **5.46–10.04 ns** over corners, MIM corners, R_B ±20 % and supply ±10 % (allowed 5–12 ns); reference and divider cells within 0.1 ns of each other; strobe pulse 210–540 ps. All 11 cases pass.
+
+**Hold switch:**
+- Time constant 0.38–0.41 µs. Mean V_tune error over the first count with the 64-cycle first settle: ≤ 2.2 mV in every case (limit 10 mV); with the old 16 cycles it would have been 8–24 mV, so the longer first settle is needed.
+- Held voltage 0.568 V (tt), 0.498 V (ss), 0.641 V (ff): V_DD / 2 less 20–40 mV (the 10 µA offset current across the switch and divider, plus the divider switches' unequal on-resistance). Inside the tuning window at every corner; the calibration simply centres there.
+- Leakage into the loop filter with hold off: ≤ 7.6 nA at fast-hot, 0.0 nA typical — negligible against the few µA of the MOS loop-filter capacitors (step 1).
+
+**Pump with the real bias** (offset pair on, I_cp code 3):
+
+| Corner | V_tune | INL (ps) | Lock point (ns) | Slope | Offset current (µA) | Supply (mA) |
+|---|---|---|---|---|---|---|
+| tt | 0.25 / 0.6 / 0.95 | 0.5 / 0.3 / 2.1 | 2.75 / 2.76 / 3.05 | 0.943 / 1.055 / 1.028 | 9.5 / 10.8 / 11.8 | 0.43–0.47 |
+| ss | 0.6 | 0.6 | 2.76 | 1.016 | 10.6 | 0.45 |
+| ff | 0.6 | 0.1 | 2.77 | 1.091 | 11.0 | 0.50 |
+
+Same as step 3 with ideal sources (INL 0.4–2.0 ps, lock point 2.75–3.05 ns). The pump, both amplifiers and the bias generator together draw 0.43–0.50 mA (step 3 without the bias generator: 0.39–0.43 mA); the PLL total stays ≈ 1.05 mA of the 1.8 mA budget.
+
+**Step 4 done; P2.5 complete.** No block of the PLL core is ideal any more except V_REF (chip reference, shared block) and the loop-filter passives (device checks in step 1). Next: P2.6, the closed loop.
