@@ -117,9 +117,12 @@ def biasgen(rs=1.0):
             + f"mnf (nbias pbias vdd vdd) {pm(10)}\n"
             f"mnd (nbias nbias 0 0) {nm(10)}\n"
             # start-up: with no current nbias = 0, xsun is pulled up by the weak msu1 and msu3 pulls pbias down;
-            # once current flows, msu2 (about 1 uA) holds xsun low and msu3 is off
-            "msu1 (xsun 0 vdd vdd) sg13_lv_pmos w=0.5u l=10u\n"
-            "msu2 (xsun nbias 0 0) sg13_lv_nmos w=1u l=2u\n"
+            # once current flows, msu2 holds xsun low and msu3 is off.
+            # First run: msu1 0.5/10 um (about 1 uA) against msu2 1/2 um (1 uA): xsun stayed up at tt and ff,
+            # msu3 kept sinking 7-13 uA from pbias and the regulation lost (master 16-25 uA). Now msu1 about
+            # 0.1 uA and msu2 able to sink several uA.
+            "msu1 (xsun 0 vdd vdd) sg13_lv_pmos w=0.15u l=20u\n"
+            "msu2 (xsun nbias 0 0) sg13_lv_nmos w=4u l=1u\n"
             "msu3 (pbias xsun xsu3 0) sg13_lv_nmos w=1u l=0.5u\nvsu (xsu3 0) vsource dc=0\n")
 
 
@@ -320,7 +323,9 @@ LF = dict(C1=39e-12, C2=355e-12, R1=9.5e3, R3=34e3, C3=3.9e-12)
 
 def hold_net(vdd, v0=None, t0=0.5e-6, held=True, vfix=None):
     """Loop filter (n1 = CP output, n2 = C2 node, n3 = V_tune at the VCO) with the hold switches and divider."""
-    s = (f"c1 (n1 0) capacitor c={LF['C1']:.4e}\nr1 (n1 n2) resistor r={LF['R1']:.1f}\n"
+    # first run: the supply source was missing (divider top switch and inverter unpowered, V_tune held at 0)
+    s = f"vdd (vdd 0) vsource dc={vdd}\n"
+    s += (f"c1 (n1 0) capacitor c={LF['C1']:.4e}\nr1 (n1 n2) resistor r={LF['R1']:.1f}\n"
          f"c2 (n2 0) capacitor c={LF['C2']:.4e}\nr3 (n1 n3) resistor r={LF['R3']:.1f}\n"
          f"c3 (n3 0) capacitor c={LF['C3']:.4e}\n" if vfix is None else "")
     if vfix is not None:      # DC leakage check: both switched nodes held, current probed
