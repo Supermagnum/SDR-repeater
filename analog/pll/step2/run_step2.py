@@ -178,6 +178,14 @@ def rr_ota(n, inp, inn, out, itail, b=1):
         f"m{n}pd2o ({out} {n}d2 vdd vdd) sg13_lv_pmos w={bw(2)}u l=1u\n")
 
 
+def fn(w, wf):
+    """Number of gate fingers of width wf (um) in total width w. Eleventh run: mirrors of very different widths
+    did not keep their ratio (offset source 0.12 x 480 um gave 26-44 uA instead of about 13 uA, the 0.2 x 60 um
+    sink 10-16 uA instead of about 20 uA), so every mirror device is now built from fingers of one width per
+    type (NMOS 1.5 um, PMOS 6 um) and the ratios are finger counts."""
+    return max(1, round(w / wf))
+
+
 def charge_pump(icp):
     u = icp / 25e-6
     wn, wp = 15 * u, 120 * u
@@ -196,13 +204,13 @@ def charge_pump(icp):
         + inv("sd", "dnq", "dnb", 2, 4) + tg("sdt", "dnq", "dnd", "vdd", "0", 2, 4)
         # NMOS bias (fixed): reference current into a diode
         + f"iref (vdd nb) isource dc={icp:.4e}\n"
-        + f"mnb (nb nb 0 0) sg13_lv_nmos w={wn:g}u l=2u\n"
+        + f"mnb (nb nb 0 0) sg13_lv_nmos w={wn:g}u l=2u ng={fn(wn, 1.5)}\n"
         # main NMOS sink, steered to the output (DN) or to the dummy node (DN low)
-        + f"mn1 (nz0 nb 0 0) sg13_lv_nmos w={wn:g}u l=2u\nvimd (nz nz0) vsource dc=0\n"
+        + f"mn1 (nz0 nb 0 0) sg13_lv_nmos w={wn:g}u l=2u ng={fn(wn, 1.5)}\nvimd (nz nz0) vsource dc=0\n"
         + f"mn2 (vt dnd nz 0) sg13_lv_nmos w={swn:g}u l=0.13u\n"
         + f"mn3 (vdm dnb nz 0) sg13_lv_nmos w={swn:g}u l=0.13u\n"
         # main PMOS source, gate pg from the replica amplifier; to the output (UP) or the dummy node
-        + f"mp1 (pz0 pg vdd vdd) sg13_lv_pmos w={wp:g}u l=2u\nvimu (pz0 pz) vsource dc=0\n"
+        + f"mp1 (pz0 pg vdd vdd) sg13_lv_pmos w={wp:g}u l=2u ng={fn(wp, 6)}\nvimu (pz0 pz) vsource dc=0\n"
         + f"mp2 (vt upb pz vdd) sg13_lv_pmos w={swp:g}u l=0.13u\n"
         + f"mp3 (vdm upd pz vdd) sg13_lv_pmos w={swp:g}u l=0.13u\n"
         # dummy node held at V_tune by a unity-gain buffer
@@ -214,9 +222,9 @@ def charge_pump(icp):
            # enough; the dummy node sagged and the INL grew to 20-95 ps)
            rr_ota("db", "vt", "vdm", "vdmo", 10e-6, b=3) + "vidb (vdmo vdm) vsource dc=0\ncdm (vdm 0) capacitor c=10p\n")
         # replica: both switches on, its node vr compared with V_tune; the amplifier drives pg
-        + f"mrn1 (rnz0 nb 0 0) sg13_lv_nmos w={wn:g}u l=2u\nvird (rnz rnz0) vsource dc=0\n"
+        + f"mrn1 (rnz0 nb 0 0) sg13_lv_nmos w={wn:g}u l=2u ng={fn(wn, 1.5)}\nvird (rnz rnz0) vsource dc=0\n"
         + f"mrn2 (vr vdd rnz 0) sg13_lv_nmos w={swn:g}u l=0.13u\n"
-        + f"mrp1 (rpz0 pg vdd vdd) sg13_lv_pmos w={wp:g}u l=2u\nviru (rpz0 rpz) vsource dc=0\n"
+        + f"mrp1 (rpz0 pg vdd vdd) sg13_lv_pmos w={wp:g}u l=2u ng={fn(wp, 6)}\nviru (rpz0 rpz) vsource dc=0\n"
         + f"mrp2 (vr 0 rpz vdd) sg13_lv_pmos w={swp:g}u l=0.13u\n"
         + ("xamp (vr vt pg) ota\n" if IDEAL else rr_ota("ra", "vr", "vt", "pg", 2e-6))
         # First run: a transconductor, Miller-compensated from pg to vr. Second run: the transconductor version let pg leave the supply range at V_tune 0.25 V (replica at
@@ -235,7 +243,7 @@ def charge_pump(icp):
         + ("ccm (pg vr) capacitor c=2p\n" if IDEAL else "ccm (pg vr) capacitor c=5p\n") + "cvr (vr 0) capacitor c=0.2p\n")
 
 
-def offset_sink(icp, frac=0.2):
+def offset_sink(icp, frac=0.1):
     """D18 offset current: an NMOS sink from V_tune mirrored from the pump bias nb (frac x I_cp), on all the
     time, so the loop locks with UP pulses about frac x T_ref long and the pump works on one side only."""
     u = icp / 25e-6
@@ -245,8 +253,11 @@ def offset_sink(icp, frac=0.2):
     # I_off x T / I_cp less time on it than the up source). A matching PMOS source from pg into the dummy node
     # cancels that, so the dummy buffer only handles the mismatch of the two (sized from run 8: the 0.2 NMOS
     # sink gave 10-16 uA; PMOS 0.12 x the 480 um main source).
-    return (f"mof (vof nb 0 0) sg13_lv_nmos w={15 * u * frac:.3f}u l=2u\nviof (vt vof) vsource dc=0\n"
-            f"mofp (vofp pg vdd vdd) sg13_lv_pmos w={120 * u * 0.12:.2f}u l=2u\nviofp (vofp vdm) vsource dc=0\n")
+    # Twelfth run: both offset devices are frac (10 %) of their main source, in whole fingers (NMOS 1.5 um,
+    # PMOS 6 um), so the sink on V_tune and the source into the dummy node match
+    wn, wp = 15 * u * frac, 120 * u * frac
+    return (f"mof (vof nb 0 0) sg13_lv_nmos w={wn:g}u l=2u ng={fn(wn, 1.5)}\nviof (vt vof) vsource dc=0\n"
+            f"mofp (vofp pg vdd vdd) sg13_lv_pmos w={wp:g}u l=2u ng={fn(wp, 6)}\nviofp (vofp vdm) vsource dc=0\n")
 
 
 def run(name, corner, vt, dt, icp, ioff=False):
