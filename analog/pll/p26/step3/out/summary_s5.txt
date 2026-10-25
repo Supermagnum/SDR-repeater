@@ -1,0 +1,23 @@
+# P2.6 step 3 — transistor-level closed loop
+
+VCO 3.456 GHz = 3 x 32 x 36 MHz, band code 127; I_cp 100 µA; loop filter D19 scaled 5 x (C1 1.232 pF, C2 18.61 pF, R1 114 kΩ, R3 539 kΩ, C3 123 fF); 20 µs from power-on.
+
+## Course of the loop
+
+| t (µs) | Pump output vt (V) | V_tune at the VCO (V) | Divider period / reference period − 1 (ppm) | VCO from the divider (GHz) | VCO amplitude (V diff.) |
+|---|---|---|---|---|---|
+| 0.25 | 1.1823 | 0.6537 | +887431 | 1.8311 | 0.894 |
+| 2.05 | 1.0861 | 1.0792 | -1926 | 3.4627 | 0.905 |
+| 3.84 | 1.1206 | 1.0142 | -1764 | 3.4621 | 0.912 |
+| 5.64 | 0.5965 | 0.6777 | -70 | 3.4562 | 0.918 |
+| 7.43 | 0.6988 | 0.6681 | +196 | 3.4553 | 0.925 |
+| 9.23 | 0.7734 | 0.7039 | +50 | 3.4558 | 0.932 |
+| 11.02 | 0.6850 | 0.7301 | +15 | 3.4559 | 0.939 |
+| 12.82 | 0.7809 | 0.7384 | +10 | 3.4560 | 0.946 |
+| 14.61 | 0.6451 | 0.7408 | +8 | 3.4560 | 0.952 |
+| 16.41 | 0.7346 | 0.7483 | +7 | 3.4560 | 0.958 |
+| 18.20 | 0.8329 | 0.7520 | +7 | 3.4560 | 0.964 |
+| 20.00 | 0.6918 | 0.7599 | +7 | 3.4560 | 0.970 |
+
+Last µs: divider period 27.7780 ns (reference 27.7778 ns, +6.9 ppm) → **locked**; VCO 3.45598 GHz (target 3.456); pump output 0.7721 V, V_tune at the VCO 0.7708 V; UP 3.50 ns, DN 0.29 ns per cycle (D18: UP ≈ 2.8 + 0.25 ns, DN ≈ 0.25 ns); divider edge 3.35 ns after the reference edge; VCO amplitude 0.970 V differential; bias node pbias 0.716 V.
+
