@@ -1,6 +1,6 @@
 # PLL topology memo (P2.5): PFD, charge pump, loop filter, feedback divider, Σ-Δ
 
-Status: **topology accepted by the owner 2026-10-21 (D16–D18 as proposed, §4). Step 1 done 2026-10-21 (§7): plain long-channel charge-pump sources with replica matching, complementary MOS loop-filter capacitors, TSPC 2/3 cell; tuning window 0.25–0.95 V. Step 2a (PFD and charge pump, `analog/pll/step2/`) done 2026-10-25 (§8): fully transistor level, no dead zone, INL ≤ 3.6 ps on the locked side except the slow corner at the very top of the window. Step 2b (MMD) next.** Numbers are hand estimates `[HAND]` or from the linear PLL model `[MODEL]` (`analog/pll-model/`, P2.2), unless marked. Inputs: `spec/phase2-plan.md` §2 and D3, D5, D6, D7, D11; the VCO (`spec/vco-topology.md` §9); the LO dividers (`spec/lo-divider-topology.md` §9, P2.4 accepted 2026-10-21); the register map (`spec/analog-digital-interface.md` §5).
+Status: **topology accepted by the owner 2026-10-21 (D16–D18 as proposed, §4). Step 1 done 2026-10-21 (§7): plain long-channel charge-pump sources with replica matching, complementary MOS loop-filter capacitors, TSPC 2/3 cell; tuning window 0.25–0.95 V. Step 2a (PFD and charge pump, `analog/pll/step2/`) done 2026-10-25 (§8): fully transistor level, no dead zone, INL ≤ 3.6 ps on the locked side except the slow corner at the very top of the window. Step 2b (MMD) done 2026-10-25 as RTL (§9): pulse-swallow divider with a 4/5 prescaler from two 2/3 cells, N 16–127, new ratio every cycle.** Numbers are hand estimates `[HAND]` or from the linear PLL model `[MODEL]` (`analog/pll-model/`, P2.2), unless marked. Inputs: `spec/phase2-plan.md` §2 and D3, D5, D6, D7, D11; the VCO (`spec/vco-topology.md` §9); the LO dividers (`spec/lo-divider-topology.md` §9, P2.4 accepted 2026-10-21); the register map (`spec/analog-digital-interface.md` §5).
 
 ---
 
@@ -178,3 +178,31 @@ Source: `analog/pll/step2/` `[SCH]`; tt / ss / ff, V_tune 0.25 / 0.6 / 0.95 V, I
 It is recorded as the window limit at the slow corner (about 0.85 V), not fixed here. Closed-loop spurs including it are checked in P2.6.
 
 **Step 2a done.** Next: 2b — the multi-modulus divider (6 divide-by-2/3 cells with range extension, every ratio 23–73, speed at the slow corner); then 2c — Σ-Δ, lock detector and calibration as RTL; then the bias generator for the amplifiers.
+
+## 9. Step 2b — multi-modulus divider (2026-10-25)
+
+Source: `rtl/afe/mmd.sv`, tests `rtl/afe/cocotb/` (cocotb, icarus) `[RTL]`.
+
+**Structure changed from §2 item 5.** The full Vaucher chain of six 2/3 cells with range extension was built first and fails with a new ratio every cycle (about a third of the periods wrong).
+- The last active cell makes its decision for the next cycle before the first cell has decided the current one.
+- Where that falls relative to the output pulse moves with N and with the chain length, which changes inside the operating range (23–73 crosses 32 and 64).
+- The cells therefore mixed program bits of two ratios. Per-cell retiming variants did not remove this.
+
+**Now a pulse-swallow divider**, the classic structure for fractional-N:
+- **Prescaler:** divide-by-4/5 built from two step-1 2/3 cells. The second cell's bit is fixed at 0, so its early decision is harmless.
+- **Counters:** a 5-bit program counter and a 2-bit swallow counter on the prescaler output (≤ 550 MHz, standard cells).
+- **Ratio:** N = 4 · n[6:2] + n[1:0]; the prescaler divides by 5 for the first n[1:0] of the n[6:2] cycles.
+- **Range:** any N from 16 to 127.
+- **Loading:** the whole ratio is loaded at one instant per cycle, so every cycle uses exactly one ratio.
+
+| Test | Result |
+|---|---|
+| Every ratio 16–127, constant | all periods = N |
+| New ratio every cycle: 400 random in 23–73 (crossing 32 and 64), 400 Σ-Δ-like N0 + (−3 … +4) | **all 786 periods correct**, latency one cycle |
+
+Consequences:
+- The fast part is two 2/3 cells at ≤ 2.2 GHz. Step 1's cell passes to 2.9 GHz at the slow corner, with 10/10 mismatch samples correct.
+- The divide-by-5 control is a flip-flop on the prescaler clock and must settle within about 0.9 ns after the prescaler edge (at 2.2 GHz). That is checked in the AFE block's timing.
+- Current: the two TSPC cells ≈ 0.2–0.3 mA at 2.2 GHz; the counters < 0.1 mA. That fits the §3 estimate.
+
+**Next:** 2c — the Σ-Δ modulator (MASH 1-1-1, 24 bits, dither), lock detector and band calibration as RTL against a Python reference model.

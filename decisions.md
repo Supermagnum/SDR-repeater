@@ -240,3 +240,6 @@ Next: step 1 device and block checks (`analog/pll/step1/`).
 ## 2026-10-25 — P2.5 step 2a done
 - Replica amplifier and dummy-node buffer at transistor level as rail-to-rail symmetric transconductors; a matching offset-current source into the dummy node; all mirror devices built from unit fingers (ratios as finger counts).
 - Result: INL 0.2–3.6 ps on the locked side at tt / ss / ff over 0.25–0.95 V, except slow corner at 0.95 V (19 ps; the up source runs short of headroom at 1.08 V). Recorded as the window limit at the slow corner (about 0.85 V); not fixed, since the calibration centres V_tune near 0.6 V and the pump supply is regulated. Bias currents of the amplifiers are still ideal (bias generator to come).
+
+## 2026-10-25 — P2.5 step 2b: MMD structure
+- The multi-modulus divider is a pulse-swallow divider (divide-by-4/5 prescaler from two 2/3 cells + program and swallow counters at ≤ 550 MHz) instead of a six-cell Vaucher chain with range extension: the chain mixed program bits of two ratios when the ratio changes every cycle and the chain length changes within the operating range. D16 (clocking from the LO chain's first stage) is unchanged. RTL `rtl/afe/mmd.sv`; every ratio 16–127 and 786 cycles with a new ratio each cycle pass.
