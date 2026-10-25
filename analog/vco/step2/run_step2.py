@@ -7,13 +7,15 @@ Run inside the container from this folder:
     python3 run_step2.py range       # only the noiseless transients (tuning range, swing, KVCO)
     python3 run_step2.py pn          # only pss/pnoise (uses out/range.json for the band code)
     python3 run_step2.py contrib     # noise contributions per instance from the last pnoise (no simulation)
+    python3 run_step2.py steps       # band steps around the carry transitions (after 'range')
+    (option bits=7 for the P2.3 7-bit bank; default 8 bits since D20, 2026-10-25)
 
 Circuit (generated netlist out/vco_*.sim):
   tank      L2n0 lumped model (analog/vco/models/l2n0_lumped.inc, resistors made noisy), centre tap = VDD_VCO
   core      LV NMOS cross-coupled pair, 32/0.13 um each
   tail      LV NMOS 160/4 um, mirror 1:8 from an ideal reference, RC filter 1 MOhm / 50 pF on the bias (D9),
             tail capacitor 8 pF (D9)
-  bank      7 bits, binary; per bit two cap_rfcmim (bottom plate to the switch) and an LV NMOS switch,
+  bank      8 bits (D20; 7 in P2.3), binary; per bit two cap_rfcmim (bottom plate to the switch) and an LV NMOS switch,
             about 100 um of switch per 60 fF, 200 kOhm bias resistors (step 1)
   varactor  AC-coupled (D11): 17 fingers of sg13_hv_svaricap (local _fx copy, step 1) behind cap_rfcmim
             coupling capacitors of about 5x, gates biased to 0.3 V through 200 kOhm, well = V_tune
@@ -50,7 +52,9 @@ TARGET_1M = -116.0   # VHF target at 1 MHz (UHF -115), spec/phase2-plan.md 2.1
 DUPLEX = {6e5: -108.4, 2e6: -117.9}   # allowed at the VCO at the VHF / UHF duplex offsets
 V_OX = 1.5           # oxide limit with 10 % margin (step 1)
 
-LSB_FF = 7.5         # differential on-capacitance of the LSB, fF (D8: 7 bits); resized by size()
+NBITS = next((int(a[5:]) for a in sys.argv[1:] if a.startswith("bits=")), 8)   # D20: 8 bits (D8: 7)
+CMAX = (1 << NBITS) - 1
+LSB_FF = 7.5 / 2 ** (NBITS - 7)   # differential on-capacitance of the LSB, fF; resized by size()
 C_FIX_FF = 0.0       # extra fixed differential capacitance, fF; set by size()
 NFING = 20           # varactor fingers (two instances of nx = NFING / 2)
 C_TOP_FF = 762.0     # wanted total at code 0 (4.37 GHz with L + 3 %, tank_budget.py)
@@ -125,7 +129,7 @@ def netlist(title, code, vtune, analysis, itail=ITAIL, extra=""):
              "cbf (nbf 0) capacitor c=50p\n"
              "mr (nb nb 0 0) sg13_lv_nmos w=20u l=4u ng=4\n"
              f"iref (vdd nb) isource dc={itail / 8:.6g}\n")
-    for k in range(7):
+    for k in range(NBITS):
         c_mim = 2 * LSB_FF * 2 ** k                      # each MIM is twice the differential value
         s = side(c_mim)
         w = SW_PER_FF * LSB_FF * 2 ** k
@@ -217,7 +221,7 @@ def size():
     global LSB_FF, C_FIX_FF
     print("## Sizing (bank scale and fixed capacitor, two passes)\n")
     for it in range(2):
-        m0, m1 = tran(0, VTUNE_MID, f"size{it}_c0"), tran(127, VTUNE_MID, f"size{it}_c127")
+        m0, m1 = tran(0, VTUNE_MID, f"size{it}_c0"), tran(CMAX, VTUNE_MID, f"size{it}_c{CMAX}")
         c0, c1 = c_of(m0["f"]), c_of(m1["f"])
         dc = c1 - c0
         scale = C_SWITCH_FF / dc
@@ -225,7 +229,7 @@ def size():
         c0_new = c0 + (scale - 1) * coff
         fix = C_FIX_FF + (C_TOP_FF - c0_new)
         print(f"pass {it+1}: LSB {LSB_FF:.2f} fF, fixed {C_FIX_FF:.0f} fF -> code 0 {m0['f']/1e9:.3f} GHz "
-              f"({c0:.0f} fF), code 127 {m1['f']/1e9:.3f} GHz ({c1:.0f} fF), switched {dc:.0f} fF")
+              f"({c0:.0f} fF), code {CMAX} {m1['f']/1e9:.3f} GHz ({c1:.0f} fF), switched {dc:.0f} fF")
         LSB_FF *= scale
         C_FIX_FF = max(0.0, fix)
         if fix < 0:
@@ -240,7 +244,7 @@ def do_range():
     print("| Code | V_tune | f (GHz) | Diff. amplitude (V) | Peak V_GS | Peak V_GD | Tail min | Drain min |")
     print("|---|---|---|---|---|---|---|---|")
     res = {}
-    pts = [(c, v) for c in (0, 32, 64, 96, 127) for v in (VTUNE_WIN[0], VTUNE_MID, VTUNE_WIN[1])]
+    pts = [(c, v) for c in CODES for v in (VTUNE_WIN[0], VTUNE_MID, VTUNE_WIN[1])]
     for code, vt in pts:
         try:
             m = tran(code, vt, f"c{code}_v{vt}")
@@ -258,18 +262,18 @@ def do_range():
     def f(c, v):
         m = res.get(f"{c},{v}")
         return m["f"] if m else float("nan")
-    lo, hi = f(127, VTUNE_WIN[1]), f(0, VTUNE_WIN[0])
+    lo, hi = f(CMAX, VTUNE_WIN[1]), f(0, VTUNE_WIN[0])
     print(f"Range: {lo/1e9:.3f}-{hi/1e9:.3f} GHz (needed 3.12-4.20, design 3.00-4.37 GHz): "
           f"{'covers' if lo <= 3.12e9 and hi >= 4.20e9 else 'DOES NOT cover'} the band.")
-    for c in (0, 64, 127):
+    for c in (0, CODES[2], CMAX):
         k = (f(c, VTUNE_WIN[1]) - f(c, VTUNE_WIN[0])) / (VTUNE_WIN[1] - VTUNE_WIN[0])
         print(f"KVCO at code {c}: {abs(k)/1e6:.1f} MHz/V (needed about 14-47 MHz/V over the range, D8)")
     # code for the pnoise band: C is linear in code, so 1/f^2 is linear in code
-    codes = [c for c in (0, 32, 64, 96, 127) if f(c, VTUNE_MID) == f(c, VTUNE_MID)]
+    codes = [c for c in CODES if f(c, VTUNE_MID) == f(c, VTUNE_MID)]
     y = [1 / f(c, VTUNE_MID) ** 2 for c in codes]
     if len(codes) >= 2:
         a, b = np.polyfit(codes, y, 1)
-        code = int(round(min(127, max(0, (1 / F_TARGET ** 2 - b) / a))))
+        code = int(round(min(CMAX, max(0, (1 / F_TARGET ** 2 - b) / a))))
         m = tran(code, VTUNE_MID, f"c{code}_pick")
         print(f"\nBand for pnoise: code {code} at V_tune {VTUNE_MID} V -> {m['f']/1e9:.4f} GHz (target {F_TARGET/1e9} GHz)")
         itail = min(I_MAX, ITAIL * A_TARGET / m["amp"])
@@ -278,9 +282,49 @@ def do_range():
               f"peak V_GS {m2['vgs']:.2f} / V_GD {m2['vgd']:.2f} V")
         print("\nTail current per band for about 1.3 V (VCO_BIAS): " + ", ".join(
             f"code {c}: {min(I_MAX, ITAIL * A_TARGET / res[f'{c},{VTUNE_MID}']['amp'])*1e3:.1f} mA"
-            for c in (0, 32, 64, 96, 127) if f"{c},{VTUNE_MID}" in res))
-        json.dump(dict(code=code, vtune=VTUNE_MID, f=m2["f"], itail=itail, lsb=LSB_FF, cfix=C_FIX_FF,
+            for c in CODES if f"{c},{VTUNE_MID}" in res))
+        json.dump(dict(code=code, vtune=VTUNE_MID, f=m2["f"], itail=itail, lsb=LSB_FF, cfix=C_FIX_FF, nbits=NBITS,
                        nfing=NFING, meas=res), open(os.path.join(OUT, "range.json"), "w"), indent=1)
+
+
+CODES = [0] + [round(k * (CMAX + 1) / 4) for k in (1, 2, 3)] + [CMAX]
+
+
+def do_steps():
+    """D20: band steps of the binary bank at V_tune mid, around the carry transitions (where a binary bank's
+    mismatch and parasitics show up as an uneven or negative step) and at both ends. Each step in V_tune
+    (step / KVCO) must stay well below the 0.7 V window; nominal 0.23-0.30 V with 8 bits."""
+    global LSB_FF, C_FIX_FF, NFING
+    rj = os.path.join(OUT, "range.json")
+    if not os.path.exists(rj):
+        sys.exit("out/range.json missing: run 'python3 run_step2.py range' first")
+    r = json.load(open(rj))
+    LSB_FF, C_FIX_FF, NFING = r["lsb"], r["cfix"], r["nfing"]
+    meas = r["meas"]
+    kv = {}
+    for c in CODES:
+        a, b = meas.get(f"{c},{VTUNE_WIN[0]}"), meas.get(f"{c},{VTUNE_WIN[1]}")
+        if a and b:
+            kv[c] = abs(b["f"] - a["f"]) / (VTUNE_WIN[1] - VTUNE_WIN[0])
+    print(f"\n## Band steps ({NBITS}-bit bank, V_tune {VTUNE_MID} V)\n")
+    print("| Codes | f (GHz) | Step (MHz) | Step / mean step nearby | KVCO (MHz/V) | Step in V_tune (V) |")
+    print("|---|---|---|---|---|---|")
+    pairs = [(0, 1), (1, 2)] + [((1 << k) - 1, 1 << k) for k in range(1, NBITS)]
+    pairs += [((3 << (NBITS - 2)) - 1, 3 << (NBITS - 2)), (CMAX - 2, CMAX - 1), (CMAX - 1, CMAX)]
+    pairs = sorted(set(pairs))
+    worst = 0.0
+    for c0, c1 in pairs:
+        m0, m1 = tran(c0, VTUNE_MID, f"st_c{c0}"), tran(c1, VTUNE_MID, f"st_c{c1}")
+        # neighbours two codes away on each side for the local mean step
+        ma, mb = tran(max(0, c0 - 2), VTUNE_MID, f"st_c{max(0, c0 - 2)}"), tran(min(CMAX, c1 + 2), VTUNE_MID,
+                                                                             f"st_c{min(CMAX, c1 + 2)}")
+        step = m0["f"] - m1["f"]
+        mean = (ma["f"] - mb["f"]) / (min(CMAX, c1 + 2) - max(0, c0 - 2))
+        k = float(np.interp(c0, sorted(kv), [kv[c] for c in sorted(kv)])) if kv else float("nan")
+        worst = max(worst, step / k)
+        print(f"| {c0}→{c1} | {m0['f']/1e9:.4f} | {step/1e6:+.2f} | {step/mean:.2f} | {k/1e6:.1f} | {step/k:.3f} |")
+    print(f"\nLargest step in V_tune: {worst:.3f} V (window 0.7 V). A negative step or a ratio far from 1 is a bank "
+          "non-monotonicity.\n")
 
 
 def do_pn():
@@ -371,13 +415,15 @@ def do_contrib():
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    what = sys.argv[1:] or ["range", "pn"]
+    what = [a for a in sys.argv[1:] if "=" not in a] or ["range", "pn"]
     if "range" in what:
         do_range()
     if "pn" in what:
         do_pn()
     if "pn" in what or "contrib" in what:
         do_contrib()
+    if "steps" in what:
+        do_steps()
 
 
 if __name__ == "__main__":
