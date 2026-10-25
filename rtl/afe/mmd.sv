@@ -15,6 +15,11 @@
 //
 // The Sigma-Delta modulator (clocked by div_out) gives a new n every cycle; n is loaded at the end of the
 // next cycle (latency one cycle).
+//
+// run (P2.6 step 1): while low (V_tune hold during band calibration), the counters are held at the start of a
+// division cycle, so the first div_out after run rises - on a reference edge - comes one full ratio later:
+// the divider starts in phase with the reference (to within a few prescaler cycles) instead of at an
+// arbitrary phase, which saves 5-25 us of settling. run is synchronised into the prescaler-output domain.
 `timescale 1ns / 1ps
 
 module mmd_cell (
@@ -44,6 +49,7 @@ endmodule
 module mmd (
     input  wire       fin,     // from the LO chain's first divider stage (D16), up to 2.2 GHz
     input  wire       rst_n,
+    input  wire       run,     // 0 = counters held at the start of a cycle (V_tune hold), rises on a reference edge
     input  wire [6:0] n,       // division ratio 16 .. 127
     output reg        div_out  // one prescaler-output period high every N fin periods (div_clk after retiming)
 );
@@ -59,12 +65,18 @@ module mmd (
 
     // Counters on the prescaler output. mc is set at the start of each prescaler cycle and is read by the
     // first cell near the end of that cycle.
+    reg        r1, r2;         // run synchronised to f2
     always @(posedge f2 or negedge rst_n) begin
         if (!rst_n) begin
-            pc <= 5'd1; sc <= 2'd0; mc <= 1'b0; div_out <= 1'b0;
+            pc <= 5'd1; sc <= 2'd0; mc <= 1'b0; div_out <= 1'b0; r1 <= 1'b0; r2 <= 1'b0;
+        end else if (!r2) begin              // held: the next cycle starts with the full ratio
+            r1 <= run; r2 <= r1;
+            pc <= n[6:2]; sc <= n[1:0]; mc <= (n[1:0] != 2'd0); div_out <= 1'b0;
         end else if (pc == 5'd1) begin       // last prescaler cycle: load the next ratio
+            r1 <= run; r2 <= r1;
             pc <= n[6:2]; sc <= n[1:0]; mc <= (n[1:0] != 2'd0); div_out <= 1'b1;
         end else begin
+            r1 <= run; r2 <= r1;
             pc <= pc - 5'd1; div_out <= 1'b0;
             if (sc != 2'd0) sc <= sc - 2'd1;
             mc <= (sc > 2'd1);

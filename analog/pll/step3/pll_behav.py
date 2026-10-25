@@ -31,6 +31,7 @@ import pll_model  # noqa: E402
 F_REF = 36e6
 BANDS = {"VHF": dict(D=24, P=3, dup=0.6e6), "UHF": dict(D=8, P=2, dup=2.0e6)}
 LIM_RF = -95.0
+LOOP_BW = 60e3
 
 
 def spur(band, inl=None, f_vco_approx=3.6e9, icp=50e-6, kvco=40e6, off_frac=0.1, cycles=1 << 16, warm=4000):
@@ -44,7 +45,8 @@ def spur(band, inl=None, f_vco_approx=3.6e9, icp=50e-6, kvco=40e6, off_frac=0.1,
     m_full = int(round((m_int + frac_m) * 2 ** 24))
     n_seq = models.sdm(m_full, cycles + warm + 10)
     n_fb = P * (m_full / 2 ** 24)
-    lf = pll_model.design_loop(150e3, 55.0, kvco, icp, n_fb)
+    # P2.6 step 1: loop filter of the corrected design (D19 proposal, 60 kHz, 55 deg actual; design_loop fixed)
+    lf = pll_model.design_loop(LOOP_BW, 62.0, kvco, icp, n_fb)
     c1, c2, r1, r3, c3 = lf["C1"], lf["C2"], lf["R1"], lf["R3"], lf["C3"]
     i_off = off_frac * icp
     # state x = [v1, v2, v3, 1]; offset current as a constant input into node 1

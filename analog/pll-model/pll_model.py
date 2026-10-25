@@ -41,7 +41,10 @@ def design_loop(fc, pm_deg, kvco, icp, n_fb, gamma=1.0024, p3_ratio=8.0):
     Returns C1, C2, R1 and an extra pole (R3, C3) at p3_ratio * fc."""
     wc = 2 * np.pi * fc
     pm = np.radians(pm_deg)
-    k = icp * kvco * 2 * np.pi / n_fb          # Icp [A] * Kvco [rad/s/V] / N
+    # P2.6 step 1 correction: K_phi K_VCO / N = (Icp / 2 pi) [A/rad] x (2 pi Kvco) [rad/s/V] / N = Icp Kvco[Hz/V] / N.
+    # Until 2026-10-25 this line had an extra 2 pi, so the filter was sized for 2 pi too much loop gain and the
+    # loop() below (which is right) gave about 42 kHz and 35 deg instead of 150 kHz and 55 deg.
+    k = icp * kvco / n_fb
     # T1 (pole), T2 (zero) for the given phase margin
     t1 = (1 / np.cos(pm) - np.tan(pm)) / wc
     t2 = gamma / (wc ** 2 * t1)
@@ -178,6 +181,11 @@ def main():
     n_fb = 3.65e9 / 32e6
     lf = design_loop(a.bw, a.pm, a.kvco, a.icp, n_fb)
     tl = lock_time(lf, a, n_fb, n_lo, step_hz=2e6, tol_rf_hz=LIM_RES_HZ)
+    ff = np.logspace(3, 7, 20000)
+    olg, _, _ = loop(ff, lf, a.kvco, a.icp, n_fb)
+    ic = np.argmin(np.abs(np.abs(olg) - 1))
+    print(f"Check of the designed filter: unity-gain frequency {ff[ic]/1e3:.0f} kHz, phase margin "
+          f"{180 + np.degrees(np.angle(olg[ic])):.0f} deg (asked {a.bw/1e3:.0f} kHz, {a.pm:.0f} deg)")
     print(f"Loop filter (N = {n_fb:.1f}): C1 {lf['C1']*1e12:.1f} pF, C2 {lf['C2']*1e12:.1f} pF, "
           f"R1 {lf['R1']/1e3:.2f} kOhm, R3 {lf['R3']/1e3:.2f} kOhm, C3 {lf['C3']*1e12:.2f} pF; "
           f"total C {(lf['C1']+lf['C2']+lf['C3'])*1e12:.0f} pF")

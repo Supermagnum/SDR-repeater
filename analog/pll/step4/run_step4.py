@@ -318,7 +318,10 @@ def check_win():
 
 
 # ---------------------------------------------------------------------------------------------------- hold
-LF = dict(C1=39e-12, C2=355e-12, R1=9.5e3, R3=34e3, C3=3.9e-12)
+# Loop filter: D19 (P2.6 step 1, 60 kHz / 55 deg). The first runs used the P2.2 values C1 39 pF, C2 355 pF,
+# R1 9.5 kOhm, R3 34 kOhm, C3 3.9 pF (sized with a 2 pi error); option 'lf22' brings them back.
+LF = (dict(C1=39e-12, C2=355e-12, R1=9.5e3, R3=34e3, C3=3.9e-12) if "lf22" in ARGS
+      else dict(C1=30.8e-12, C2=465.2e-12, R1=22.9e3, R3=107.8e3, C3=3.08e-12))
 
 
 def hold_net(vdd, v0=None, t0=0.5e-6, held=True, vfix=None):

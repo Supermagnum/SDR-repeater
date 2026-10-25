@@ -268,3 +268,9 @@ Next: step 1 device and block checks (`analog/pll/step1/`).
 - Window delay cell 5.5–10.0 ns over corners, MIM corners, R_B ±20 % and supply (allowed 5–12 ns).
 - V_tune hold switch: time constant 0.4 µs, V_tune within 2.2 mV during the first count, leakage ≤ 8 nA at fast-hot; held voltage 0.50–0.64 V depending on corner.
 - Pump linearity with the real bias as with ideal sources (INL ≤ 2.1 ps). P2.5 complete; next P2.6.
+
+## 2026-10-25 — P2.6 step 1: D19, D20
+Findings of the behavioural closed loop (`spec/pll-topology.md` §13): the P2.2 loop filter was sized with a 2π error (the built loop is about 42 kHz with 35° phase margin, not 150 kHz / 55°); a true 150 kHz loop fails the VHF phase noise at 600 kHz; with the 7-bit bank and the calibration as designed V_tune lands outside its window on 9–32 % of channels. Accepted by the owner as proposed:
+- D19: loop filter, corrected design at 60 kHz, 55° actual (C1 30.8 pF, C2 465 pF, R1 22.9 kΩ, R3 108 kΩ, C3 3.1 pF; 499 pF). Model: VHF phase noise −137.0 dBc/Hz at 600 kHz with the planned VCO (−140 with the simulated one); wake 83–120 µs.
+- D20: 8-bit capacitor bank, calibration counter on f_VCO / P, nearest-code rule (38.8 µs), V_tune window monitor. Model: V_tune lands in 0.34–0.82 V at all corners.
+- The divider starts in phase with the reference when the hold is released (MMD `run`).

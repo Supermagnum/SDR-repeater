@@ -112,11 +112,11 @@ Status: **draft for human review, 2026-10-19.** It records how the signed-off di
 | 0x21 | RX_GAIN | 0x00 | [1:0] LNA step: 0 / −6 / −12 / −24 dB. [5:2] TIA/PGA gain 0–30 dB in 2 dB steps. Total range 54 dB (requirement ≥ 48 dB) |
 | 0x22 | TX_ATT | 0x0F | [3:0] TX attenuation after the reconstruction filter, 0–30 dB in 2 dB steps (requirement ≥ 30 dB, ≤ 2 dB). Reset = maximum attenuation. [7] PA-driver force-off |
 | 0x23 | FILT | 0x04 | [2:0] RX anti-alias / TX reconstruction corner for IQ rate 25 / 50 / 100 / 200 / 500 kHz (same coding as RATE; the host writes both). [3] harmonic-reject mixer enable (normally = `band_sel`). [4] 8-phase LO enable (VHF) |
-| 0x24 | PLL_CTRL | 0x0E | [0] PLL on in standby (fast wake). [1] MASH enable (0 = integer-N). [2] dither enable. [5:3] charge-pump current, (code + 1) × 25 µA = 25–200 µA (reset code 1 = 50 µA, `analog/pll-model/`). [6] start band calibration (self-clearing) |
+| 0x24 | PLL_CTRL | 0x0E | [0] PLL on in standby (fast wake). [1] MASH enable (0 = integer-N). [2] dither enable. [5:3] charge-pump current, (code + 1) × 25 µA = 25–200 µA (reset code 1 = 50 µA, `analog/pll-model/`). [6] start band calibration (self-clearing). [7] manual band: `VCO_BAND` written by the host, not by the calibration (moved here from `VCO_BAND`[7] with D20) |
 | 0x25 | N_INT | — | Integer part of the feedback divider, 86–131 (3.12 GHz / 36 MHz = 86.7 … 4.20 GHz / 32 MHz = 131.25) |
 | 0x26–0x28 | N_FRAC | 0 | 24-bit fraction, MSB in 0x26. **A write to 0x28 commits N_INT and N_FRAC together**, applied at the next `div_clk` edge (handshake into the `div_clk` domain) |
-| 0x29 | VCO_BAND | 0x40 | [6:0] capacitor-bank code (7 bits, D8). Written by the calibration, or by the host when [7] = 1 (manual) |
-| 0x2A | PLL_STATUS | — | Read only. [0] lock (synchronised), [1] calibration busy, [2] calibration failed, [3] committed N not yet applied |
+| 0x29 | VCO_BAND | 0x80 | [7:0] capacitor-bank code (8 bits since D20, 2026-10-25; 7 bits in D8). Written by the calibration, or by the host when `PLL_CTRL`[7] = 1 (manual) |
+| 0x2A | PLL_STATUS | — | Read only. [0] lock (synchronised), [1] calibration busy, [2] calibration failed, [3] committed N not yet applied, [4] V_tune below the monitor window (≈ 0.30 V), [5] V_tune above it (≈ 0.90 V) — D20 V_tune monitor: firmware re-calibrates between transmissions if set |
 | 0x2B | AFE_FORCE | 0x00 | Test: [7] override; [6:0] force individual enables (§6) on regardless of mode |
 | 0x2C | VCO_BIAS | 0x10 | [4:0] VCO tail-current DAC (D9): amplitude per band, written by the host with the band (or by a later amplitude loop). Range and step set in P2.3 |
 
