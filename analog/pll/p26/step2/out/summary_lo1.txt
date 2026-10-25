@@ -1,0 +1,11 @@
+# P2.6 step 2 — noise from the circuits
+
+## LO-chain noise floor, transient noise [SCH]
+
+Ideal noiseless tank sine (typical VCO swing), 1 µs with device and resistor noise (noisemode zoh, 50 kHz–50 GHz), output edges → time-interval error → L(f) at the LO output. 'Numerical' = the same run without noise. Band averages of L over 1–3, 3–10 and 10–30 MHz. P2.4 hand estimate: −157 (UHF) / −161 (VHF) dBc/Hz; target ≤ −150.
+
+| Band | Corner | VCO (GHz) | LO (MHz) | Node | Edges | RMS jitter (fs) | L 1–3 MHz | L 3–10 MHz | L 10–30 MHz | Numerical floor 3–10 MHz |
+|---|---|---|---|---|---|---|---|---|---|---|
+| UHF | tt | 3.84 | 480 | error: " (unknown)\nNR solver failed to converge.\nLeaving core NR loop in iteration 10.\nTimestep too small. Transient analysis aborted.\nAnalysis 'tr' aborted.\n" |
+| VHF | tt | 4.20 | 175 | error: " (unknown)\nNR solver failed to converge.\nLeaving core NR loop in iteration 10.\nTimestep too small. Transient analysis aborted.\nAnalysis 'tr' aborted.\n" |
+
