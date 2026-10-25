@@ -1,6 +1,6 @@
 # PLL topology memo (P2.5): PFD, charge pump, loop filter, feedback divider, Σ-Δ
 
-Status: **topology accepted by the owner 2026-10-21 (D16–D18 as proposed, §4). Step 1 done 2026-10-21 (§7): plain long-channel charge-pump sources with replica matching, complementary MOS loop-filter capacitors, TSPC 2/3 cell; tuning window 0.25–0.95 V. Step 2a (PFD and charge pump, `analog/pll/step2/`) core done 2026-10-22 (§8): no dead zone, INL ≤ 1 ps on the locked side at all corners; the two amplifiers are still behavioural.** Numbers are hand estimates `[HAND]` or from the linear PLL model `[MODEL]` (`analog/pll-model/`, P2.2), unless marked. Inputs: `spec/phase2-plan.md` §2 and D3, D5, D6, D7, D11; the VCO (`spec/vco-topology.md` §9); the LO dividers (`spec/lo-divider-topology.md` §9, P2.4 accepted 2026-10-21); the register map (`spec/analog-digital-interface.md` §5).
+Status: **topology accepted by the owner 2026-10-21 (D16–D18 as proposed, §4). Step 1 done 2026-10-21 (§7): plain long-channel charge-pump sources with replica matching, complementary MOS loop-filter capacitors, TSPC 2/3 cell; tuning window 0.25–0.95 V. Step 2a (PFD and charge pump, `analog/pll/step2/`) done 2026-10-25 (§8): fully transistor level, no dead zone, INL ≤ 3.6 ps on the locked side except the slow corner at the very top of the window. Step 2b (MMD) next.** Numbers are hand estimates `[HAND]` or from the linear PLL model `[MODEL]` (`analog/pll-model/`, P2.2), unless marked. Inputs: `spec/phase2-plan.md` §2 and D3, D5, D6, D7, D11; the VCO (`spec/vco-topology.md` §9); the LO dividers (`spec/lo-divider-topology.md` §9, P2.4 accepted 2026-10-21); the register map (`spec/analog-digital-interface.md` §5).
 
 ---
 
@@ -155,4 +155,26 @@ Source: `analog/pll/step2/` `[SCH]`; tt / ss / ff, V_tune 0.25 / 0.6 / 0.95 V, I
 - The offset current is about 10–16 % of I_cp (intended about 8 %), because the narrow sink does not mirror the wide diode exactly. A lock point of 2.9–4.0 ns leaves ample margin over ±1 ns. It can be trimmed to about 0.15 × in the final sizing; the in-band pump noise rises by about 1 dB at this offset (§4, D18).
 - The 15 % difference between the UP slope and the DC up current, and the offset at dt = 0, come from switching transients. They are harmless on one side, and are kept as known behaviour.
 
-**Still behavioural:** the replica amplifier (needs an input range of 0.25–0.95 V on 1.08–1.32 V, so a complementary input stage) and the dummy-node follower (same range, must take the steered 100–200 µA). Their transistor design is the next part of step 2a, then the MMD (2b) and the RTL (2c).
+**Transistor-level amplifiers (2026-10-25, runs 9–12).**
+- **Replica amplifier and dummy-node buffer** are rail-to-rail-input *symmetric* transconductors: an NMOS pair and a PMOS pair, each pair's currents mirrored to the output, so the output range does not depend on the input common mode. A simple version (output at the pair drains) lost the NMOS pair's headroom at 0.95 V.
+  - Replica amplifier: 2 µA tails, Miller 5 pF.
+  - Buffer: 10 µA tails, mirror gain 3, 10 pF on the dummy node.
+  - Their bias currents are still ideal references; that is the bias-generator block, still to come.
+- **Offset current pair:** with the offset current the dummy node receives −I_off on average when locked. A matching PMOS source into the dummy node cancels it, so the buffer only handles the difference.
+- **Unit fingers:** every mirror and current-source device is built from gate fingers of one width per type (NMOS 1.5 µm, PMOS 6 µm), and ratios are finger counts. Single wide fingers of very different width did not keep their ratio: the offset source came out 2–3× too strong and saturated the buffer.
+
+| Result (transistor amplifiers) | tt | ss (1.08 V, 125 °C) | ff (1.32 V, −40 °C) |
+|---|---|---|---|
+| Replica node − V_tune (DC) | −2 … +4 mV | — | — |
+| Offset sink / source into dummy | 9.5–11.8 / 9.7–10.8 µA | 9.6–11.4 / 9.7–12.7 µA | 9.6–12.1 / 9.7–11.4 µA |
+| **INL, locked side, dt 1–5 ns** | **0.4–2.4 ps** | **0.8–1.9 ps** at 0.25 / 0.6 V; **19 ps at 0.95 V** | **0.2–3.6 ps** |
+| Lock point | 2.75–3.05 ns | 2.70–2.76 ns (1.53 ns at 0.95 V) | 2.77–2.94 ns |
+| Dummy node − V_tune (transient) | −42 … +11 mV | −28 … +8 mV (+25 … +51 at 0.95 V) | −29 … +14 mV |
+
+**The one weak case: slow corner, 1.08 V supply, V_tune 0.95 V.** The up source has too little voltage left there (step 1: up side to 0.80–0.85 V at ss), so its current depends on the switching state: slope 1.51 and INL 19 ps (0.97 % of the ±1 ns range). In use this case is unlikely:
+- the calibration centres V_tune near 0.6 V and the drift after lock is about ±0.1–0.2 V;
+- the pump runs from the regulated `VR_ANA1` (a few % tolerance, not −10 %).
+
+It is recorded as the window limit at the slow corner (about 0.85 V), not fixed here. Closed-loop spurs including it are checked in P2.6.
+
+**Step 2a done.** Next: 2b — the multi-modulus divider (6 divide-by-2/3 cells with range extension, every ratio 23–73, speed at the slow corner); then 2c — Σ-Δ, lock detector and calibration as RTL; then the bias generator for the amplifiers.

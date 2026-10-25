@@ -88,3 +88,5 @@ Eleventh run (`buf`): **found it** — the buffer itself is fine (dummy within 1
 python3 -u run_step2.py buf | tee out/summary12_buf.txt
 python3 -u run_step2.py lin | tee out/summary12_lin.txt
 ```
+
+Twelfth run: **pass** — offset sink and source now 9.5–12.7 µA and matched; INL 0.2–3.6 ps in 8 of 9 cases; slow corner at 0.95 V 19 ps (the up source runs short of headroom at 1.08 V, recorded as the window limit). **Step 2a done**; summary in `spec/pll-topology.md` §8.
