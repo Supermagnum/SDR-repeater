@@ -236,3 +236,7 @@ Next: step 1 device and block checks (`analog/pll/step1/`).
 ## 2026-10-22 — P2.5 step 2a: PFD and charge pump core
 - Transistor-level PFD (static flip-flops, power-on reset) and charge pump (long-channel sources, current steering with matched complementary switch drivers, Miller-compensated replica loop, offset-current sink) pass at tt / ss / ff: no dead zone, INL ≤ 1 ps over a 4 ns range on the locked side, lock point 2.9–4.0 ns with a 10–16 µA offset current.
 - Lessons from the eight runs: switch pairs must be driven by complementary signals of equal delay; an ideal fast replica amplifier makes the loop oscillate (needs Miller compensation); the PFD needs a power-on reset.
+
+## 2026-10-25 — P2.5 step 2a done
+- Replica amplifier and dummy-node buffer at transistor level as rail-to-rail symmetric transconductors; a matching offset-current source into the dummy node; all mirror devices built from unit fingers (ratios as finger counts).
+- Result: INL 0.2–3.6 ps on the locked side at tt / ss / ff over 0.25–0.95 V, except slow corner at 0.95 V (19 ps; the up source runs short of headroom at 1.08 V). Recorded as the window limit at the slow corner (about 0.85 V); not fixed, since the calibration centres V_tune near 0.6 V and the pump supply is regulated. Bias currents of the amplifiers are still ideal (bias generator to come).
