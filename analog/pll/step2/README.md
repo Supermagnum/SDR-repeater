@@ -81,3 +81,10 @@ Tenth run: **replica fixed** (within 4 mV at 0.25–0.95 V); **INL ≤ 1.8 ps in
 ```bash
 python3 -u run_step2.py buf | tee out/summary11_buf.txt     # 24 operating points, seconds
 ```
+
+Eleventh run (`buf`): **found it** — the buffer itself is fine (dummy within 1–38 mV of V_tune and almost no output current without the offset pair), but the offset source into the dummy node gives 26–44 µA instead of about 13 µA, so the buffer has to sink 30–40 µA, saturates, and the dummy node rises 60–150 mV. The offset sink gave 10–16 µA instead of about 20 µA. Mirrors between devices of very different width (480 µm vs 58 µm, 60 µm vs 12 µm, each one gate finger) did not keep their ratio. Twelfth run: every mirror device built from gate fingers of one width per type (NMOS 1.5 µm, PMOS 6 µm), ratios as finger counts; both offset devices 10 % of their main source.
+
+```bash
+python3 -u run_step2.py buf | tee out/summary12_buf.txt
+python3 -u run_step2.py lin | tee out/summary12_lin.txt
+```
