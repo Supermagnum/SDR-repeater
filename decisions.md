@@ -257,3 +257,8 @@ Next: step 1 device and block checks (`analog/pll/step1/`).
 - Charge pump with full transistor mismatch (10 samples, tt 0.25 / 0.6 / 0.95 V and ss 0.6 V): INL ≤ 3.9 ps, lock point within ±0.09 ns, loop-gain spread ≤ 0.6 %.
 - Boundary spur from the measured nonlinearity in a cycle-by-cycle PLL model with the real Σ-Δ sequence: ≤ −117 dBc VHF, ≤ −122 dBc UHF at RF against −95 dBc.
 - PLL current ≈ 1.0 mA (0.43 mA schematic, rest estimated) of the 1.8 mA left in the LO budget.
+
+## 2026-10-25 — P2.5 accepted; step 4
+- P2.5 result review: accepted by the owner, with a step 4 before P2.6 for the blocks still ideal or missing: amplifier and I_cp bias generator, lock-detector window delay cell, V_tune hold switch.
+- Found while designing the delay cell: the step-2c lock detector sampled DN only at the reference strobe and missed an early divider below ≈ 21 ns; now two-sided (DN sampled at divider + window, a second identical delay cell).
+- Band calibration: first trial settles 64 reference cycles (hold switch), 30.5 µs in total; counting resolution corrected to 0.08–0.11 % at P = 3.
