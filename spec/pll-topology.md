@@ -221,3 +221,45 @@ Source: `rtl/afe/sdm.sv`, `lockdet.sv`, `bandcal.sv`, tests and Python reference
 - The calibration counts the prescaler output, not the MMD output. That gives about 1600 counts per step instead of about 128, so 128 reference cycles per step are enough.
 - The total of 29 µs calibration plus 125 µs lock is 154 µs, at the 150 µs wake budget. If needed: K = 64 (15 µs, resolution 0.12 %, still below a band step), or a faster loop after the calibration.
 - Still to come: the window delay cell, the hold switch on V_tune, and the bias generator. The four RTL blocks are integrated into the AFE/LO control block at Phase 5.
+
+## 11. Step 3 — Monte Carlo, fractional spurs, current (2026-10-25)
+
+Source: `analog/pll/step3/` (`run_step3.py`, `pll_behav.py`); run outputs `out/summary_mc.txt`, `summary_spur.txt`, `summary_cur.txt`.
+
+**Monte Carlo** `[SCH]`: the step-2a PFD, charge pump, both amplifiers and the offset pair, with PDK mismatch on every transistor (σ(V_T) 3.9 / 2.2 mV·µm, σ(β) 0.5 / 0.33 %·µm, σ(W) 4 nm, σ(L) 2 nm). Ten samples per case plus the nominal run, Q(dt) at 1–5 ns of UP lead, I_cp 100 µA, 36 MHz.
+
+| Corner | V_tune | INL nominal (ps) | INL mean / max (ps) | Lock point mean / min / max (ns) | Slope mean / σ | Offset current mean / σ (µA) | Supply (mA) |
+|---|---|---|---|---|---|---|---|
+| tt | 0.25 | 0.6 | 0.6 / 0.6 | 2.76 / 2.69 / 2.84 | 0.946 / 0.005 | 9.6 / 0.1 | 0.39 |
+| tt | 0.6 | 0.4 | 0.4 / 0.5 | 2.76 / 2.70 / 2.83 | 1.059 / 0.005 | 10.9 / 0.1 | 0.43 |
+| tt | 0.95 | 2.0 | 2.2 / 3.9 | 3.05 / 2.96 / 3.13 | 1.031 / 0.006 | 11.8 / 0.2 | 0.41 |
+| ss | 0.6 | 0.7 | 0.7 / 0.7 | 2.75 / 2.68 / 2.83 | 1.021 / 0.004 | 10.7 / 0.1 | 0.41 |
+
+Mismatch barely changes the linearity: the replica loop absorbs up/down mismatch, and the long-channel sources and unit-finger mirrors keep the offset current within 1–2 %. The lock point moves by at most ±0.09 ns, far inside the 1.2–4.4 ns that the Σ-Δ sequence spans around it, so the pump always works on one side (D18). The slope (loop gain) varies by ≤ 0.6 %. Not in the Monte Carlo: ff (nominal passes, step 2a) and ss at 0.95 V (outside the slow-corner window limit, §8).
+
+**Fractional spur at the boundary offset** `[MODEL]`: a cycle-by-cycle phase-domain PLL (`pll_behav.py`) with the real MASH 1-1-1 sequence (bit-exact to `rtl/afe/sdm.sv`), the P2.2 loop filter solved exactly between charge packets, and each measured Q(dt) curve's deviation from a straight line applied to every cycle. The channel is placed so that the fractional spur falls on the duplex offset (600 kHz VHF, 2 MHz UHF). Limit at RF −95 dBc (25 W duplex).
+
+| Curve | VHF spur (dBc at RF) | UHF spur (dBc at RF) |
+|---|---|---|
+| Linear pump (reference) | −126.7 (Σ-Δ floor −134.0) | −121.6 (floor −132.0) |
+| Nominal, all four cases | −125.4 … −124.4 | −121.6 |
+| Worst-INL sample, tt 0.95 V (3.9 ps) | −117.4 | −121.6 |
+| **Worst** | **−117.4** (22 dB margin) | **−121.6** (27 dB margin) |
+
+- The UHF value is the same as with a linear pump: it is a residual of the model at that fractional word, and the pump's contribution stays below it (UHF has 10 dB less division credit than VHF, but its divider edge spans only 1.7–3.8 ns, where the curves are straightest).
+- The model takes the INL as a timing deviation (independent of I_cp to first order) and runs at the P2.2 design point (50 µA · 40 MHz/V); the curves were measured at 100 µA.
+- This replaces the raw boundary-spur input S0 of the P2.2 model (budget −35 dBc at VHF) with a computed result.
+
+**Current** `[SCH]` + `[HAND]`:
+
+| Block | mA | Source |
+|---|---|---|
+| Reference buffer (36 MHz) | 0.15 | hand |
+| PFD, charge pump, replica amplifier, dummy buffer, offset pair | 0.43 | schematic, worst case |
+| Amplifier bias generator | 0.03 | hand |
+| MMD prescaler (two TSPC 2/3 cells ≤ 2.2 GHz) | 0.25 | hand, from P2.4 TSPC |
+| MMD counters (≤ 550 MHz) | 0.05 | hand |
+| Σ-Δ, lock detector, calibration | 0.10 | hand (≈ 1500 gates) |
+| **PLL total** | **1.01** | budget ≤ 1.8 mA (D7) |
+
+**Against §1:** boundary spur met with ≥ 22 dB margin; no dead zone; current 1.0 mA of 1.8 mA; calibration plus lock at the 150 µs wake budget (§10). **Still open, for P2.5 step 4 or P2.6:** the amplifier bias generator (amplifier biases are still ideal), the lock-detector window delay cell, the V_tune hold switch; the reference spur at 36 MHz from the offset current and loop-filter leakage (step 1 leakage model ≤ −102 dBc) and the divider noise floor in closed loop (P2.6).

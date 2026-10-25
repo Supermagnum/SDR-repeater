@@ -1,0 +1,60 @@
+# P2.4 step 2 — VCO buffer and divider chains with the VCO
+
+VCO sizing from step 2: LSB 11.47 fF, fixed 204 fF; tail cap 4 mA.
+
+## UHF, ss (1.08 V, 125 °C), VCO target 3.20 GHz (code 87, 4.00 mA), 100 ns
+
+VCO 3.2102 GHz. Buffer output: 0.52 / 0.52 V per side (need ≥ 0.5 × 0.90), common mode 0.52 V.
+Currents: buffer 0.40 mA, CML divider 1.00 mA, converter 0.54 mA, CMOS logic 0.12 mA.
+
+| Output | Node | f (MHz) | Expected (MHz) | Duty (%) | Phase (°) | Ideal (°) | Error (°) |
+|---|---|---|---|---|---|---|---|
+| I+ | x_p0 | 401.28 | 401.28 | 21.0 (ideal 25) | 0.0 | 0 | +0.00 |
+| Q+ | x_p1 | 401.28 | 401.28 | 21.2 (ideal 25) | 90.0 | 90 | -0.01 |
+| I- | x_p2 | 401.28 | 401.28 | 21.2 (ideal 25) | 179.8 | 180 | -0.23 |
+| Q- | x_p3 | 401.28 | 401.28 | 21.6 (ideal 25) | 269.8 | 270 | -0.19 |
+
+## UHF, ss (1.08 V, 125 °C), VCO target 3.84 GHz (code 32, 3.93 mA), 90 ns
+
+VCO 3.8462 GHz. Buffer output: 0.56 / 0.56 V per side (need ≥ 0.5 × 0.90), common mode 0.54 V.
+Currents: buffer 0.51 mA, CML divider 1.00 mA, converter 0.57 mA, CMOS logic 0.12 mA.
+
+| Output | Node | f (MHz) | Expected (MHz) | Duty (%) | Phase (°) | Ideal (°) | Error (°) |
+|---|---|---|---|---|---|---|---|
+| I+ | x_p0 | 476.17 | 480.77 | 21.7 (ideal 25) | 0.0 | 0 | +0.00 |
+| Q+ | x_p1 | no output |
+| I- | x_p2 | no output |
+| Q- | x_p3 | no output |
+
+## VHF, ss (1.08 V, 125 °C), VCO target 3.12 GHz (code 97, 4.00 mA), 194 ns
+
+VCO 3.1240 GHz. Buffer output: 0.44 / 0.44 V per side (need ≥ 0.5 × 0.90), common mode 0.48 V.
+Currents: buffer 0.44 mA, CML divider 2.50 mA, converter 0.49 mA, CMOS logic 0.12 mA.
+
+| Output | Node | f (MHz) | Expected (MHz) | Duty (%) | Phase (°) | Ideal (°) | Error (°) |
+|---|---|---|---|---|---|---|---|
+| 0° | x_r1 | 130.17 | 130.17 | 50.1 (ideal 50) | 0.0 | 0 | +0.00 |
+| 180° | x_r1b | 130.17 | 130.17 | 49.2 (ideal 50) | 180.0 | 180 | -0.02 |
+| 45° | x_r2 | 130.17 | 130.17 | 50.1 (ideal 50) | 45.0 | 45 | +0.02 |
+| 225° | x_r2b | 130.17 | 130.17 | 49.2 (ideal 50) | 225.0 | 225 | -0.04 |
+| 90° | x_r3 | 130.17 | 130.17 | 50.1 (ideal 50) | 90.0 | 90 | +0.04 |
+| 270° | x_r3b | 130.17 | 130.17 | 49.2 (ideal 50) | 269.9 | 270 | -0.06 |
+| 135° | x_r4 | 130.17 | 130.17 | 49.7 (ideal 50) | 135.0 | 135 | +0.02 |
+| 315° | x_r4b | 130.17 | 130.17 | 49.6 (ideal 50) | 315.0 | 315 | -0.02 |
+
+## VHF, ss (1.08 V, 125 °C), VCO target 4.20 GHz (code 11, 3.59 mA), 154 ns
+
+VCO 4.2105 GHz. Buffer output: 0.50 / 0.50 V per side (need ≥ 0.5 × 0.90), common mode 0.52 V.
+Currents: buffer 0.67 mA, CML divider 2.50 mA, converter 0.30 mA, CMOS logic 0.00 mA.
+
+| Output | Node | f (MHz) | Expected (MHz) | Duty (%) | Phase (°) | Ideal (°) | Error (°) |
+|---|---|---|---|---|---|---|---|
+| 0° | x_r1 | no output |
+| 180° | x_r1b | no output |
+| 45° | x_r2 | no output |
+| 225° | x_r2b | no output |
+| 90° | x_r3 | no output |
+| 270° | x_r3b | no output |
+| 135° | x_r4 | no output |
+| 315° | x_r4b | no output |
+

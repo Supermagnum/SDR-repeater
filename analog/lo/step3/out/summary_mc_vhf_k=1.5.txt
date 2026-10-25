@@ -1,0 +1,25 @@
+# P2.4 step 3 — LO chains across corners, Monte Carlo
+
+Chain as step 2 final: buffer 3 inverters per side, last 4/8 um; UHF retiming output PMOS x2; CML enable at 2 ns.
+
+Options: CML 0.5 mA per latch, swing 0.4 V, pair ratio 1.5; TSPC size 2; buffer as step 2; start-up pulse on.
+
+## Monte Carlo, 8 samples per case [SCH]
+
+Mismatch on every LO transistor (V_T, beta, W, L; PDK values), top frequency of each band (largest error in degrees). Phase error of each output against its ideal position, relative to the first output; duty cycle per output. UHF image rejection from the I/Q quadrature error alone (gain matched): IRR = 10 log10((1 + cos e) / (1 - cos e)), at the 3-sigma error.
+
+### VHF, ss (1.08 V, 125 °C), VCO 4.20 GHz: 8 of 8 samples divide correctly
+
+| Output | Phase error mean (°) | sigma (°) | max abs (°) | Duty mean (%) | sigma (%) |
+|---|---|---|---|---|---|
+| 0° | +0.00 | 0.00 | 0.00 | 48.1 | 0.23 |
+| 180° | -0.02 | 0.22 | 0.35 | 50.4 | 0.24 |
+| 45° | +0.09 | 0.26 | 0.55 | 48.5 | 0.55 |
+| 225° | -0.11 | 0.24 | 0.41 | 50.0 | 0.52 |
+| 90° | -0.05 | 0.29 | 0.49 | 49.5 | 0.72 |
+| 270° | -0.14 | 0.20 | 0.49 | 49.0 | 0.69 |
+| 135° | +0.01 | 0.16 | 0.34 | 50.4 | 0.56 |
+| 315° | -0.03 | 0.23 | 0.32 | 48.1 | 0.52 |
+
+Largest phase sigma: 0.29° (4.6 ps)
+

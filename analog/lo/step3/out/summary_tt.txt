@@ -1,0 +1,15 @@
+# P2.4 step 3 — LO chains across corners, Monte Carlo
+
+Chain as step 2 final: buffer 3 inverters per side, last 4/8 um; UHF retiming output PMOS x2; CML enable at 2 ns.
+
+## Corners and temperature [SCH]
+
+Ideal tank source with the lowest VCO swing (per side): 3.12 GHz 0.27 V, 3.20 GHz 0.29 V, 3.84 GHz 0.44 V, 4.20 GHz 0.52 V. Systematic errors only (no mismatch).
+
+| Band | Corner | V_DD | T (°C) | VCO (GHz) | Divides | Max phase error (°) | Duty (%) | Buffer per side (V) | Chain current (mA): buffer / CML / converter / logic = total |
+|---|---|---|---|---|---|---|---|---|---|
+| UHF | tt | 1.2 | 27 | 3.20 | yes | 0.22 | 24.2–25.3 (ideal 25) | 0.64 | 0.85 / 1.00 / 0.63 / 0.26 = 2.74 |
+| UHF | tt | 1.2 | 27 | 3.84 | yes | 0.26 | 24.6–25.1 (ideal 25) | 0.64 | 0.99 / 1.00 / 0.70 / 0.30 = 3.00 |
+| VHF | tt | 1.2 | 27 | 3.12 | yes | 0.07 | 48.6–50.5 (ideal 50) | 0.63 | 0.97 / 2.49 / 0.57 / 0.25 = 4.29 |
+| VHF | tt | 1.2 | 27 | 4.20 | yes | 0.09 | 48.2–50.7 (ideal 50) | 0.64 | 1.28 / 2.49 / 0.68 / 0.36 = 4.81 |
+

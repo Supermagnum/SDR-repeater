@@ -1,0 +1,22 @@
+# P2.4 step 2 — VCO buffer and divider chains with the VCO
+
+VCO sizing from step 2: LSB 11.47 fF, fixed 204 fF; tail cap 4 mA.
+
+## VHF, ss (1.08 V, 125 °C), VCO target 4.20 GHz (code 11, 3.59 mA), 154 ns
+
+Stages: buffer ckp-ckn 4.210 GHz (4.210), 0.83 V; CML divider out 2.131 GHz (1.403), 0.17 V; converter x_o2 1.439 GHz (1.403), 0.28 V; clock x_clk 12.196 GHz (1.403), 0.00 V; counter x_q1 13.662 GHz (0.175), 0.00 V.
+Clock skew (ckn falling - ckp rising): -18.8 ps (period 238 ps).
+VCO 4.2102 GHz. Buffer output: 0.42 / 0.42 V per side (need ≥ 0.5 × 0.90), common mode 0.63 V.
+Currents: buffer 1.67 mA, CML divider 2.49 mA, converter 0.30 mA, CMOS logic 0.01 mA.
+
+| Output | Node | f (MHz) | Expected (MHz) | Duty (%) | Phase (°) | Ideal (°) | Error (°) |
+|---|---|---|---|---|---|---|---|
+| 0° | x_r1 | no output |
+| 180° | x_r1b | no output |
+| 45° | x_r2 | no output |
+| 225° | x_r2b | no output |
+| 90° | x_r3 | no output |
+| 270° | x_r3b | no output |
+| 135° | x_r4 | no output |
+| 315° | x_r4b | no output |
+

@@ -1,0 +1,15 @@
+# P2.4 step 1 — divider speed checks
+
+## CML ÷2 / ÷3: minimum clock swing over the operating window [SCH]
+
+0.5 mA per latch, latch pair 1×, ideal tails, clock common mode V_DD − 0.55 V. Swing per side as listed (scaled by V_DD / 1.2 V). Window: ÷2 2.9–5.0 GHz, ÷3 2.9–5.7 GHz. Fast corner added: mos_ff, 1.32 V, −40 °C.
+
+| Corner | Divider | 0.3 V | 0.35 V | 0.4 V | 0.45 V | 0.5 V | 0.6 V | Minimum swing |
+|---|---|---|---|---|---|---|---|---|
+| tt (1.2 V, 27 °C) | ÷2 | OK | OK | OK | OK | OK | OK | **0.3 V** |
+| tt (1.2 V, 27 °C) | ÷3 | OK | OK | OK | OK | OK | OK | **0.3 V** |
+| ss (1.08 V, 125 °C) | ÷2 | fails 2.9,3.2,3.5 | OK | OK | OK | OK | OK | **0.35 V** |
+| ss (1.08 V, 125 °C) | ÷3 | fails 2.9,3.2,3.5,3.84,4.2 | fails 2.9 | OK | OK | OK | OK | **0.4 V** |
+| ff (1.32 V, -40 °C) | ÷2 | OK | OK | OK | OK | OK | OK | **0.3 V** |
+| ff (1.32 V, -40 °C) | ÷3 | OK | OK | OK | OK | OK | OK | **0.3 V** |
+

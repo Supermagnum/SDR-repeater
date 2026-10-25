@@ -1,0 +1,21 @@
+# P2.5 step 3 — charge-pump Monte Carlo, spurs, current
+
+## Fractional spur at the boundary offset from the measured pump nonlinearity [MODEL]
+
+Cycle-by-cycle PLL (pll_behav.py): MASH 1-1-1 sequence, P2.2 loop (150 kHz), I_cp 50 µA, K_VCO 40 MHz/V, offset current 10 %; the pump's measured Q(dt) deviation from a straight line applied to every cycle. Spur at RF (dBc); limit −95 dBc. 'Floor' is the Σ-Δ noise in one bin (≈ 550 Hz) — a spur below it is not resolved.
+
+Linear pump (reference): VHF -126.7 dBc (floor -134.0), UHF -121.6 dBc (floor -132.0).
+
+| Corner | V_tune | Curve | INL (ps) | VHF spur (dBc) | UHF spur (dBc) |
+|---|---|---|---|---|---|
+| tt | 0.25 | nominal | 0.6 | -124.8 | -121.6 |
+| tt | 0.25 | worst INL sample | 0.6 | -124.7 | -121.6 |
+| tt | 0.6 | nominal | 0.4 | -125.4 | -121.6 |
+| tt | 0.6 | worst INL sample | 0.5 | -125.1 | -121.6 |
+| tt | 0.95 | nominal | 2.0 | -124.5 | -121.6 |
+| tt | 0.95 | worst INL sample | 3.9 | -117.4 | -121.6 |
+| ss | 0.6 | nominal | 0.7 | -124.4 | -121.6 |
+| ss | 0.6 | worst INL sample | 0.7 | -124.2 | -121.6 |
+
+Worst: VHF -117.4 dBc, UHF -121.6 dBc against −95 dBc (margin 22 / 27 dB).
+

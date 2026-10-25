@@ -1,0 +1,39 @@
+# P2.4 step 3 — LO chains across corners, Monte Carlo
+
+Chain as step 2 final: buffer 3 inverters per side, last 4/8 um; UHF retiming output PMOS x2; CML enable at 2 ns.
+
+## Corners and temperature [SCH]
+
+Ideal tank source with the lowest VCO swing (per side): 3.12 GHz 0.27 V, 3.20 GHz 0.29 V, 3.84 GHz 0.44 V, 4.20 GHz 0.52 V. Systematic errors only (no mismatch).
+
+| Band | Corner | V_DD | T (°C) | VCO (GHz) | Divides | Max phase error (°) | Duty (%) | Buffer per side (V) | Chain current (mA): buffer / CML / converter / logic = total |
+|---|---|---|---|---|---|---|---|---|---|
+| UHF | tt | 1.2 | 27 | 3.20 | yes | 0.22 | 24.2–25.3 (ideal 25) | 0.64 | 0.85 / 1.00 / 0.63 / 0.26 = 2.74 |
+| UHF | tt | 1.2 | 27 | 3.84 | yes | 0.26 | 24.6–25.1 (ideal 25) | 0.64 | 0.99 / 1.00 / 0.70 / 0.30 = 3.00 |
+| UHF | ss | 1.08 | 125 | 3.20 | yes | 0.42 | 24.3–25.2 (ideal 25) | 0.57 | 0.58 / 1.00 / 0.59 / 0.22 = 2.39 |
+| UHF | ss | 1.08 | 125 | 3.84 | yes | 0.53 | 23.3–23.5 (ideal 25) | 0.57 | 0.75 / 1.00 / 0.62 / 0.25 = 2.62 |
+| UHF | ss-cold | 1.08 | -40 | 3.20 | **NO** | nan | nan–nan (ideal 25) | 0.56 | 0.33 / 1.00 / 0.43 / 0.10 = 1.87 |
+| UHF | ss-cold | 1.08 | -40 | 3.84 | yes | 0.47 | 24.5–24.7 (ideal 25) | 0.57 | 0.68 / 1.00 / 0.64 / 0.26 = 2.58 |
+| UHF | ff | 1.32 | -40 | 3.20 | yes | 0.16 | 24.7–25.2 (ideal 25) | 0.70 | 1.15 / 1.00 / 0.70 / 0.30 = 3.14 |
+| UHF | ff | 1.32 | -40 | 3.84 | yes | 0.18 | 24.8–25.3 (ideal 25) | 0.71 | 1.37 / 1.00 / 0.73 / 0.37 = 3.47 |
+| UHF | ff-hot | 1.32 | 125 | 3.20 | yes | 0.15 | 25.0–25.6 (ideal 25) | 0.69 | 1.16 / 1.00 / 0.70 / 0.29 = 3.15 |
+| UHF | ff-hot | 1.32 | 125 | 3.84 | yes | 0.19 | 24.8–25.4 (ideal 25) | 0.70 | 1.28 / 1.00 / 0.78 / 0.36 = 3.41 |
+| UHF | sf | 1.2 | 27 | 3.20 | yes | 0.20 | 24.6–25.4 (ideal 25) | 0.63 | 0.86 / 1.00 / 0.63 / 0.26 = 2.75 |
+| UHF | sf | 1.2 | 27 | 3.84 | yes | 0.25 | 25.0–25.4 (ideal 25) | 0.64 | 1.00 / 1.00 / 0.70 / 0.31 = 3.00 |
+| UHF | fs | 1.2 | 27 | 3.20 | yes | 0.23 | 24.0–25.3 (ideal 25) | 0.64 | 0.85 / 1.00 / 0.63 / 0.25 = 2.72 |
+| UHF | fs | 1.2 | 27 | 3.84 | yes | 0.27 | 24.5–24.7 (ideal 25) | 0.65 | 0.99 / 1.00 / 0.70 / 0.30 = 2.99 |
+| VHF | tt | 1.2 | 27 | 3.12 | yes | 0.07 | 48.6–50.5 (ideal 50) | 0.63 | 0.97 / 2.49 / 0.57 / 0.25 = 4.29 |
+| VHF | tt | 1.2 | 27 | 4.20 | yes | 0.09 | 48.2–50.7 (ideal 50) | 0.64 | 1.28 / 2.49 / 0.68 / 0.36 = 4.81 |
+| VHF | ss | 1.08 | 125 | 3.12 | **NO** | nan | nan–nan (ideal 50) | 0.57 | 0.36 / 2.50 / 0.33 / 0.03 = 3.22 |
+| VHF | ss | 1.08 | 125 | 4.20 | yes | 0.12 | 48.0–50.5 (ideal 50) | 0.51 | 0.95 / 2.50 / 0.63 / 0.30 = 4.38 |
+| VHF | ss-cold | 1.08 | -40 | 3.12 | **NO** | nan | nan–nan (ideal 50) | 0.56 | 0.31 / 2.50 / 0.35 / 0.04 = 3.20 |
+| VHF | ss-cold | 1.08 | -40 | 4.20 | yes | 0.12 | 47.8–50.4 (ideal 50) | 0.53 | 0.92 / 2.49 / 0.63 / 0.32 = 4.36 |
+| VHF | ff | 1.32 | -40 | 3.12 | yes | 0.05 | 48.8–50.9 (ideal 50) | 0.69 | 1.37 / 2.47 / 0.68 / 0.30 = 4.82 |
+| VHF | ff | 1.32 | -40 | 4.20 | yes | 0.06 | 48.4–50.9 (ideal 50) | 0.70 | 1.68 / 2.47 / 0.70 / 0.40 = 5.25 |
+| VHF | ff-hot | 1.32 | 125 | 3.12 | error | ", worst delta=0.00e+00 >TOL @ (unknown)\nNR solver failed to converge.\nLeaving core NR loop in iteration 50.\nHomotopy failed, 180 step(s) tried.\nOperating point analysis failed.\nAnalysis 'tr' aborted.\n" | | | |
+| VHF | ff-hot | 1.32 | 125 | 4.20 | error | ", worst delta=0.00e+00 >TOL @ (unknown)\nNR solver failed to converge.\nLeaving core NR loop in iteration 50.\nHomotopy failed, 180 step(s) tried.\nOperating point analysis failed.\nAnalysis 'tr' aborted.\n" | | | |
+| VHF | sf | 1.2 | 27 | 3.12 | yes | 0.06 | 48.6–50.6 (ideal 50) | 0.63 | 0.98 / 2.49 / 0.58 / 0.26 = 4.30 |
+| VHF | sf | 1.2 | 27 | 4.20 | yes | 0.08 | 48.3–50.9 (ideal 50) | 0.64 | 1.28 / 2.49 / 0.69 / 0.37 = 4.82 |
+| VHF | fs | 1.2 | 27 | 3.12 | yes | 0.07 | 48.7–50.5 (ideal 50) | 0.63 | 0.97 / 2.49 / 0.58 / 0.25 = 4.28 |
+| VHF | fs | 1.2 | 27 | 4.20 | yes | 0.09 | 48.2–50.6 (ideal 50) | 0.64 | 1.29 / 2.49 / 0.68 / 0.35 = 4.80 |
+

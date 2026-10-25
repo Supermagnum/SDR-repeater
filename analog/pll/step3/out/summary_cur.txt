@@ -1,0 +1,16 @@
+# P2.5 step 3 — charge-pump Monte Carlo, spurs, current
+
+## PLL current [SCH] + [HAND]
+
+PFD, charge pump and both amplifiers, measured (mean supply current over the run, I_cp 100 µA, offset pair on): tt 0.25 V: 0.39 mA; tt 0.6 V: 0.43 mA; tt 0.95 V: 0.41 mA; ss 0.6 V: 0.41 mA.
+
+| Block | Current (mA) | Source |
+|---|---|---|
+| Reference buffer (36 MHz) | 0.15 | [HAND] |
+| PFD, charge pump, replica amplifier, dummy buffer, offset pair | 0.43 | [SCH] (worst of the runs) |
+| Amplifier bias generator | 0.03 | [HAND] |
+| MMD prescaler, two TSPC cells at ≤ 2.2 GHz | 0.25 | [HAND] (P2.4 TSPC: ≈ 0.1 mA per flip-flop pair) |
+| MMD counters at ≤ 550 MHz | 0.05 | [HAND] |
+| Σ-Δ, lock detector, calibration (36 MHz) | 0.10 | [HAND] (≈ 1500 gates, activity 0.3) |
+| **PLL total** | **1.01** | budget ≤ 1.8 mA (D7 margin) |
+

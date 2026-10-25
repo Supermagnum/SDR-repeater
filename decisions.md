@@ -248,3 +248,12 @@ Next: step 1 device and block checks (`analog/pll/step1/`).
 - Σ-Δ MASH 1-1-1 with dither, including the division of {N_INT, N_FRAC} by P (D16); bit-exact against the Python reference model.
 - Lock detector with a sampling window of about 6.5 ns (covers the D18 locked UP pulse plus Σ-Δ wander).
 - Band calibration counts the prescaler output (not the MMD output) for 128 reference cycles per step: 29 µs in total; with the 125 µs lock this is at the 150 µs wake budget (K = 64 is the reserve).
+
+## 2026-10-25 — Repository contents
+- All files needed to build the chip go on GitHub: schematics (xschem `.sch` with an SVG/PDF export each, from P2.7), netlists, simulation decks, run summaries (`out/summary_*.txt`), layouts (`.gds.gz`), DRC/LVS reports and rendered chip pictures (PNG/SVG from the GDS with KLayout). Regenerable bulk output (waveforms, raw data, build directories) stays out. A full-chip GDS too large for a normal commit goes to a GitHub Release.
+- Chip art on the die: deferred until the owner has chosen the graphic (Phase 5).
+
+## 2026-10-25 — P2.5 step 3: Monte Carlo, spurs, current
+- Charge pump with full transistor mismatch (10 samples, tt 0.25 / 0.6 / 0.95 V and ss 0.6 V): INL ≤ 3.9 ps, lock point within ±0.09 ns, loop-gain spread ≤ 0.6 %.
+- Boundary spur from the measured nonlinearity in a cycle-by-cycle PLL model with the real Σ-Δ sequence: ≤ −117 dBc VHF, ≤ −122 dBc UHF at RF against −95 dBc.
+- PLL current ≈ 1.0 mA (0.43 mA schematic, rest estimated) of the 1.8 mA left in the LO budget.

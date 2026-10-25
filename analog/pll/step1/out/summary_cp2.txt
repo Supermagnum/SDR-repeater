@@ -1,0 +1,29 @@
+# P2.5 step 1 — PLL device and block checks
+
+## Charge pump, plain long-channel current sources (second run): compliance and raw up/down mismatch [SCH]
+
+Plain mirrors, L = 2 µm, unit cell per 25 µA (NMOS 15/2 µm, PMOS 60/2 µm), switches NMOS 8 µm / PMOS 16 µm, switches on. Compliance: output range where the current stays within 5 % of its value at 0.6 V. Mismatch: (I_up − I_down) / I_cp — what the replica amplifier must remove. Window needed (first run): about 0.25–0.95 V (band step 0.45–0.52 V of V_tune plus drift margin).
+
+| Corner | I_cp (µA) | Down: compliance (V) | Up: compliance (V) | Mismatch at 0.25 / 0.6 / 0.95 V (%) | Worst mismatch 0.25–0.95 V (%) |
+|---|---|---|---|---|---|
+| tt | 25 | 0.45–1.05 | 0.15–1.00 | +3.1 / -9.7 / -15.4 | 15.4 |
+| tt | 100 | 0.40–1.05 | 0.15–1.00 | +1.4 / -10.1 / -14.6 | 14.6 |
+| tt | 200 | 0.40–1.05 | 0.15–1.00 | +1.0 / -9.5 / -13.8 | 13.8 |
+| ss | 25 | 0.40–1.05 | 0.15–0.85 | +2.6 / -7.3 / -23.1 | 23.1 |
+| ss | 100 | 0.35–1.05 | 0.15–0.85 | +1.3 / -6.8 / -27.1 | 27.1 |
+| ss | 200 | 0.30–1.05 | 0.15–0.80 | +1.5 / -6.1 / -32.2 | 32.2 |
+| ff | 25 | 0.50–0.75 | 0.15–1.05 | +3.4 / -11.7 / -20.7 | 20.7 |
+| ff | 100 | 0.45–1.05 | 0.15–1.05 | +1.5 / -13.0 / -19.9 | 19.9 |
+| ff | 200 | 0.45–1.05 | 0.15–1.05 | +1.1 / -12.9 / -18.7 | 18.7 |
+
+Leakage with both switches off, 125 °C (output held at the voltage):
+
+| Corner | V_out (V) | Down leakage (nA) | Up leakage (nA) | Net (nA) |
+|---|---|---|---|---|
+| tt-hot | 0.25 | 9.48 | 23.45 | +13.97 |
+| tt-hot | 0.60 | 15.26 | 17.76 | +2.50 |
+| tt-hot | 0.95 | 20.59 | 13.09 | -7.50 |
+| ff-hot | 0.25 | 36.67 | 126.90 | +90.24 |
+| ff-hot | 0.60 | 58.63 | 98.01 | +39.39 |
+| ff-hot | 0.95 | 78.81 | 74.97 | -3.83 |
+

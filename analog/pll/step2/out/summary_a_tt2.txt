@@ -1,0 +1,12 @@
+# P2.5 step 2a — PFD and charge pump
+
+I_cp 100 µA, reference 36 MHz. Q/I_cp is the net charge per reference cycle divided by I_cp, in ps (ideal: equal to the phase offset dt; positive = net up). Sign check at |dt| = 3 ps for the dead zone.
+
+## tt (1.2 V, 27 °C)
+
+| V_tune (V) | -200 ps | -50 ps | -10 ps | -3 ps | +0 ps | +3 ps | +10 ps | +50 ps | +200 ps | Offset at 0 (ps) | Gain (slope / I_cp) | Dead zone | Reset pulse UP / DN (ps) | Replica error (mV) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0.25 | -569.0 | -414.6 | -376.4 | -370.4 | -367.9 | -365.5 | -359.8 | -331.4 | -291.8 | -367.91 | 0.701 | none (±3 ps resolved) | 382 / 451 | +35.39 |
+| 0.6 | -528.1 | -357.7 | -313.4 | -306.4 | -303.4 | -300.4 | -293.6 | -258.3 | -208.3 | -303.38 | 0.811 | none (±3 ps resolved) | 381 / 451 | +15.71 |
+| 0.95 | -30.1 | +138.0 | +177.0 | +182.3 | +183.4 | +187.5 | +192.4 | +219.2 | +112.6 | +183.36 | 0.383 | none (±3 ps resolved) | 373 / 472 | +74.68 |
+
