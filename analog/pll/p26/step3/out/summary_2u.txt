@@ -1,0 +1,23 @@
+# P2.6 step 3 — transistor-level closed loop
+
+VCO 3.456 GHz = 3 x 32 x 36 MHz, band code 125; I_cp 100 µA; loop filter D19 scaled 10 x (C1 0.308 pF, C2 4.65 pF, R1 229 kΩ, R3 1078 kΩ, C3 31 fF); 2 µs from power-on.
+
+## Course of the loop
+
+| t (µs) | V_tune at the VCO (V) | Divider period / reference period − 1 (ppm) | VCO (GHz) |
+|---|---|---|---|
+| 0.25 | 0.7649 | +1891937 | 1.1950 |
+| 0.41 | 0.8703 | +2778526 | 0.9146 |
+| 0.57 | 0.9764 | +nan | nan |
+| 0.73 | 1.0230 | +nan | nan |
+| 0.89 | 1.0398 | +nan | nan |
+| 1.05 | 1.0790 | +nan | nan |
+| 1.20 | 1.0880 | +2704002 | 0.9330 |
+| 1.36 | 1.0909 | +nan | nan |
+| 1.52 | 1.0999 | +2703980 | 0.9331 |
+| 1.68 | 1.0758 | +nan | nan |
+| 1.84 | 1.0957 | +2703976 | 0.9331 |
+| 2.00 | 1.1036 | +nan | nan |
+
+Last µs: divider period 103.8930 ns (reference 27.7778 ns, +2740146.9 ppm) → **not locked**; VCO 0.92403 GHz (target 3.456); V_tune 1.0958 V; UP 22.96 ns, DN 0.07 ns per cycle (D18: UP ≈ 2.8 + 0.25 ns, DN ≈ 0.25 ns); divider edge 8.35 ns after the reference edge; VCO amplitude 0.000 V differential; bias node pbias 0.716 V.
+
