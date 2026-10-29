@@ -161,7 +161,7 @@ No SOI or MEMS switch found for 100 W CW at VHF; they stop at about 20–25 W.
 
 - Skyworks SKY13330-397LF datasheet: https://www.skyworksinc.com/-/media/SkyWorks/Documents/Products/601-700/SKY13330_397LF_201407E.pdf
 - SKY13351-378LF listing: https://everythingrf.com/products/switches/skyworks/613-7-sky13351-378lf
-- pSemi PE42820 datasheet: https://www.mouser.lt/datasheet/3/76/1/pe42820ds.pdf
+- pSemi PE42820 datasheet (vendor / distributor link; do not redistribute the PDF in this repo): https://www.mouser.lt/datasheet/3/76/1/pe42820ds.pdf
 - pSemi PE4259 datasheet, DOC-03694-5.01 (07/2026)
 - Mini-Circuits VSW2-33-10W+: https://www.minicircuits.com/pdfs/VSW2-33-10W+.pdf
 - Mini-Circuits LFCN-160+: https://www.minicircuits.com/pdfs/LFCN-160+.pdf
