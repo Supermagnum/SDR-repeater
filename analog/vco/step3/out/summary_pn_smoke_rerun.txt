@@ -1,0 +1,12 @@
+# VCO pnoise smoke re-run — 2026-10-31
+
+mos_tt / cap_typ / 27 degC, target 3.65 GHz (code 91, I_tail 3.96 mA).
+Same options as run_step3.py pnoise:
+
+  pss failed (reltol=1e-6 pss_tolscale=1e-3, 16000): PSS analysis failed. Analysis 'pn' aborted.
+  pss failed (reltol=1e-6 pss_tolscale=1e-3, 8000): PSS analysis failed. Analysis 'pn' aborted.
+
+result: None
+
+Confirms the worst-corner PSS abort is not limited to mos_ss / 85 degC.
+Image hpretl/iic-osic-tools:2026.10, PDK a49358cc.

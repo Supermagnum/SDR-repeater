@@ -13,7 +13,7 @@ Source table: `spec/pll-topology.md` §13 “P2.6 summary”.
 | Wake | 83–120 µs | ≤ 150 µs | `[MODEL]` |
 | Charge-pump noise | FoM −203.8 … −205.6 dBc/Hz; 1/f 79–141 kHz | P2.2 assumed −218 (accepted as-is) | `[SCH]` |
 | LO floor VHF | −154.9 / −154.0 / −155.5 dBc/Hz (1–3 / 3–10 / 10–30 MHz) | ≤ −150 | `[SCH]` |
-| LO floor UHF | ≈ −150 dBc/Hz | ≤ −150 | `[HAND]` (no convergence) |
+| LO floor UHF | −155.7 dBc/Hz (3–10 MHz; ÷2+conv method) | ≤ −150 | `[SCH]` 2026-10-31 |
 | Total PN @ duplex | VHF worst −138.8 dBc/Hz (+2.8 dB); UHF −145.2 / −143.7 | ≤ −136 (25 W) | `[MODEL]` |
 | Closed loop from power-on | locks; ≤ 7 ppm from 16 µs (5× filter scale) | locks | `[SCH]` |
 | Reference spur | −109.3 dBc at RF (worst, 5 µA leakage) | ≤ −67 TX | `[MODEL]` |
@@ -21,13 +21,13 @@ Source table: `spec/pll-topology.md` §13 “P2.6 summary”.
 
 All numeric limits that have a converging method are met. Tightest duplex margin is VHF 175 MHz (+2.8 dB).
 
-## Four open points
+## Four open points (status 2026-10-31)
 
-1. **V_tune window monitor (D20).** Two comparators (~0.30 / 0.90 V) → `PLL_STATUS`[4:5]. Not designed.
-2. **Start-up bypass on all VCO bias resistors** (bank plates, varactor bias, tail filter), closed ≥ 0.4 µs (≥ 6–7 τ) at wake; sequencer + VCO schematic (`spec/analog-digital-interface.md` §6). Found in step 3; required for the 150 µs wake on silicon.
-3. **UHF LO-chain floor.** Still an estimate at the −150 limit. Transient noise does not converge on the UHF ÷2 / Johnson path. Upstream (IHP #1047 class) will not fix this; needs a different method (prompt 06 item 2(c)), not a pin or VACASK bump.
-4. **Charge-pump in-band noise.** Improve only if an in-band requirement appears (optional).
+1. **V_tune window monitor (D20).** **Closed** — option B, 0.28 / 0.775 V (`analog/pll/vtune_mon/`).
+2. **Start-up bypass.** **Closed** — `afe_seq` + VCO MOS bypass.
+3. **UHF LO-chain floor.** **Closed** — truncated ÷2+converter method, −155.7 dBc/Hz @ LO (`run_uhf_floor.py`). Full-chain noisy transient still does not converge.
+4. **Charge-pump in-band noise.** Idle unless an in-band requirement appears.
 
 ## Owner decision (2026-10-31)
 
-Accepted. Before P2.7: open point **2** then **1**. Open point **3**: one method attempt after those; does not block P2.7; must be closed or a known gap by the Phase 2 gate. Open point **4**: no action unless an in-band requirement appears. Open point 2 closed 2026-10-31 (`afe_seq`, VCO MOS bypass, sequencer timing in p26 step 3).
+Accepted. Before P2.7: open point **2** then **1**, then one **3** attempt. Open point **4**: no action unless an in-band requirement appears. Points 1–3 closed 2026-10-31. SCH re-run done same day (`reports/sch-rerun-2026-10-31.md`); VCO pnoise PSS = known gap.

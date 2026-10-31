@@ -291,3 +291,7 @@ Before P2.7 layout:
 4. Open point **4** (charge-pump in-band noise): no action unless an in-band requirement appears.
 
 P2.7 may start with open IHP LVS issues #861, #753 and #512: document a workaround for each in the P2.7 notes and re-check when the PDK pin moves. Before the first P2.7 run, re-run the VACASK VCO, LO and PLL schematic results that prompt 01 only checked against their files (`reports/status-2026-10-30.md`).
+
+## 2026-10-31 — Pre-P2.7 SCH re-run and open points 1–3
+
+Open points 2, 1, then 3 closed (bypass; V_tune monitor option B 0.28/0.775 V; UHF LO floor −155.7 dBc/Hz truncated method). VACASK SCH re-run (`reports/sch-rerun-2026-10-31.md`): VCO range, LO UHF tt, PLL 2 µs smoke, and UHF floor pass. **Known gap:** VCO `pss`/`pnoise` fails on this pin/image (worst and tt smoke; scripted methods exhausted). File-backed PN stands until a converging re-run. P2.7 layout may start.

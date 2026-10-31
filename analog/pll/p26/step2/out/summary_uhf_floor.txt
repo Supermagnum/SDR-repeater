@@ -1,0 +1,12 @@
+# P2.6 open point 3 — UHF LO floor, one method attempt [SCH]
+
+**Method:** UHF buffer + CML ÷2 + AC converter only (no Johnson / retiming TSPC). Ideal tank 3.84 GHz, measure x_clk at 1.92 GHz, 1 µs ZOH transient noise (warm-up as VHF). Refer to 480 MHz LO by −12.04 dB (ideal ÷4). Target ≤ −150 dBc/Hz at the LO.
+
+## Result
+
+| Stage | Noise BW | Edges | RMS jitter (fs) | L@LO 1–3 MHz | L@LO 3–10 MHz | L@LO 10–30 MHz | Numerical 3–10 MHz |
+|---|---|---|---|---|---|---|---|
+| div2+conv -> LO (−12 dB) | 50GHz | 1728 | 191 | -158.9 | -155.7 | -158.0 | -287.8 |
+
+**PASS:** LO-referred floor -155.7 dBc/Hz ≤ -150. Open point 3 closed with this method (Johnson noise not included; add VHF CMOS floor in quadrature if a tighter budget is needed).
+

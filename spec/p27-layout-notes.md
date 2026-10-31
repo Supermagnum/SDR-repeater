@@ -4,9 +4,9 @@ Status: **notes only, 2026-10-31.** Layout has not started. Owner: P2.7 may begi
 
 ## Before the first P2.7 run
 
-Re-run the VACASK schematic results that `reports/status-2026-10-30.md` only checked against committed `out/summary_*.txt` (VCO steps 1–3, LO step 3, PLL steps 1–4 and p26 steps 2–3 as applicable). Do not treat file-backed SCH numbers as fresh until that re-run.
+VACASK SCH re-run done 2026-10-31 (`reports/sch-rerun-2026-10-31.md`): VCO range pass; LO UHF tt pass; PLL 2 µs smoke pass; UHF LO floor −155.7 dBc/Hz pass. **Known gap:** VCO `pss`/`pnoise` does not converge on this pin/image (worst corner and tt smoke; both scripted `pss_minpts`). File-backed PN: `analog/vco/step3/out/summary_8bit.txt` / `summary_4ma.txt`.
 
-Prerequisites still in flight for a clean layout start: P2.6 open point 2 (bypass — done 2026-10-31) and open point 1 (V_tune monitor). Open point 3 does not block P2.7.
+P2.6 open points 2 (bypass), 1 (V_tune monitor, option B), and 3 (UHF LO floor) closed 2026-10-31.
 
 ## Open IHP LVS issues — workarounds
 

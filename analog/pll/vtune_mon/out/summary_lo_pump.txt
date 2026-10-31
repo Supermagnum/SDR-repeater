@@ -1,0 +1,25 @@
+# V_tune monitor — low side vs pump usable bottom (same-corner) [SCH]
+
+Pump down-side usable bottom from P2.5 step 1 `cp2` / `spec/pll-topology.md` §7:
+tt / ss / ff all **to 0.25 V** (mismatch at 0.25 V still only +1…+3 % at tt; the 5 %
+compliance band vs I(0.6 V) starts higher because of CLM, not a hard floor).
+
+lo_fall ±3σ from `out/summary_margins.txt` (V_lo = 0.280 V, n = 30, 1 % W mismatch).
+Pass if lo_fall−3σ > pump bottom at that corner (flag asserts above the usable floor).
+
+| Monitor corner | Pump family | Pump usable bottom (V) | lo_fall mean (V) | −3σ (V) | +3σ (V) | −3σ − bottom (V) | Pass? |
+|---|---|---|---|---|---|---|---|
+| tt | tt | 0.25 | 0.3127 | 0.3113 | 0.3141 | +0.0613 | PASS |
+| tt 1.08 V | tt | 0.25 | 0.3090 | 0.3076 | 0.3105 | +0.0576 | PASS |
+| tt 1.32 V | tt | 0.25 | 0.3162 | 0.3145 | 0.3179 | +0.0645 | PASS |
+| ss | ss | 0.25 | 0.3096 | 0.3073 | 0.3120 | +0.0573 | PASS |
+| ss −40 | ss | 0.25 | 0.3102 | 0.3089 | 0.3115 | +0.0589 | PASS |
+| ff | ff | 0.25 | 0.3152 | 0.3139 | 0.3164 | +0.0639 | PASS |
+| ff hot | ff | 0.25 | 0.3133 | 0.3110 | 0.3156 | +0.0610 | PASS |
+
+## Verdict
+
+**PASS** — at every corner lo_fall−3σ ≥ 0.307 V, ≥ 57 mV above the 0.25 V pump bottom.
+(For reference, lo_rise−3σ worst is 0.261 V at ff hot, still +11 mV above 0.25 V.)
+
+No finding. Proceed to the UHF floor attempt.

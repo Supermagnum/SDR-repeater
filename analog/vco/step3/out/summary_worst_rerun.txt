@@ -1,0 +1,24 @@
+# P2.3 step 3
+
+Sizing from step 2 (8-bit bank): LSB 6.07 fF, fixed 202 fF, varactor 20 fingers, bias resistors 2 MOhm.
+
+
+## 4. Phase noise at the slow corner, 85 degC
+
+  mos_ss_cap_typ_85_3.12: code 196 -> 3.1203 GHz, 0.832 V at 4.00 mA; pnoise ...
+  pss failed (reltol=1e-6 pss_tolscale=1e-3, 16000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+  pss failed (reltol=1e-6 pss_tolscale=1e-3, 8000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+  mos_ss_cap_typ_85_3.65: code 91 -> 3.6556 GHz, 1.107 V at 3.96 mA; pnoise ...
+  pss failed (reltol=1e-6 pss_tolscale=1e-3, 16000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+  pss failed (reltol=1e-6 pss_tolscale=1e-3, 8000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+  mos_ss_cap_typ_85_4.20: code 21 -> 4.2053 GHz, 1.256 V at 3.59 mA; pnoise ...
+  pss failed (reltol=1e-6 pss_tolscale=1e-3, 16000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+  pss failed (reltol=1e-6 pss_tolscale=1e-3, 8000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+
+mos_ss / cap_typ, 85 degC (dBc/Hz)
+
+| Band | f (GHz) | Code | I_tail (mA) | Amplitude (V) | L @ 0.1 MHz | L @ 0.3 MHz | L @ 0.6 MHz | L @ 1 MHz | L @ 2 MHz | L @ 10 MHz | Worst margin |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 3.12 GHz | — | 196 | 4.00 | pss failed |
+| 3.65 GHz | — | 91 | 3.96 | pss failed |
+| 4.20 GHz | — | 21 | 3.59 | pss failed |

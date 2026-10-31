@@ -39,7 +39,7 @@ Device classes this design uses (schematic and digital): LV/HV MOS (PSP), `sg13_
 | IHP-Open-PDK | [#895](https://github.com/IHP-GmbH/IHP-Open-PDK/issues/895) (open) GFil.i DRC on large inductor PCell | Std inductor PCell | **does not affect us** (today) | We use the shared L2n0 GDS / custom mesh, not that PCell for the tank Q decision. | — |
 | IHP-Open-PDK | [#314](https://github.com/IHP-GmbH/IHP-Open-PDK/issues/314) / [#806](https://github.com/IHP-GmbH/IHP-Open-PDK/issues/806) s2p inductor + ngspice | Only if s2p is dropped into ngspice | **does not affect us** | VCO uses a lumped VACASK fit from EM (`analog/vco/step1`), not s2p in the pnoise deck. | — |
 | IHP-Open-PDK / local method | Palace stack-up XML in the same PDK commit differs from the openEMS `SG13G2_200um.xml` | EM Q / L | **affects us, worked around** | Decision: both solvers use the pinned openEMS stack (`decisions.md`, `reports/phase0-review/em-l2n0.md`). Palace workflow XML is not used. | Matched-mesh EM already accepted for Q; re-check only if the stack pin changes. |
-| IHP-Open-PDK | [#1047](https://github.com/IHP-GmbH/IHP-Open-PDK/issues/1047) (open, labeled invalid / wontfix) Long sim times and “timestep too small” vs other PDKs | Transient noise / stiff LO chain | **affects us, not handled** as a method limit | Matches P2.6 step 2: UHF ÷2 / Johnson noisy transient fails at 50 / 20 / 10 GHz noise BW; VHF converges. No upstream fix to adopt. Floor taken as estimate ≈ −150 dBc/Hz (`spec/pll-topology.md` §13). | UHF LO floor (P2.6 open point 3) until a working method exists. |
+| IHP-Open-PDK | [#1047](https://github.com/IHP-GmbH/IHP-Open-PDK/issues/1047) (open, labeled invalid / wontfix) Long sim times and “timestep too small” vs other PDKs | Transient noise / stiff LO chain | **affects us, worked around** (truncated method) | Full UHF ÷2 / Johnson noisy transient still fails; VHF converges. Open point 3 closed 2026-10-31 with truncated ÷2+converter (−155.7 dBc/Hz). | Full-chain UHF floor still unavailable. |
 | IHP-Open-PDK | [#921](https://github.com/IHP-GmbH/IHP-Open-PDK/issues/921) (open) IO pad diode → ngspice “timestep too small” | Chip-level ngspice with IO pads | **affects us, not handled** (later) | No pad-level transient yet. | First full-chip ngspice with IO. |
 | IHP-Open-PDK | [#810](https://github.com/IHP-GmbH/IHP-Open-PDK/issues/810) (open) Pin-order mismatch stdcell `.spice` / `.cdl` / `.lef` | Analog simulation of LibreLane GDS extracted by Magic | **affects us, not handled** (later) | Digital gate sim today uses liberty Verilog cell models, not Magic-extracted spice of the stdcell LEF. | Any post-layout stdcell spice that mixes those views. |
 | IHP-Open-PDK | [#804](https://github.com/IHP-GmbH/IHP-Open-PDK/issues/804) / [#805](https://github.com/IHP-GmbH/IHP-Open-PDK/issues/805) (closed) Channel thermal / flicker bookkeeping | PSP noise | **does not affect us** | Closed as user error / documentation; not a model defect for our use. | — |
@@ -49,13 +49,15 @@ Device classes this design uses (schematic and digital): LV/HV MOS (PSP), `sg13_
 | IIC-OSIC-TOOLS | [#375](https://github.com/iic-jku/IIC-OSIC-TOOLS/issues/375) (closed 2026-10-07) OpenVAF OSDI 0.4 → `absdelay` silently zero in 2026.09 | Ideal t-lines / absdelay models | **fixed in container 2026.10** | Image ships OpenVAF-Reloaded OSDI 0.5. Design does not rely on `absdelay` for the LO. | None on 2026.10. |
 | Local method (VACASK) | Driven pss/pnoise on TSPC / dynamic CMOS (P2.4 step 3) | Divider noise floor | **affects us, worked around** (method) | Declared unusable; hand estimate then VHF transient noise in P2.6. No matching closed upstream fix found. | UHF LO floor (same as #1047 row). |
 | Local method (VACASK) | Full VCO pss at `reltol` 1e-7 does not converge; 1e-6 matches validated level-2 within 0.00 dB | VCO pnoise | **affects us, worked around** | Settings in `analog/pn-validation/README.md` and `analog/vco/step2/run_step2.py`. | Re-validate if VACASK pss defaults change. |
+| Local method (VACASK) | 2026-10-31 SCH re-run: VCO `pss`/`pnoise` aborts at `reltol=1e-6` / `pss_tolscale=1e-3` for both `pss_minpts` 16000 and 8000 (worst ss/85 and tt/27 smoke) | Fresh VCO SCH pnoise | **affects us, known gap** | Range re-run still passes. File-backed PN: `summary_8bit.txt` / `summary_4ma.txt`. Report: `reports/sch-rerun-2026-10-31.md`. | Do not claim fresh SCH PN until PSS converges on this pin/image. |
 | Local method (VACASK) | First-trial “timestep too small” / DC OP failures on LO noisy transient | P2.6 step 2 | **affects us, worked around** (procedure) | Noiseless warm-up from power-on, then noisy transient; documented in `spec/pll-topology.md` §13. | UHF still fails after that procedure. |
 
 ## Results to re-check (unverified until prompt 01 re-runs them)
 
 These are the rows whose status is “affects us, not handled” or that depend on a workaround that could drift:
 
-1. **UHF LO-chain noise floor** (P2.6 open point 3) — estimate ≈ −150 dBc/Hz; transient noise does not converge.
+1. **UHF LO-chain noise floor** (P2.6 open point 3) — **closed 2026-10-31** via truncated ÷2+converter method (−155.7 dBc/Hz); full-chain noisy transient still fails.
+1b. **VCO SCH pnoise re-run** — PSS non-convergence on 2026.10 / a49358cc (`reports/sch-rerun-2026-10-31.md`).
 2. **First KLayout LVS of `sg13_hv_svaricap`** — blocked or unreliable while #861 / #753 are open.
 3. **First KLayout LVS of parallel/series `cap_rfcmim` banks** — #512.
 4. **Maximal DRC of SVaricap at `w=3.74u`** — confirm #639 fix on this deck in P2.7.
@@ -85,7 +87,7 @@ No pin change is proposed for #1098 (already in the pin) or for #1047 (no fix).
 | UHF noisy transient fails; VHF works | Same class as #1047 (stiff / timestep), but that issue is wontfix | No |
 | Early “timestep too small” / DC OP | Procedure fixed for VHF | UHF remains open |
 
-Open point 3 stays open: UHF LO floor is still an estimate.
+Open point 3 closed 2026-10-31 via truncated method; full UHF chain remains a method limit. VCO pnoise SCH re-run is a separate known gap (PSS).
 
 ## Local workarounds — upstream status
 

@@ -1,0 +1,29 @@
+# P2.6 step 3 — transistor-level closed loop
+
+VCO 3.456 GHz = 3 x 32 x 36 MHz, band code 125; I_cp 100 µA; loop filter D19 scaled 10 x (C1 0.308 pF, C2 4.65 pF, R1 229 kΩ, R3 1078 kΩ, C3 31 fF); 2 µs from power-on.
+
+Bias bypass (afe_seq): closed 1.00 µs (36 cycles @ 36 MHz); en_lodiv at 1.33 µs (48 cycles). Wake budget 150 µs: bypass is 1.00 µs of the 83–120 µs model wake.
+
+## Course of the loop
+
+| t (µs) | Pump output vt (V) | V_tune at the VCO (V) | Divider period / reference period − 1 (ppm) | VCO from the divider (GHz) | VCO amplitude (V diff.) |
+|---|---|---|---|---|---|
+| 0.25 | 1.1869 | 0.4655 | +887437 | 1.8311 | 0.307 |
+| 0.41 | 1.1858 | 0.6520 | +872332 | 1.8458 | 0.383 |
+| 0.57 | 1.1895 | 0.8439 | +872368 | 1.8458 | 0.419 |
+| 0.73 | 1.1893 | 0.9355 | +872541 | 1.8456 | 0.444 |
+| 0.89 | 1.1903 | 0.9873 | +872596 | 1.8456 | 0.464 |
+| 1.05 | 1.1244 | 1.0608 | +872547 | 1.8456 | 0.836 |
+| 1.20 | 1.0251 | 1.0687 | +872523 | 1.8456 | 0.837 |
+| 1.36 | 0.6467 | 1.0897 | +782070 | 1.9393 | 0.838 |
+| 1.52 | 0.8430 | 1.0359 | +71178 | 3.2264 | 0.838 |
+| 1.68 | 1.0677 | 0.9888 | -1974 | 3.4628 | 0.839 |
+| 1.84 | 1.1573 | 0.9473 | -1953 | 3.4628 | 0.840 |
+| 2.00 | 0.6854 | 0.9453 | -1967 | 3.4628 | 0.841 |
+
+Last µs: divider period 32.4019 ns (reference 27.7778 ns, +166469.6 ppm) → **not locked**; VCO 2.96279 GHz (target 3.456); pump output 0.9516 V, V_tune at the VCO 0.9860 V; UP 8.44 ns, DN 0.29 ns per cycle (D18: UP ≈ 2.8 + 0.25 ns, DN ≈ 0.25 ns); divider edge 8.29 ns after the reference edge; VCO amplitude 0.841 V differential; bias node pbias 0.716 V.
+
+## Bias bypass (sequencer timing)
+
+vbp high until 1.00 µs; at open: vco_nbf = 0.794 V, vco_nb = 0.961 V (residue vs mirror 17.4 %; target ≤ ~0.1 % for ≥ 6–7 τ); vco_nbf at end of run = 0.796 V.
+

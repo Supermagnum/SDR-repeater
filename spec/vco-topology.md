@@ -141,6 +141,8 @@ Source: `analog/vco/step2/`, `analog/vco/step3/` (VACASK, PDK `a49358cc`) `[SCH]
 
 **Start-up bias bypass (P2.6 open point 2, 2026-10-31):** LV NMOS across `rbf` (20 µm / 0.13 µm, ng=4) and across every `rba*`/`rbb*` and `rvp`/`rvn` (5 µm / 0.13 µm, ng=2 — smaller on tank nodes), gate `vbp` / digital `en_vco_bias_bp`. Closed ≥ 0.4 µs at wake by `afe_seq` (36 ref cycles = 1.00 µs at 36 MHz). Stand-alone VCO range/pnoise runs keep `vbp` tied low. See `spec/analog-digital-interface.md` §6.
 
+**SCH re-run 2026-10-31:** range pass (`summary_range_rerun.txt`). `pss`/`pnoise` does not converge on this pin/image (worst and tt smoke; known gap in `reports/sch-rerun-2026-10-31.md`). Phase-noise numbers above remain the last converging SCH evidence.
+
 **Bypass on-resistance `[SCH]`** (V_GS = 1.2 V, V_DS = 50 mV): tail switch Ron ≈ 29–34 Ω (tt/ss, −40/27 °C); bank/varactor switch Ron ≈ 124–143 Ω. With C_tail = 50 pF, τ ≈ 1.5–1.6 ns and 7 τ ≈ 11 ns — the 1 µs closed window is ≈ 90 × 7 τ even at ss / −40 °C. Bank MSB (~1.5 pF) is faster (7 τ ≈ 1.4 ns). Ron ≪ R_bias (1 MΩ / 2 MΩ), so the bypass is a true short for start-up.
 
 | Result | Value |
