@@ -1,8 +1,8 @@
 # P2.6 result review — for owner acceptance
 
-Date: 2026-10-30. Prompt 06 item 1 (review gate only). Prerequisites: `reports/status-2026-10-30.md` — no failed re-runs; UHF LO floor remains an estimate by method, not a tool-update fix.
+Date: 2026-10-30 (review); **accepted 2026-10-31** (`decisions.md`). Prerequisites: `reports/status-2026-10-30.md`.
 
-Source table: `spec/pll-topology.md` §13 “P2.6 summary”. `decisions.md` does **not** yet record P2.6 as accepted.
+Source table: `spec/pll-topology.md` §13 “P2.6 summary”.
 
 ## Results vs limits
 
@@ -28,8 +28,6 @@ All numeric limits that have a converging method are met. Tightest duplex margin
 3. **UHF LO-chain floor.** Still an estimate at the −150 limit. Transient noise does not converge on the UHF ÷2 / Johnson path. Upstream (IHP #1047 class) will not fix this; needs a different method (prompt 06 item 2(c)), not a pin or VACASK bump.
 4. **Charge-pump in-band noise.** Improve only if an in-band requirement appears (optional).
 
-## Decision needed
+## Owner decision (2026-10-31)
 
-Accept P2.6 as recorded (with the open points carried), or reject with notes.
-
-**Which of open points 1–3 must be done before P2.7 layout?** (4 is optional.) After acceptance, prompt 06 runs again for one lettered close-out at a time: (a) bypass, (b) V_tune monitor, (c) UHF floor method.
+Accepted. Before P2.7: open point **2** then **1**. Open point **3**: one method attempt after those; does not block P2.7; must be closed or a known gap by the Phase 2 gate. Open point **4**: no action unless an in-band requirement appears. Open point 2 closed 2026-10-31 (`afe_seq`, VCO MOS bypass, sequencer timing in p26 step 3).

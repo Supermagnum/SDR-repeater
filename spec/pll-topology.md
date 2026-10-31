@@ -430,4 +430,13 @@ The R3 / C3 pole (≈ 480 kHz) takes 36–38 dB off the offset-current ripple at
 | Transistor-level loop | locks from power-on (scaled filter), polarity and interfaces right | — |
 | Charge-pump noise | FoM −204 dBc/Hz (accepted; options recorded) | P2.2 assumed −218 |
 
-**Open for the owner / next steps:** (1) V_tune window monitor comparators (D20) — not yet designed; (2) start-up bypass switches on all VCO bias resistors (bank, varactor, tail filter), closed ≥ 0.4 µs at wake, in the VCO schematic and the sequencer (`spec/analog-digital-interface.md` §6) — found in step 3; (3) UHF LO-chain floor is an estimate (transient noise does not converge on the UHF chain); (4) charge-pump in-band noise improvement only if an in-band requirement appears. Then P2.7 (layout).
+**P2.6 accepted 2026-10-31** (`decisions.md`). Close-out order before P2.7: **(2) then (1)**; then one attempt at **(3)** (does not block P2.7; must be closed or a known gap by the Phase 2 gate); **(4)** idle unless an in-band requirement appears.
+
+| Open point | Status |
+|---|---|
+| (2) Start-up bypass + sequencer | **Done 2026-10-31** — NMOS across all VCO bias resistors (`vbp` / `en_vco_bias_bp`); `afe_seq` 36 cycles closed (≥ 0.4 µs); D15 lodiv at 48 cycles; closed-loop deck uses sequencer timing (`analog/pll/p26/wake_timing.py`, `rtl/afe/afe_seq.sv`, `spec/analog-digital-interface.md` §6) |
+| (1) V_tune window monitor (D20) | Next prompt-06 run |
+| (3) UHF LO floor method | One attempt after (1); not a P2.7 blocker |
+| (4) CP in-band noise | No action unless required |
+
+P2.7 notes / LVS workarounds: `spec/p27-layout-notes.md`.

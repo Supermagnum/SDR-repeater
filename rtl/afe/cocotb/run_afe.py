@@ -1,10 +1,16 @@
-"""Run all AFE/LO RTL tests (P2.5 step 2b-2c): python3 run_afe.py  [ONLY=mmd|sdm|lockdet|bandcal]."""
+"""Run all AFE/LO RTL tests: python3 run_afe.py  [ONLY=mmd|sdm|lockdet|bandcal|afe_seq]."""
 import os
 from pathlib import Path
 
 from cocotb_tools.runner import get_runner
 
-UNITS = {"mmd": "test_mmd", "sdm": "test_sdm", "lockdet": "test_lockdet", "bandcal": "test_bandcal"}
+UNITS = {
+    "mmd": "test_mmd",
+    "sdm": "test_sdm",
+    "lockdet": "test_lockdet",
+    "bandcal": "test_bandcal",
+    "afe_seq": "test_afe_seq",
+}
 
 
 def main():

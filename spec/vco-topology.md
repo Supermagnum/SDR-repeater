@@ -139,6 +139,8 @@ Source: `analog/vco/step2/`, `analog/vco/step3/` (VACASK, PDK `a49358cc`) `[SCH]
 
 **Circuit as simulated:** L2n0 lumped model, centre tap at 1.1 V; LV NMOS pair 32/0.13 µm; tail LV NMOS 160/4 µm, mirror 1:8, bias RC 1 MΩ / 50 pF, tail capacitor 8 pF; 7-bit bank, on-state LSB 11.5 fF after the review (10.9 fF before; sized automatically: the bank switches C_on − C_off, and the fixed capacitance without a fixed capacitor was only about 420 fF), about 100 µm of switch per 60 fF, plus a 204 fF fixed MIM (224 fF before the review); varactor 20 fingers AC-coupled through MIMs of about 5×, gates at 0.3 V; **2 MΩ** bank and varactor bias resistors.
 
+**Start-up bias bypass (P2.6 open point 2, 2026-10-31):** LV NMOS across `rbf` (20 µm / 0.13 µm, ng=4) and across every `rba*`/`rbb*` and `rvp`/`rvn` (5 µm / 0.13 µm, ng=2 — smaller on tank nodes), gate `vbp` / digital `en_vco_bias_bp`. Closed ≥ 0.4 µs at wake by `afe_seq` (36 ref cycles). Stand-alone VCO range/pnoise runs keep `vbp` tied low. See `spec/analog-digital-interface.md` §6.
+
 | Result | Value |
 |---|---|
 | Range, typical 27 °C | **2.90–4.41 GHz** after the review (2.95–4.41 before) |

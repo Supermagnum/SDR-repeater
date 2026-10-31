@@ -1,23 +1,32 @@
 # P2.6 step 3 — transistor-level closed loop
 
-VCO 3.456 GHz = 3 x 32 x 36 MHz, band code 125; I_cp 100 µA; loop filter D19 scaled 10 x (C1 0.308 pF, C2 4.65 pF, R1 229 kΩ, R3 1078 kΩ, C3 31 fF); 2 µs from power-on.
+VCO 3.456 GHz = 3 x 32 x 36 MHz, band code 127; I_cp 100 µA; loop filter D19 scaled 5 x (C1 1.232 pF, C2 18.61 pF, R1 114 kΩ, R3 539 kΩ, C3 123 fF); 2 µs from power-on.
+
+Bias bypass (afe_seq): closed 0.50 µs (18 cycles @ 36 MHz); en_lodiv at 1.00 µs (36 cycles). Wake budget 150 µs: bypass is 0.50 µs of the 83–120 µs model wake.
 
 ## Course of the loop
 
-| t (µs) | V_tune at the VCO (V) | Divider period / reference period − 1 (ppm) | VCO from the divider (GHz) | VCO amplitude (V diff.) |
-|---|---|---|---|---|
-| 0.25 | 0.5622 | +887488 | 1.8310 | 0.897 |
-| 0.41 | 0.7763 | +872524 | 1.8456 | 0.899 |
-| 0.57 | 0.9380 | +452970 | 2.3786 | 0.901 |
-| 0.73 | 0.9261 | -4477 | 3.4715 | 0.901 |
-| 0.89 | 0.9376 | -4544 | 3.4718 | 0.902 |
-| 1.05 | 0.9555 | -4561 | 3.4718 | 0.903 |
-| 1.20 | 0.9162 | -4543 | 3.4718 | 0.904 |
-| 1.36 | 0.9093 | -4506 | 3.4716 | 0.904 |
-| 1.52 | 0.9028 | -4447 | 3.4714 | 0.905 |
-| 1.68 | 0.8842 | -4369 | 3.4712 | 0.906 |
-| 1.84 | 0.8316 | -4277 | 3.4708 | 0.906 |
-| 2.00 | 0.8100 | -4157 | 3.4704 | 0.907 |
+| t (µs) | Pump output vt (V) | V_tune at the VCO (V) | Divider period / reference period − 1 (ppm) | VCO from the divider (GHz) | VCO amplitude (V diff.) |
+|---|---|---|---|---|---|
+| 0.25 | 1.1823 | 0.6340 | +887433 | 1.8311 | 0.001 |
+| 0.41 | 1.1809 | 0.9021 | +872572 | 1.8456 | 0.005 |
+| 0.57 | 1.1861 | 1.0763 | +872504 | 1.8457 | 0.590 |
+| 0.73 | 1.1860 | 1.1093 | +872529 | 1.8456 | 0.592 |
+| 0.89 | 1.1873 | 1.1276 | +872577 | 1.8456 | 0.594 |
+| 1.05 | 1.1852 | 1.1411 | +699858 | 2.0331 | 0.596 |
+| 1.20 | 1.1790 | 1.1499 | +27300 | 3.3642 | 0.598 |
+| 1.36 | 1.1116 | 1.1554 | +1438 | 3.4510 | 0.600 |
+| 1.52 | 1.1880 | 1.1684 | +1312 | 3.4515 | 0.602 |
+| 1.68 | 1.1871 | 1.1706 | +1171 | 3.4520 | 0.604 |
+| 1.84 | 1.1738 | 1.1674 | +1038 | 3.4524 | 0.606 |
+| 2.00 | 1.1590 | 1.1666 | +911 | 3.4529 | 0.608 |
 
-Last µs: divider period 27.6563 ns (reference 27.7778 ns, -4373.4 ppm) → **not locked**; VCO 3.47118 GHz (target 3.456); V_tune 0.8679 V; UP 5.41 ns, DN 0.29 ns per cycle (D18: UP ≈ 2.8 + 0.25 ns, DN ≈ 0.25 ns); divider edge 5.26 ns after the reference edge; VCO amplitude 0.907 V differential; bias node pbias 0.716 V.
+Last µs: divider period 27.8116 ns (reference 27.7778 ns, +1218.0 ppm) → **not locked**; VCO 3.45180 GHz (target 3.456); pump output 1.1705 V, V_tune at the VCO 1.1684 V; UP 22.29 ns, DN 0.29 ns per cycle (D18: UP ≈ 2.8 + 0.25 ns, DN ≈ 0.25 ns); divider edge 22.11 ns after the reference edge; VCO amplitude 0.608 V differential; bias node pbias 0.716 V.
 
+Traceback (most recent call last):
+  File "/work/analog/pll/p26/step3/run_p26s3.py", line 228, in <module>
+    main()
+  File "/work/analog/pll/p26/step3/run_p26s3.py", line 213, in main
+    if "vco_nbf" in d and "vbp" in d:
+       ^^^^^^^^^^^^^^
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()

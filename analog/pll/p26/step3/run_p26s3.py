@@ -57,14 +57,17 @@ F_VCO = P * NDIV * F_REF
 S = opt("s", 10.0)
 ICP = opt("icp", 100.0) * 1e-6
 TSTOP = opt("tstop", 8.0) * 1e-6
-T_EN = 500e-9     # D15: after the VCO is up (first run: 50 ns; the VCO starts after its bias bypass opens at 0.2 us)
+sys.path.insert(0, os.path.join(REPO, "analog", "pll", "p26"))
+import wake_timing as W  # noqa: E402
+T_BYPASS = W.T_BYPASS          # afe_seq BYPASS_CYCLES (0.50 µs @ 36 MHz, ≥ 0.4 µs)
+T_EN = W.T_LODIV               # D15: en_lodiv after LODIV_DELAY_CYCLES (1.0 µs @ 36 MHz)
 VDD = 1.2
 LF = dict(C1=30.8e-12, C2=465.2e-12, R1=22.9e3, R3=107.8e3, C3=3.08e-12)   # D19
 
 
 def vco_body(V, code):
-    """The P2.3 VCO netlist body with its tuning node renamed n3, its bias nodes renamed, no stand-in buffer."""
-    path = V.netlist("p26s3_vco", code, 0.6, itail=4e-3, analysis="")
+    """P2.3 VCO body: tuning → n3, no stand-in buffer; MOS bias bypass driven like afe_seq."""
+    path = V.netlist("p26s3_vco", code, 0.6, itail=4e-3, analysis="", drive_vbp=True)
     text = open(path).read()
     hdr = V.HEADER.format(title="P2.3 step 2 VCO: p26s3_vco")
     body = text[len(hdr):text.index("\ncontrol")]
@@ -79,48 +82,22 @@ def vco_body(V, code):
         ln = re.sub(r"^iref ", "irefvco ", ln)
         ln = re.sub(r"\btail\b", "vco_tail", ln)
         keep.append(ln)
-    # First run (2026-10-25): the VCO never started. From power-on its tail bias charges through the D9 filter
-    # (1 MOhm, 50 pF: 50 us) and the varactor gate bias through 2 MOhm into about 0.7 pF (1.4 us), so the tail
-    # had no current within the 2 us. That is also a wake-time problem for the chip (the 150 us budget): the
-    # filter resistors need a start-up bypass switch, closed by the sequencer for the first part of the wake
-    # (common practice for RC-filtered bias). Modelled as time switches (1 kOhm until 100 ns), and a second VCO
-    # kick once the tail is biased.
-    # Second run: the VCO started briefly, died, and only came back after about 1.5 us at a quarter of its swing.
-    # The bank's off-state bottom plates are biased to 1.2 V through 2 MOhm (MSB about 1.5 pF: 3 us); while they
-    # are still low, the tank swing pulls them below ground and the off switches conduct (here the MSB is off at
-    # code 125). So every VCO bias resistor (bank, varactor, tail filter) gets the bypass, open at 200 ns; the
-    # bypass loads the tank, so the second kick comes after it opens.
-    sw = ["model tswb tsw t0=2e-7 ron=1000 roff=1e15"]
-    for ln in keep:
-        m = re.match(r"^(rba\d+|rbb\d+|rvp|rvn|rbf) \((\S+) (\S+)\) resistor", ln)
-        if m:
-            sw.append(f"xsw_{m.group(1)} ({m.group(2)} {m.group(3)}) tswb")
-    keep += sw + ['ik2 (0 tn) isource type="pulse" val0=0 val1=1m delay=220n rise=50p fall=50p width=200p']
+    # vbp follows afe_seq: high for T_BYPASS then low. Second kick after bypass opens (loads the tank while on).
+    # Earlier hand model used behavioural tsw at 200 ns (4 τ); that left ~2 % tail residue — T_BYPASS is ≥ 6–7 τ.
+    tb, tk = T_BYPASS, T_BYPASS + 20e-9
+    keep += [
+        # high for T_BYPASS then low — same window as afe_seq en_vco_bias_bp
+        f'vbp (vbp 0) vsource type="pulse" val0=0 val1={VDD} delay=0 rise=50p fall=50p width={tb:.6e}',
+        f'ik2 (0 tn) isource type="pulse" val0=0 val1=1m delay={tk:.6e} rise=50p fall=50p width=200p',
+    ]
     return "\n".join(keep) + "\n"
-
-
-TSW = """
-embed "tsw.va" <<<FILE
-`include "constants.vams"
-`include "disciplines.vams"
-module tsw(p, n);
-    inout p, n;
-    electrical p, n;
-    parameter real t0 = 1e-7;
-    parameter real ron = 1e3;
-    parameter real roff = 1e15;
-    analog I(p, n) <+ V(p, n) * (1 / roff + (1 / ron - 1 / roff) * 0.5 * (1 - tanh(($abstime - t0) / 2e-9)));
-endmodule
->>>FILE
-load "tsw.va"
-"""
 
 
 def header(V):
     """VCO header (MOS lv/hv, MIM corners, inductor) plus the PLL Verilog-A clock source."""
     s2 = load("pll_step2_h", "analog/pll/step2/run_step2.py")
     emb = s2.HEADER[s2.HEADER.index("embed"):]
-    return V.HEADER.format(title="P2.6 step 3: transistor-level closed loop") + "\n" + emb + TSW
+    return V.HEADER.format(title="P2.6 step 3: transistor-level closed loop") + "\n" + emb
 
 
 def lo_and_divider(L1, L2):
@@ -151,9 +128,9 @@ def main():
     V = load("vco_step2", "analog/vco/step2/run_step2.py")
     V.OUT = OUT
     code, r = pick_code()
-    # Third run: at code 125 the VCO ran 0.45 % above the step-2 prediction (here without the step-2 stand-in
-    # buffer's load), so V_tune would have to settle near 0.17 V; two codes lower in frequency put it near mid-window
-    code = int(opt("code", code + 2))
+    # Without the stand-in buffer, the free-run was ~0.45 % high → code+2 (earlier p26s3). With MOS bypass
+    # devices on the bank/varactor nodes the tank is a little heavier; default stays at the interpolated code.
+    code = int(opt("code", code))
     V.LSB_FF, V.C_FIX_FF, V.NFING = r["lsb"], r["cfix"], r["nfing"]
     V.NBITS = r.get("nbits", 8)
     V.CMAX = (1 << V.NBITS) - 1
@@ -167,6 +144,9 @@ def main():
     print(f"VCO {F_VCO/1e9:.3f} GHz = {P} x {NDIV} x {F_REF/1e6:.0f} MHz, band code {code}; I_cp {ICP*1e6:.0f} µA; "
           f"loop filter D19 scaled {S:g} x (C1 {lf['C1']*1e12:.3f} pF, C2 {lf['C2']*1e12:.2f} pF, R1 {lf['R1']/1e3:.0f} kΩ, "
           f"R3 {lf['R3']/1e3:.0f} kΩ, C3 {lf['C3']*1e15:.0f} fF); {TSTOP*1e6:g} µs from power-on.\n")
+    print(f"Bias bypass (afe_seq): closed {T_BYPASS*1e6:.2f} µs ({W.BYPASS_CYCLES} cycles @ 36 MHz); "
+          f"en_lodiv at {T_EN*1e6:.2f} µs ({W.LODIV_DELAY_CYCLES} cycles). "
+          f"Wake budget 150 µs: bypass is {T_BYPASS*1e6:.2f} µs of the 83–120 µs model wake.\n")
     pump = S4.use_bias(S2.pfd(VDD) + S2.charge_pump(ICP) + S2.offset_sink(ICP) + S4.biasgen())
     body = (f"vdd (vdd 0) vsource dc={VDD}\nvbufs (vbuf 0) vsource dc={VDD}\nvdvs (vdv 0) vsource dc={VDD}\n"
             f"vcvs (vcv 0) vsource dc={VDD}\nvdgs (vdg 0) vsource dc={VDD}\n"
@@ -185,7 +165,7 @@ def main():
     with open(os.path.join(OUT, name + ".sim"), "w") as fh:
         fh.write(header(V) + body)
         fh.write("\ncontrol\n  abort always\n  options rawfile=\"binary\" strictsave=1\n"
-                 "  save v(vt) v(n3) v(div0) v(ref0) v(up) v(dn) v(tp) v(tn) v(pbias)\n"
+                 "  save v(vt) v(n3) v(div0) v(ref0) v(up) v(dn) v(tp) v(tn) v(pbias) v(vbp) v(vco_nbf) v(vco_nb)\n"
                  f'  analysis tr tran stop={TSTOP:.4e} step=5p maxstep=5p icmode="uic"\nendc\n')
     log = os.path.join(OUT, name + ".log")
     with open(log, "w") as fh:
@@ -230,6 +210,19 @@ def main():
           f"pump output {np.mean(g('vt')[m]):.4f} V, V_tune at the VCO {np.mean(g('n3')[m]):.4f} V; UP {wu*1e9:.2f} ns, DN {wd*1e9:.2f} ns per cycle (D18: UP ≈ 2.8 + 0.25 ns, "
           f"DN ≈ 0.25 ns); divider edge {lead*1e9:.2f} ns after the reference edge; VCO amplitude {amp:.3f} V "
           f"differential; bias node pbias {np.mean(g('pbias')[m]):.3f} V.\n")
+    try:
+        nbf = g("vco_nbf")
+        nb = g("vco_nb")
+        nbf_open = float(np.interp(T_BYPASS, t, nbf))
+        nb_open = float(np.interp(T_BYPASS, t, nb))
+        nbf_end = float(np.mean(nbf[m]))
+        res = (1 - nbf_open / nb_open) * 100 if nb_open else float("nan")
+        print("## Bias bypass (sequencer timing)\n")
+        print(f"vbp high until {T_BYPASS*1e6:.2f} µs; at open: vco_nbf = {nbf_open:.3f} V, vco_nb = {nb_open:.3f} V "
+              f"(residue vs mirror {res:.1f} %; target ≤ ~0.1 % for ≥ 6–7 τ); "
+              f"vco_nbf at end of run = {nbf_end:.3f} V.\n")
+    except (KeyError, TypeError):
+        pass
 
 
 if __name__ == "__main__":

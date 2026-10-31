@@ -14,13 +14,15 @@ Circuit (generated netlist out/vco_*.sim):
   tank      L2n0 lumped model (analog/vco/models/l2n0_lumped.inc, resistors made noisy), centre tap = VDD_VCO
   core      LV NMOS cross-coupled pair, 32/0.13 um each
   tail      LV NMOS 160/4 um, mirror 1:8 from an ideal reference, RC filter 1 MOhm / 50 pF on the bias (D9),
-            tail capacitor 8 pF (D9)
+            tail capacitor 8 pF (D9); start-up NMOS bypass across rbf (gate vbp)
   bank      8 bits (D20; 7 in P2.3), binary; per bit two cap_rfcmim (bottom plate to the switch) and an LV NMOS switch,
-            about 100 um of switch per 60 fF, 200 kOhm bias resistors (step 1)
+            about 100 um of switch per 60 fF, 2 MOhm bias resistors; NMOS bypass across each (gate vbp)
   varactor  AC-coupled (D11): 17 fingers of sg13_hv_svaricap (local _fx copy, step 1) behind cap_rfcmim
-            coupling capacitors of about 5x, gates biased to 0.3 V through 200 kOhm, well = V_tune
+            coupling capacitors of about 5x, gates biased to 0.3 V through 2 MOhm, well = V_tune;
+            NMOS bypass across rvp/rvn (gate vbp)
   buffer    LV NMOS differential pair 10/0.13 um, 400 Ohm loads, 1 mA (a stand-in for the CML buffer)
   supplies  ideal: VDD_VCO 1.1 V (D10 LDO), 1.2 V for the reference and the buffer
+  vbp       start-up bypass (P2.6): high closes all bias bypasses; default tied low in stand-alone VCO runs
 Ideal elements (to be replaced in later steps): supplies, reference current, the bias-filter R and C, the
 tail capacitor, the buffer loads. Results are [SCH].
 """
@@ -111,7 +113,24 @@ def side(c_ff):
     return math.sqrt(c_ff / CAP_AREA)
 
 
-def netlist(title, code, vtune, analysis, itail=ITAIL, extra=""):
+def bias_bypass_switches(nbits=None):
+    """NMOS across every VCO bias resistor; gate node vbp (1.2 V = closed). P2.6 open point 2."""
+    nbits = NBITS if nbits is None else nbits
+    # Tail filter is off the tank: large switch (~1 kOhm). Bank/varactor nodes touch the tank:
+    # smaller switches to limit off-state capacitance (bypass time covers their RC).
+    lines = ["// start-up bias bypass: NMOS across rbf, rba*, rbb*, rvp, rvn; gate = vbp\n",
+             "mbp_rbf (nb vbp nbf 0) sg13_lv_nmos w=20u l=0.13u ng=4\n"]
+    for k in range(nbits):
+        lines.append(f"mbp_rba{k} (a{k} vbp bb{k} 0) sg13_lv_nmos w=5u l=0.13u ng=2\n"
+                     f"mbp_rbb{k} (b{k} vbp bb{k} 0) sg13_lv_nmos w=5u l=0.13u ng=2\n")
+    lines.append("mbp_rvp (vgp vbp vvb 0) sg13_lv_nmos w=5u l=0.13u ng=2\n"
+                 "mbp_rvn (vgn vbp vvb 0) sg13_lv_nmos w=5u l=0.13u ng=2\n")
+    return "".join(lines)
+
+
+def netlist(title, code, vtune, analysis, itail=ITAIL, extra="", drive_vbp=False):
+    """drive_vbp=False ties vbp low (bypass open) for stand-alone range/pnoise.
+    drive_vbp=True leaves vbp for the caller (sequencer / PWL in extra)."""
     ind, var = noisy_inductor(), svaricap()
     n = []
     n.append(f'include "{ind}"\ninclude "{var}"\n')
@@ -153,6 +172,9 @@ def netlist(title, code, vtune, analysis, itail=ITAIL, extra=""):
              f"xv1 (vgp vt vgn 0) sg13_hv_svaricap_fx w=3.74u l=0.3u nx={NFING - NFING // 2}\n"
              f"xv2 (vgp vt vgn 0) sg13_hv_svaricap_fx w=3.74u l=0.3u nx={NFING // 2}\n"
              f"vtune (vt 0) vsource dc={vtune}\n")
+    n.append(bias_bypass_switches())
+    if not drive_vbp:
+        n.append("vbptie (vbp 0) vsource dc=0\n")
     n.append("mb1 (op tp tb 0) sg13_lv_nmos w=10u l=0.13u ng=4\n"
              "mb2 (on tn tb 0) sg13_lv_nmos w=10u l=0.13u ng=4\n"
              "rl1 (vdd op) resistor r=400 noisy=1\nrl2 (vdd on) resistor r=400 noisy=1\n"

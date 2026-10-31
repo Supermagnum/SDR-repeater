@@ -279,3 +279,15 @@ Findings of the behavioural closed loop (`spec/pll-topology.md` §13): the P2.2 
 - Charge-pump noise FoM −204 dBc/Hz (P2.2 assumed −218): half from the bias generator copied up by the I_cp DAC, half from the pump's sources. Accepted as it is (duplex-offset margin −0.8 dB, no in-band requirement); options recorded in `spec/pll-topology.md` §13.
 - LO-chain floor by transient noise: VHF −154 dBc/Hz (P2.4 estimate −161); UHF does not converge, taken as about −150 dBc/Hz.
 - Total phase noise at the duplex offset meets −136 dBc/Hz at all band edges; worst +2.8 dB at VHF 175 MHz.
+
+## 2026-10-31 — P2.6 accepted
+
+P2.6 (steps 1–4, `spec/pll-topology.md` §13; review `reports/phase2-review/p26-result-review.md`) accepted by the owner.
+
+Before P2.7 layout:
+1. Open point **2** first: start-up bypass on all VCO bias resistors, plus the wake sequence in the sequencer (`spec/analog-digital-interface.md` §6). One prompt-06 run.
+2. Open point **1** next: V_tune window monitor comparators (D20). One prompt-06 run.
+3. Open point **3** (UHF LO floor): one attempt with another method after (1) and (2). Does **not** block P2.7; must be closed or recorded as a known gap before the Phase 2 review gate.
+4. Open point **4** (charge-pump in-band noise): no action unless an in-band requirement appears.
+
+P2.7 may start with open IHP LVS issues #861, #753 and #512: document a workaround for each in the P2.7 notes and re-check when the PDK pin moves. Before the first P2.7 run, re-run the VACASK VCO, LO and PLL schematic results that prompt 01 only checked against their files (`reports/status-2026-10-30.md`).

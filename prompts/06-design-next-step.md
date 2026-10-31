@@ -41,7 +41,7 @@ Before you start:
 
 When the item is done, update the relevant spec's status line and results section, and `spec/phase2-plan.md` §3.
 
-State on 2026-10-29 (check the files, they win over this line): P2.0–P2.5 are complete and accepted. P2.6 steps 1–4 are done (`spec/pll-topology.md` §13, "P2.6 summary"). **The P2.6 result review by the owner is next.** Check `decisions.md` and `spec/phase2-plan.md` for anything newer before you start.
+State on 2026-10-31 (check the files, they win over this line): P2.0–P2.6 are accepted. Open point 2 (start-up bypass) done 2026-10-31. **Next: open point 1 (V_tune monitor), then one UHF LO-floor method attempt.** Check `decisions.md` and `spec/phase2-plan.md` before you start.
 
 1. **P2.6 result review gate.** If `decisions.md` does not record the P2.6 result as accepted, **stop here**. Give the owner a one-page summary of the P2.6 table and these four open points:
    1. V_tune window monitor comparators (D20) are not yet designed.
