@@ -139,7 +139,9 @@ Source: `analog/vco/step2/`, `analog/vco/step3/` (VACASK, PDK `a49358cc`) `[SCH]
 
 **Circuit as simulated:** L2n0 lumped model, centre tap at 1.1 V; LV NMOS pair 32/0.13 µm; tail LV NMOS 160/4 µm, mirror 1:8, bias RC 1 MΩ / 50 pF, tail capacitor 8 pF; 7-bit bank, on-state LSB 11.5 fF after the review (10.9 fF before; sized automatically: the bank switches C_on − C_off, and the fixed capacitance without a fixed capacitor was only about 420 fF), about 100 µm of switch per 60 fF, plus a 204 fF fixed MIM (224 fF before the review); varactor 20 fingers AC-coupled through MIMs of about 5×, gates at 0.3 V; **2 MΩ** bank and varactor bias resistors.
 
-**Start-up bias bypass (P2.6 open point 2, 2026-10-31):** LV NMOS across `rbf` (20 µm / 0.13 µm, ng=4) and across every `rba*`/`rbb*` and `rvp`/`rvn` (5 µm / 0.13 µm, ng=2 — smaller on tank nodes), gate `vbp` / digital `en_vco_bias_bp`. Closed ≥ 0.4 µs at wake by `afe_seq` (36 ref cycles). Stand-alone VCO range/pnoise runs keep `vbp` tied low. See `spec/analog-digital-interface.md` §6.
+**Start-up bias bypass (P2.6 open point 2, 2026-10-31):** LV NMOS across `rbf` (20 µm / 0.13 µm, ng=4) and across every `rba*`/`rbb*` and `rvp`/`rvn` (5 µm / 0.13 µm, ng=2 — smaller on tank nodes), gate `vbp` / digital `en_vco_bias_bp`. Closed ≥ 0.4 µs at wake by `afe_seq` (36 ref cycles = 1.00 µs at 36 MHz). Stand-alone VCO range/pnoise runs keep `vbp` tied low. See `spec/analog-digital-interface.md` §6.
+
+**Bypass on-resistance `[SCH]`** (V_GS = 1.2 V, V_DS = 50 mV): tail switch Ron ≈ 29–34 Ω (tt/ss, −40/27 °C); bank/varactor switch Ron ≈ 124–143 Ω. With C_tail = 50 pF, τ ≈ 1.5–1.6 ns and 7 τ ≈ 11 ns — the 1 µs closed window is ≈ 90 × 7 τ even at ss / −40 °C. Bank MSB (~1.5 pF) is faster (7 τ ≈ 1.4 ns). Ron ≪ R_bias (1 MΩ / 2 MΩ), so the bypass is a true short for start-up.
 
 | Result | Value |
 |---|---|

@@ -434,8 +434,8 @@ The R3 / C3 pole (≈ 480 kHz) takes 36–38 dB off the offset-current ripple at
 
 | Open point | Status |
 |---|---|
-| (2) Start-up bypass + sequencer | **Done 2026-10-31** — NMOS across all VCO bias resistors (`vbp` / `en_vco_bias_bp`); `afe_seq` 36 cycles closed (≥ 0.4 µs); D15 lodiv at 48 cycles; closed-loop deck uses sequencer timing (`analog/pll/p26/wake_timing.py`, `rtl/afe/afe_seq.sv`, `spec/analog-digital-interface.md` §6) |
-| (1) V_tune window monitor (D20) | Next prompt-06 run |
+| (2) Start-up bypass + sequencer | **Done 2026-10-31** — NMOS across all VCO bias resistors (`vbp` / `en_vco_bias_bp`); `afe_seq` 36 cycles closed (≥ 0.4 µs); D15 lodiv at 48 cycles; closed-loop deck uses sequencer timing (`analog/pll/p26/wake_timing.py`, `rtl/afe/afe_seq.sv`, `spec/analog-digital-interface.md` §6). Ron ≈ 30 Ω (tail) / 140 Ω (bank) `[SCH]`; 1 µs ≫ 7 τ even at ss / −40 °C (`spec/vco-topology.md`) |
+| (1) V_tune window monitor (D20) | In progress — thresholds ≈ 0.30 / 0.90 V; calibrated landing 0.34–0.82 V; fixed-code p26s3 lock at 0.40 V is band-dependent (~0.10 V above the low flag) |
 | (3) UHF LO floor method | One attempt after (1); not a P2.7 blocker |
 | (4) CP in-band noise | No action unless required |
 

@@ -23,7 +23,9 @@ Bias bypass (afe_seq): closed 1.00 µs (36 cycles @ 36 MHz); en_lodiv at 1.33 µ
 
 Last µs: divider period 27.7778 ns (reference 27.7778 ns, +2.5 ppm) → **locked**; VCO 3.45599 GHz (target 3.456); pump output 0.3991 V, V_tune at the VCO 0.3981 V; UP 3.16 ns, DN 0.29 ns per cycle (D18: UP ≈ 2.8 + 0.25 ns, DN ≈ 0.25 ns); divider edge 3.01 ns after the reference edge; VCO amplitude 0.929 V differential; bias node pbias 0.716 V.
 
+**V_tune 0.40 V vs the D20 monitor / calibration model:** this run uses a **fixed** band code (125) for the integer-N interface check, not the nearest-code calibrator. With D20, one band step is 0.24–0.29 V of V_tune, so a fixed code can land anywhere in a ~0.25 V slice of the 0.25–0.95 V window. The behavioural model with nearest-code cal lands in **0.34–0.82 V** (≥ 0.09 V inside the window edges). Margin from 0.40 V to the planned low monitor threshold (≈ 0.30 V) is **0.10 V** — about 0.3–0.4 of a band step — so a fixed-code test point can sit near the flag without meaning calibrated channels do. The V_tune monitor design should keep the low threshold at ≈ 0.30 V (below the calibrated floor 0.34 V) and treat 0.40 V as a band-dependent fixed-code case, not a calibration failure.
+
 ## Bias bypass (sequencer timing)
 
-vbp high until 1.00 µs; at open: vco_nbf = 0.794 V, vco_nb = 0.961 V (residue vs mirror 17.4 %; target ≤ ~0.1 % for ≥ 6–7 τ); vco_nbf at end of run = 0.839 V.
+vbp high until 1.00 µs; at open: vco_nbf = 0.794 V, vco_nb = 0.961 V (I·Ron drop while charging; Ron ≈ 30 Ω, see `spec/vco-topology.md`); vco_nbf at end of run = 0.839 V. Closed time ≫ 7 τ of the bypassed RC (τ ≈ 1.6 ns).
 
