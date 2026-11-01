@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Tapped L2n0 GDS: clone two-port cell, add CT via on the north track + port 203.
+"""Tapped L2n0 GDS: CT via on the outer-turn bottom segment.
 
-The two-port octagon is a single wide ring (L134). Ports P/N are south; the
-electrical midpoint of the winding is the north track centre ≈ (0, 273) µm.
-CT via lands there (same 10.8 µm via size as the existing TM1↔L134 vias).
-TM1 stub runs south to a new port marker on layer 203.
+Port arrangement: P (left) / N (right) at the south. The electrical midpoint
+is on the outer turn's bottom flat at x=0 — NOT the north crossover (that
+taps ~1/4 and ~3/4). CT y is set to the R-midpoint of the P–N path on that
+flat (inner edge of the south track), so R(P–CT)≈R(N–CT)≈R(P–N)/2.
+
+Keep the CT stub clear of the TM1 underpass at the north X and of the P/N leads.
 """
 import os
 import sys
@@ -26,34 +28,36 @@ def main():
     def um(u):
         return int(round(u / dbu))
 
-    l_tm1 = layout.layer(126, 0)   # TopMetal1 leads
-    l_via = layout.layer(133, 0)   # vias TM1↔L134
-    l_p3 = layout.layer(203, 0)    # CT port marker
+    l_tm1 = layout.layer(126, 0)
+    l_via = layout.layer(133, 0)
+    l_p3 = layout.layer(203, 0)
 
-    # North-track electrical mid. Metal at x=0 spans y≈262..279; a narrow
-    # bridge at y≈269..271 is only ~17 µm wide, so the CT via is 8 µm
-    # (existing P/N vias are ~10.8 µm and sit off-centre on the wide flats).
-    cx, cy = 0.0, 270.25
-    via = 8.0
+    # Outer-turn bottom flat at x=0: L134 y ≈ 30.0 .. 41.75 µm.
+    # P–N shortest-path midpoint is at the inner edge (y≈41.75). Place a
+    # 0.9 µm TopVia2 with its top on that edge so the via stays on metal.
+    cx = 0.0
+    via = 0.9
+    y_top = 41.75
+    cy = y_top - via / 2  # 41.30
+    stub_w = 8.0  # clear of P/N leads (|x| edge ≈ 22 µm)
+    y_port = 0.0
+    y_stub_top = y_top
 
-    # TM1 stub: from north track down to south port row (y=0), 12 µm wide
-    # like the existing P/N leads. Overlaps the existing top TM1 bar.
-    w = 12.0
     top.shapes(l_tm1).insert(
-        pya.Box(um(cx - w / 2), um(0.0), um(cx + w / 2), um(cy + via / 2)))
+        pya.Box(um(cx - stub_w / 2), um(y_port),
+                um(cx + stub_w / 2), um(y_stub_top)))
 
-    # Via centred on north-track bridge — must sit fully on L134 metal
     top.shapes(l_via).insert(
         pya.Box(um(cx - via / 2), um(cy - via / 2),
                 um(cx + via / 2), um(cy + via / 2)))
 
-    # Port 3 rectangle at south, between P and N (same height as 201/202)
     top.shapes(l_p3).insert(
         pya.Box(um(cx - 6.0), um(0.0), um(cx + 6.0), um(4.0)))
 
     layout.write(OUT)
     print(f"Wrote {OUT}")
-    print(f"CT via at ({cx}, {cy}) µm, size {via} µm; TM1 stub w={w} µm.")
+    print(f"CT via at ({cx}, {cy}) µm, size {via} µm; "
+          f"TM1 stub w={stub_w} µm from y={y_port} to {y_stub_top:.2f}.")
     return 0
 
 

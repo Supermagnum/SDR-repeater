@@ -1,31 +1,25 @@
-# Tapped L2n0 — DRC + via review (pre-EM)
+# Tapped L2n0 — CT on outer-turn bottom (pre-EM)
 
-Date: 2026-11-01
+Date: 2026-11-01 (revised)
 
-## Via placement
+## Placement
 
-- CT via on layer 133 at **(0, 270.25) µm**, size **8.0 µm** (north-track bridge; 10.8 µm would overhang the ~17 µm-wide crossover neck).
-- L134 coverage of the via box: **100 %** (checked with KLayout `Region` intersection before DRC).
-- TM1 stub (layer 126, 12 µm wide) from the via south to port row y=0.
-- Port marker layer **203** between P (201) and N (202).
+- Previous north-crossover via tapped ~1/4 and ~3/4 of the winding and the long TM1 stub overlapped the underpass (shorting the X). Removed.
+- **CT via** on the outer-turn bottom flat at **(0, 41.30) µm**, size **0.9 µm** (top edge on the P–N path midpoint at y=41.75). L134 coverage **100 %**.
+- **Short TM1 stub** (8 µm wide) from the via south to port 203 only — clear of P/N leads and of the north underpass.
 
-## Renders (for owner review)
+## Pre-EM checks (`check_tapped_nets.py`)
+
+See `net_r_check.txt`.
+
+| Check | Result |
+|---|---|
+| TM1 nets P / N / CT distinct | PASS |
+| CT stub ∩ north underpass | NONE |
+| CT via on L134 | 100 % |
+| R(P–CT) ≈ R(N–CT) ≈ R(P–N)/2 within 2 % | PASS (arms 1.34 %, vs half 0.67 %) |
+
+## Renders
 
 - `L_2n0_tapped_review.png` — full cell
-- `L_2n0_tapped_via_zoom.png` — north crossover + CT via
-- `L_2n0_tapped_full.png` — same as review
-
-## DRC
-
-IHP SG13G2 `--minimum_drc --no_density` via `run_drc.py` on `tapped/L_2n0_tapped.gds`, topcell `L_2n0_tapped`, results under `tapped/out/drc/`.
-
-Density rules skipped (EM GDS is not a full chip; density waived for this pre-EM check).
-
-### Result
-
-| Rule | Count | Notes |
-|---|---|---|
-| **TV2.a** (TopVia2 width = 0.9 µm min/max) | **10** | All five via aggregates (4 pre-existing P/N crossover vias ≈10.8 µm + new CT via 8.0 µm). EM GDS draws via *arrays* as solid rectangles; foundry rule wants 0.9 µm singles. **Same class as the two-port baseline** — not a new CT-only failure. |
-| Other minimum-DRC tables | 0 | No TM1/TM2 width/space, enclosure, or filler hits on the CT stub. |
-
-CT via is fully enclosed by L134 (100 % coverage check) and by the TM1 stub. Safe to proceed to EM after owner PNG review.
+- `L_2n0_tapped_via_zoom.png` — south CT via + stub
