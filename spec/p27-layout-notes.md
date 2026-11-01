@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **notes only, 2026-10-31.** Layout has not started. Owner: P2.7 may begin with open IHP LVS issues #861, #753 and #512; document a workaround for each and re-check when the PDK pin moves (`decisions.md` 2026-10-31).
+Status: **notes, 2026-11-01.** Layout of VCO/dividers/PLL has not started. **Tapped L2n0 EM done** (see below). Owner: P2.7 may begin with open IHP LVS issues #861, #753 and #512; document a workaround for each and re-check when the PDK pin moves (`decisions.md` 2026-10-31).
 
 ## Before the first P2.7 run
 
@@ -35,6 +35,18 @@ LDO compensation closed 2026-11-01: Rz=500 Ω + **Cg=100 pF** to gnd (Miller-to-
 
 **Cg area budget (layout):** 100 pF → **≈ 0.0125 mm²** as thin-oxide MOS (≈ 8 fF/µm²; ~112 µm square) or **≈ 0.067 mm²** as MIM (1.5 fF/µm²; ~258 µm square). Prefer MOS for the error-amp gate cap unless a later noise/linearity check forces MIM. On-chip LDO Cout remains a small MIM (~100 fF class); the board 100 nF is off-chip.
 
+## Tapped L2n0 EM ✅ (2026-11-01) [EM]
+
+CT via at outer-turn bottom midpoint; short TM1 stub to CT port; clear of underpass and P/N. Pre-EM: three distinct TM1 nets; R(P–CT) ≈ R(N–CT) ≈ R(P–N)/2 within 2 % (`tapped/review/net_r_check.txt`). Palace 3-port:
+
+| f (GHz) | L (nH) | Q | \|V_CT / V_diff\| |
+|---|---|---|---|
+| 3.1 | 1.685 | 14.13 | ≤ 0.0036 |
+| 3.5 | 1.690 | 15.15 | ≤ 0.0036 |
+| 4.2 | 1.703 | 16.66 | ≤ 0.0036 |
+
+All within 2 % of untapped baseline. **[HAND]** 1.4 % lower Q at 4.2 GHz → ≈ 0.1 dB PN at ss 85 °C; remaining margin ≈ +3.5 dB. Details: `spec/provisional-tank-q.md`, `tapped/review/em_summary.md`.
+
 ## Layout scope (from `spec/phase2-plan.md`)
 
-VCO, dividers and PLL in KLayout/Magic; DRC/LVS; PEX; tapped L2n0 EM; LO routing EM and post-layout pnoise; integer-boundary coupling target raw ≤ −35 dBc (VHF) / −15 dBc (UHF) at the VCO. Every schematic from here: xschem `.sch` with SVG/PDF export; layouts `.gds.gz` with reports and rendered pictures.
+VCO, dividers and PLL in KLayout/Magic; DRC/LVS; PEX; ~~tapped L2n0 EM~~ **done**; LO routing EM and post-layout pnoise; integer-boundary coupling target raw ≤ −35 dBc (VHF) / −15 dBc (UHF) at the VCO. Every schematic from here: xschem `.sch` with SVG/PDF export; layouts `.gds.gz` with reports and rendered pictures.

@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""Extract tapped-L2n0 gates from a Palace 3-port S CSV.
+"""Extract tapped-L2n0 gates from a Palace 3-port S CSV (dB/deg, f in GHz).
 
-Baseline (P2.0 palF1 design, reports/phase2-review/p20-stage2.md):
-  L ≈ 1.69 nH; Q 14.2 / 15.3 / 16.9 at 3.12 / 3.5 / 4.2 GHz.
+Baseline (P2.0 palF1 design): L ≈ 1.69 nH; Q 14.2 / 15.3 / 16.9 at 3.12 / 3.5 / 4.2 GHz.
 
 Gates:
-  - two-port mode (CT open): |L-L0|/L0 ≤ 2 %, |Q-Q0|/Q0 ≤ 2 %
-  - |V(CT)/Vdiff| under differential drive (CT open) ≈ 0 (report; soft < 0.05)
+  - two-port mode (CT open): |ΔL| ≤ 2 %, |ΔQ| ≤ 2 %
+  - |V(CT)/Vdiff| under differential drive (CT open) < 0.05
 """
 import json
 import math
@@ -15,7 +14,6 @@ import sys
 
 import numpy as np
 
-# Accepted P2.0 design values (de-embedded palF1)
 BASE = {
     3.12e9: {"L_nH": 1.69, "Q": 14.2},
     3.50e9: {"L_nH": 1.69, "Q": 15.3},
@@ -23,8 +21,16 @@ BASE = {
 }
 
 
+def dbdeg_to_c(mag_db, ang_deg):
+    mag = 10 ** (mag_db / 20.0)
+    ang = math.radians(ang_deg)
+    return mag * complex(math.cos(ang), math.sin(ang))
+
+
 def read_palace_s(path):
-    """Return freq_Hz array and S[f, i, j] complex (1-indexed ports → 0-based)."""
+    """Palace port-S.csv: f(GHz), then |Sij|(dB), arg(Sij)(deg) in order
+    S11,S21,S31, S12,S22,S32, S13,S23,S33.
+    """
     header = None
     rows = []
     with open(path) as fh:
@@ -33,21 +39,19 @@ def read_palace_s(path):
             if not line:
                 continue
             if header is None:
-                header = [h.strip() for h in line.split(",")]
+                header = line
                 continue
             rows.append([float(x) for x in line.split(",")])
     data = np.array(rows)
-    # Palace port-S.csv: freq_Hz then Re/Im pairs for Sij
-    freq = data[:, 0]
-    # Detect n ports from column count: 1 + 2*n*n
-    ncols = data.shape[1]
-    n2 = (ncols - 1) // 2
-    n = int(round(math.sqrt(n2)))
+    freq = data[:, 0] * 1e9  # GHz → Hz
+    n = 3
     S = np.zeros((len(freq), n, n), dtype=complex)
     col = 1
-    for i in range(n):
-        for j in range(n):
-            S[:, i, j] = data[:, col] + 1j * data[:, col + 1]
+    # columns: for j in 0..2: for i in 0..2: |S[i][j]|, arg
+    for j in range(n):
+        for i in range(n):
+            S[:, i, j] = [dbdeg_to_c(data[k, col], data[k, col + 1])
+                          for k in range(len(freq))]
             col += 2
     return freq, S
 
@@ -59,8 +63,6 @@ def s_to_z(S, z0=50.0):
 
 
 def open_port3_2port(S3):
-    """Reduce 3-port S to 2-port with port 3 open."""
-    # S'_ij = S_ij + S_i3 * S_3j / (1 - S_33)
     den = 1.0 - S3[2, 2]
     Sp = np.zeros((2, 2), dtype=complex)
     for i in range(2):
@@ -75,15 +77,13 @@ def zdiff_from_s2(S2, z0=50.0):
 
 
 def vct_over_vdiff(S3, z0=50.0):
-    """|V3 / (V1-V2)| with I1=-I2, I3=0."""
     Z = s_to_z(S3, z0)
-    # V = Z I, I = [1, -1, 0]
     I = np.array([1.0, -1.0, 0.0])
     V = Z @ I
     vdiff = V[0] - V[1]
     if abs(vdiff) < 1e-30:
         return float("nan")
-    return abs(V[2] / vdiff)
+    return float(abs(V[2] / vdiff))
 
 
 def nearest(freq, target):
@@ -109,8 +109,8 @@ def main():
         Sp = open_port3_2port(S[i])
         zd = zdiff_from_s2(Sp)
         omega = 2 * math.pi * f
-        L = zd.imag / omega
-        Q = zd.imag / zd.real if zd.real != 0 else float("nan")
+        L = float(zd.imag / omega)
+        Q = float(zd.imag / zd.real) if zd.real != 0 else float("nan")
         dL = (L * 1e9 - base["L_nH"]) / base["L_nH"] * 100
         dQ = (Q - base["Q"]) / base["Q"] * 100
         vct = vct_over_vdiff(S[i])
@@ -125,7 +125,7 @@ def main():
         )
         results.append(dict(
             f_Hz=f, L_nH=L * 1e9, Q=Q, dL_pct=dL, dQ_pct=dQ,
-            vct_over_vdiff=vct, lq_ok=lq_ok, vct_ok=vct_ok,
+            vct_over_vdiff=vct, lq_ok=bool(lq_ok), vct_ok=bool(vct_ok),
         ))
 
     lines.append("")
@@ -133,12 +133,12 @@ def main():
     text = "\n".join(lines) + "\n"
     print(text)
     if out_json:
-        os.makedirs(os.path.dirname(out_json) or ".", exist_ok=True)
+        os.makedirs(os.path.dirname(os.path.abspath(out_json)) or ".",
+                    exist_ok=True)
         open(out_json, "w").write(json.dumps(
-            {"results": results, "pass": all_ok}, indent=2))
-        md = out_json.replace(".json", ".md")
-        if md.endswith(".md"):
-            open(md, "w").write(text)
+            {"results": results, "pass": bool(all_ok)}, indent=2))
+        md = out_json.rsplit(".", 1)[0] + ".md"
+        open(md, "w").write(text)
     return 0 if all_ok else 1
 
 
