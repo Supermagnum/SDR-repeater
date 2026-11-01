@@ -1,0 +1,9 @@
+# PSS vs which bypass devices are present (tt 4.20 GHz)
+
+| Devices | PSS |
+|---|---|
+| none | PASS |
+| tail | PASS |
+| var | PASS |
+| bank | FAIL |
+| all | FAIL |

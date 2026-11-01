@@ -1,0 +1,14 @@
+# VCO pnoise — bank bypass MOS omitted (tail+var present)
+
+Full current schematic includes bank bypasses; those alone break PSS. This run keeps tail and varactor bypass devices with vbp=0.
+
+  tt_3.65: code 91, I_tail 3.96 mA …
+  pss failed (reltol=1e-6 pss_tolscale=1e-3, 16000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+  ss85_4.20: code 21, I_tail 3.59 mA …
+
+tail+var bypass, no bank (dBc/Hz)
+
+| Band | f (GHz) | Code | I_tail (mA) | Amplitude (V) | L @ 0.1 MHz | L @ 0.3 MHz | L @ 0.6 MHz | L @ 1 MHz | L @ 2 MHz | L @ 10 MHz | Worst margin |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| tt_3.65 | 3.655 | 91 | 3.96 | 1.171 | -92.7 | -107.6 | -116.8 | -122.7 | -129.6 | -144.1 | +6.7 dB (VHF 1 MHz) |
+| ss85_4.20 | 4.213 | 21 | 3.59 | 1.260 | -87.9 | -103.4 | -113.1 | -119.4 | -126.7 | -141.4 | +3.4 dB (VHF 1 MHz) |

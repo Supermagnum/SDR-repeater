@@ -1,0 +1,10 @@
+code=91 itail=3.96 mA ref bank-omitted −122.7 dBc/Hz
+
+PROBE C: FAIL ['PSS analysis failed.', "Analysis 'pn' aborted."]
+PROBE C_Roff: FAIL ['PSS analysis failed.', "Analysis 'pn' aborted."]
+PROBE C_Roff_Rsh: FAIL ['PSS analysis failed.', "Analysis 'pn' aborted."]
+code=91 itail=3.96
+
+FAIL bank_only_C: ['PSS analysis failed.', "Analysis 'pn' aborted."]
+FAIL all_C_0p1: ['PSS analysis failed.', "Analysis 'pn' aborted."]
+FAIL bank_only_C_0p1: ['PSS analysis failed.', "Analysis 'pn' aborted."]

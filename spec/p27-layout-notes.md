@@ -4,7 +4,9 @@ Status: **notes only, 2026-10-31.** Layout has not started. Owner: P2.7 may begi
 
 ## Before the first P2.7 run
 
-VACASK SCH re-run done 2026-10-31 (`reports/sch-rerun-2026-10-31.md`): VCO range pass; LO UHF tt pass; PLL 2 µs smoke pass; UHF LO floor −155.7 dBc/Hz pass. **Known gap:** VCO `pss`/`pnoise` does not converge on this pin/image (worst corner and tt smoke; both scripted `pss_minpts`). File-backed PN: `analog/vco/step3/out/summary_8bit.txt` / `summary_4ma.txt`.
+VACASK SCH re-run done 2026-10-31 (`reports/sch-rerun-2026-10-31.md`): VCO range pass; LO UHF tt pass; PLL 2 µs smoke pass; UHF LO floor −150.1 dBc/Hz (full ÷2+Johnson) pass.
+
+**VCO pnoise:** off-state **bank** bypass MOS break VACASK PSS (`summary_pss_bypass_parts.txt`; tail/var OK). Bank-omitted PN accepted to start layout: tt 3.65 −122.7 / ss85 4.20 −119.4 dBc/Hz @ 1 MHz (`summary_pn_nobank.txt`). Linear off-state bank equivalent extracted but PSS still fails (C+R+Rsh, C-only, bank-only, 0.1×C — `summary_pn_banklin.txt` / `summary_probe_banklin.txt`); **STOP** vs the ≤0.5 dB gate. Do not use that equivalent for P2.7 PEX PN until PSS converges. **Layout order:** VCO, dividers and PLL may start (VCO on bank-omitted PN).
 
 P2.6 open points 2 (bypass), 1 (V_tune monitor, option B), and 3 (UHF LO floor) closed 2026-10-31.
 

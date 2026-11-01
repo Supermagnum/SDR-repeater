@@ -1,0 +1,18 @@
+Loaded out/bank_bypass_off.json: R_off=6.185e+06 C_ds=3.25 fF R_shot=1.714e+06 I_leak=4.003e-08 A
+
+# VCO pnoise — linear off-state bank bypass (tail+var MOS)
+
+Compare to bank-omitted L@1 MHz; stop if |Δ| > 0.5 dB.
+
+  tt_3.65: code 91, I_tail 3.96 mA …
+  pss failed (reltol=1e-6 pss_tolscale=1e-3, 8000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+  pss failed (reltol=1e-6 pss_tolscale=1e-3, 16000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+  STOP: PSS failed for tt_3.65
+
+linear bank bypass (dBc/Hz)
+
+| Band | f (GHz) | Code | I_tail (mA) | Amplitude (V) | L @ 0.1 MHz | L @ 0.3 MHz | L @ 0.6 MHz | L @ 1 MHz | L @ 2 MHz | L @ 10 MHz | Worst margin |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| tt_3.65 | — | 91 | 3.96 | pss failed |
+RESULT: STOP — see Δ or PSS failure above.
+

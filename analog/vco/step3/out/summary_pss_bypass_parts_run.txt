@@ -1,0 +1,7 @@
+code=20 itail=3.59 mA
+PARTS none: PSS OK amp=1.311 f=4.2200
+PARTS tail: PSS OK amp=1.311 f=4.2200
+PARTS var: PSS OK amp=1.310 f=4.2165
+PARTS bank: FAIL ['PSS analysis failed.', "Analysis 'pn' aborted."]
+PARTS all: FAIL ['PSS analysis failed.', "Analysis 'pn' aborted."]
+wrote out/summary_pss_bypass_parts.txt {'none': True, 'tail': True, 'var': True, 'bank': False, 'all': False}

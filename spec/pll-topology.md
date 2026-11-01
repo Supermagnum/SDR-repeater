@@ -384,7 +384,7 @@ All within the 150 µs maximum of `spec/rf-frontend.md` (50 µs typical is met o
 
 **LO floor, first trial:** the noisy transient failed at once (NR / timestep too small) in both bands. Second version: noiseless warm-up, then the noisy transient from the stored state, as in the validated level 2 — the VHF operating point then failed (DC supplies) and the UHF noisy transient failed again. Third version: warm-up from the all-zero state (power-on step), noisy transient with 50 / 20 / 10 GHz noise bandwidth in turn. If transient noise does not run on these regenerative / dynamic circuits either, the P2.4 hand estimate (−157 / −161 dBc/Hz) stays; it is 15–20 dB below the other contributors at the duplex offsets, so it does not decide the result.
 
-**LO floor, third version `[SCH]`:** VHF (4.20 GHz → 175 MHz, tt) ran with the full 50 GHz noise bandwidth: **−154.9 / −154.0 / −155.5 dBc/Hz** at 1–3 / 3–10 / 10–30 MHz (flat, so a true floor), 200 fs rms jitter, numerical floor −190.5 dBc/Hz; 1 µs, 158 edges, so about ±1–2 dB of statistical spread. That is 7 dB above the P2.4 hand estimate (−161) but still 4 dB inside the −150 target. UHF (3.84 GHz → 480 MHz): the **full** noisy transient does not converge at 50 / 20 / 10 GHz (Johnson TSPC at 1.92 GHz). **Open point 3 (2026-10-31):** UHF truncated after the converter (no Johnson) converges at 50 GHz; LO-referred **−158.9 / −155.7 / −158.0 dBc/Hz** (`run_uhf_floor.py`). Johnson CMOS is omitted there; even adding the VHF floor in quadrature still stays ≤ −150.
+**LO floor, third version `[SCH]`:** VHF (4.20 GHz → 175 MHz, tt) ran with the full 50 GHz noise bandwidth: **−154.9 / −154.0 / −155.5 dBc/Hz** at 1–3 / 3–10 / 10–30 MHz (flat, so a true floor), 200 fs rms jitter, numerical floor −190.5 dBc/Hz; 1 µs, 158 edges, so about ±1–2 dB of statistical spread. That is 7 dB above the P2.4 hand estimate (−161) but still 4 dB inside the −150 target. UHF (3.84 GHz → 480 MHz): the full chain (buffer + CML ÷2 + AC converter + Johnson ÷4) aborts at 50 / 20 / 10 GHz noise BW (“timestep too small”) but **converges at 5 GHz** (2026-10-31): LO-referred **−149.4 / −150.1 / −151.4 dBc/Hz** at 1–3 / 3–10 / 10–30 MHz, 189 fs rms, 432 edges (`run_uhf_floor.py`). **Open point 3 closed** with this full-chain floor (−150.1 ≤ −150).
 
 **Total phase noise at the duplex offset `[MODEL]`** (D19 loop, simulated VCO per band, charge pump FoM −203.8 dBc/Hz / 79 kHz, LO floors above; reference TCXO and Σ-Δ as P2.2):
 
@@ -392,8 +392,8 @@ All within the 150 µs maximum of `spec/rf-frontend.md` (50 µs typical is met o
 |---|---|---|---|
 | VHF 130 MHz (600 kHz) | −141.7 dBc/Hz (+5.7 dB) | −142.0 (+6.0) | VCO, R, CP about equal |
 | **VHF 175 MHz (600 kHz)** | **−138.8 (+2.8 dB)** | −139.0 (+3.0) | VCO −141.6, R −145.3, CP −146.4 |
-| UHF 400 MHz (2 MHz) | −145.2 (+9.2) | −145.3 (+9.3) | VCO, LO floor |
-| UHF 480 MHz (2 MHz) | −143.7 (+7.7) | −143.8 (+7.8) | VCO −145.5, LO floor −150 |
+| UHF 400 MHz (2 MHz) | −145.3 (+9.3) | −145.3 (+9.3) | VCO −147.8; LO floor −150.1 |
+| UHF 480 MHz (2 MHz) | −143.7 (+7.7) | −143.8 (+7.8) | VCO −145.5; LO floor −150.1 |
 
 All band edges meet the 25 W limit (−136 dBc/Hz); the 5 W limit (−129) with 10 dB or more. The tightest case is the top of VHF, where the VCO (its weakest band) dominates; the next two items are the loop-filter resistors and the charge pump. **Step 2 done.** Next: step 3 (transistor-level interface check), step 4 (spurs and summary), and the V_tune monitor comparators (D20).
 
@@ -436,7 +436,7 @@ The R3 / C3 pole (≈ 480 kHz) takes 36–38 dB off the offset-current ripple at
 |---|---|
 | (2) Start-up bypass + sequencer | **Done 2026-10-31** — NMOS across all VCO bias resistors (`vbp` / `en_vco_bias_bp`); `afe_seq` 36 cycles closed (≥ 0.4 µs); D15 lodiv at 48 cycles; closed-loop deck uses sequencer timing (`analog/pll/p26/wake_timing.py`, `rtl/afe/afe_seq.sv`, `spec/analog-digital-interface.md` §6). Ron ≈ 30 Ω (tail) / 140 Ω (bank) `[SCH]`; 1 µs ≫ 7 τ even at ss / −40 °C (`spec/vco-topology.md`) |
 | (1) V_tune window monitor (D20) | **Done 2026-10-31** `[SCH]` — option **B**. Thresholds **0.28 / 0.775 V**, normal hyst (~42–52 mV). Corner×mismatch (n=30): lo_fall+3σ ≤ 0.318 V; **ss hi_rise+3σ = 0.818 V ≤ 0.82 V**; tt/ss hi_fall−3σ ≥ cal landing top (tt 0.74 / ss 0.67); ff may trip below ff cal top 0.82 V (accepted). Low vs pump bottom: lo_fall−3σ ≥ 0.307 V vs 0.25 V all corners (**PASS**, `out/summary_lo_pump.txt`). I_VDD ≈ 10 µA. Firmware rules: `spec/analog-digital-interface.md` §6. Deck: `analog/pll/vtune_mon/`; sync `rtl/afe/vtune_sync.sv`. |
-| (3) UHF LO floor method | **Done 2026-10-31** `[SCH]` — truncated UHF path (buffer + CML ÷2 + AC converter, no Johnson TSPC); same warm-up + ZOH transient noise as VHF. LO-referred floor (÷4 −12 dB) **−158.9 / −155.7 / −158.0 dBc/Hz** at 1–3 / 3–10 / 10–30 MHz (tt, 50 GHz noise BW, 1728 edges) ≤ −150. Deck: `analog/pll/p26/step2/run_uhf_floor.py`, `out/summary_uhf_floor.txt`. Total PN with this floor: UHF −146.5 / −144.6 dBc/Hz (36 MHz ref). Not a P2.7 blocker. |
+| (3) UHF LO floor method | **Done 2026-10-31** `[SCH]` — **full** UHF chain (buffer + CML ÷2 + AC converter + Johnson ÷4 / retiming). Warm-up + ZOH transient noise; converges at noisefmax **5 GHz** (50/20/10 GHz abort). LO-referred **−149.4 / −150.1 / −151.4 dBc/Hz** at 1–3 / 3–10 / 10–30 MHz (tt, 432 edges) ≤ −150. Deck: `run_uhf_floor.py`, `out/summary_uhf_floor.txt`. Totals: UHF −145.3 / −143.8 dBc/Hz (36 MHz ref). Not a P2.7 blocker. |
 | (4) CP in-band noise | No action unless required |
 
 P2.7 notes / LVS workarounds: `spec/p27-layout-notes.md`.

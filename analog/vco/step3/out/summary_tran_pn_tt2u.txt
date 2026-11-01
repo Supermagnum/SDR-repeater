@@ -1,0 +1,22 @@
+# VCO transient-noise phase noise (pn-validation method)
+
+Noiseless warm-up 80 ns, noisy ZOH 2 us, noisefmax stepped 50G/20G/10G/5G. Bypass MOS present (current schematic).
+
+  tt_3.65: code 91, I_tail 3.96 mA, target 3.65 GHz @ 27 C, bypass=on
+  fail nf=50G: ['Timestep too small. Transient analysis aborted.', "Analysis 'tn' aborted."]
+  fail nf=20G: ['Timestep too small. Transient analysis aborted.', "Analysis 'tn' aborted."]
+  fail nf=10G: ['Timestep too small. Transient analysis aborted.', "Analysis 'tn' aborted."]
+  fail nf=5G: ['Timestep too small. Transient analysis aborted.', "Analysis 'tn' aborted."]
+  transient failed all noisefmax: ['Timestep too small. Transient analysis aborted.', "Analysis 'tn' aborted."]
+  retry without bypass MOS (diagnostic only)…
+  tt_3.65: code 91, I_tail 3.96 mA, target 3.65 GHz @ 27 C, bypass=off
+  fail nf=50G: ['Timestep too small. Transient analysis aborted.', "Analysis 'tn' aborted."]
+  fail nf=20G: ['Timestep too small. Transient analysis aborted.', "Analysis 'tn' aborted."]
+  fail nf=10G: ['Timestep too small. Transient analysis aborted.', "Analysis 'tn' aborted."]
+  fail nf=5G: ['Timestep too small. Transient analysis aborted.', "Analysis 'tn' aborted."]
+  transient failed all noisefmax: ['Timestep too small. Transient analysis aborted.', "Analysis 'tn' aborted."]
+
+| Case | f (GHz) | Code | I_tail (mA) | Amp (V) | nf | L@1 MHz (fit) | L@0.1 | L@0.3 | L@0.6 | L@1 | L@2 | L@10 | Worst margin |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tt_3.65 | — | — | — | transient failed |
+

@@ -1,0 +1,9 @@
+# VCO PSS A/B — start-up bypass MOS present vs removed
+
+tt / cap_typ / 27 C, 4.20 GHz, code 20, I_tail 3.59 mA
+pss_minpts=8000, reltol=1e-6 pss_tolscale=1e-3
+
+| Case | Result |
+|---|---|
+| bypass MOS present (vbp tied 0) | PSS failed |
+| bypass MOS removed | PASS |

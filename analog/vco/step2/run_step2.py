@@ -113,24 +113,65 @@ def side(c_ff):
     return math.sqrt(c_ff / CAP_AREA)
 
 
-def bias_bypass_switches(nbits=None):
-    """NMOS across every VCO bias resistor; gate node vbp (1.2 V = closed). P2.6 open point 2."""
+# Off-state bank bypass linear equivalent (extract_bank_bypass_off.py, mos_ff/125 °C leakage).
+# Used for PSS / post-layout PN when real off MOS break the shooting method.
+BANK_OFF = dict(roff=6.185e6, c_ds=3.25e-15, c_db=0.0, c_sb=1.34e-15, r_shot=1.714e6)
+
+
+def bias_bypass_bank_linear(nbits=None, p=None):
+    """R_off, junction C, and shot-equivalent noisy R (ff-hot I_leak) per bank bypass finger.
+
+    R_shot (noisy) is placed in parallel with R_off (noiseless): DC ≈ R_off∥R_shot.
+    No series blocking C — a 100 pF coupler from the tank plate aborted the warm transient.
+    """
     nbits = NBITS if nbits is None else nbits
-    # Tail filter is off the tank: large switch (~1 kOhm). Bank/varactor nodes touch the tank:
-    # smaller switches to limit off-state capacitance (bypass time covers their RC).
-    lines = ["// start-up bias bypass: NMOS across rbf, rba*, rbb*, rvp, rvn; gate = vbp\n",
-             "mbp_rbf (nb vbp nbf 0) sg13_lv_nmos w=20u l=0.13u ng=4\n"]
-    for k in range(nbits):
-        lines.append(f"mbp_rba{k} (a{k} vbp bb{k} 0) sg13_lv_nmos w=5u l=0.13u ng=2\n"
-                     f"mbp_rbb{k} (b{k} vbp bb{k} 0) sg13_lv_nmos w=5u l=0.13u ng=2\n")
-    lines.append("mbp_rvp (vgp vbp vvb 0) sg13_lv_nmos w=5u l=0.13u ng=2\n"
-                 "mbp_rvn (vgn vbp vvb 0) sg13_lv_nmos w=5u l=0.13u ng=2\n")
+    p = dict(BANK_OFF if p is None else p)
+    lines = ["// off-state bank bypass linear equivalent (PSS / PEX PN)\n"]
+    for side, node in (("a", "a"), ("b", "b")):
+        for k in range(nbits):
+            n, bb = f"{node}{k}", f"bb{k}"
+            tag = f"{side}{k}"
+            lines.append(
+                f"roff_{tag} ({n} {bb}) resistor r={p['roff']:.6g}\n"
+                f"rsh_{tag} ({n} {bb}) resistor r={p['r_shot']:.6g} noisy=1\n"
+                f"cds_{tag} ({n} {bb}) capacitor c={p['c_ds']:.6g}\n"
+                f"csb_{tag} ({bb} 0) capacitor c={p['c_sb']:.6g}\n"
+            )
+            if p.get("c_db", 0) > 0:
+                lines.append(f"cdb_{tag} ({n} 0) capacitor c={p['c_db']:.6g}\n")
     return "".join(lines)
 
 
-def netlist(title, code, vtune, analysis, itail=ITAIL, extra="", drive_vbp=False):
+def bias_bypass_switches(nbits=None, groups=("tail", "bank", "var"), bank_mode="mos"):
+    """NMOS across VCO bias resistors; gate node vbp (1.2 V = closed). P2.6 open point 2.
+
+    groups: which switches to instantiate. bank_mode: \"mos\" (schematic) or \"linear\"
+    (off-state C_j / R_off / leakage-noise equivalent for PSS and post-layout PN).
+    """
+    nbits = NBITS if nbits is None else nbits
+    # Tail filter is off the tank: large switch (~1 kOhm). Bank/varactor nodes touch the tank:
+    # smaller switches to limit off-state capacitance (bypass time covers their RC).
+    lines = [f"// start-up bias bypass groups={','.join(groups)} bank_mode={bank_mode}; gate = vbp\n"]
+    if "tail" in groups:
+        lines.append("mbp_rbf (nb vbp nbf 0) sg13_lv_nmos w=20u l=0.13u ng=4\n")
+    if "bank" in groups:
+        if bank_mode == "linear":
+            lines.append(bias_bypass_bank_linear(nbits))
+        else:
+            for k in range(nbits):
+                lines.append(f"mbp_rba{k} (a{k} vbp bb{k} 0) sg13_lv_nmos w=5u l=0.13u ng=2\n"
+                             f"mbp_rbb{k} (b{k} vbp bb{k} 0) sg13_lv_nmos w=5u l=0.13u ng=2\n")
+    if "var" in groups:
+        lines.append("mbp_rvp (vgp vbp vvb 0) sg13_lv_nmos w=5u l=0.13u ng=2\n"
+                     "mbp_rvn (vgn vbp vvb 0) sg13_lv_nmos w=5u l=0.13u ng=2\n")
+    return "".join(lines)
+
+
+def netlist(title, code, vtune, analysis, itail=ITAIL, extra="", drive_vbp=False, bypass=True,
+            bypass_groups=("tail", "bank", "var"), bank_mode="mos"):
     """drive_vbp=False ties vbp low (bypass open) for stand-alone range/pnoise.
-    drive_vbp=True leaves vbp for the caller (sequencer / PWL in extra)."""
+    drive_vbp=True leaves vbp for the caller (sequencer / PWL in extra).
+    bank_mode=\"linear\": off-state bank bypass → C_j / R_off / leakage noise (PSS/PEX)."""
     ind, var = noisy_inductor(), svaricap()
     n = []
     n.append(f'include "{ind}"\ninclude "{var}"\n')
@@ -172,9 +213,13 @@ def netlist(title, code, vtune, analysis, itail=ITAIL, extra="", drive_vbp=False
              f"xv1 (vgp vt vgn 0) sg13_hv_svaricap_fx w=3.74u l=0.3u nx={NFING - NFING // 2}\n"
              f"xv2 (vgp vt vgn 0) sg13_hv_svaricap_fx w=3.74u l=0.3u nx={NFING // 2}\n"
              f"vtune (vt 0) vsource dc={vtune}\n")
-    n.append(bias_bypass_switches())
-    if not drive_vbp:
-        n.append("vbptie (vbp 0) vsource dc=0\n")
+    if bypass:
+        n.append(bias_bypass_switches(groups=bypass_groups, bank_mode=bank_mode))
+        need_vbp = "tail" in bypass_groups or "var" in bypass_groups or (
+            "bank" in bypass_groups and bank_mode != "linear")
+        if not drive_vbp and need_vbp:
+            n.append("vbptie (vbp 0) vsource dc=0\n")
+
     n.append("mb1 (op tp tb 0) sg13_lv_nmos w=10u l=0.13u ng=4\n"
              "mb2 (on tn tb 0) sg13_lv_nmos w=10u l=0.13u ng=4\n"
              "rl1 (vdd op) resistor r=400 noisy=1\nrl2 (vdd on) resistor r=400 noisy=1\n"

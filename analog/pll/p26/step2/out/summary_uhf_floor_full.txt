@@ -1,0 +1,5 @@
+# Full UHF LO chain floor (buffer + CML ÷2 + AC converter + Johnson ÷4)
+
+| Stage | Noise BW | L@LO 1–3 | L@LO 3–10 | L@LO 10–30 |
+|---|---|---|---|---|
+| full chain | 5G | -149.4 | -150.1 | -151.4 |

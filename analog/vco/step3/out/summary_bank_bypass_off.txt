@@ -1,0 +1,25 @@
+# Off-state bank bypass NMOS linear equivalent
+
+Device: sg13_lv_nmos w=5u l=0.13u ng=2, V_GS=0 (off).
+
+## ff / 125 °C (leakage corner)
+
+| V_DS (V) | |I_D| (A) | R_off (Ohm) |
+|---|---|---|
+| 0.05 | 8.084e-09 | 6.185e+06 |
+| 0.30 | 1.701e-08 | 1.764e+07 |
+| 0.60 | 2.523e-08 | 2.378e+07 |
+| 1.20 | 4.003e-08 | 2.998e+07 |
+
+C at 1 GHz, V_DS=0.6 V: C_d=3.24 fF, C_s=4.58 fF → C_ds≈3.24 fF, C_db≈0.00 fF, C_sb≈1.34 fF
+
+## tt / 27 °C (reference)
+R_off(50 mV)=1.536e+09 Ohm, I_leak(max)=1.754e-10 A, C_ds≈3.25 fF
+
+## Netlist parameters (bank_bypass_off.json)
+
+R_off = 6.185e+06 Ohm
+C_ds = 3.25 fF, C_db = 0.00 fF, C_sb = 1.34 fF
+I_leak (ff/125) = 4.003e-08 A → R_shot = 1.714e+06 Ohm at 398 K
+
+wrote out/bank_bypass_off.json

@@ -1,0 +1,6 @@
+# VCO transient-noise phase noise (pn-validation method)
+
+Noiseless warm-up 80 ns, noisy ZOH 10 us, noisefmax=50 GHz.
+
+  tt_3.65: code 91, I_tail 3.96 mA, target 3.65 GHz @ 27 C
+  transient failed: ['Timestep too small. Transient analysis aborted.', "Analysis 'tn' aborted."]
