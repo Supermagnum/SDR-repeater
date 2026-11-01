@@ -53,7 +53,7 @@ Status: **draft for human review, 2026-10-19.** It records how the signed-off di
 | `bclk_i` | I2S bit clock in slave mode. [RTL] |
 | Reset | `rst_n = !RESET_pin_sync && por_n`: the active-high SX1255 RESET pin (internal pull-down) combined with the analogue power-on reset. Asynchronous assertion, released through the two-flop synchroniser already in the back end; the AFE block uses the same scheme. |
 | `ref_36` | Pin-11 strap, latched by the back end at reset [RTL]; the AFE block reads the latched value from the back end (INFO[0]) or takes the same pin with its own reset latch. |
-| Supplies | Both digital blocks on VR_DIG (1.2 V). Analogue on VR_ANA1 (RX, LO) and VR_ANA2 (TX, DAC); PA driver on VR_PA. Separate supply and ground returns per domain; guard rings between the digital blocks and the LNA/VCO. |
+| Supplies | Both digital blocks on VR_DIG (1.2 V). Analogue: **VR_ANA1** = filtered VCO+LO+CP ~1.2 V (D21); **VR_ANA2** = TX/DAC and RX; PA driver on VR_PA. Separate supply and ground returns per domain; guard rings between the digital blocks and the LNA/VCO. |
 | Level shifting | Every signal between the 1.2 V digital domain and the 2.7–3.6 V pad domain or an analogue domain on another supply crosses a level shifter. The 1-bit converter lines are kept short and shielded. |
 
 ---

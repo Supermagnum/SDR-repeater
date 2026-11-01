@@ -1,0 +1,63 @@
+# D21 VR_ANA1 filtered LO rail — set / check / noise / stability
+
+Architecture: VBAT→LDO(sense vout)→R=10Ω→pad(VR_ANA1)→bond→100nF
+VCO+LO+CP from pad. No Kelvin. No option (1).
+
+# D21 pad voltage budget [HAND]
+
+I_typ (VHF 4.20) = 9.65 mA; R = 10 Ω
+Target V_pad = 1.200 V → V_LDO (sense) = 1.2965 V (Vref = 0.6482 V, β=1/2)
+IR_typ = 96.5 mV
+
+| Case | I (mA) | R (Ω) | V_LDO | V_pad |
+|---|---|---|---|---|
+| UHF typ | 8.30 | 10 | 1.2965 | 1.2135 |
+| VHF typ 4.20 | 9.65 | 10 | 1.2965 | 1.2000 |
+| VHF bottom | 9.80 | 10 | 1.2965 | 1.1985 |
+| ff max | 10.30 | 10 | 1.2965 | 1.1935 |
+
+ΔV_pad UHF→VHF typ: 13.5 mV (I 8.30→9.65 mA)
+ΔV_pad within VHF (4.20→bottom): 1.5 mV
+
+Worst-case V_pad = V_LDO_nom·(1−ε_L) − I_max·R_nom·(1+ε_R):
+
+| ε_LDO | ε_R | V_pad_min | ≥ 1.08 V |
+|---|---|---|---|
+| ±3% | ±15% | 1.1392 V | PASS |
+| ±3% | ±20% | 1.1340 V | PASS |
+| ±3% | ±30% | 1.1237 V | PASS |
+| ±5% | ±15% | 1.1132 V | PASS |
+| ±5% | ±20% | 1.1081 V | PASS |
+| ±5% | ±30% | 1.0978 V | PASS |
+
+Tightest in table: 1.0978 V. Recommended assume ±5% LDO / ±20% R → 1.1081 V.
+
+# Noise at pad, R=10 Ω, I=10 mA [SCH]
+
+| I | V_LDO | V_pad | S_v @ 1 MHz | vs 11 nV |
+|---|---|---|---|---|
+| typ 9.65 mA | 1.2950 | 1.1985 | 9.44 nV/√Hz | PASS |
+| 10 mA | 1.2948 | 1.1948 | 9.52 nV/√Hz | PASS |
+
+# Stability [SCH]
+
+acstb probe (+)=sense (OTA input), (−)=fb. Plus load-step transient on pad.
+
+| acstb with_100n | Vpad=1.198 | W_DC∠=-10° |W_DC|=614 | UGF≈1.16 MHz | PM≈-98.8° | CHECK |
+| acstb c_missing | Vpad=1.198 | W_DC∠=1° |W_DC|=625 | UGF≈21.13 MHz | PM≈-60.5° | CHECK |
+
+Load step 5→10 mA in 1 ns (tran):
+
+| load | ΔVpk (mV) | settle <1% of step by | note |
+|---|---|---|---|
+| with_100n | -45.6 | nan ns | ringing, zc≈4 |
+| c_missing | -8253.7 | nan ns | ringing, zc≈25; OSCILLATE? |
+
+# Summary
+
+V_LDO set = 1.2965 V → V_pad typ SCH ≈ 1.1985 V (target 1.20 V)
+S_v @ 1 MHz, 10 mA, R=10: 9.52 nV/√Hz (PASS vs 11)
+acstb with_100n: PM≈-98.8° @ 1.16 MHz
+acstb c_missing: PM≈-60.5° @ 21.13 MHz
+step step_with_100n: ΔVpk=-45.6 mV, zc≈4
+step step_c_missing: ΔVpk=-8253.7 mV, zc≈25

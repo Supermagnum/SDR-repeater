@@ -1,0 +1,129 @@
+# D10 LDO analysis — no schematic change yet
+
+# 1) Noise breakdown at 1 MHz — baseline D10 LDO [SCH]
+
+Baseline: ideal Vref (no bandgap noise), pair 16u/2u ng=4, Ibias=40 µA, Cout=50 pF MIM.
+
+Vout=1.098 V  S_v=86.5 nV/√Hz  (onoise=7.487e-15 V²/Hz)
+
+| Bucket | V²/Hz | nV/√Hz | % of total power |
+|---|---|---|---|
+| Reference (ideal Vref → 0) | 0.000e+00 | 0.0 | 0.0 |
+| Error-amp input pair (m1,m2) | 4.035e-16 | 20.1 | 5.4 |
+| Rest (pass, loads, feedback R, bias, Cout) | 7.083e-15 | 84.2 | 94.6 |
+| Total | 7.487e-15 | 86.5 | 100 |
+
+Top contributors:
+| Device | V²/Hz | nV/√Hz | bucket |
+|---|---|---|---|
+| n(rf1) | 3.279e-15 | 57.3 | rest |
+| n(rf2) | 3.279e-15 | 57.3 | rest |
+| n(m4:nsg13_lv_pmos) | 2.691e-16 | 16.4 | rest |
+| n(m3:nsg13_lv_pmos) | 2.498e-16 | 15.8 | rest |
+| n(m1:nsg13_lv_nmos) | 2.055e-16 | 14.3 | pair |
+| n(m2:nsg13_lv_nmos) | 1.981e-16 | 14.1 | pair |
+| n(mp:nsg13_lv_pmos) | 4.821e-18 | 2.2 | rest |
+| n(mt:nsg13_lv_nmos) | 9.417e-19 | 1.0 | rest |
+| n(mb:nsg13_lv_nmos) | 7.971e-19 | 0.9 | rest |
+| n(xout:rmim) | 2.981e-25 | 0.0 | rest |
+| n(xout:rskin) | 1.397e-33 | 0.0 | rest |
+| n(xout:rdummy) | 4.000e-42 | 0.0 | rest |
+
+# 2) Cheapest changes toward bare ≤ ~30 nV/√Hz [SCH]+[HAND]
+
+Do not adopt yet — analysis only. Ideal-Vref baseline has no reference noise;
+variants with noisy Thévenin Rth=10 kΩ stand in for a real bandgap.
+
+Note: mid-to-gnd C opens β at HF and *raises* S_v (cmid_2p shown once as reject).
+Ref RC / unity-gain buf / pair×4 alone cannot beat feedback-R dominance.
+
+| Variant | Vout | S_v (nV/√Hz) | ΔI_div (µA) | area proxy | note |
+|---|---|---|---|---|---|
+| base_ideal | 1.098 | 86.5 | +0.0 | 640 µm² | reg |
+| cmid_2p_reject | 1.098 | 98.8 | +0.0 | 1973 µm² | reg; REJECT mid-C |
+| pair_x4 | 1.099 | 83.5 | +0.0 | 2560 µm² | reg |
+| ref_rc_5p_buf | 0.550 | 106.1 | +20.0 | 4013 µm² | NO-REG |
+| rf_50k | 1.098 | 49.4 | +8.3 | 640 µm² | reg |
+| rf_20k | 1.098 | 38.1 | +24.8 | 640 µm² | reg |
+| rf_10k | 1.098 | 33.5 | +52.2 | 640 µm² | reg |
+| rf_5k | 1.097 | 30.9 | +107.2 | 640 µm² | reg |
+| rf_10k_mir_x4 | 1.091 | 36.8 | +52.2 | 8320 µm² | reg |
+| rf_10k_pair_mir | 1.092 | 26.9 | +52.2 | 10240 µm² | reg; ≤30 |
+| rf_5k_mir_x4 | 1.091 | 34.5 | +107.2 | 8320 µm² | reg |
+| noisy_rf_10k | 1.098 | 42.3 | +52.2 | 640 µm² | reg |
+| noisy_rf_5k_mir | 1.091 | 43.0 | +107.2 | 8320 µm² | reg |
+
+Cheapest ≤~30 nV proposal (analysis only): **rf_5k** → S_v=30.9 nV/√Hz, +107.2 µA, area proxy 640 µm².
+  Dominant fix: feedback R=5 kΩ each (divider 110.0 µA; baseline 2.75 µA). rf1/rf2 dominate baseline noise — area-free.
+  Alt (lower S_v, more area): rf_10k_pair_mir → 26.9 nV, +52.2 µA, area 10240 µm².
+
+# 3) Option C on VR_ANA1 pad + board 100 nF [SCH]+[HAND]
+
+Network: LDO_out — R — pad — L_bond — board_C(100 nF) to ground.
+VCO centre-tap from **pad** (chip side of bond). Pad+ESD ≈ 2 pF.
+
+R=5 Ω, L=1 nH: S_v(pad)=8.8 nV/√Hz @ 1 MHz, Vpad=1.073 V, IR=25.0 mV
+  f0≈15.92 MHz, Z0≈0.10 Ω, ζ≈25.0 (overdamped, Q≈0.02)
+  |H|_RC LDO→pad @ 1 MHz ≈ 0.303; |Z_pad| @ 1 MHz = 1.440 Ω, peak 1.440 Ω @ 1.0 MHz
+R=5 Ω, L=2 nH: S_v(pad)=8.8 nV/√Hz @ 1 MHz, Vpad=1.073 V, IR=25.0 mV
+  f0≈11.25 MHz, Z0≈0.14 Ω, ζ≈17.7 (overdamped, Q≈0.03)
+  |H|_RC LDO→pad @ 1 MHz ≈ 0.303; |Z_pad| @ 1 MHz = 1.434 Ω, peak 2.670 Ω @ 200.0 MHz
+R=10 Ω, L=1 nH: S_v(pad)=7.5 nV/√Hz @ 1 MHz, Vpad=1.048 V, IR=50.0 mV
+  f0≈15.92 MHz, Z0≈0.10 Ω, ζ≈50.0 (overdamped, Q≈0.01)
+  |H|_RC LDO→pad @ 1 MHz ≈ 0.157; |Z_pad| @ 1 MHz = 1.480 Ω, peak 1.480 Ω @ 1.0 MHz
+R=10 Ω, L=2 nH: S_v(pad)=7.5 nV/√Hz @ 1 MHz, Vpad=1.048 V, IR=50.0 mV
+  f0≈11.25 MHz, Z0≈0.14 Ω, ζ≈35.4 (overdamped, Q≈0.01)
+  |H|_RC LDO→pad @ 1 MHz ≈ 0.157; |Z_pad| @ 1 MHz = 1.474 Ω, peak 2.647 Ω @ 200.0 MHz
+
+Option C at 1 MHz: S_v at VCO (pad) ≈ **7.5 nV/√Hz** (best of grid; bare LDO was 86.5).
+Damping: Z0≪R ⇒ always overdamped for 5–10 Ω and 1–2 nH / 100 nF — no peaking concern at f0 (AC |Z| peak stays near DC R-drop, not LC Q).
+
+# 4) VR_ANA1 sharing, push, board noise [HAND]
+
+Pin intent: option C reuses the existing VR_ANA1 **board 100 nF**.
+Electrically the SCH above is LDO(1.1 V)→R→pad→bond→100 nF.
+Do **not** short that pad onto the live VR_ANA1 regulator output (~1.5 V /
+RX-LO rail) — the LDO and VR_ANA1 would fight. Use either a dedicated
+VDD_VCO pad bonded to the same 100 nF, or a second bond to that cap.
+
+Blocks already on the VR_ANA1 *rail* (`spec/analog-digital-interface.md`):
+  RX chain, LO (buffer + CML dividers + CMOS TSPC), charge pump / PFD bias.
+  If VCO filter shares that same board node, those loads sit on the VCO C.
+
+CP pulse on 100 nF: I=50 µA × 2 ns → ΔV ≈ 1.00 µV/edge (f_ref=36 MHz).
+LO edge (order-of-mag 1 mA × 100 ps) → ΔV ≈ 1.00 µV/edge.
+
+Push (instantaneous from one CP edge on shared 100 nF):
+  tt K_push=30 MHz/V × 1.00 µV → Δf ≈ 30.0 Hz peak — negligible.
+  ss85 K_push=50 MHz/V × 1.00 µV → Δf ≈ 50.0 Hz peak — negligible.
+
+If effective switched current were 1 mA (same 2 ns): ΔV=0.020 mV → Δf_ss≈1000 Hz still small vs PLL bandwidth.
+
+Board→pad |H| @ 1 MHz (L=1 nH, C=100 nF): 1.0040 (≈1 — board noise appears almost unattenuated on the pad at 1 MHz).
+Board→pad |H| @ 1 MHz (L=2 nH, C=100 nF): 1.0080 (≈1 — board noise appears almost unattenuated on the pad at 1 MHz).
+So board / VR_ANA1-regulator noise at the pin **does** matter if VCO is fed from that pad;
+option C only filters **LDO** noise through R–C, not noise already on the board node.
+
+Divider/CP contribution is **spurs at f_ref harmonics**, not white S_v.
+White-equivalent in 1 Hz at 1 MHz from these edges ≈ 0 for deterministic locking;
+jittered edges: << 1 nV/√Hz [HAND]. Not the limiter vs 11 nV/√Hz.
+
+# 1+2 combined re-sim [SCH]
+
+1+2 (rf_5k + R=5 Ω + L=1.5 nH + 100 nF): S_v(pad)=7.8 nV/√Hz
+
+# 5) S_v at the VCO vs ≤ 11 nV/√Hz — STOP
+
+| Case | What | S_v @ 1 MHz | vs 11 nV |
+|---|---|---|---|
+| 0 baseline | bare D10 LDO | 86.5 nV/√Hz | MISS |
+| 1 alone | cheap bare (rf_5k) | 30.9 nV/√Hz | MISS |
+| 2 alone | option C R–pad–100 nF on baseline | 7.5 nV/√Hz | PASS |
+| 1 + 2 | rf_5k + option C (re-sim) | 7.8 nV/√Hz | PASS |
+
+Option C attenuation vs bare: ×0.087 (86.5 → 7.5 nV/√Hz).
+
+STOP for owner decision: adopt (1), (2), (1)+(2), or another LDO path.
+Options A/B/D (large on-chip C) remain rejected. LDO schematic unchanged.
+
+(tee target: /work/analog/vco/ldo/out/summary_ldo_analyse.txt)

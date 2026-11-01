@@ -1,0 +1,64 @@
+# Fixed D21 LDO verification
+
+Compensation: rz=500 Ω + cg=100 pF to gnd (replaces Miller cc to mid).
+
+PRIOR 9.5 nV/√Hz result: UNVERIFIED (was taken before transient HOLD).
+
+# 1) Polarity + dual OP (fixed compensation)
+
+Open-loop DC: mid↑→vg↑ = CORRECT for PMOS NEG-FB.
+VACASK W∠≈0° means NEG-FB in 1/(1+W). Miller-to-mid was the bug.
+
+| case | OP | tran | |
+|---|---|---|---|
+| hold_bare | OP=1.295 | t1=1.295 d=-0.00mV | HOLD |
+| hold_rlc | OP=1.295 | t1=1.295 d=-0.00mV | HOLD |
+| hold_noc | OP=1.295 | t1=1.295 d=-0.00mV | HOLD |
+
+| soft-start | final | |
+|---|---|---|
+| start0 (from 0) | 1.295±0.0mV | SETTLE |
+| startVin (vin first) | 1.296±0.0mV | SETTLE |
+
+# 2) stb loop gain (VACASK W in 1/(1+W); NEG-FB ⇒ ∠≈0°)
+
+| case | W_DC | UGF | PM | |
+|---|---|---|---|---|
+| rlc | |W|=625 ∠=-2° NEG-FB | 0.252 MHz | 64.4° | PASS |
+| noc | |W|=625 ∠=-1° NEG-FB | 7.487 MHz | 61.4° | PASS |
+
+# 3) Noise @ 1 MHz + pad voltage table (fixed LDO)
+
+| I | V_LDO | V_pad | S_v @ 1 MHz | vs 11 nV |
+|---|---|---|---|---|
+| typ 9.65 mA | 1.2950 | 1.1985 | 2.95 nV/√Hz | PASS |
+| 10 mA | 1.2948 | 1.1948 | 3.00 nV/√Hz | PASS |
+
+V_out=1.2950 V  V_pad=1.1985 V  (target pad typ 1.20 V)
+
+| Vin | I_load | V_out | V_pad | ΔV_R | worst≥1.08 |
+|---|---|---|---|---|---|
+| 1.8 | 1.00 mA | 1.302 | 1.292 | 10.0 mV | OK |
+| 1.8 | 9.65 mA | 1.292 | 1.195 | 96.5 mV | OK |
+| 1.8 | 15.00 mA | 1.288 | 1.138 | 150.0 mV | OK |
+| 2.7 | 1.00 mA | 1.302 | 1.292 | 10.0 mV | OK |
+| 2.7 | 9.65 mA | 1.295 | 1.198 | 96.5 mV | OK |
+| 2.7 | 15.00 mA | 1.293 | 1.143 | 150.0 mV | OK |
+| 3.3 | 1.00 mA | 1.303 | 1.293 | 10.0 mV | OK |
+| 3.3 | 9.65 mA | 1.296 | 1.199 | 96.5 mV | OK |
+| 3.3 | 15.00 mA | 1.294 | 1.144 | 150.0 mV | OK |
+
+# 4) Line / load steps (1 mA LO step, 0.3 V VBAT step)
+
+| step | ΔVpk (mV) | settle | note |
+|---|---|---|---|
+| load +1 mA | -11.9 | zc≈3 | v0=1.198→1.188 |
+| VBAT +0.3 V | +92.1/-9.7 | zc≈2 | v0=1.198→1.199 |
+
+# Summary
+
+Compensation: Rz=500 + Cg=100p to gnd
+  stb rlc: PM=64.4° @ 0.252 MHz
+  stb noc: PM=61.4° @ 7.487 MHz
+  S_v(pad) @ 1 MHz: 3.00 nV/√Hz (PASS vs 11)
+  V_pad typ: 1.1985 V

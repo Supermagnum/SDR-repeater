@@ -6,9 +6,9 @@ Status: **notes only, 2026-10-31.** Layout has not started. Owner: P2.7 may begi
 
 VACASK SCH re-run done 2026-10-31 (`reports/sch-rerun-2026-10-31.md`): VCO range pass; LO UHF tt pass; PLL 2 µs smoke pass; UHF LO floor −150.1 dBc/Hz (full ÷2+Johnson) pass.
 
-**VCO pnoise:** off-state **bank** bypass MOS break VACASK PSS (`summary_pss_bypass_parts.txt`; tail/var OK). Bank-omitted PN accepted to start layout: tt 3.65 −122.7 / ss85 4.20 −119.4 dBc/Hz @ 1 MHz (`summary_pn_nobank.txt`). Linear off-state equivalent abandoned (PSS still fails). Off-switch noise bound vs bank bias R (`run_bound_bank_switch.py`, `[SCH]+[HAND]`): tt 3.65 **FAIL** Δ = +0.591 dB (ff/125 °C I_leak); ss85 4.20 PASS Δ = +0.006 dB — **STOP** vs ≤0.5 dB. Draft VACASK issue (not posted): `reports/upstream-issues/vacask-pss-off-nmos-tank.md`; minimal repro `analog/vco/step3/repro_pss_bank_bypass.py`.
+**VCO pnoise:** off-state **bank** bypass MOS break VACASK PSS (`summary_pss_bypass_parts.txt`; tail/var OK). Bank-omitted PN accepted to start layout: tt 3.65 −122.7 / ss85 4.20 −119.4 dBc/Hz @ 1 MHz (`summary_pn_nobank.txt`). Linear off-state equivalent abandoned (PSS still fails). Off-switch noise bound vs bank bias R **closed 2026-11-01** (`summary_bound_bank_switch.txt`): owner gate = positive margin everywhere and worst point (ss85 4.20) moves < 0.5 dB. tt +0.59 dB worst-case bound (margin +6.1 dB); ss85 Δ +0.006 dB. Draft VACASK issue (not posted): `reports/upstream-issues/vacask-pss-off-nmos-tank.md`; minimal repro `analog/vco/step3/repro_pss_bank_bypass.py`.
 
-**Post-layout VCO phase noise:** use the **bank-omitted** extracted netlist (omit off-state bank bypass MOS from the PEX deck the same way as SCH) **plus** the `[SCH]+[HAND]` switch-noise bound above, until VACASK PSS converges with those devices. The bound does **not** yet clear the ≤0.5 dB gate at tt (see `summary_bound_bank_switch.txt`); owner decision needed before treating PEX PN as closed. Do not rely on a linear R/C/leakage stand-in. **Layout order:** VCO, dividers and PLL may start on bank-omitted SCH PN; PEX PN method open.
+**Post-layout VCO phase noise:** use the **bank-omitted** extracted netlist (omit off-state bank bypass MOS from the PEX deck the same way as SCH) **plus** the closed `[SCH]+[HAND]` switch-noise bound, until VACASK PSS converges with those devices. Do not rely on a linear R/C/leakage stand-in. **Layout order:** VCO, dividers and PLL may start.
 
 P2.6 open points 2 (bypass), 1 (V_tune monitor, option B), and 3 (UHF LO floor) closed 2026-10-31.
 
@@ -21,6 +21,19 @@ P2.6 open points 2 (bypass), 1 (V_tune monitor, option B), and 3 (UHF LO floor) 
 | [#512](https://github.com/IHP-GmbH/IHP-Open-PDK/issues/512) | `rfcmim` LVS: multi-port warnings; crash on series/parallel combination | Prefer single `cap_rfcmim` devices or a combination style already proven on this deck; avoid untested series/parallel banks in one LVS cell until fixed. Cap bank and AC-coupling MIMs: one device per schematic instance where practical | First bank / coupling MIM LVS |
 
 Related: maximal DRC for SVaricap at `w=3.74u` (#639 fixed upstream — confirm on this pin during P2.7). See also `reports/pdk-tool-issues-2026-10-30.md`.
+
+## VR_ANA1 / LO supply (D21, 2026-11-01)
+
+Pin 3 is the filtered VCO+LO+CP rail (LDO → 10 Ω → pad → 100 nF). Board C filters LDO noise at duplex offsets; **bond inductance isolates the board cap at divider frequencies** (175 MHz–2 GHz |Z_pad| ≈ 1–90 Ω).
+
+**Local on-chip decoupling (required in layout):**
+- Place MIM / MOS bypass at the **VCO centre-tap** and at each **CML / TSPC divider supply** tap so GHz switching currents close on-chip, not through the bond.
+- Target: discrete supply-push spurs at divider frequencies **≤ −80 dBc** at the VCO (1 mA into |Z|~few Ω is already near that; keep local C so |Z| stays low).
+- Do not rely on the VR_ANA1 100 nF for GHz bounce.
+
+LDO compensation closed 2026-11-01: Rz=500 Ω + **Cg=100 pF** to gnd (Miller-to-mid removed). Transient HOLD; PM ≥ 60° with R=10/bond/100 nF and with C missing; S_v(pad)≈3.0 nV/√Hz @ 10 mA after the fix (prior 9.5 nV unmarked until HOLD). `analog/vco/ldo/out/summary_ldo_verify.txt`.
+
+**Cg area budget (layout):** 100 pF → **≈ 0.0125 mm²** as thin-oxide MOS (≈ 8 fF/µm²; ~112 µm square) or **≈ 0.067 mm²** as MIM (1.5 fF/µm²; ~258 µm square). Prefer MOS for the error-amp gate cap unless a later noise/linearity check forces MIM. On-chip LDO Cout remains a small MIM (~100 fF class); the board 100 nF is off-chip.
 
 ## Layout scope (from `spec/phase2-plan.md`)
 

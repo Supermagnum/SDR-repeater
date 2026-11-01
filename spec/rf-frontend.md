@@ -32,7 +32,7 @@ SX1255 pinout `[DS]`, LinHT use `[SCH]`, and the proposed RFIC function.
 | 0 | GND pad | GND | GND pad (also RF ground) |
 | 1 | VR_PA | 100 nF | PA-driver regulator decoupling |
 | 2 | VBAT1 | +3V3 | Supply |
-| 3 | VR_ANA1 | 100 nF | Analogue regulator decoupling (RX/LO) |
+| 3 | VR_ANA1 | 100 nF | Filtered VCO+LO+CP rail ~1.2 V (D21: on-chip LDO → 10 Ω → pad; 100 nF) |
 | 4, 7, 26, 28, 31 | GND | GND | GND |
 | 5 | VR_DIG | 100 nF | 1.2 V digital core regulator decoupling |
 | 6 | XTA | n.c. | Crystal option / n.c. with TCXO |
@@ -50,7 +50,7 @@ SX1255 pinout `[DS]`, LinHT use `[SCH]`, and the proposed RFIC function.
 | 22 | DIO1 | n.c. | **IRQ out**, active-low (PLL unlock, AGC, RSSI), enabled by register; repeater backplane c1 |
 | 23 | DIO2 | I2S_WS | I2S word select (LRCLK) |
 | 24 | DIO3 | n.c. | **PTT gate in**, internal pull-down; ignored unless `ptt_pin_en` is set (default: TX over SPI only, as the SX1255); repeater backplane c2 |
-| 25 | VR_ANA2 | 100 nF | Second analogue regulator decoupling (TX/DAC) |
+| 25 | VR_ANA2 | 100 nF | TX/DAC (+ RX after D21; was on VR_ANA1) |
 | 27 | RF_IN | L-match → 2× PE4312 | **RX input**, single-ended 50 Ω, 130–175 and 400–480 MHz |
 | 29 | RF_ON | 27 pF to GND | **TX output −** (AC-grounded on LinHT) |
 | 30 | RF_OP | → GRF5604 input match | **TX output +** |
@@ -151,7 +151,7 @@ LinHT path after the RFIC `[SCH]`: RF_OP → high-pass T match (33 p / 10 nH / 3
 | IQ modulator + TX gain control | ≥ 30 dB in ≤ 2 dB steps after the filter |
 | PA driver | −5 dBm average, P1dB ≥ +2 dBm, single-ended or differential output |
 | PLL (VCO, dividers, fractional-N) | Section 5 |
-| Regulators | VR_PA, VR_ANA1, VR_ANA2, VR_DIG from 2.7–3.6 V |
+| Regulators | VR_PA, VR_ANA1 (LO/VCO/CP quiet ~1.2 V after D21), VR_ANA2 (TX/DAC/RX), VR_DIG from 2.7–3.6 V |
 
 The study that confirms or moves these numbers is "tier 2" in the plan: Σ-Δ ADC architecture and a system budget model of the full RX chain.
 
