@@ -1,0 +1,29 @@
+# Minimal PSS abort: fewest off bank bias-bypass fingers
+
+Netlist: full P2.3 VCO, code 20, I_tail 3.59 mA, tt 27 °C, ~4.20 GHz.
+Bypass: LV NMOS w=5u l=0.13u ng=2, V_GS=0, on bits 0..k-1 (of 8).
+
+## nobypass (k=0)
+
+PSS OK
+
+## k=1 bank bits with off bypass
+
+PSS OK
+
+## k=2 bank bits with off bypass
+
+PSS FAIL
+  PSS failed to converge in 50 iterations.
+  PSS analysis failed.
+  Analysis 'pn' aborted.
+
+## Verdict
+
+PASS as reproducer: PSS OK with k=0; first FAIL at k=2 (4 off NMOS fingers).
+VACASK error text:
+  PSS failed to converge in 50 iterations.
+  PSS analysis failed.
+  Analysis 'pn' aborted.
+
+Archived: out/repro_pss/repro_nobypass.{sim,log}, repro_k2.{sim,log}

@@ -1,0 +1,17 @@
+# VCO pnoise — real P2.4 LO load (cml) [SCH]
+
+Stand-in buffer removed; bank bypass MOS omitted (PSS). Baseline: summary_pn_nobank.txt.
+
+  tt_3.65 (uhf): code 91, I_tail 3.96 mA …
+  pss failed (reltol=1e-6 pss_tolscale=1e-3, 8000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+  pss failed (reltol=1e-6 pss_tolscale=1e-3, 16000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+  ss85_4.20 (vhf): code 21, I_tail 3.59 mA …
+  pss failed (reltol=1e-6 pss_tolscale=1e-3, 8000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+  pss failed (reltol=1e-6 pss_tolscale=1e-3, 16000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+
+real LO cml (dBc/Hz)
+
+| Band | f (GHz) | Code | I_tail (mA) | Amplitude (V) | L @ 0.1 MHz | L @ 0.3 MHz | L @ 0.6 MHz | L @ 1 MHz | L @ 2 MHz | L @ 10 MHz | Worst margin |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| tt_3.65 | — | 91 | 3.96 | pss failed |
+| ss85_4.20 | — | 21 | 3.59 | pss failed |

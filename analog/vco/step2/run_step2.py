@@ -168,14 +168,19 @@ def bias_bypass_switches(nbits=None, groups=("tail", "bank", "var"), bank_mode="
 
 
 def netlist(title, code, vtune, analysis, itail=ITAIL, extra="", drive_vbp=False, bypass=True,
-            bypass_groups=("tail", "bank", "var"), bank_mode="mos"):
+            bypass_groups=("tail", "bank", "var"), bank_mode="mos", bank_r_noisy=True,
+            standin_buffer=True, vct=None):
     """drive_vbp=False ties vbp low (bypass open) for stand-alone range/pnoise.
     drive_vbp=True leaves vbp for the caller (sequencer / PWL in extra).
-    bank_mode=\"linear\": off-state bank bypass → C_j / R_off / leakage noise (PSS/PEX)."""
+    bank_mode=\"linear\": off-state bank bypass → C_j / R_off / leakage noise (legacy; PSS fails).
+    bank_r_noisy: bank-plate bias R (rba*/rbb*) thermal noise on/off for switch-noise bound.
+    standin_buffer: include the step-2 stand-in CML pair; False when a real LO buffer is attached via extra.
+    vct: centre-tap DC (default VCT); sweep for supply pushing."""
     ind, var = noisy_inductor(), svaricap()
     n = []
     n.append(f'include "{ind}"\ninclude "{var}"\n')
-    n.append(f"vdd  (vdd 0) vsource dc=1.2\nvct  (ct 0)  vsource dc={VCT}\n")
+    ct_dc = VCT if vct is None else vct
+    n.append(f"vdd  (vdd 0) vsource dc=1.2\nvct  (ct 0)  vsource dc={ct_dc}\n")
     n.append("xl (tp tn ct) l2n0\n")
     if C_FIX_FF > 0:
         sf = side(2 * C_FIX_FF)                          # two MIMs in series, bottom plates to a mid node
@@ -190,6 +195,7 @@ def netlist(title, code, vtune, analysis, itail=ITAIL, extra="", drive_vbp=False
              "cbf (nbf 0) capacitor c=50p\n"
              "mr (nb nb 0 0) sg13_lv_nmos w=20u l=4u ng=4\n"
              f"iref (vdd nb) isource dc={itail / 8:.6g}\n")
+    rflag = "noisy=1" if bank_r_noisy else "noisy=0"
     for k in range(NBITS):
         c_mim = 2 * LSB_FF * 2 ** k * TRIM[k]            # each MIM is twice the differential value
         s = side(c_mim)
@@ -199,8 +205,8 @@ def netlist(title, code, vtune, analysis, itail=ITAIL, extra="", drive_vbp=False
         n.append(f"xb{k}p (tp a{k} 0) cap_rfcmim w={s:.3f}u l={s:.3f}u\n"
                  f"xb{k}n (tn b{k} 0) cap_rfcmim w={s:.3f}u l={s:.3f}u\n"
                  f"ms{k} (a{k} g{k} b{k} 0) sg13_lv_nmos w={w:.2f}u l=0.13u ng={ng}\n"
-                 f"rba{k} (a{k} bb{k}) resistor r={R_BIAS:g} noisy=1\n"
-                 f"rbb{k} (b{k} bb{k}) resistor r={R_BIAS:g} noisy=1\n"
+                 f"rba{k} (a{k} bb{k}) resistor r={R_BIAS:g} {rflag}\n"
+                 f"rbb{k} (b{k} bb{k}) resistor r={R_BIAS:g} {rflag}\n"
                  f"vg{k} (g{k} 0) vsource dc={1.2 if on else 0}\n"
                  f"vbb{k} (bb{k} 0) vsource dc={0 if on else 1.2}\n")
     # varactor: NFING fingers, per side about NFING x 3.4 x 2 fF; coupling caps 5x per side
@@ -220,12 +226,13 @@ def netlist(title, code, vtune, analysis, itail=ITAIL, extra="", drive_vbp=False
         if not drive_vbp and need_vbp:
             n.append("vbptie (vbp 0) vsource dc=0\n")
 
-    n.append("mb1 (op tp tb 0) sg13_lv_nmos w=10u l=0.13u ng=4\n"
-             "mb2 (on tn tb 0) sg13_lv_nmos w=10u l=0.13u ng=4\n"
-             "rl1 (vdd op) resistor r=400 noisy=1\nrl2 (vdd on) resistor r=400 noisy=1\n"
-             "ib (tb 0) isource dc=1m\n"
-             f"ctb (tb 0) capacitor c={C_TB:g}\n"
-             "cl1 (op 0) capacitor c=20f\ncl2 (on 0) capacitor c=20f\n")
+    if standin_buffer:
+        n.append("mb1 (op tp tb 0) sg13_lv_nmos w=10u l=0.13u ng=4\n"
+                 "mb2 (on tn tb 0) sg13_lv_nmos w=10u l=0.13u ng=4\n"
+                 "rl1 (vdd op) resistor r=400 noisy=1\nrl2 (vdd on) resistor r=400 noisy=1\n"
+                 "ib (tb 0) isource dc=1m\n"
+                 f"ctb (tb 0) capacitor c={C_TB:g}\n"
+                 "cl1 (op 0) capacitor c=20f\ncl2 (on 0) capacitor c=20f\n")
     n.append('ik (0 tn) isource type="pulse" val0=0 val1=1m delay=1n rise=50p fall=50p width=200p\n')
     n.append(extra)
     body = "".join(n)

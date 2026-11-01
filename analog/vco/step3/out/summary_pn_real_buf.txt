@@ -1,0 +1,15 @@
+# VCO pnoise — real P2.4 LO load (buffer) [SCH]
+
+Stand-in buffer removed; bank bypass MOS omitted (PSS). Baseline: summary_pn_nobank.txt.
+
+  tt_3.65 (uhf): code 91, I_tail 3.96 mA …
+    L@1 MHz = -122.6 dBc/Hz (stand-in baseline -122.7, Δ +0.14 dB)
+  ss85_4.20 (vhf): code 21, I_tail 3.59 mA …
+    L@1 MHz = -119.3 dBc/Hz (stand-in baseline -119.4, Δ +0.08 dB)
+
+real LO buffer (dBc/Hz)
+
+| Band | f (GHz) | Code | I_tail (mA) | Amplitude (V) | L @ 0.1 MHz | L @ 0.3 MHz | L @ 0.6 MHz | L @ 1 MHz | L @ 2 MHz | L @ 10 MHz | Worst margin |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| tt_3.65 | 3.661 | 91 | 3.96 | 1.159 | -92.5 | -107.6 | -116.7 | -122.6 | -129.5 | -144.0 | +6.6 dB (VHF 1 MHz) |
+| ss85_4.20 | 4.223 | 21 | 3.59 | 1.248 | -88.8 | -103.5 | -113.1 | -119.3 | -126.6 | -141.3 | +3.3 dB (VHF 1 MHz) |

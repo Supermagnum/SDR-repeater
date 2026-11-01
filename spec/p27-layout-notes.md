@@ -6,7 +6,9 @@ Status: **notes only, 2026-10-31.** Layout has not started. Owner: P2.7 may begi
 
 VACASK SCH re-run done 2026-10-31 (`reports/sch-rerun-2026-10-31.md`): VCO range pass; LO UHF tt pass; PLL 2 µs smoke pass; UHF LO floor −150.1 dBc/Hz (full ÷2+Johnson) pass.
 
-**VCO pnoise:** off-state **bank** bypass MOS break VACASK PSS (`summary_pss_bypass_parts.txt`; tail/var OK). Bank-omitted PN accepted to start layout: tt 3.65 −122.7 / ss85 4.20 −119.4 dBc/Hz @ 1 MHz (`summary_pn_nobank.txt`). Linear off-state bank equivalent extracted but PSS still fails (C+R+Rsh, C-only, bank-only, 0.1×C — `summary_pn_banklin.txt` / `summary_probe_banklin.txt`); **STOP** vs the ≤0.5 dB gate. Do not use that equivalent for P2.7 PEX PN until PSS converges. **Layout order:** VCO, dividers and PLL may start (VCO on bank-omitted PN).
+**VCO pnoise:** off-state **bank** bypass MOS break VACASK PSS (`summary_pss_bypass_parts.txt`; tail/var OK). Bank-omitted PN accepted to start layout: tt 3.65 −122.7 / ss85 4.20 −119.4 dBc/Hz @ 1 MHz (`summary_pn_nobank.txt`). Linear off-state equivalent abandoned (PSS still fails). Off-switch noise bound vs bank bias R (`run_bound_bank_switch.py`, `[SCH]+[HAND]`): tt 3.65 **FAIL** Δ = +0.591 dB (ff/125 °C I_leak); ss85 4.20 PASS Δ = +0.006 dB — **STOP** vs ≤0.5 dB. Draft VACASK issue (not posted): `reports/upstream-issues/vacask-pss-off-nmos-tank.md`; minimal repro `analog/vco/step3/repro_pss_bank_bypass.py`.
+
+**Post-layout VCO phase noise:** use the **bank-omitted** extracted netlist (omit off-state bank bypass MOS from the PEX deck the same way as SCH) **plus** the `[SCH]+[HAND]` switch-noise bound above, until VACASK PSS converges with those devices. The bound does **not** yet clear the ≤0.5 dB gate at tt (see `summary_bound_bank_switch.txt`); owner decision needed before treating PEX PN as closed. Do not rely on a linear R/C/leakage stand-in. **Layout order:** VCO, dividers and PLL may start on bank-omitted SCH PN; PEX PN method open.
 
 P2.6 open points 2 (bypass), 1 (V_tune monitor, option B), and 3 (UHF LO floor) closed 2026-10-31.
 

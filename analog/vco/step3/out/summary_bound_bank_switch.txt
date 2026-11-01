@@ -1,0 +1,44 @@
+# Bound: off bank-bypass switch noise vs bank bias R [SCH]+[HAND]
+
+Bank-omitted PSS (tail+var). ρ = (2q·I_leak)/(4kT/R) × resistor contribution.
+Pass if ΔL(1 MHz) from the bound < 0.5 dB at both points.
+
+## I_leak DC [SCH]
+
+ff / 125 °C: I_leak max = 4.003e-08 A (V_DS=1.20 V)
+ss / 85 °C: I_leak max = 2.221e-10 A (V_DS=1.20 V)
+
+## tt_3.65: code 91, I_tail 3.96 mA, T=27 °C
+
+  bank R noisy …
+  pss failed (nr, 16000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+  bank R quiet …
+  pss failed (qr, 16000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+  L(1 MHz) bank-R noisy  = -122.66 dBc/Hz  [SCH]
+  L(1 MHz) bank-R quiet  = -123.09 dBc/Hz  [SCH]
+  resistor share         = 9.4 % of total power
+  I_leak                 = 4.003e-08 A (mos_ff/125°C) [SCH]
+  ρ = (2q I)/(4kT/R)     = 1.547e+00  [HAND]  (R=2 MΩ, T=300.15 K)
+  L(1 MHz) + switch bound= -122.07 dBc/Hz  → Δ = +0.591 dB
+  FAIL (limit 0.5 dB)
+
+## ss85_4.20: code 21, I_tail 3.59 mA, T=85 °C
+
+  bank R noisy …
+  bank R quiet …
+  L(1 MHz) bank-R noisy  = -119.40 dBc/Hz  [SCH]
+  L(1 MHz) bank-R quiet  = -120.29 dBc/Hz  [SCH]
+  resistor share         = 18.5 % of total power
+  I_leak                 = 2.221e-10 A (mos_ss/85°C) [SCH]
+  ρ = (2q I)/(4kT/R)     = 7.196e-03  [HAND]  (R=2 MΩ, T=358.15 K)
+  L(1 MHz) + switch bound= -119.39 dBc/Hz  → Δ = +0.006 dB
+  PASS (limit 0.5 dB)
+
+## Summary
+
+| Point | L noisy | L quiet | ρ | ΔL bound | Verdict |
+|---|---|---|---|---|---|
+| tt_3.65 | -122.7 | -123.1 | 1.55e+00 | +0.591 dB | FAIL |
+| ss85_4.20 | -119.4 | -120.3 | 7.20e-03 | +0.006 dB | PASS |
+
+RESULT: STOP — bound ≥ 0.5 dB or PSS failed.
