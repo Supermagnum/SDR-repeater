@@ -366,6 +366,7 @@ The noise at 600 kHz (VHF) needs the loop well below 150 kHz: above about 75 kHz
 | As designed calibration, 60 kHz loop, random divider phase | 49–62 / 65–83 µs | 96–114 µs |
 | Same, divider started on a reference edge | 32–57 / 52–78 µs | 83–108 µs |
 | D20 calibration (38.8 µs), 60 kHz loop | 36–59 / 60–82 µs | 99–120 µs |
+| D20 + D22 amp cal (38.8 + 10.0 µs), 60 kHz loop `[MODEL]` | 36–59 / 60–82 µs | **109–130 µs** (≤ 150) |
 
 All within the 150 µs maximum of `spec/rf-frontend.md` (50 µs typical is met only by the fast-wake mode, PLL kept on in standby). No cycle slips in any run; the lock detector reports lock 1.8–3.5 µs after release, long before the frequency has settled — it indicates phase capture, not settling (firmware should wait for the settling time, or a second, tighter criterion is added). A simple fast-lock mode (4 × I_cp, R1 / 2 for 15 µs) did not help in this model (the switch-back transient costs what the wider loop gains) and is not proposed.
 
@@ -424,7 +425,7 @@ The R3 / C3 pole (≈ 480 kHz) takes 36–38 dB off the offset-current ripple at
 |---|---|---|
 | Loop | 60 kHz / 55° (D19; P2.2 had a 2π sizing error, corrected) | — |
 | Band calibration | 8-bit bank with even steps (0.24–0.29 V of V_tune), finer counter, nearest code (D20): V_tune lands in 0.34–0.82 V at all corners; 38.8 µs | window 0.25–0.95 V |
-| Wake | calibration + settling to 10 Hz at RF: 83–120 µs (model) | ≤ 150 µs |
+| Wake | calibration + settling to 10 Hz at RF: 83–120 µs (model); with D22 amp cal **109–130 µs** `[MODEL]` (`wake_timing.py`) | ≤ 150 µs |
 | Phase noise at the duplex offset | −138.8 … −145.3 dBc/Hz at RF, worst +2.8 dB (VHF 175 MHz) | −136 dBc/Hz (25 W) |
 | Spurs | reference −109 dBc, boundary −123 dBc | −67 / −95 dBc |
 | Transistor-level loop | locks from power-on (scaled filter), polarity and interfaces right | — |

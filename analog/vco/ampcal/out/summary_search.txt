@@ -1,0 +1,9 @@
+# D22 amplitude SAR search (bypass closed) [SCH]
+
+Settle 200 ns/step; target 1.25 V ± 0.1 V; hard 1.4 V.
+
+| MOS | CAP | T | band | code | Amp | A_est | tnr | Amp_peak | t_step (s) | t_tot (s) | ≤1.40 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| mos_tt | cap_typ | 27 | top | 31 | 1.150 | 0.113 | 1 | 1.150 | 111.6 | 689.2 | PASS |
+| mos_tt | cap_typ | 27 | bottom | 31 | 0.579 | 0.099 | 1 | 0.579 | 18.4 | 110.2 | PASS |
+

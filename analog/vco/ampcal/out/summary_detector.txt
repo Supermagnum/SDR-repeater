@@ -1,0 +1,40 @@
+# D22 peak detector accuracy [SCH]
+
+Choice: SF peak hold + replica at V_CT; C_ac = 4 fF/side (8 fF total ≤ 10 fF).
+
+Rejected rectifier-on-tank: nonlinear RF current and poorer large-signal tracking `[HAND]`.
+
+| MOS | CAP | T | band | Amp (V) | A_est (V) | err (V) | |err|≤0.10 |
+|---|---|---|---|---|---|---|---|
+| mos_tt | cap_typ | -40 | top | 1.269 | 0.161 | -1.109 | MISS |
+| mos_tt | cap_typ | -40 | bottom | 0.938 | 0.133 | -0.805 | MISS |
+| mos_tt | cap_typ | 27 | top | 1.221 | 0.107 | -1.114 | MISS |
+| mos_tt | cap_typ | 27 | bottom | 0.847 | 0.099 | -0.748 | MISS |
+| mos_tt | cap_typ | 85 | top | 1.158 | 0.041 | -1.117 | MISS |
+| mos_tt | cap_typ | 85 | bottom | 0.727 | 0.028 | -0.699 | MISS |
+| mos_ss | cap_wcs | -40 | top | 1.291 | 0.159 | -1.131 | MISS |
+| mos_ss | cap_wcs | -40 | bottom | 0.876 | 0.084 | -0.793 | MISS |
+| mos_ss | cap_wcs | 27 | top | 1.249 | 0.099 | -1.150 | MISS |
+| mos_ss | cap_wcs | 27 | bottom | 0.770 | 0.086 | -0.683 | MISS |
+| mos_ss | cap_wcs | 85 | top | 1.188 | 0.053 | -1.135 | MISS |
+| mos_ss | cap_wcs | 85 | bottom | 0.641 | 0.048 | -0.594 | MISS |
+| mos_ss | cap_bcs | -40 | top | 1.336 | 0.179 | -1.157 | MISS |
+| mos_ss | cap_bcs | -40 | bottom | 1.037 | 0.089 | -0.948 | MISS |
+| mos_ss | cap_bcs | 27 | top | 1.292 | 0.104 | -1.188 | MISS |
+| mos_ss | cap_bcs | 27 | bottom | 0.943 | 0.087 | -0.856 | MISS |
+| mos_ss | cap_bcs | 85 | top | 1.231 | 0.055 | -1.176 | MISS |
+| mos_ss | cap_bcs | 85 | bottom | 0.825 | 0.048 | -0.777 | MISS |
+| mos_ff | cap_wcs | -40 | top | 1.187 | 0.228 | -0.958 | MISS |
+| mos_ff | cap_wcs | -40 | bottom | 0.822 | 0.224 | -0.598 | MISS |
+| mos_ff | cap_wcs | 27 | top | 1.123 | 0.100 | -1.022 | MISS |
+| mos_ff | cap_wcs | 27 | bottom | 0.722 | 0.090 | -0.632 | MISS |
+| mos_ff | cap_wcs | 85 | top | 1.049 | 0.051 | -0.998 | MISS |
+| mos_ff | cap_wcs | 85 | bottom | 0.594 | 0.033 | -0.561 | MISS |
+| mos_ff | cap_bcs | -40 | top | 1.228 | 0.231 | -0.997 | MISS |
+| mos_ff | cap_bcs | -40 | bottom | 0.956 | 0.224 | -0.731 | MISS |
+| mos_ff | cap_bcs | 27 | top | 1.163 | 0.105 | -1.059 | MISS |
+| mos_ff | cap_bcs | 27 | bottom | 0.856 | 0.090 | -0.766 | MISS |
+| mos_ff | cap_bcs | 85 | top | 1.089 | 0.056 | -1.033 | MISS |
+| mos_ff | cap_bcs | 85 | bottom | 0.736 | 0.034 | -0.702 | MISS |
+
+Detector: 0/30 within ±0.10 V. SEE MISSES (gate is at Amp≈1.25; edge Amps may be outside) `[SCH]`

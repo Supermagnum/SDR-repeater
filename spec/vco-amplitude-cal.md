@@ -1,6 +1,6 @@
 # VCO amplitude control (P2.3 open point §9.3)
 
-Status: **D22 accepted by the owner 2026-11-02** (`decisions.md`). Option C with the DAC offset and “target not reached” rule below. Interim: A2 until C is designed. No circuit designed in the memo run.
+Status: **D22 accepted 2026-11-02.** Step 1 (2026-11-02): RTL + wake + ideal DAC done; **detector accuracy missed the ±0.10 V gate** — owner review before detector redesign. Interim A2 still applies until C works.
 
 Items 1–2 of `prompts/06-design-next-step.md` are closed (P2.6 accepted 2026-10-31; open points 1–3 closed). Newest status report `reports/status-2026-10-30.md`: no failed re-run; amplitude cal listed as open work, not as an unverified blocking result.
 
@@ -116,3 +116,58 @@ Option **C** accepted (`decisions.md`), with the owner’s DAC offset and bottom
 
 - Real CML buffer load on the VCO (separate P2.3 item; `summary_pn_real_buf_cml.txt` PSS fails).
 - HBT core comparison (D1).
+
+---
+
+## 6. Step 1 — plan (2026-11-02)
+
+Work directory: `analog/vco/ampcal/`. Results `[SCH]` / `[RTL]` / `[MODEL]` in `out/summary_*.txt`.
+
+1. **Detector choice.** Compare a source-follower peak hold (AC-coupled from the tank, ≤ 10 fF total) against a replica biased at V_CT, versus a MOS/diode rectifier into a hold cap. Pick one; state the reason. Reference for 1.25 V from the PLL bias generator (V_REF = 0.4 V, `spec/pll-topology.md` §12) with a resistor ratio. Comparator: continuous-time; offset Monte Carlo with the PDK mismatch used in P2.4/P2.5.
+2. **Detector accuracy.** Drive or use the real VCO tank; report detector estimate vs true differential Amp over mos_tt/ss/ff × MIM typ/wcs/bcs × −40/27/85 °C, top (code 0) and bottom (code 255) bands. Gate: error ≤ **±0.10 V** at the 1.25 V target.
+3. **DAC.** Replace the ideal `iref` with a 5-bit binary DAC: **I_tail = 1.52 mA + code × 0.08 mA** (mirror 1:8 as today). DC sweep codes 0–31 at tt/ss/ff; check monotonicity and absolute current.
+4. **Search transient.** Five-bit SAR with **bypass closed** the whole time; top and bottom bands; same corner set. Report final Amp, code, time/step and total, “target not reached” at bottom; Amp ≤ **1.40 V** throughout.
+5. **RTL.** Amplitude search in `bandcal.sv` / `afe_seq.sv`: mid-code amp SAR → band SAR → one amp touch-up; bypass held while cal busy. cocotb vs a VCO amplitude model. Register `VCO_BIAS`: [4:0] DAC, [7] manual, [5] target-not-reached.
+6. **Wake.** Update `wake_timing.py` and `spec/pll-topology.md` §13; total ≤ 150 µs.
+7. **PN.** Bank-omitted pnoise with detector attached (powered down after hold vs left on) at tt 3.65 and ss85 4.20 if PSS converges; else `[HAND]` bound.
+
+---
+
+## 7. Step 1 results (2026-11-02)
+
+Sources: `analog/vco/ampcal/out/summary_*.txt`, `rtl/afe/bandcal.sv`, `afe_seq.sv`, `wake_timing.py`.
+
+### Detector choice
+**Source-follower peak hold + replica at V_CT**, AC-coupled **4 fF/side (8 fF ≤ 10 fF)**. Reason: coupling C sets tank load; replica cancels V_GS/CM; rectifier-on-tank rejected for nonlinear RF current `[HAND]`.
+
+### Detector accuracy `[SCH]` — **MISS**
+All 30 corner×band cases: |A_est − Amp| ≈ 0.56–1.19 V (A_est ≈ 0.03–0.23 V). Gate ±0.10 V at 1.25 V **not met**. Peak-hold / estimate path needs redesign (charge time, diode, or estimator). True tank Amp in the same runs still looks sane (top ≈ 1.05–1.34 V, bottom ≈ 0.59–1.04 V).
+
+### Comparator offset
+Stand-alone MC OP did not trip; **[HAND]** from PDK σV_T: 3σ ≈ 12 mV at Amp/2 → ≈ **23 mV** on Amp ≪ 0.10 V. **PASS** on paper.
+
+### DAC `[SCH]`
+| Check | Result |
+|---|---|
+| Ideal I_tail = 1.52 + code×0.08 mA through VCO mirror, tt/ss/ff, codes 0–31 | **PASS** (mono; |err| ≤ 4.5 %) |
+| Transistor PMOS binary DAC | **FAIL** DNL (bit-weight trim needed); VCO decks use the ideal source until trimmed |
+
+### Search `[SCH]` (tt / typ / 27 °C, bypass closed; settle 200 ns/step)
+| band | code | Amp | tnr | Amp_peak ≤ 1.40 |
+|---|---|---|---|---|
+| top | 31 | 1.150 | 1 | PASS |
+| bottom | 31 | 0.579 | 1 | PASS |
+
+Bottom tnr expected. Top tnr with Amp 1.15 V: search cannot reach 1.25 V in this deck (detector load / short transient / bias) — **uncertain**, full corner matrix not run (blocked on detector). Step time ~0.2 µs electrical; wall ~20–110 s/step.
+
+### RTL `[RTL]`
+`bandcal`: amp SAR → band SAR → amp touch-up; `afe_seq.cal_busy` holds bypass. cocotb: amp+band ≈ **49.1 µs**; manual band-only 38.8 µs; afe_seq cal_busy test PASS.
+
+### Wake `[MODEL]`
+Amp cal +10.0 µs → wake **109–130 µs ≤ 150 µs** (`wake_timing.py`, `spec/pll-topology.md` §13). **PASS**.
+
+### Detector PN
+PSS with detector did not converge. **[HAND]**: powered down after hold → ΔL(1 MHz) ≈ **0 dB**; if left on < 0.05 dB.
+
+### Register map
+`VCO_BIAS`: [4:0] DAC, [5] target-not-reached, [7] manual (`spec/analog-digital-interface.md` §4).

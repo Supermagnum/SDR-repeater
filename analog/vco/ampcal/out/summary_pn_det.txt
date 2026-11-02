@@ -1,0 +1,12 @@
+# D22 detector phase-noise effect
+
+Attempt bank-omitted PSS with detector (tt 3.65 GHz)…
+
+  PSS failed (det off): 114:14 (0x10e3) in /foss/designs/analog/vco/step3/out/pn_det_off.sim
+
+## [HAND] bound (PSS with detector did not converge)
+
+C_ac 8 fF on ~800 fF tank: ΔC/C ≈ 1 % `[HAND]`.
+Detector powered down after hold (D22) → ΔL @ 1 MHz ≈ **0 dB** `[HAND]`.
+If left on: < 0.05 dB vs inductor noise at 1 MHz `[HAND]`.
+Worst margin +3.4 dB (ss85 4.20) unchanged vs 0.5 dB gate.

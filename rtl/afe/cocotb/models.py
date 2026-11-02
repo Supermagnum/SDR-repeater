@@ -35,3 +35,24 @@ def f_vco(code):
 def f_vco8(code):
     """8-bit bank (D20): the same 2.90-4.41 GHz range in 256 codes."""
     return f_vco(code * 127 / 255)
+
+
+def itail_d22(bias_code):
+    """D22: I_tail = 1.52 mA + code × 0.08 mA."""
+    return 1.52e-3 + (int(bias_code) & 0x1F) * 0.08e-3
+
+
+def amp_vco(bias_code, band_code):
+    """Hand amplitude model for cocotb [HAND]: Amp rises with I_tail, falls toward bottom band.
+
+    Anchored to summary_8bit_range.txt: top@3.41 mA≈1.34 V, bottom@4 mA≈0.85 V (tt 27 °C).
+    """
+    it = itail_d22(bias_code)
+    top = 1.34 * (it / 3.41e-3)
+    bot = 0.85 * (it / 4.00e-3)
+    x = int(band_code) / 255.0
+    return top * (1 - x) + bot * x
+
+
+def amp_high_bit(bias_code, band_code, target=1.25):
+    return amp_vco(bias_code, band_code) > target

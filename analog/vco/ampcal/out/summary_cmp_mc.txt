@@ -1,0 +1,10 @@
+# Comparator offset Monte Carlo [SCH]
+
+N=40 attempted; vacask OP trips returned no crossings (comparator common-mode / gain in the
+stand-alone deck). Bound from PDK mismatch used instead.
+
+Device: W=4 µm, L=0.5 µm; σV_T = 3.9 mV·µm / sqrt(W·L) = **2.76 mV** (NMOS) `[DS]/[HAND]`.
+Differential pair: σ_os ≈ sqrt(2) × 2.76 = **3.9 mV** (1σ) at the Amp/2 node.
+3σ ≈ **11.7 mV** → referred to differential Amp ≈ **23 mV** `[HAND]`.
+
+Vs ±0.10 V Amp window: **PASS** (margin ~4×).
