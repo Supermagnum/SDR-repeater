@@ -1,0 +1,57 @@
+# Step-1 detector diagnosis [SCH] (tt / typ / 27 °C)
+
+I_bias = 20 µA, C_hold = 200 fF, C_ac = 4 fF, R_bias = 50 kΩ.
+
+## top (bank 0, bias 20)
+
+  Amp (true)     = 1.282 V
+  A_est          = 0.027 V   (vhp+vhn−2·vhr)
+  vhp / vhn / vhr = 0.505 / 0.502 / 0.490 V
+  sfp min/max    = 0.123 / 0.910 V
+  sfr (replica SF)= 0.506 V
+  ct             = 1.100 V
+  tp p-p / gp p-p = 1.286 / 0.957 V  (att=0.744)
+  approx diode conduction fraction = 0.253
+  I/C_hold       = 100.00 mV/ns if 20 µA dumped on hold `[HAND]`
+  (note: step-1 has no bleed on hold; I/C is not the discharge path)
+
+## bottom (bank 255, bias 31)
+
+  Amp (true)     = 0.847 V
+  A_est          = 0.000 V   (vhp+vhn−2·vhr)
+  vhp / vhn / vhr = 0.490 / 0.491 / 0.490 V
+  sfp min/max    = 0.227 / 0.764 V
+  sfr (replica SF)= 0.506 V
+  ct             = 1.100 V
+  tp p-p / gp p-p = 0.852 / 0.633 V  (att=0.743)
+  approx diode conduction fraction = 0.144
+  I/C_hold       = 100.00 mV/ns if 20 µA dumped on hold `[HAND]`
+
+## Root cause `[SCH]`
+
+**Primary: conduction-angle / diode-Vth loss not cancelled by the DC replica.**
+
+Hold nodes sit at ≈ sfp_max − Vth ≈ 0.91 − 0.40 ≈ 0.51 V. The replica hold
+has no bleed current, so its diode is off (Vgs ≈ 0) and vhr ≈ sfr (DC SF source
+≈ 0.50 V). Therefore:
+
+  vhp − vhr ≈ (CM + Amp_sf/2 − Vth) − CM = Amp_sf/2 − Vth ≈ 0.39 − 0.40 ≈ 0
+
+  A_est = (vhp − vhr) + (vhn − vhr) ≈ Amp_sf − 2·Vth ≈ 0
+
+which matches the measured A_est ≈ 0.03 V against Amp ≈ 1.28 V.
+
+**Secondary:** AC attenuator C_ac=4 fF vs Cgg cuts tank→gate swing (att ≈ 0.74),
+so Amp_sf is already ~0.74× the tank half-swing and the Vth eat is relatively larger.
+
+**Not the cause:**
+- Bias current too high for hold cap — there is no intentional bleed on the hold;
+  I_bias is the SF tail. Hold does peak-detect; it simply peaks one Vth below SF peak.
+- Per-side vs differential mix-up — the formula vhp+vhn−2·vhr is the right estimator
+  *if* holds tracked peaks relative to a replica that shared the same Vth drop.
+- Wrong reference / netlist error — nodes and naming are consistent; SF swings are sane.
+
+**Implication for redesign:** use a differential max detector (shared source on tp/tn)
+versus a replica of the same devices/bias at CT, so both sides run the same Vgs/conduction
+physics; fold any residual constant conduction-angle loss into a fixed design-time
+threshold offset (V_LOSS), no per-part trim.

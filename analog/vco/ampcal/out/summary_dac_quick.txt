@@ -1,0 +1,50 @@
+# D22 step 1b unit-cell VCO_BIAS DAC [SCH]
+
+10 uA PMOS units: offset 19 + bits 1/2/4/8/16 into 1:8 mirror (series PMOS switches, gate 0 = on) -> I_tail = 1.52 mA + code x 0.08 mA.
+
+| MOS | code | I_ref (uA) | I_tail (mA) | ideal (mA) | err % | mono |
+|---|---|---|---|---|---|---|
+| mos_tt | 0 | 180.3 | 1.504 | 1.520 | -1.1 | PASS |
+| mos_tt | 1 | 189.9 | 1.581 | 1.600 | -1.2 | PASS |
+| mos_tt | 2 | 199.6 | 1.659 | 1.680 | -1.3 | PASS |
+| mos_tt | 3 | 209.1 | 1.735 | 1.760 | -1.4 | PASS |
+| mos_tt | 4 | 218.7 | 1.812 | 1.840 | -1.5 | PASS |
+| mos_tt | 5 | 228.1 | 1.888 | 1.920 | -1.7 | PASS |
+| mos_tt | 6 | 237.5 | 1.963 | 2.000 | -1.9 | PASS |
+| mos_tt | 7 | 246.9 | 2.037 | 2.080 | -2.0 | PASS |
+| mos_tt | 8 | 256.1 | 2.111 | 2.160 | -2.3 | PASS |
+| mos_tt | 9 | 265.2 | 2.184 | 2.240 | -2.5 | PASS |
+| mos_tt | 10 | 274.2 | 2.256 | 2.320 | -2.8 | PASS |
+| mos_tt | 11 | 283.2 | 2.327 | 2.400 | -3.0 | PASS |
+| mos_tt | 12 | 292.0 | 2.397 | 2.480 | -3.3 | PASS |
+| mos_tt | 13 | 300.6 | 2.466 | 2.560 | -3.7 | PASS |
+| mos_tt | 14 | 309.2 | 2.534 | 2.640 | -4.0 | PASS |
+| mos_tt | 15 | 317.6 | 2.601 | 2.720 | -4.4 | PASS |
+| mos_tt | 16 | 322.7 | 2.642 | 2.800 | -5.6 | PASS |
+| mos_tt | 17 | 330.8 | 2.707 | 2.880 | -6.0 | PASS |
+| mos_tt | 18 | 338.8 | 2.770 | 2.960 | -6.4 | PASS |
+| mos_tt | 19 | 346.6 | 2.832 | 3.040 | -6.9 | PASS |
+| mos_tt | 20 | 354.1 | 2.892 | 3.120 | -7.3 | PASS |
+| mos_tt | 21 | 361.6 | 2.951 | 3.200 | -7.8 | PASS |
+| mos_tt | 22 | 368.8 | 3.009 | 3.280 | -8.3 | PASS |
+| mos_tt | 23 | 375.9 | 3.065 | 3.360 | -8.8 | PASS |
+| mos_tt | 24 | 382.8 | 3.119 | 3.440 | -9.3 | PASS |
+| mos_tt | 25 | 389.6 | 3.173 | 3.520 | -9.9 | PASS |
+| mos_tt | 26 | 396.1 | 3.225 | 3.600 | -10.4 | PASS |
+| mos_tt | 27 | 402.6 | 3.276 | 3.680 | -11.0 | PASS |
+| mos_tt | 28 | 408.8 | 3.326 | 3.760 | -11.5 | PASS |
+| mos_tt | 29 | 414.9 | 3.374 | 3.840 | -12.1 | PASS |
+| mos_tt | 30 | 420.9 | 3.421 | 3.920 | -12.7 | PASS |
+| mos_tt | 31 | 426.7 | 3.467 | 4.000 | -13.3 | PASS |
+  mos_tt: LSB=0.0633 mA; DNL max|min|=0.347 LSB; INL max|min|=2.324 LSB `[SCH]`
+  mos_tt: DNL/INL FAIL (limits 0.5 / 1.0 LSB)
+
+Nominal mono+scale: FAIL `[SCH]`
+
+## Mismatch Monte Carlo (tt) [SCH]
+
+  … 5/5
+
+MC sweeps OK: 5/5; mono fails: 0
+Worst |DNL| across MC: 0.386 LSB `[SCH]`
+MC mono+DNL: PASS `[SCH]`

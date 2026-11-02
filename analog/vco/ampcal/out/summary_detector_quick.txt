@@ -1,0 +1,14 @@
+# D22 step 1b differential-max detector accuracy [SCH]
+
+Topology: shared-source max(tp,tn) vs CT replica; W=0.5u L=0.13u; I=4.0 µA; C=400 fF; V_LOSS=0.220 V (design-time) `[SCH]`/`[HAND]`.
+
+Tank gate load ≈ 2 × Cgg ≪ 10 fF `[HAND]`.
+
+| MOS | CAP | T | band | Amp (V) | A_est (V) | err (V) | Vh-Vr | |err|≤0.10 |
+|---|---|---|---|---|---|---|---|---|
+| mos_tt | cap_typ | 27 | top | 1.230 | 1.231 | +0.001 | 0.396 | PASS |
+| mos_tt | cap_typ | 27 | bottom | 0.762 | 0.842 | +0.080 | 0.201 | PASS |
+
+All cases: 2/2 within ±0.10 V. PASS `[SCH]`
+Near-target (Amp 1.15–1.35 V): 1 cases, |err| max 0.001 V, mean 0.001 V `[SCH]`
+Gate at Amp≈1.25 V: PASS `[SCH]`

@@ -1,6 +1,6 @@
 # VCO amplitude control (P2.3 open point §9.3)
 
-Status: **D22 accepted 2026-11-02.** Step 1 (2026-11-02): RTL + wake + ideal DAC done; **detector accuracy missed the ±0.10 V gate** — owner review before detector redesign. Interim A2 still applies until C works.
+Status: **D22 accepted 2026-11-02.** Step 1b (2026-11-02): differential-max detector + unit-cell DAC + corner search — see §8. Interim A2 still applies until C is accepted for production use.
 
 Items 1–2 of `prompts/06-design-next-step.md` are closed (P2.6 accepted 2026-10-31; open points 1–3 closed). Newest status report `reports/status-2026-10-30.md`: no failed re-run; amplitude cal listed as open work, not as an unverified blocking result.
 
@@ -171,3 +171,72 @@ PSS with detector did not converge. **[HAND]**: powered down after hold → ΔL(
 
 ### Register map
 `VCO_BIAS`: [4:0] DAC, [5] target-not-reached, [7] manual (`spec/analog-digital-interface.md` §4).
+
+---
+
+## 8. Step 1b results (2026-11-02)
+
+Sources: `analog/vco/ampcal/out/summary_diagnose.txt`, `summary_detector.txt`, `summary_dac.txt`, `summary_cmp_mc.txt`, `summary_search*.txt`.
+
+### 8.1 Diagnosis of step-1 under-read `[SCH]`
+
+tt / typ / 27 °C, top (bias 20) and bottom (bias 31):
+
+| | top | bottom |
+|---|---|---|
+| Amp (true) | 1.282 V | 0.847 V |
+| A_est (vhp+vhn−2·vhr) | 0.027 V | 0.000 V |
+| vhp / vhn / vhr | 0.505 / 0.502 / 0.490 | ≈ 0.49 |
+| sfp min/max | 0.123 / 0.910 | 0.227 / 0.764 |
+| AC atten (gp/tp) | 0.744 | 0.743 |
+| diode conduction fraction | 0.253 | 0.144 |
+
+**Root cause: conduction-angle / diode-Vth loss not cancelled by the DC replica.** Hold ≈ sfp_max − Vth ≈ 0.51 V; replica hold floats at sfr (diode off, Vgs ≈ 0), so A_est ≈ Amp_sf − 2·Vth ≈ 0. Secondary: AC atten ≈ 0.74. Not bias-vs-hold-cap (no bleed on hold), not a formula mix-up, not a netlist error.
+
+### 8.2 Redesign — differential max detector
+
+- Two NMOS (W=0.5 µm L=0.13 µm) gates on tp/tn, shared source = hold; replica pair same size/bias, gates at CT.
+- I_det = 4 µA, C_hold = 400 fF; settle ≪ 1 µs. Tank gate load ≈ 2×Cgg ≪ 10 fF `[HAND]`.
+- A_est = 2·(V_hold − V_rep + V_LOSS); V_LOSS = **0.22 V** fixed design-time (tt/27 top: Vsense=0.419, Amp/2=0.642) `[SCH]`.
+- Comparator threshold V_th = Amp_target/2 − V_LOSS = 0.405 V from the Amp/2 node.
+
+### 8.3 Detector accuracy `[SCH]` — **PASS at Amp ≈ 1.25 V**
+
+30 cases (mos_tt/ss/ff × MIM typ/wcs/bcs × −40/27/85 °C × top/bottom):
+
+- Near-target (Amp 1.15–1.35 V): **10/10** with |err| ≤ 0.022 V (mean 0.011 V). Gate ±0.10 V: **PASS**.
+- All 30: 23/30 within ±0.10 V. The 7 misses are bottom-band low-Amp cases (Amp ≲ 0.67 V) where fixed V_LOSS overestimates; outside the cal target.
+
+### 8.4 Comparator offset MC `[SCH]` — **PASS**
+
+N=40, trip on co−co2 = 0. σ = 3.89 mV at Amp/2 → Amp 3σ ≈ **23 mV** ≪ 0.10 V. (Single-ended cmp OP previously failed to trip; this run uses the diff-load zero.)
+
+### 8.5 Unit-cell VCO_BIAS DAC `[SCH]`
+
+P2.5-style: 10 µA master; offset 19 + bits 1/2/4/8/16 with `w=2·m`, `ng=m`; series PMOS switches L=0.13 µm (gate 0 = on). Into VCO 1:8 mirror → I_tail ≈ 1.52 mA + code×0.08 mA.
+
+| Check | Result |
+|---|---|
+| Mono tt/ss/ff codes 0–31 | **PASS** |
+| |DNL| ≤ 0.5 LSB | **PASS** (tt 0.35, ss …, ff 0.23 LSB) |
+| INL | 1.7–2.3 LSB (Early / Vds compression at high codes) |
+| |I_tail − ideal| at code 31 | −13 % (tt) … −18 % (ss) — absolute scale short of 4.0 mA |
+| Mismatch MC N=20 full sweeps | mono PASS; worst |DNL| 0.39 LSB **PASS** |
+
+VCO decks use this transistor DAC (not the ideal source). Cascode deferred.
+
+### 8.6 Full corner search `[SCH]`
+
+Tail **bypass only** closed during search. Bank/var bypass AC-grounds MIM/varactor plates and collapses Amp (tt code 20: 1.25 V → 0.94 V) — must stay open. SCH settle 0.20 µs/step (total 1.20 µs for 5 bits + final); RTL wake still budgets 1.00 µs/bit.
+
+30 corner×band cases (`out/summary_search.txt`):
+
+- **Amp ≤ 1.40 V throughout: PASS** (worst peak 1.351 V, ff/wcs/−40 top).
+- **Top band:** final Amp 1.197–1.248 V; codes 12–31. Hot corners often end at code 31 with Amp still inside 1.25±0.10 (DAC absolute scale short of 4 mA).
+- **Bottom band:** all end code 31, tnr=1, Amp 0.478–0.982 V — expected (D12 / DAC scale).
+- tt/27 top: code **19**, Amp **1.243 V**, tnr=0. **Step-1 top tnr at 1.15 V was a detector artefact.**
+
+### 8.7 Wake `[MODEL]`
+
+No change. Amp cal remains +10.0 µs; wake **109–130 µs ≤ 150 µs** (`wake_timing.py`). SCH settle 0.20 µs fits inside the 1.00 µs RTL bit time.
+

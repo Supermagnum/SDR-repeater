@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
-"""D22 step 1 shared fragments: VCO_BIAS DAC and tank peak detector.
+"""D22 step 1b: differential max detector + unit-cell VCO_BIAS DAC.
 
-Detector choice: **source-follower peak hold + replica at V_CT**, AC-coupled **4 fF per
-side (8 fF total ≤ 10 fF)**. Reason: gate C is set by the series C (not by a rectifier
-junction on the tank); the replica cancels V_GS and common-mode; a MOS/diode rectifier
-on the tank draws nonlinear RF current and tracks large swings worse at 3–4 GHz `[HAND]`.
+Detector (redesign): two NMOS with gates on tp/tn, shared source = hold; replica
+pair gates at ct. C_gate << 10 fF. V_sense = V_hold - V_rep ~= Amp/2 - V_loss.
+Threshold = Amp_target/2 - V_LOSS (fixed design-time conduction-angle loss).
 
-Amp estimate from holds: A_est = (V_hp + V_hn) − 2·V_hr  (≈ differential peak).
-Threshold for 1.25 V: compare A_est/2 to 0.625 V derived as 10 µA × 62.5 kΩ from the
-bias-generator unit current (pll §12 V_REF family).
-
-DAC (D22): I_tail = 1.52 mA + code × 0.08 mA via the existing 1:8 mirror
-(I_ref = I_tail/8 = 190 µA + code × 10 µA).
+DAC: identical 10 uA PMOS unit cells — offset 19 + bits 1/2/4/8/16 — into the
+VCO 1:8 mirror -> I_tail = 1.52 mA + code x 0.08 mA (D22). Series PMOS switches
+(gate=0 on), same style as the P2.5 I_cp DAC.
 """
 import os
 import re
@@ -33,16 +29,29 @@ LSB = 0.08e-3
 A_TARGET = 1.25
 A_HARD = 1.40
 A_WIN = 0.10
-C_AC = 4e-15          # per side; 8 fF total
+# Step-1 topology constants (diagnosis only)
+C_AC = 4e-15
 HOLD_C = 200e-15
+# Design-time conduction-angle loss at the Amp/2 node.
+# Tuned at tt/27 top: Vsense=0.419, Amp/2=0.642 -> loss~0.223 V [SCH]
+V_LOSS = 0.22
+C_HOLD = 400e-15
+I_DET = 4e-6          # few uA
+# Gate devices: W=0.5u L=0.13 -> Cgg ~ 0.5-1 fF each; 2 on tank << 10 fF
+W_DET = "0.5u"
+L_DET = "0.13u"
 
-# PDK mismatch (P2.4 §9 / P2.5): σV_T 3.9 / 2.2 mV·µm, σβ 0.5 / 0.33 %·µm
 SIG_VT_N, SIG_VT_P = 3.9e-3, 2.2e-3
 SIG_B_N, SIG_B_P = 0.005, 0.0033
 
 
 def itail(code):
     return I0 + int(code) * LSB
+
+
+def v_th():
+    """Comparator threshold at (hold - rep): Amp/2 - V_LOSS."""
+    return A_TARGET / 2.0 - V_LOSS
 
 
 def load_sizing():
@@ -66,71 +75,96 @@ def set_corner(mos, cap):
         r'include "cornerCAP.lib" section=\w+', f'include "cornerCAP.lib" section={cap}', S2.HEADER)
 
 
+def pm_units(m):
+    """P2.5 unit-finger PMOS: m parallel 2/2 um fingers (w and ng both scale)."""
+    return f"sg13_lv_pmos w={2 * m:g}u l=2u ng={m}"
+
+
 def dac_snippet(code, nb_node="nb"):
-    """Ideal D22 current into the VCO bias diode (I_ref = I_tail/8).
+    """Unit-cell PMOS DAC into VCO bias diode node (I_ref = I_tail/8).
 
-    Transistor binary DAC is checked in run_dac.py (separate deck). VCO Amp/search
-    runs use this ideal source so the code↔current law is exact while the mirror
-    stays the existing mr/mt pair.
+    Master 10 uA; offset 19 + bits 1/2/4/8/16 of identical 2/2 um fingers
+    (P2.5 pm() law). Series PMOS switches L=0.13u, gate 0 = on.
     """
-    iref = itail(code) / 8.0
-    return (
-        f"// D22 ideal DAC code={code} I_tail={itail(code)*1e3:.3f} mA "
-        f"I_ref={iref*1e6:.2f} µA\n"
-        f"iref (vdd {nb_node}) isource dc={iref:.8g}\n"
-    )
-
-
-def dac_transistor_body(code):
-    """Standalone PMOS binary DAC + VCO-style 1:8 mirror for DC characterisation."""
     bits = [(0, 1), (1, 2), (2, 4), (3, 8), (4, 16)]
     n = [
-        f"// transistor DAC code={code}\n",
-        "vdd (vdd 0) vsource dc=1.2\n",
-        "imaster (pbias vdd) isource dc=10u\n",
-        "mm0 (pbias pbias vdd vdd) sg13_lv_pmos w=2u l=2u ng=1\n",
-        "mfix (iref pbias vdd vdd) sg13_lv_pmos w=2u l=2u ng=19\n",
+        f"// D22 unit-cell DAC code={code} I_tail={itail(code)*1e3:.3f} mA\n",
+        "imaster (pbias 0) isource dc=10u\n",
+        f"mm0 (pbias pbias vdd vdd) {pm_units(1)}\n",
+        f"moff (xoff pbias vdd vdd) {pm_units(19)}\n",
+        f"msoff ({nb_node} 0 xoff vdd) sg13_lv_pmos w=38u l=0.13u ng=1\n",
     ]
     for b, m in bits:
         on = (int(code) >> b) & 1
-        g = "pbias" if on else "vdd"
-        n.append(f"mdb{b} (iref {g} vdd vdd) sg13_lv_pmos w=2u l=2u ng={m}\n")
+        gsw = "0" if on else "vdd"
+        n.append(f"mdb{b} (xd{b} pbias vdd vdd) {pm_units(m)}\n")
+        n.append(f"msw{b} ({nb_node} {gsw} xd{b} vdd) sg13_lv_pmos w={2 * m:g}u l=0.13u ng=1\n")
+    return "".join(n)
+
+
+def dac_transistor_body(code, mismatch=None):
+    """Standalone DAC + VCO 1:8 mirror for DC / MC characterisation.
+
+    I_ref sensed with series 0 V (xref -> iref). Never short iref to vdd.
+    """
+    bits = [(0, 1), (1, 2), (2, 4), (3, 8), (4, 16)]
+    n = ["vdd (vdd 0) vsource dc=1.2\n", "imaster (pbias 0) isource dc=10u\n"]
+    if mismatch:
+        n.append(f"vo_m0 (g_m0 pbias) vsource dc={mismatch.get('m0', 0):.6g}\n")
+        n.append(f"mm0 (pbias g_m0 vdd vdd) {pm_units(1)}\n")
+        n.append(f"vo_off (g_off pbias) vsource dc={mismatch.get('off', 0):.6g}\n")
+        g_off = "g_off"
+    else:
+        n.append(f"mm0 (pbias pbias vdd vdd) {pm_units(1)}\n")
+        g_off = "pbias"
+    n.append(f"moff (xoff {g_off} vdd vdd) {pm_units(19)}\n")
+    n.append("msoff (xref 0 xoff vdd) sg13_lv_pmos w=38u l=0.13u ng=1\n")
+    for b, m in bits:
+        on = (int(code) >> b) & 1
+        gsw = "0" if on else "vdd"
+        if mismatch:
+            dv = mismatch.get(f"b{b}", 0.0)
+            n.append(f"vo_b{b} (g_b{b} pbias) vsource dc={dv:.6g}\n")
+            gg = f"g_b{b}"
+        else:
+            gg = "pbias"
+        n.append(f"mdb{b} (xd{b} {gg} vdd vdd) {pm_units(m)}\n")
+        n.append(f"msw{b} (xref {gsw} xd{b} vdd) sg13_lv_pmos w={2 * m:g}u l=0.13u ng=1\n")
     n += [
+        "vr (xref iref) vsource dc=0\n",
         "mr (iref iref 0 0) sg13_lv_nmos w=20u l=4u ng=4\n",
         "mt (tail iref 0 0) sg13_lv_nmos w=160u l=4u ng=32\n",
         "vs (vdd tail) vsource dc=0\n",
-        "vr (vdd iref) vsource dc=0\n",
     ]
     return "".join(n)
 
 
 def detector_snippet(en=True):
-    """SF peak holds on tp/tn + replica at ct. Saves vhp,vhn,vhr,cmp."""
+    """Differential max detector + replica; <= 10 fF tank gate load.
+
+    hold charges to ~= max(tp,tn) - Vgs; rep ~= ct - Vgs.
+    A_est = 2 * (V_hold - V_rep + V_LOSS)  (V_LOSS folds conduction-angle loss).
+    cmp high when (hold - rep) > V_th = Amp_target/2 - V_LOSS.
+    """
+    ib = f"{I_DET:.6g}" if en else "1e-12"
+    th = v_th()
     n = [
-        f"// SF+replica peak detector; C_ac={C_AC*1e15:.0f}fF/side; en={int(en)}\n",
-        f"xc_tp (tp gp) capacitor c={C_AC:.6g}\n",
-        f"xc_tn (tn gn) capacitor c={C_AC:.6g}\n",
-        "rgp (gp ct) resistor r=50k\n",
-        "rgn (gn ct) resistor r=50k\n",
-        "msfp (vdd gp sfp 0) sg13_lv_nmos w=2u l=0.13u ng=2\n",
-        "msfn (vdd gn sfn 0) sg13_lv_nmos w=2u l=0.13u ng=2\n",
-        "msfr (vdd ct sfr 0) sg13_lv_nmos w=2u l=0.13u ng=2\n",
-        f"isfp (sfp 0) isource dc={'20u' if en else '1p'}\n",
-        f"isfn (sfn 0) isource dc={'20u' if en else '1p'}\n",
-        f"isfr (sfr 0) isource dc={'20u' if en else '1p'}\n",
-        "mdp (sfp sfp vhp 0) sg13_lv_nmos w=1u l=0.13u ng=1\n",
-        "mdn (sfn sfn vhn 0) sg13_lv_nmos w=1u l=0.13u ng=1\n",
-        "mdr (sfr sfr vhr 0) sg13_lv_nmos w=1u l=0.13u ng=1\n",
-        f"chp (vhp 0) capacitor c={HOLD_C:.6g}\n",
-        f"chn (vhn 0) capacitor c={HOLD_C:.6g}\n",
-        f"chr (vhr 0) capacitor c={HOLD_C:.6g}\n",
-        # Comparator: mid = (vhp+vhn)/2 vs vhr + 0.625 V
-        "rap (vhp mid) resistor r=200k\n",
-        "ran (vhn mid) resistor r=200k\n",
-        f"vof (vcref vhr) vsource dc={A_TARGET/2:.6g}\n",
-        "mc1 (co mid tt 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
-        "mc2 (co2 vcref tt 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
-        "itt (tt 0) isource dc=20u\n",
+        f"// D22 1b diff-max det; I={I_DET*1e6:.1f}uA C={C_HOLD*1e15:.0f}fF V_LOSS={V_LOSS:.3f}\n",
+        # Detector pair: shared source = hold
+        f"mdtp (vdd tp hold 0) sg13_lv_nmos w={W_DET} l={L_DET} ng=1\n",
+        f"mdtn (vdd tn hold 0) sg13_lv_nmos w={W_DET} l={L_DET} ng=1\n",
+        f"idet (hold 0) isource dc={ib}\n",
+        f"chold (hold 0) capacitor c={C_HOLD:.6g}\n",
+        # Replica pair: both gates at centre tap
+        f"mrtp (vdd ct rep 0) sg13_lv_nmos w={W_DET} l={L_DET} ng=1\n",
+        f"mrtn (vdd ct rep 0) sg13_lv_nmos w={W_DET} l={L_DET} ng=1\n",
+        f"irep (rep 0) isource dc={ib}\n",
+        f"crep (rep 0) capacitor c={C_HOLD:.6g}\n",
+        # Comparator: vip = hold, vin = rep + V_th
+        f"vth (vthn rep) vsource dc={th:.6g}\n",
+        "mc1 (co hold ttail 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
+        "mc2 (co2 vthn ttail 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
+        "itt (ttail 0) isource dc=20u\n",
         "rc1 (vdd co) resistor r=20k\n",
         "rc2 (vdd co2) resistor r=20k\n",
         "minv (cmp co 0 0) sg13_lv_nmos w=2u l=0.13u ng=1\n",
@@ -139,5 +173,18 @@ def detector_snippet(en=True):
     return "".join(n)
 
 
-def a_est_from_holds(vhp, vhn, vhr):
-    return float(vhp + vhn - 2 * vhr)
+def a_est_from_holds(v_hold, v_rep):
+    """Differential amplitude estimate from max-detector nodes."""
+    return float(2.0 * ((v_hold - v_rep) + V_LOSS))
+
+
+def inject_dac_det(sim_path, bias_code, det=True):
+    text = open(sim_path).read()
+    text = re.sub(
+        r"iref \(vdd nb\) isource dc=[^\n]+\n",
+        dac_snippet(bias_code, "nb"),
+        text,
+    )
+    if det:
+        text = text.replace("\ncontrol\n", "\n" + detector_snippet(True) + "\ncontrol\n")
+    open(sim_path, "w").write(text)

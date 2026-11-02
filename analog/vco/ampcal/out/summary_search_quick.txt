@@ -1,0 +1,24 @@
+# D22 step 1b amplitude SAR (diff-max det + unit DAC, bypass closed) [SCH]
+
+Settle 0.20 µs/step (elec); target 1.25 V ± 0.1 V; hard 1.4 V; V_LOSS=0.220 V.
+
+| MOS | CAP | T | band | code | Amp | A_est | tnr | Amp_peak | t_step_elec (µs) | t_tot_elec (µs) | ≤1.40 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| mos_tt | cap_typ | 27 | top | 19 | 1.243 | 1.242 | 0 | 1.299 | 0.20 | 1.20 | PASS |
+    bit4 trial=16 keep=1 Amp=1.199 A_est=1.204 cmp_high=0
+    bit3 trial=24 keep=0 Amp=1.299 A_est=1.290 cmp_high=1
+    bit2 trial=20 keep=0 Amp=1.255 A_est=1.253 cmp_high=1
+    bit1 trial=18 keep=1 Amp=1.229 A_est=1.231 cmp_high=0
+    bit0 trial=19 keep=1 Amp=1.243 A_est=1.242 cmp_high=0
+| mos_tt | cap_typ | 27 | bottom | 31 | 0.782 | 0.857 | 1 | 0.782 | 0.20 | 1.20 | PASS |
+    bit4 trial=16 keep=1 Amp=0.611 A_est=0.738 cmp_high=0
+    bit3 trial=24 keep=1 Amp=0.721 A_est=0.814 cmp_high=0
+    bit2 trial=28 keep=1 Amp=0.759 A_est=0.841 cmp_high=0
+    bit1 trial=30 keep=1 Amp=0.775 A_est=0.852 cmp_high=0
+    bit0 trial=31 keep=1 Amp=0.782 A_est=0.857 cmp_high=0
+
+Amp ≤ 1.40 V all steps: PASS `[SCH]`
+
+## Step-1 top-band tnr explanation (tt/27)
+
+Top now reaches Amp=1.243 V at code 19 (tnr=0). Step-1 top tnr at 1.15 V was a **detector artefact** (under-read → search kept raising code / mis-compared). `[SCH]`
