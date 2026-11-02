@@ -1,6 +1,6 @@
 # VCO amplitude control (P2.3 open point §9.3)
 
-Status: **topology memo, 2026-11-02. Proposal D22 awaiting the owner.** No new circuit designed or simulated in this run.
+Status: **D22 accepted by the owner 2026-11-02** (`decisions.md`). Option C with the DAC offset and “target not reached” rule below. Interim: A2 until C is designed. No circuit designed in the memo run.
 
 Items 1–2 of `prompts/06-design-next-step.md` are closed (P2.6 accepted 2026-10-31; open points 1–3 closed). Newest status report `reports/status-2026-10-30.md`: no failed re-run; amplitude cal listed as open work, not as an unverified blocking result.
 
@@ -17,7 +17,7 @@ Items 1–2 of `prompts/06-design-next-step.md` are closed (P2.6 accepted 2026-1
 | Lower: VCO’s own bottom-band swing at 4 mA | Typical ≈ **0.41 V** per side (0.82 V diff.); lowest recorded **0.59 V** diff. (ff / MIM wcs / 85 °C) → **0.295 V** per side | `[SCH]` `summary_8bit_range.txt`, §9 |
 | Phase noise vs amplitude | Worst recorded VCO margin **+3.6 dB** at 1 MHz, **ss / 85 °C / 4.20 GHz**, Amp **1.257 V**, I_tail **3.59 mA**; bank-omitted re-check **+3.4 dB** | `[SCH]` `summary_4ma.txt`, `summary_pn_nobank.txt` |
 | 4 mA cap (D12) | Tail current **≤ 4.0 mA**; bottom of the range already at the cap | `[SCH]` / `decisions.md` |
-| `VCO_BIAS` register | **0x2C**, reset **0x10**; **[4:0]** tail-current DAC (D9). Range and step still open | `[PROP]` `spec/analog-digital-interface.md` §4 |
+| `VCO_BIAS` register | **0x2C**, reset **0x10**; **[4:0]**; **I_tail = 1.52 mA + code × 0.08 mA** (1.52–4.00 mA; D12 at code 31) | D22 / `spec/analog-digital-interface.md` §4 |
 
 Design intent in the schematic scripts: target differential amplitude **A_TARGET = 1.3 V**, then `I_tail = min(4 mA, I0 · 1.3 / Amp)` `[SCH]` (`analog/vco/step2/run_step2.py`).
 
@@ -81,8 +81,8 @@ Same as A, but top-band codes reduced so cold/ss peak V_GS stays ≤ **≈ 1.40 
 | **Tank loading** | Extra C and possible nonlinear conductance. Budget against the 762 fF high-edge cap (`spec/vco-topology.md` §2); keep detector C ≪ buffer tap (buffer already ~100 fF/side) `[HAND]`. |
 | **D9 filter / bypass** | Each DAC step must settle through 1 MΩ / 50 pF (**τ ≈ 50 µs**) unless `en_vco_bias_bp` is pulsed for each trial (same switch as wake, ≥ 6–7 τ of the **bypassed** path ≈ 11 ns) `[SCH]`. Proposal: pulse bypass ~0.2–0.5 µs per step, then open and sample. |
 | **Wake budget** | Model wake today **83–120 µs** of **≤ 150 µs** `[MODEL]`. Headroom **≈ 30–67 µs**. A 5-bit binary search (5 trials) with ~1–2 µs settle each fits in **≈ 10 µs**; linear search worst 32 steps needs care. Must not push total wake over 150 µs. |
-| **Ordering with D20** | Prefer: bias bypass → coarse `VCO_BIAS` from A2 table → **band calibration** (needs a running VCO) → **amplitude search** (band code stable) → release hold / lock. Alternative: amplitude search before band cal if frequency shift from I_tail is small enough for the 8-bit nearest rule `[HAND]` — verify in step 1 after acceptance. |
-| **V_tune-monitor re-runs** | On `PLL_STATUS[4:5]`, re-run band cal; **re-run amplitude search** (or keep last code if Amp still in window — needs a read-back or a sticky “in window” flag). |
+| **Ordering with D20** | **D22:** run the amplitude search **with** band calibration; **start-up bypass stays closed for the whole search**, then open and hold the code. Re-run on every band cal (wake, band change, V_tune-monitor). |
+| **V_tune-monitor re-runs** | On `PLL_STATUS[4:5]`, re-run band cal **and** amplitude search (D22). |
 
 ### D — Continuous analogue amplitude loop
 
@@ -95,18 +95,20 @@ Same as A, but top-band codes reduced so cold/ss peak V_GS stays ≤ **≈ 1.40 
 
 ---
 
-## 4. Proposal — D22
+## 4. D22 — accepted 2026-11-02
 
-**Choose option C** (peak detector + comparator + digital search over `VCO_BIAS`, run once per wake / band change, then hold). Prefer it over A/A2 alone because the open point is **amplitude per corner**, and the SCH matrix already shows a **2.5:1** bottom Amp spread and a cold top at **1.48 V** under a fixed per-band current `[SCH]`. Prefer it over D to keep the bias filter and avoid a continuous noise path. Prefer it over B to keep the RFIC self-contained (no fuse map / host T table).
+Option **C** accepted (`decisions.md`), with the owner’s DAC offset and bottom-band flag. Rationale from the memo still holds: corner Amp spread under a fixed per-band current; avoid continuous loop noise (D) and host fuse maps (B).
 
-| Item | Proposal |
+| Item | Accepted |
 |---|---|
-| **Target amplitude** | **1.25 V** differential peak (**± 0.10 V** accept window). Same family as today’s A_TARGET 1.3 V `[SCH]`, with room under 1.5 V. |
-| **Hard upper clamp** | Search must not command a code that would push peak V_GS above **1.40 V** at the present band; if the comparator still reads low at 4 mA, **stop at 4 mA** and set a status sticky (bottom-band / hot-corner case). |
-| **DAC range / step** | `VCO_BIAS[4:0]`: **I_tail = (code / 31) × 4.0 mA**, code 0 → 0, code 31 → **4.0 mA**, LSB ≈ **129 µA** `[PROP]`. Useful codes for the present table ≈ 26–31 (3.4–4.0 mA). |
-| **Register map (proposal only — do not apply)** | Keep **0x2C** `[4:0]` as the DAC (host override when cal disabled). Add **`AMP_CTRL`** (e.g. 0x2D): `[0]` enable on-chip amp cal; `[1]` cal busy; `[2]` cal failed (hit 4 mA still low, or hit clamp still high); `[3]` force re-cal. Optional `[7:4]` reserved. `PLL_STATUS`: optional `[6]` amp-cal failed mirror. Sequencer: after D20 band cal success, run amp search before closing the loop; on V_tune-monitor fail, re-run amp search after band cal. |
-| **Interim until designed** | **Option A2**: ship / simulate with a per-band `VCO_BIAS` table derated so cold/ss top Amp ≤ 1.40 V; bottom stays at code for 4 mA. Document the table from `summary_8bit_range.txt`. Host writes `VCO_BIAS` with the band (as §5.2 already allows). |
-| **Step-1 plan after acceptance** | (1) Detector topology sketch (diode / MOS peak vs buffer replica) and C_load budget. (2) Comparator reference vs V_CT. (3) FSM timing with `en_vco_bias_bp` pulses; measure wake total vs 150 µs `[MODEL]`. (4) SCH: Amp vs code at tt and ss85 top/bottom; confirm window. (5) pnoise with detector powered down after hold vs left on — gate ≤ 0.5 dB on the worst margin. (6) Lock ordering with D20; one V_tune-monitor re-cal path. Stop for review before layout of the detector. |
+| **Topology** | Peak detector + comparator **on the tank**; digital search over `VCO_BIAS`; **start-up bypass closed during the search**; code **held** in operation. Detector may be powered down after hold (step 1). |
+| **When it runs** | With **every** band calibration: wake, band change, and V_tune-monitor flag. |
+| **Target amplitude** | **1.25 V ± 0.10 V** differential. Hard upper limit **1.40 V**. |
+| **DAC** | `VCO_BIAS[4:0]`: **I_tail = 1.52 mA + code × 0.08 mA** → **1.52–4.00 mA**; D12 cap at **code 31**. (Not code/31 × 4 mA.) |
+| **Bottom bands** | If 4 mA still below target: end at code 31 and set **"target not reached"** — **expected, not a fault**; D12 unchanged. |
+| **Register map** | Keep **0x2C** `[4:0]` as the DAC (host override when cal disabled / interim A2). Add status for busy / target-not-reached / clamp-high as needed when C is designed (`AMP_CTRL` sketch in the pre-acceptance proposal remains a starting point). |
+| **Interim until C is designed** | **Option A2**: per-band table, top bands derated for margin to 1.5 V. Host writes `VCO_BIAS` with the band. |
+| **Step-1 plan** | (1) Detector on the tank: topology and C_load budget. (2) Comparator reference for 1.25 V. (3) FSM with bypass **held closed** for the whole search; wake total vs 150 µs `[MODEL]`. (4) SCH Amp vs code (offset DAC) at tt and ss85 top/bottom. (5) pnoise detector off after hold vs on — gate ≤ 0.5 dB on worst margin. (6) Ordering with D20; re-run path on V_tune-monitor. Stop for review before detector layout. |
 
 ---
 

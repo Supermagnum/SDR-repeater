@@ -305,3 +305,12 @@ Owner decision after the D10 LDO noise STOP (`analog/vco/ldo/out/summary_ldo_ana
 - Pad voltage [HAND]: UHF→VHF ΔV_pad ≈ **13.5 mV**; within VHF ≈ **1.5 mV**. Worst-case V_pad with ±5% LDO and ±20% R at I_max 10.3 mA ≈ **1.108 V** ≥ 1.08 V (PASS). Tighter ±5%/±30% still ≈ 1.098 V.
 - Noise [SCH]: earlier S_v(pad) ≈ **9.5 nV/√Hz** was taken on an OP that **did not hold in transient** — mark that figure **UNVERIFIED**. After the compensation fix below, re-run: S_v(pad) @ 1 MHz, R=10 Ω, I=10 mA ≈ **3.0 nV/√Hz** (PASS vs ≤ 11); typ 9.65 mA ≈ **2.95 nV/√Hz**. `analog/vco/ldo/out/summary_ldo_verify.txt`.
 - Stability [SCH]: open-loop DC polarity was already correct for the PMOS pass (mid↑→vg↑; VACASK W∠≈0° = NEG-FB in 1/(1+W)). Drift to Vin was **not** a second stable state — it was the Miller-to-mid compensation path. Fix: replace `cc(vg,mid)` with **Rz=500 Ω + Cg=100 pF to gnd**. Transient HOLD from OP; soft-start from 0 V and from Vin both settle ≈ 1.295 V. stb PM ≥ 60° with R=10/bond/100 nF (**64.4°**) and with C missing (**61.4°**). Load +1 mA and VBAT +0.3 V steps damped. Board 100 nF remains mandatory for the noise filter. **Cg area:** ≈ 0.0125 mm² MOS (8 fF/µm²) or ≈ 0.067 mm² MIM (1.5 fF/µm²) — prefer MOS; see `spec/p27-layout-notes.md`.
+
+## 2026-11-02 — D22 VCO amplitude control
+
+Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes:
+
+- **D22:** peak detector + comparator on the tank and a digital search over `VCO_BIAS`, run with the band calibration (**start-up bypass closed during the search**) and held during operation. Target **1.25 V ± 0.10 V** differential, hard limit **1.40 V**. Re-run with every band calibration (wake, band change, V_tune-monitor flag).
+- `VCO_BIAS` DAC with an offset: **I_tail = 1.52 mA + code × 0.08 mA** (1.52–4.00 mA, 5 bits; D12 cap at code 31) instead of code/31 × 4 mA.
+- Bottom bands: where 4 mA does not reach the target, the search ends at the top code and sets a **"target not reached"** flag; expected, not a fault (D12 unchanged).
+- Interim until C is designed: option **A2** (per-band table, top bands derated for margin to 1.5 V).
