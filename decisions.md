@@ -341,3 +341,12 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   VR_ANA1) and exceeds BV_CEO margins [DS].
 - VACASK VBIC PSS ≈ 35 dB optimistic against Leeson: not used for the decision. P2.3 open items
   closed; next is P2.7 layout.
+
+## 2026-11-11 — D23 synthesizer floorplan
+- D23: Option A of spec/p27-floorplan.md — tapped L2n0 in the NW corner next to pin 3
+  (VR_ANA1, D21); VCO east of it; LO buffer and dividers south; PLL, loop filter and monitors
+  NE; AFE digital SE. ≈ 0.50 mm² [HAND]. Chosen for the inductor-to-digital / charge-pump
+  spacing (integer-boundary target ≤ −35 dBc VHF / −15 dBc UHF) and the short VR_ANA1 path.
+- P2.7 sub-step order and pass numbers as in spec/p27-layout-notes.md.
+- To add to the floorplan memo: a rough whole-die area tally (synthesizer, digital, RX, TX,
+  LDOs, pads) against the package, so a squeeze shows before Phase 5.

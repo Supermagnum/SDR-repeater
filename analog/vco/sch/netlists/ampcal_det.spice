@@ -1,0 +1,32 @@
+** sch_path: /work/analog/vco/sch/ampcal_det.sch
+**.subckt ampcal_det tp tn ct vdd gnd cmp hold rep
+*.iopin tp
+*.iopin tn
+*.iopin ct
+*.iopin vdd
+*.iopin gnd
+*.iopin cmp
+*.iopin hold
+*.iopin rep
+Xmdtp vdd tp hold gnd sg13_lv_nmos w=0.5u l=0.13u ng=1 m=1 mm_ok=1
+Xmdtn vdd tn hold gnd sg13_lv_nmos w=0.5u l=0.13u ng=1 m=1 mm_ok=1
+idet hold gnd 4e-06
+chold hold gnd 4e-13
+Xmrtp vdd ct rep gnd sg13_lv_nmos w=0.5u l=0.13u ng=1 m=1 mm_ok=1
+Xmrtn vdd ct rep gnd sg13_lv_nmos w=0.5u l=0.13u ng=1 m=1 mm_ok=1
+irep rep gnd 4e-06
+crep rep gnd 4e-13
+vth vthn rep 0.405
+Xmc1 co hold ttail gnd sg13_lv_nmos w=4u l=0.5u ng=2 m=1 mm_ok=1
+Xmc2 co2 vthn ttail gnd sg13_lv_nmos w=4u l=0.5u ng=2 m=1 mm_ok=1
+itt ttail gnd 2e-05
+rc1 vdd co 20000.0
+rc2 vdd co2 20000.0
+Xmcs1 n1 co2 ss2 gnd sg13_lv_nmos w=4u l=0.5u ng=2 m=1 mm_ok=1
+Xmcs2 cmp co ss2 gnd sg13_lv_nmos w=4u l=0.5u ng=2 m=1 mm_ok=1
+iss2 ss2 gnd 2e-05
+Xmpl1 n1 n1 vdd vdd sg13_lv_pmos w=4u l=0.5u ng=2 m=1 mm_ok=1
+Xmpl2 cmp n1 vdd vdd sg13_lv_pmos w=4u l=0.5u ng=2 m=1 mm_ok=1
+cl_cmp cmp gnd 5e-14
+**.ends
+.end

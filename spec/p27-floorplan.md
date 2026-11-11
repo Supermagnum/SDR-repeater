@@ -1,6 +1,6 @@
 # P2.7 synthesizer floorplan memo
 
-Status: **awaiting owner decision (proposed D23), 2026-11-11.** Planning only — no layout in this run. Companion plan: `spec/p27-layout-notes.md` § Plan. Die context: SX1255-compatible MLPQ-W 5 × 5 mm, 32 leads (`spec/rf-frontend.md` §2); digital back end `phase1l` **339 617 µm²** of 340 000 (`decisions.md` 2026-10-19). Pin 3 = **VR_ANA1** (D21).
+Status: **D23 accepted (Option A), 2026-11-11** (`decisions.md`). Companion plan: `spec/p27-layout-notes.md` § Plan. Die context: SX1255-compatible MLPQ-W 5 × 5 mm, 32 leads (`spec/rf-frontend.md` §2); digital back end `phase1l` **339 617 µm²** of 340 000 (`decisions.md` 2026-10-19). Pin 3 = **VR_ANA1** (D21).
 
 ---
 
@@ -116,4 +116,30 @@ Adopt **Option A** (inductor NW near VR_ANA1; VCO east of coil; LO south; PLL/LF
 
 ## 7. Owner decision
 
-Please accept **D23 = Option A**, choose **Option B**, or request a variant (e.g. inductor NE with pin-3 routing). No layout starts until this is recorded in `decisions.md`.
+**D23 = Option A** recorded in `decisions.md` (2026-11-11). Layout proceeds under P2.7.1+.
+
+---
+
+## 8. Whole-die area tally vs package `[HAND]`
+
+Rough Phase-5 squeeze check against the SX1255-compatible **MLPQ-W 5 × 5 mm** package (`spec/rf-frontend.md` §2). Package outline = **25 mm²**; usable silicon is smaller. Two die-core assumptions: the memo’s ~**1.6 × 1.6 mm** (2.56 mm²) sketch, and a more typical **~2.5 × 2.5 mm** (6.25 mm²) die inside a 5 × 5 MLPQ.
+
+| Block | Area (mm²) | Basis |
+|---|---|---|
+| Synthesizer island (D23 Option A) | **0.50** | §2 / D23 `[HAND]` |
+| Digital back end (`phase1l`) | **0.340** | 339 617 µm² `[SCH]` |
+| RX (LNA + mixer + TIA/AAF + Σ-Δ ADC) | **0.90** | rf-frontend §7 first-cut; SX1255-class `[HAND]` |
+| TX (Σ-Δ DAC + recon filter + IQ mod + PA driver) | **0.65** | same `[HAND]` |
+| LDOs (VR_PA, VR_ANA1, VR_ANA2, VR_DIG) + local C | **0.10** | VR_ANA1 alone ≈ 0.02–0.03; four rails `[HAND]` |
+| Pad ring / ESD / seal (32 leads) | **0.55** | typical MLPQ pad + ESD strip `[HAND]` |
+| **Sum (no routing slack)** | **≈ 3.04** | |
+| Routing / guard / fill / DNW slack (~15 %) | **≈ 0.45** | `[HAND]` |
+| **Total estimate** | **≈ 3.5** | |
+
+| Against | Available | Fit? |
+|---|---|---|
+| Memo core 1.6 × 1.6 mm = 2.56 mm² | 2.56 | **NO — short ≈ 0.9 mm²** `[HAND]` |
+| Typical die 2.5 × 2.5 mm = 6.25 mm² | 6.25 | **YES — ~2.8 mm² slack** `[HAND]` |
+| Package outline 5 × 5 mm = 25 mm² | (die ≪ package) | Package is not the limit; die outline is |
+
+**Flag:** the §1 sketch of a **1.6 × 1.6 mm** active core **does not fit** the Phase 3/4 RX+TX + synth + digital + pads tally. Before Phase 5, plan on a die closer to **≥ ~2.2 × 2.2 mm** (≈ 4.8 mm²) or tighten RX/TX area after topology. Synthesizer island alone (0.50 mm²) is not the squeeze; RX+TX+pads dominate. Exact die size remains a Phase 5 decision.

@@ -1,0 +1,21 @@
+** sch_path: /work/analog/vco/sch/vrana1_ldo.sch
+**.subckt vrana1_ldo vin vout vref gnd
+*.iopin vin
+*.iopin vout
+*.iopin vref
+*.iopin gnd
+Xmp vout vg vin vin sg13_lv_pmos w=400u l=0.13u ng=80 m=1 mm_ok=1
+rf1 vout mid 200000.0
+rf2 mid gnd 200000.0
+ib vin nb 4e-05
+Xmb nb nb gnd gnd sg13_lv_nmos w=4u l=2u ng=2 m=1 mm_ok=1
+Xmt t nb gnd gnd sg13_lv_nmos w=8u l=2u ng=2 m=1 mm_ok=1
+Xm1 d1 mid t gnd sg13_lv_nmos w=16u l=2u ng=4 m=1 mm_ok=1
+Xm2 vg vref t gnd sg13_lv_nmos w=16u l=2u ng=4 m=1 mm_ok=1
+Xm3 d1 d1 vin vin sg13_lv_pmos w=32u l=2u ng=4 m=1 mm_ok=1
+Xm4 vg d1 vin vin sg13_lv_pmos w=32u l=2u ng=4 m=1 mm_ok=1
+rz vg ncg 500
+cg ncg gnd 1e-10
+Xxout vout gnd gnd cap_rfcmim w=2.581990e-04 l=2.581990e-04 wfeed=5.0e-6 m=1 mm_ok=1
+**.ends
+.end

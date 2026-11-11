@@ -1,0 +1,10 @@
+# P2.7.1 netlist equivalence notes
+
+See `summary_xsch_vco.txt` for the pass table and explained diffs.
+
+Raw compares:
+- step2 vs inventory: l2n0 expansion extras only (explained).
+- inventory vs xschem spice: body=sub! vs gnd; vvb parse (explained).
+- ldo_body vs vrana1_ldo: TB vin/vref sources not in leaf (explained).
+
+netgen: not used as pass gate (incomplete spice wrappers).

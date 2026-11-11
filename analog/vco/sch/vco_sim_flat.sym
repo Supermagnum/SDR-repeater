@@ -1,0 +1,31 @@
+v {xschem version=3.4.7 file_version=1.2}
+G {}
+K {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1"
+}
+V {}
+S {}
+E {}
+L 4 -80 -40 80 -40 {}
+L 4 -80 40 80 40 {}
+L 4 -80 -40 -80 40 {}
+L 4 80 -40 80 40 {}
+T {vco_sim_flat} -60 -10 0 0 0.3 0.3 {}
+T {@name} 40 -30 0 0 0.2 0.2 {}
+B 5 -82.5 -32.5 -77.5 -27.5 {name=tp dir=inout}
+T {tp} -75 -30 0 0 0.15 0.15 {}
+B 5 -82.5 -23.9286 -77.5 -18.9286 {name=tn dir=inout}
+T {tn} -75 -21.4286 0 0 0.15 0.15 {}
+B 5 -82.5 -15.3571 -77.5 -10.3571 {name=ct dir=inout}
+T {ct} -75 -12.8571 0 0 0.15 0.15 {}
+B 5 -82.5 -6.78571 -77.5 -1.78571 {name=vt dir=inout}
+T {vt} -75 -4.28571 0 0 0.15 0.15 {}
+B 5 -82.5 1.78571 -77.5 6.78571 {name=vdd dir=inout}
+T {vdd} -75 4.28571 0 0 0.15 0.15 {}
+B 5 -82.5 10.3571 -77.5 15.3571 {name=gnd dir=inout}
+T {gnd} -75 12.8571 0 0 0.15 0.15 {}
+B 5 -82.5 18.9286 -77.5 23.9286 {name=vbp dir=inout}
+T {vbp} -75 21.4286 0 0 0.15 0.15 {}
+B 5 -82.5 27.5 -77.5 32.5 {name=vbp_tail dir=inout}
+T {vbp_tail} -75 30 0 0 0.15 0.15 {}

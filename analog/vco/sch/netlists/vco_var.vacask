@@ -1,0 +1,23 @@
+P2.7.1 vco_var
+include "sg13g2_vacask_common.lib"
+include "cornerMOSlv.lib" section=mos_tt
+include "cornerMOShv.lib" section=mos_tt
+include "cornerCAP.lib" section=cap_typ
+load "resistor.osdi"
+load "capacitor.osdi"
+load "inductor.osdi"
+model resistor resistor
+model capacitor capacitor
+model inductor inductor
+model vsource vsource
+model isource isource
+
+xcp (tp vgp 0) cap_rfcmim w=21.292u l=21.292u
+xcn (tn vgn 0) cap_rfcmim w=21.292u l=21.292u
+rvp (vgp vvb) resistor r=2000000.0
+rvn (vgn vvb) resistor r=2000000.0
+vvb (vvb 0) vsource dc=0.3
+xv1 (vgp vt vgn 0) sg13_hv_svaricap_fx w=3.74u l=0.3u nx=10
+xv2 (vgp vt vgn 0) sg13_hv_svaricap_fx w=3.74u l=0.3u nx=10
+mbp_rvp (vgp vbp vvb 0) sg13_lv_nmos w=5u l=0.13u ng=2
+mbp_rvn (vgn vbp vvb 0) sg13_lv_nmos w=5u l=0.13u ng=2

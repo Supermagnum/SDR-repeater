@@ -1,0 +1,37 @@
+# summary_xsch_vco — P2.7.1
+
+## Pass criteria vs results
+
+| Criterion | Result |
+|---|---|
+| Hierarchical xschem `.sch`/`.sym` for VCO, D22, D21 LDO | DONE under `analog/vco/sch/` |
+| PDK symbols; values from `range.json` / amp_common / ldo_body | DONE (trims, ng, MIM sides, D22 sizes) |
+| SVG + PDF per schematic | DONE in `exports/` |
+| Netlist equivalence (same devices/sizes/connectivity; diffs explained) | CONDITIONAL PASS — see explained diffs |
+| VACASK VCO range codes 0/128/255 tt ≤0.2 % f, ≤0.02 V Amp vs `range.json` | **FAIL** (same FAIL on pure `S2.tran` re-run) |
+| VACASK D22 search tt 27 °C top | PASS (rerun = recorded: code 14, Amp 1.250) |
+| VACASK LDO DC | PASS (V_out=1.2950, V_pad=1.1985) |
+
+## Explained equivalence diffs (accepted for this run)
+
+1. **step2 deck vs `vco_sim_flat` inventory:** inventory **expands** `l2n0` to lumped R/L/C from `l2n0_lumped.inc` [EM]; step2 instantiates subckt `xl`. Extra R 0.814837 / 0.827877 and C 29.86 fF are those EM elements — not a schematic error.
+2. **inventory vs xschem spice:** `vvb` 0.3 V source may netlist as a positional `value=` without `dc=` parse; svaricap `body=gnd` in inventory vs PDK default `sub!` in spice — same net for our TB (substrate ground). MOS/MIM/R/C sizes match after `w=`/`l=` lowercase fix.
+3. **`ldo_body` vs `vrana1_ldo` cell:** missing `vref` (0.64825 V) and `vin` (2.7 V) are **testbench sources**, not part of the LDO leaf cell (ports `vin`/`vref`). Cell MOS/MIM/R/C match.
+4. **netgen sch-vs-sch:** not conclusive on flat spice fragments without PDK `.subckt` wrappers; Python device compare is the gate used here.
+
+## VACASK range FAIL — finding
+
+`out/summary_range_recheck.txt`: re-running **unmodified** `run_step2.tran` with `range.json` sizing/itail already misses the archived meas by ~0.5 % f / ~0.06 V Amp at code 0. Capture-equivalent decks match that re-run, not the archive. Likely VACASK/PDK numerical drift vs the day `range.json` was written — **not introduced by xschem**.
+
+| code | f_ref | f_new (S2.tran) | df% | dA |
+|---|---|---|---|---|
+| 0 | 4.4291 | 4.4055 | −0.53 | +0.057 |
+| 128 | 3.4407 | 3.4328 | −0.23 | +0.068 |
+| 255 | 2.9101 | 2.9096 | −0.02 | +0.073 |
+
+## Decision needed
+
+1. Accept P2.7.1 capture with explained equiv diffs and **re-baseline** `range.json` from today's `S2.tran` (or waive ≤0.2 % until baseline refresh), **or**
+2. Hold P2.7.2 until range archive matches a re-run (investigate PDK/container drift).
+
+Whole-die area tally (§8 of `spec/p27-floorplan.md`): **1.6×1.6 mm core does not fit** (~3.5 mm² needed); need ≥~2.2×2.2 mm before Phase 5.

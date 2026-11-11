@@ -1,0 +1,45 @@
+** sch_path: /work/analog/vco/sch/vco_tail_dac.sch
+**.subckt vco_tail_dac tail vdd gnd vbp_tail nb nbf code0 code1 code2 code3 code4
+*.iopin tail
+*.iopin vdd
+*.iopin gnd
+*.iopin vbp_tail
+*.iopin nb
+*.iopin nbf
+*.iopin code0
+*.iopin code1
+*.iopin code2
+*.iopin code3
+*.iopin code4
+imaster pbias gnd 1.05e-05
+Xmm0 pbias pbias vdd vdd sg13_lv_pmos w=2u l=2u ng=1 m=1 mm_ok=1
+Xmoff xoff pbias vdd vdd sg13_lv_pmos w=38u l=2u ng=19 m=1 mm_ok=1
+Xmsoff xraw gnd xoff vdd sg13_lv_pmos w=38u l=0.13u ng=1 m=1 mm_ok=1
+Xmdb0 xd0 pbias vdd vdd sg13_lv_pmos w=2u l=2u ng=1 m=1 mm_ok=1
+Xmsw0 xraw code0 xd0 vdd sg13_lv_pmos w=2u l=0.13u ng=1 m=1 mm_ok=1
+Xmdb1 xd1 pbias vdd vdd sg13_lv_pmos w=4u l=2u ng=2 m=1 mm_ok=1
+Xmsw1 xraw code1 xd1 vdd sg13_lv_pmos w=4u l=0.13u ng=1 m=1 mm_ok=1
+Xmdb2 xd2 pbias vdd vdd sg13_lv_pmos w=8u l=2u ng=4 m=1 mm_ok=1
+Xmsw2 xraw code2 xd2 vdd sg13_lv_pmos w=8u l=0.13u ng=1 m=1 mm_ok=1
+Xmdb3 xd3 pbias vdd vdd sg13_lv_pmos w=16u l=2u ng=8 m=1 mm_ok=1
+Xmsw3 xraw code3 xd3 vdd sg13_lv_pmos w=16u l=0.13u ng=1 m=1 mm_ok=1
+Xmdb4 xd4 pbias vdd vdd sg13_lv_pmos w=32u l=2u ng=16 m=1 mm_ok=1
+Xmsw4 xraw code4 xd4 vdd sg13_lv_pmos w=32u l=0.13u ng=1 m=1 mm_ok=1
+vsense xraw xref 0
+Xmr xref nbf gnd gnd sg13_lv_nmos w=60u l=4u ng=12 m=1 mm_ok=1
+Xmt tail nbf gnd gnd sg13_lv_nmos w=480u l=4u ng=96 m=1 mm_ok=1
+rtf tail tail_f 100000.0
+ctf tail_f gnd 1e-12
+Xmo1 d1 xref ss gnd sg13_lv_nmos w=8u l=2u ng=2 m=1 mm_ok=1
+Xmo2 d2 tail_f ss gnd sg13_lv_nmos w=8u l=2u ng=2 m=1 mm_ok=1
+iss ss gnd 2e-05
+Xmp1 d1 d1 vdd vdd sg13_lv_pmos w=4u l=2u ng=2 m=1 mm_ok=1
+Xmp2 d2 d1 vdd vdd sg13_lv_pmos w=4u l=2u ng=2 m=1 mm_ok=1
+rout d2 nb 1
+rbf nb nbf 1000000.0
+cbf nbf gnd 5e-11
+rpd nb gnd 200000.0
+ctail tail gnd 8e-12
+Xmbp_rbf nb vbp_tail nbf gnd sg13_lv_nmos w=20u l=0.13u ng=4 m=1 mm_ok=1
+**.ends
+.end

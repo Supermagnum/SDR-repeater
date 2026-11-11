@@ -1,0 +1,34 @@
+P2.7.1 ampcal_det
+include "sg13g2_vacask_common.lib"
+include "cornerMOSlv.lib" section=mos_tt
+include "cornerMOShv.lib" section=mos_tt
+include "cornerCAP.lib" section=cap_typ
+load "resistor.osdi"
+load "capacitor.osdi"
+load "inductor.osdi"
+model resistor resistor
+model capacitor capacitor
+model inductor inductor
+model vsource vsource
+model isource isource
+
+mdtp (vdd tp hold 0) sg13_lv_nmos w=0.5u l=0.13u ng=1
+mdtn (vdd tn hold 0) sg13_lv_nmos w=0.5u l=0.13u ng=1
+idet (hold 0) isource dc=4e-06
+chold (hold 0) capacitor c=4e-13
+mrtp (vdd ct rep 0) sg13_lv_nmos w=0.5u l=0.13u ng=1
+mrtn (vdd ct rep 0) sg13_lv_nmos w=0.5u l=0.13u ng=1
+irep (rep 0) isource dc=4e-06
+crep (rep 0) capacitor c=4e-13
+vth (vthn rep) vsource dc=0.405
+mc1 (co hold ttail 0) sg13_lv_nmos w=4u l=0.5u ng=2
+mc2 (co2 vthn ttail 0) sg13_lv_nmos w=4u l=0.5u ng=2
+itt (ttail 0) isource dc=2e-05
+rc1 (vdd co) resistor r=20000.0
+rc2 (vdd co2) resistor r=20000.0
+mcs1 (n1 co2 ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2
+mcs2 (cmp co ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2
+iss2 (ss2 0) isource dc=2e-05
+mpl1 (n1 n1 vdd vdd) sg13_lv_pmos w=4u l=0.5u ng=2
+mpl2 (cmp n1 vdd vdd) sg13_lv_pmos w=4u l=0.5u ng=2
+cl_cmp (cmp 0) capacitor c=5e-14

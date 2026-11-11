@@ -1,0 +1,18 @@
+** sch_path: /work/analog/vco/sch/vco_var.sch
+**.subckt vco_var tp tn vt vbp gnd
+*.iopin tp
+*.iopin tn
+*.iopin vt
+*.iopin vbp
+*.iopin gnd
+Xxcp tp vgp gnd cap_rfcmim w=2.129200e-05 l=2.129200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xxcn tn vgn gnd cap_rfcmim w=2.129200e-05 l=2.129200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+rvp vgp vvb 2000000.0
+rvn vgn vvb 2000000.0
+vvb vvb gnd 0.3
+Xxv1 vgn vt vgp sub! sg13_hv_svaricap_fx w=3.74u l=0.3u Nx=10 mm_ok=1
+Xxv2 vgn vt vgp sub! sg13_hv_svaricap_fx w=3.74u l=0.3u Nx=10 mm_ok=1
+Xmbp_rvp vgp vbp vvb gnd sg13_lv_nmos w=5u l=0.13u ng=2 m=1 mm_ok=1
+Xmbp_rvn vgn vbp vvb gnd sg13_lv_nmos w=5u l=0.13u ng=2 m=1 mm_ok=1
+**.ends
+.end

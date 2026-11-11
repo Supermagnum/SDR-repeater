@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **plan written 2026-11-11; floorplan memo awaiting owner (proposed D23, `spec/p27-floorplan.md`).** No schematic capture and no layout in the planning run. **Tapped L2n0 EM done** 2026-11-01. Owner: P2.7 may begin with open IHP LVS issues #861, #753 and #512; document a workaround for each and re-check when the PDK pin moves (`decisions.md` 2026-10-31).
+Status: **D23 Option A accepted 2026-11-11.** P2.7.1 xschem capture done (`analog/vco/sch/`); SVG/PDF exported; LDO DC + D22 search PASS; VCO range vs archived `range.json` FAIL on both capture and pure step2 re-run — owner decision on re-baseline. **No layout yet.** **Tapped L2n0 EM done** 2026-11-01. Open IHP LVS #861/#753/#512 workarounds stand.
 
 ---
 
@@ -94,16 +94,19 @@ CT via at outer-turn bottom midpoint. Palace 3-port: L 1.685 / 1.690 / 1.703 nH,
 
 Dependency order. Every analogue block: **xschem `.sch` + SVG/PDF**, then layout **`.gds.gz`**, KLayout DRC, netgen LVS (with #861/#753/#512 workarounds), PEX where listed, KLayout PNG/SVG, `out/summary_*.txt`. Netlist equivalence: generated VACASK deck from xschem must match the simulated deck (device types, connectivity, key parameters) before layout.
 
-### P2.7.0 — Plan + floorplan (this run) ✅
+### P2.7.0 — Plan + floorplan ✅
 **Inputs:** closed P2.3–P2.6; notes above.  
 **Outputs:** this file; `spec/p27-floorplan.md`; `phase2-plan.md` §3 update.  
-**Pass:** owner accepts floorplan (D23). **No layout.**
+**Pass:** D23 Option A recorded 2026-11-11. **No layout.**
 
-### P2.7.1 — xschem capture: VCO + amp-cal + LDO
-**Inputs:** `analog/vco/step2|step3`, `ampcal/`, `ldo/`; tapped L2n0 symbol.  
-**Outputs:** `xschem` trees under `analog/vco/sch/` (names TBD); SVG/PDF; equivalence `out/summary_xsch_vco.txt`.  
-**Pass:** netlist match to simulated decks (core, bank, var, bypasses, D22, LDO); symbol pins match D21/D22 interface.  
-**Re-run:** none (capture only).
+### P2.7.1 — xschem capture: VCO + amp-cal + LDO (done 2026-11-11, finding)
+**Inputs:** `analog/vco/step2|step3`, `ampcal/`, `ldo/`; tapped L2n0; D23.  
+**Outputs:** `analog/vco/sch/` hierarchy (`l2n0`, `vco_core`, `vco_bank`, `vco_var`, `vco_tail_dac`, `ampcal_det`, `vrana1_ldo`, `vco_sim_flat`); `exports/*.svg|pdf`; `netlists/`; `out/summary_xsch_vco.txt`, `summary_equiv.txt`, `summary_range_recheck.txt`. Whole-die area tally in `spec/p27-floorplan.md` §8.  
+**Pass / finding:**
+- Capture + SVG/PDF: done. Equiv diffs explained (l2n0 expand; LDO TB sources; svaricap body).
+- LDO DC PASS; D22 search tt/27 top PASS (code 14).
+- VCO range 0/128/255 vs `range.json`: **FAIL** (|df| up to 0.53 %, |dA|~0.07 V). Same FAIL on pure `S2.tran` — archive drift, not xschem-only.
+**Re-run:** none until owner re-baselines or waives.
 
 ### P2.7.2 — Layout: VCO (inductor + core + bank + var + bypasses + amp-cal)
 **Inputs:** P2.7.1; floorplan D23; tapped GDS.  
