@@ -1,0 +1,4 @@
+# P2.7.2 gate resume log (pointer)
+Authoritative finding: `summary_p272_gate.txt` and `p272_gate.json`.
+ff −40 °C grid and steps were measured in this resume path; landing completed by
+`run_p272_gate_resume.py` after a print-side NameError in an inline resume.

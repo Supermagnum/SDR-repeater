@@ -371,3 +371,18 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   bypass switches sized in proportion to their bit (minimum width for the small bits), wake
   charging still ≥ 6–7 τ within 1 µs; then re-trim. D20 window unchanged.
 - Amplitude +0.06 V against the archive noted; D22 sets the amplitude in operation.
+
+## 2026-11-11 — P2.7.1c results
+- Bank bypass switches binary-sized (W = max(0.15 µm, 5 µm × 2^(k−7))), re-trimmed: tt carries
+  0.97–1.02×, steps ≤ 0.296 V of V_tune — accepted (inside D20's 0.23–0.30 V). 15 corners cover
+  3.12–4.20 GHz (top margin 140 MHz, bottom 77 MHz), peak V_GS / V_GD ≤ 1.48 V.
+- ss 85 °C carry 127→128 ratio 1.52: accepted only if the D20 landing with corner-specific steps
+  keeps V_tune inside the window (checked at the start of P2.7.2).
+- Amplitude +0.06 V against the archive: not from the bypass; D22 sets the amplitude. Open note.
+
+## 2026-11-11 — P2.7.2 gate finding (no layout)
+- Gate [SCH]+[MODEL] (`analog/vco/step3/out/summary_p272_gate.txt`): ss85 127→128 ratio 1.52,
+  ΔV 0.542 V; ff−40 127→128 ratio 0.56, ΔV 0.117 V.
+- D20 nearest landing with corner banks/holds: tt PASS (0.333–0.919 V); ss FAIL
+  (0.206–0.860 vs 0.25–0.85); ff FAIL (0.456–0.962 vs 0.25–0.95). Layout blocked.
+- Owner decision open: re-trim at ss85, amend D20 window/hold, or exclude edge channels.

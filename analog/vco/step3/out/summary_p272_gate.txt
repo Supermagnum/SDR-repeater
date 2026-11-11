@@ -1,0 +1,77 @@
+# P2.7.2 gate — D20 landing with corner-specific SCH steps
+# Finding: FAIL. No layout.
+# Tools: container hpretl/iic-osic-tools:2026.10, PDK a49358cc [DS].
+# Scripts: analog/vco/step3/run_p272_gate.py, run_p272_gate_resume.py;
+#          analog/pll/p26/step1/closed_loop.py (nearest, nb=8, cdiv=4).
+
+## Pass criteria (prompt)
+V_tune lands inside the window at every corner after D20 nearest-code
+landing with corner-specific SCH bank/KVCO and holds 0.498 / 0.568 / 0.641 V:
+ss 0.25–0.85 V; tt/ff 0.25–0.95 V. Report margin. Fail → finding, no layout.
+
+## SCH — ss 85 °C (mos_ss / cap_wcs) [SCH]
+Grid: 29 codes 0…255 at V_tune 0.65 V; KVCO from 0.3 / 1.0 V.
+
+### Carries and LSB steps
+| pair | f0 (GHz) | step (MHz) | ratio | KVCO (MHz/V) | ΔV_tune (V) |
+|---|---|---|---|---|---|
+| 0→1 | 4.3350 | +12.07 | 1.01 | 34.4 | 0.351 |
+| 1→2 | 4.3230 | +11.98 | 1.01 | 33.9 | 0.354 |
+| 3→4 | 4.2993 | +11.81 | 1.01 | 33.9 | 0.349 |
+| 7→8 | 4.2529 | +11.34 | 1.00 | 33.0 | 0.344 |
+| 15→16 | 4.1643 | +10.56 | 0.99 | 30.8 | 0.343 |
+| 31→32 | 4.0025 | +9.59 | 0.99 | 27.5 | 0.349 |
+| 63→64 | 3.7278 | +8.51 | 1.09 | 23.3 | 0.365 |
+| 127→128 | 3.3106 | +9.26 | 1.52 | 17.1 | 0.542 |
+
+Ends @0.65 V: code 0 = 4.333 GHz, code 255 = 2.768 GHz [SCH].
+
+## SCH — ff −40 °C (mos_ff / cap_bcs) [SCH]
+### Carries and LSB steps
+| pair | f0 (GHz) | step (MHz) | ratio | KVCO (MHz/V) | ΔV_tune (V) |
+|---|---|---|---|---|---|
+| 0→1 | 4.5099 | +10.40 | 1.00 | 42.1 | 0.247 |
+| 1→2 | 4.4995 | +10.45 | 1.01 | 41.8 | 0.250 |
+| 3→4 | 4.4786 | +10.28 | 1.00 | 41.0 | 0.251 |
+| 7→8 | 4.4379 | +9.86 | 0.99 | 40.1 | 0.246 |
+| 15→16 | 4.3598 | +8.79 | 0.93 | 38.7 | 0.227 |
+| 31→32 | 4.2158 | +8.40 | 0.98 | 35.9 | 0.234 |
+| 63→64 | 3.9651 | +6.12 | 0.88 | 30.2 | 0.203 |
+| 127→128 | 3.5725 | +2.76 | 0.56 | 23.6 | 0.117 |
+
+Ends @0.65 V: code 0 = 4.510 GHz, code 255 = 3.043 GHz [SCH].
+
+## MODEL — D20 landing (nearest, corner banks) [MODEL]
+tt bank/KVCO = 0.5·(ss+ff) blend. Holds from closed_loop.CORNERS.
+
+| corner | SCH source | hold (V) | window (V) | V_tune min–max (V) | outside % | margin lo/hi (V) | PASS |
+|---|---|---|---|---|---|---|---|
+| tt | blend | 0.568 | 0.25–0.95 | 0.333–0.919 | 0.00 | +0.083 / +0.031 | PASS |
+| ss | ss | 0.498 | 0.25–0.85 | 0.206–0.860 | 0.15 | −0.044 / −0.010 | FAIL |
+| ff | ff | 0.641 | 0.25–0.95 | 0.456–0.962 | 0.03 | +0.206 / −0.012 | FAIL |
+
+Machine-readable: `out/p272_gate.json` (`pass_: false`; gitignored under `**/out/*`,
+regenerate with `run_p272_gate_resume.py`).
+
+## Gate verdict — FAIL
+- tt lands inside the window [MODEL].
+- ss undershoots 0.25 V by 44 mV and overshoots 0.85 V by 10 mV [MODEL].
+- ff overshoots 0.95 V by 12 mV [MODEL].
+- ss85 MSB carry remains large: ratio 1.52, ΔV 0.542 V [SCH] (P2.7.1c note).
+- Layout not started (prompt: fail → finding, no layout).
+
+## Finding
+Corner-specific D20 landing with the accepted P2.7.1c bank does not keep
+V_tune inside the D20 windows at ss and ff. Layout (P2.7.2 body) is blocked.
+
+## Proposal (owner pick)
+1. Re-trim the bank at ss 85 °C (and re-check ff) so carries and ends leave
+   landing margin ≥ 0 inside the windows; or
+2. Widen / shift the ss window or hold (0.498 V) / ff upper edge with a
+   recorded D20 amendment; or
+3. Exclude the edge channels that force the out-of-window landings (list from
+   a follow-up landing dump), with a host/AFE note.
+
+## Not done
+- VCO KLayout layout, DRC, LVS, gds.gz, renders, area vs D23 (blocked).
+- P2.7.3 PEX (not started; next only after a pass or owner waiver).

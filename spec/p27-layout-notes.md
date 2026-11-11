@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted.** P2.7.1–1c done. **P2.7.1c (2026-11-11):** binary bank bypass + re-trim; wake/corners/D22 PASS; MSB carry fixed; tt LSB max 0.296 V vs 0.29 — owner gate before P2.7.2. **No layout.** LVS #861/#753/#512 workarounds stand.
+Status: **D23 Option A accepted.** P2.7.1–1c done. **P2.7.2 gate FAIL (2026-11-11):** D20 landing with corner-specific SCH steps leaves ss/ff V_tune outside the window — finding, **no layout**. LVS #861/#753/#512 workarounds stand.
 
 ---
 
@@ -110,19 +110,27 @@ Dependency order. Every analogue block: **xschem `.sch` + SVG/PDF**, then layout
 - Re-baseline done. 15-corner **3.12–4.20 covered**; oxide ≤ 1.46 V; worst top margin **39 MHz**.
 - Band steps **FAIL** (1.06 V at 127→128). Held for 1c.
 
-### P2.7.1c — Binary bank bypass + re-trim (done 2026-11-11; sub-step 1 closed pending owner on 0.296 V)
+### P2.7.1c — Binary bank bypass + re-trim (done 2026-11-11; accepted in `decisions.md`)
 **Outputs:** `sch/out/summary_p271c.txt`; `step2/run_step2.py` + `run_wake_bank_bypass.py`; `sch/vco_bank.sch` + exports; `range.json`; `summary_steps.txt`; `step3/out/summary_8bit_range.txt`, `summary_spot_steps.txt`; D22 `ampcal/out/summary_search_p271c.txt`; landing `summary_land_p271c.txt`.  
 **Pass / finding:**
 - Bank bypass W = max(0.15 µm, 5 µm × 2^(k−7)); wake ≥ 3800 τ in 1 µs — PASS.
-- Steps ratios PASS; 127→128 = 0.273 V. Max tt step **0.296 V** (strict 0.24–0.29) — **owner accept or nudge**.
-- 15-corner PASS (top margin 140 MHz, bottom 77 MHz); D22/D20 PASS.
-- **Next:** P2.7.2 after that gate.
+- tt carries 0.97–1.02×; steps ≤ 0.296 V — **accepted** (inside D20 0.23–0.30 V).
+- 15-corner PASS (top margin 140 MHz, bottom 77 MHz); D22 PASS.
+- ss85 127→128 ratio 1.52 held for the P2.7.2 D20 landing gate.
 
 ### P2.7.2 — Layout: VCO (inductor + core + bank + var + bypasses + amp-cal)
-**Inputs:** P2.7.1c (steps accepted); floorplan D23; tapped GDS.  
-**Outputs:** `vco*.gds.gz`; DRC/LVS reports; rendered PNG/SVG; checklist for #861/#753/#512.  
-**Pass:** DRC clean (incl. maximal SVaricap `w=3.74u`); LVS clean **or** waived with written #861/#753/#512 notes; device count checklist signed.  
-**Re-run:** none until PEX.
+**Status: FINDING (2026-11-11) — gate failed; no layout.**  
+**Gate inputs:** P2.7.1c accepted bank; D23; `closed_loop.py` holds 0.498 / 0.568 / 0.641 V.  
+**Gate outputs:** `step3/out/summary_p272_gate.txt`, `p272_gate.json`; scripts `run_p272_gate.py`, `run_p272_gate_resume.py`.  
+**Gate result [SCH]+[MODEL]:**
+- ss85 carries/LSB measured; 127→128 ratio **1.52**, ΔV **0.542 V** [SCH].
+- ff−40 127→128 ratio **0.56**, ΔV **0.117 V** [SCH].
+- D20 nearest landing: **tt PASS** (0.333–0.919 V, margins +0.083/+0.031);
+  **ss FAIL** (0.206–0.860 vs 0.25–0.85, outside 0.15 %, margins −0.044/−0.010);
+  **ff FAIL** (0.456–0.962 vs 0.25–0.95, outside 0.03 %, margins +0.206/−0.012) [MODEL].
+- Layout / DRC / LVS / gds.gz **not started**.
+**Owner decision needed:** re-trim at ss85, amend D20 window/hold, or exclude edge channels (see summary proposals).  
+**When unblocked:** DRC clean (incl. maximal SVaricap `w=3.74u`); LVS clean **or** waived with #861/#753/#512 notes; device checklist; then P2.7.3 PEX.
 
 ### P2.7.3 — PEX + post-layout VCO range / steps / PN bounds
 **Inputs:** P2.7.2 PEX.  
