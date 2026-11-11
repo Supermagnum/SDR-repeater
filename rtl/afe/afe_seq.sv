@@ -1,9 +1,9 @@
 // AFE / LO enable sequencer — VCO bias start-up bypass, D15 divider enable, D22 cal_busy
 // (spec/analog-digital-interface.md §6; analog/pll/p26/wake_timing.py).
 //
-//   BYPASS_CYCLES = 36      → ≥ 0.4 µs bias-bypass at wake (1.00 µs at 36 MHz)
-//   LODIV_DELAY_CYCLES = 48 → en_lodiv after bypass would open (D15)
-//   cal_busy                → keep bypass closed for whole band+amp calibration (D22)
+//   BYPASS_CYCLES = 36      → ≥ 0.4 µs all-resistor bias-bypass at wake (1.00 µs at 36 MHz)
+//   LODIV_DELAY_CYCLES = 48 → en_lodiv after wake all-bypass would open (D15)
+//   cal_busy                → en_vco_tail_bp only (tail filter); bank/var stay open (D22 step 1c)
 `timescale 1ns / 1ps
 
 module afe_seq #(
@@ -15,31 +15,38 @@ module afe_seq #(
     input  wire pll_on,
     input  wire cal_busy,
     output reg  en_vco,
-    output reg  en_vco_bias_bp,
+    output reg  en_vco_bias_bp,   // wake: all bias resistors (tail+bank+var), 36 cycles only
+    output reg  en_vco_tail_bp,   // wake OR search: tail-filter bypass only
     output reg  en_lodiv
 );
     localparam int CNT_W = 8;
     reg [CNT_W-1:0] cnt;
 
     wire bypass_wake = (cnt < BYPASS_CYCLES);
-    wire bypass_on   = bypass_wake | cal_busy;
+    // lodiv stays off while wake all-bypass or cal is active
+    wire lodiv_block = bypass_wake | cal_busy;
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             en_vco         <= 1'b0;
             en_vco_bias_bp <= 1'b0;
+            en_vco_tail_bp <= 1'b0;
             en_lodiv       <= 1'b0;
             cnt            <= '0;
         end else if (!pll_on) begin
             en_vco         <= 1'b0;
             en_vco_bias_bp <= 1'b0;
+            en_vco_tail_bp <= 1'b0;
             en_lodiv       <= 1'b0;
             cnt            <= '0;
         end else begin
             en_vco         <= 1'b1;
-            en_vco_bias_bp <= bypass_on;
-            // D15: lodiv only after bypass is open (wake count past delay and not held by cal)
-            en_lodiv       <= (!bypass_on) && (cnt >= LODIV_DELAY_CYCLES);
+            // Wake: close every bias bypass for BYPASS_CYCLES (unchanged 36).
+            en_vco_bias_bp <= bypass_wake;
+            // Tail filter: closed at wake and for the whole amplitude/band search.
+            en_vco_tail_bp <= bypass_wake | cal_busy;
+            // D15: lodiv only after wake all-bypass opens and cal is idle
+            en_lodiv       <= (!lodiv_block) && (cnt >= LODIV_DELAY_CYCLES);
             if (cnt != {CNT_W{1'b1}})
                 cnt <= cnt + 1'b1;
         end

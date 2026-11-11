@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""D22 step 1b 5-bit amplitude SAR with new detector + unit DAC [SCH].
+"""D22 step 1c 5-bit amplitude SAR: V_DS-matched DAC + tail-only bypass [SCH].
 
-Bypass closed whole search. Top (bank 0) and bottom (bank 255).
+Tail-filter bypass closed whole search (en_vco_tail_bp). Top (bank 0) and
+bottom (bank 255).
 
     python3 -u run_search.py | tee out/summary_search.txt
     python3 -u run_search.py quick
@@ -37,12 +38,19 @@ TRAN_STEP = "20p"
 
 
 def prep(sim, bias_code):
+    """Inject V_DS-matched DAC + detector; close tail-only bypass (vbp_tail)."""
+    A.inject_dac_det(sim, bias_code, det=True)
     text = open(sim).read()
-    text = re.sub(r"iref \(vdd nb\) isource dc=[^\n]+\n", A.dac_snippet(bias_code, "nb"), text)
-    text = text.replace("\ncontrol\n", "\n" + A.detector_snippet(True) + "\ncontrol\n")
-    text = re.sub(r"vbptie \(vbp 0\) vsource dc=0", "vbptie (vbp 0) vsource dc=1.2", text)
-    if "vbptie" not in text:
-        text = text.replace("\ncontrol\n", "\nvbptie (vbp 0) vsource dc=1.2\ncontrol\n")
+    # Search: tail-filter bypass closed; bank/var stay open (vbp unused / low).
+    text = re.sub(
+        r"vbptailtie \(vbp_tail 0\) vsource dc=0",
+        "vbptailtie (vbp_tail 0) vsource dc=1.2",
+        text,
+    )
+    if "vbptailtie" not in text:
+        text = text.replace(
+            "\ncontrol\n", "\nvbptailtie (vbp_tail 0) vsource dc=1.2\ncontrol\n"
+        )
     open(sim, "w").write(text)
 
 
@@ -117,7 +125,7 @@ def main():
     quick = "quick" in sys.argv
     corners = [("mos_tt", "cap_typ")] if quick else CORNERS
     temps = (27,) if quick else TEMPS
-    print("# D22 step 1b amplitude SAR (diff-max det + unit DAC, bypass closed) [SCH]\n")
+    print("# D22 step 1c amplitude SAR (V_DS-matched DAC, tail-only bypass) [SCH]\n")
     print(
         f"Settle {SETTLE*1e6:.2f} µs/step (elec); target {A.A_TARGET} V ± {A.A_WIN} V; "
         f"hard {A.A_HARD} V; V_LOSS={A.V_LOSS:.3f} V.\n"

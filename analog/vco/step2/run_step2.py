@@ -142,8 +142,13 @@ def bias_bypass_bank_linear(nbits=None, p=None):
     return "".join(lines)
 
 
-def bias_bypass_switches(nbits=None, groups=("tail", "bank", "var"), bank_mode="mos"):
-    """NMOS across VCO bias resistors; gate node vbp (1.2 V = closed). P2.6 open point 2.
+def bias_bypass_switches(nbits=None, groups=("tail", "bank", "var"), bank_mode="mos",
+                         tail_gate="vbp_tail", all_gate="vbp"):
+    """NMOS across VCO bias resistors. P2.6 open point 2; D22 step 1c dual enable.
+
+    Tail switch gate = tail_gate (digital en_vco_tail_bp): closed at wake and during
+    amplitude/band search. Bank/var gates = all_gate (digital en_vco_bias_bp): wake
+    all-bypass only (36 cycles). 1.2 V = closed.
 
     groups: which switches to instantiate. bank_mode: \"mos\" (schematic) or \"linear\"
     (off-state C_j / R_off / leakage-noise equivalent for PSS and post-layout PN).
@@ -151,19 +156,28 @@ def bias_bypass_switches(nbits=None, groups=("tail", "bank", "var"), bank_mode="
     nbits = NBITS if nbits is None else nbits
     # Tail filter is off the tank: large switch (~1 kOhm). Bank/varactor nodes touch the tank:
     # smaller switches to limit off-state capacitance (bypass time covers their RC).
-    lines = [f"// start-up bias bypass groups={','.join(groups)} bank_mode={bank_mode}; gate = vbp\n"]
+    lines = [
+        f"// bias bypass groups={','.join(groups)} bank_mode={bank_mode}; "
+        f"tail_gate={tail_gate} all_gate={all_gate}\n"
+    ]
     if "tail" in groups:
-        lines.append("mbp_rbf (nb vbp nbf 0) sg13_lv_nmos w=20u l=0.13u ng=4\n")
+        lines.append(
+            f"mbp_rbf (nb {tail_gate} nbf 0) sg13_lv_nmos w=20u l=0.13u ng=4\n"
+        )
     if "bank" in groups:
         if bank_mode == "linear":
             lines.append(bias_bypass_bank_linear(nbits))
         else:
             for k in range(nbits):
-                lines.append(f"mbp_rba{k} (a{k} vbp bb{k} 0) sg13_lv_nmos w=5u l=0.13u ng=2\n"
-                             f"mbp_rbb{k} (b{k} vbp bb{k} 0) sg13_lv_nmos w=5u l=0.13u ng=2\n")
+                lines.append(
+                    f"mbp_rba{k} (a{k} {all_gate} bb{k} 0) sg13_lv_nmos w=5u l=0.13u ng=2\n"
+                    f"mbp_rbb{k} (b{k} {all_gate} bb{k} 0) sg13_lv_nmos w=5u l=0.13u ng=2\n"
+                )
     if "var" in groups:
-        lines.append("mbp_rvp (vgp vbp vvb 0) sg13_lv_nmos w=5u l=0.13u ng=2\n"
-                     "mbp_rvn (vgn vbp vvb 0) sg13_lv_nmos w=5u l=0.13u ng=2\n")
+        lines.append(
+            f"mbp_rvp (vgp {all_gate} vvb 0) sg13_lv_nmos w=5u l=0.13u ng=2\n"
+            f"mbp_rvn (vgn {all_gate} vvb 0) sg13_lv_nmos w=5u l=0.13u ng=2\n"
+        )
     return "".join(lines)
 
 
@@ -221,10 +235,16 @@ def netlist(title, code, vtune, analysis, itail=ITAIL, extra="", drive_vbp=False
              f"vtune (vt 0) vsource dc={vtune}\n")
     if bypass:
         n.append(bias_bypass_switches(groups=bypass_groups, bank_mode=bank_mode))
-        need_vbp = "tail" in bypass_groups or "var" in bypass_groups or (
+        need_vbp = "var" in bypass_groups or (
             "bank" in bypass_groups and bank_mode != "linear")
-        if not drive_vbp and need_vbp:
-            n.append("vbptie (vbp 0) vsource dc=0\n")
+        need_vbp_tail = "tail" in bypass_groups
+        if not drive_vbp:
+            # Stand-alone: both gates tied low (open). Callers may replace with 1.2 V.
+            if need_vbp:
+                n.append("vbptie (vbp 0) vsource dc=0\n")
+            if need_vbp_tail:
+                n.append("vbptailtie (vbp_tail 0) vsource dc=0\n")
+            # Legacy single-node decks: if only tail group, also alias vbp unused.
 
     if standin_buffer:
         n.append("mb1 (op tp tb 0) sg13_lv_nmos w=10u l=0.13u ng=4\n"

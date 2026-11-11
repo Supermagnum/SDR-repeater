@@ -4,21 +4,21 @@ Settle 0.20 µs/step (elec); target 1.25 V ± 0.1 V; hard 1.4 V; V_LOSS=0.220 V.
 
 | MOS | CAP | T | band | code | Amp | A_est | tnr | Amp_peak | t_step_elec (µs) | t_tot_elec (µs) | ≤1.40 |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| mos_tt | cap_typ | 27 | top | 19 | 1.243 | 1.242 | 0 | 1.299 | 0.20 | 1.20 | PASS |
-    bit4 trial=16 keep=1 Amp=1.199 A_est=1.204 cmp_high=0
-    bit3 trial=24 keep=0 Amp=1.299 A_est=1.290 cmp_high=1
-    bit2 trial=20 keep=0 Amp=1.255 A_est=1.253 cmp_high=1
-    bit1 trial=18 keep=1 Amp=1.229 A_est=1.231 cmp_high=0
-    bit0 trial=19 keep=1 Amp=1.243 A_est=1.242 cmp_high=0
-| mos_tt | cap_typ | 27 | bottom | 31 | 0.782 | 0.857 | 1 | 0.782 | 0.20 | 1.20 | PASS |
-    bit4 trial=16 keep=1 Amp=0.611 A_est=0.738 cmp_high=0
-    bit3 trial=24 keep=1 Amp=0.721 A_est=0.814 cmp_high=0
-    bit2 trial=28 keep=1 Amp=0.759 A_est=0.841 cmp_high=0
-    bit1 trial=30 keep=1 Amp=0.775 A_est=0.852 cmp_high=0
-    bit0 trial=31 keep=1 Amp=0.782 A_est=0.857 cmp_high=0
+| mos_tt | cap_typ | 27 | top | 14 | 1.251 | 1.249 | 0 | 1.296 | 0.20 | 1.20 | PASS |
+    bit4 trial=16 keep=0 Amp=1.286 A_est=1.280 cmp_high=1
+    bit3 trial=8 keep=1 Amp=1.105 A_est=1.126 cmp_high=0
+    bit2 trial=12 keep=1 Amp=1.204 A_est=1.209 cmp_high=0
+    bit1 trial=14 keep=1 Amp=1.251 A_est=1.249 cmp_high=0
+    bit0 trial=15 keep=0 Amp=1.274 A_est=1.268 cmp_high=1
+| mos_tt | cap_typ | 27 | bottom | 31 | 0.974 | 0.996 | 1 | 0.995 | 0.20 | 1.20 | PASS |
+    bit4 trial=16 keep=1 Amp=0.697 A_est=0.798 cmp_high=0
+    bit3 trial=24 keep=1 Amp=0.855 A_est=0.908 cmp_high=0
+    bit2 trial=28 keep=1 Amp=0.925 A_est=0.959 cmp_high=0
+    bit1 trial=30 keep=1 Amp=0.958 A_est=0.984 cmp_high=0
+    bit0 trial=31 keep=1 Amp=0.974 A_est=0.996 cmp_high=0
 
 Amp ≤ 1.40 V all steps: PASS `[SCH]`
 
 ## Step-1 top-band tnr explanation (tt/27)
 
-Top now reaches Amp=1.243 V at code 19 (tnr=0). Step-1 top tnr at 1.15 V was a **detector artefact** (under-read → search kept raising code / mis-compared). `[SCH]`
+Top now reaches Amp=1.251 V at code 14 (tnr=0). Step-1 top tnr at 1.15 V was a **detector artefact** (under-read → search kept raising code / mis-compared). `[SCH]`

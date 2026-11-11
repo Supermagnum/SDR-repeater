@@ -1,6 +1,7 @@
 // VCO band + amplitude calibration (D20 + D22).
 // Order: amp SAR (mid band) → 8-bit band SAR + nearest → amp touch-up SAR.
-// Bypass stays closed while busy (afe_seq.cal_busy).
+// While busy, afe_seq asserts en_vco_tail_bp only (tail-filter bypass).
+// Wake all-bypass (en_vco_bias_bp, bank+var+tail) is unchanged at 36 cycles.
 // Amp: 5-bit VCO_BIAS; amp_high=1 means Amp > 1.25 V (clear trial bit).
 // Band cycles 1398; amp 2×5×AMP_SETTLE (AMP_SETTLE=36) = 360; total ≈ 1758 ≈ 48.8 µs @ 36 MHz.
 `timescale 1ns / 1ps

@@ -26,7 +26,7 @@ T_AMP_CAL = AMP_CAL_CYCLES / F_REF_NOM  # 10.00 µs at 36 MHz
 BAND_CAL_CYCLES = 1398
 T_BAND_CAL = BAND_CAL_CYCLES / F_REF_NOM
 
-# Combined band+amp calibration while hold/bypass asserted
+# Combined band+amp calibration while en_vco_tail_bp asserted (tail-only; D22 1c)
 T_CAL_TOTAL = T_BAND_CAL + T_AMP_CAL  # ≈ 48.83 µs
 
 # Prior wake (D20 only): 99–120 µs. Extra amp cal ≈ +10 µs → 109–130 µs ≤ 150 µs.

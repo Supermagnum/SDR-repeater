@@ -1,0 +1,13 @@
+# D22 step 1c headroom: Amp / V(tail) old vs V_DS-matched [SCH]
+
+tt / typ / 27 °C, top bank.
+
+| mirror | bias | Amp (V) | V(tail) mean (V) |
+|---|---|---|---|
+| old diode 1:8 | 20 | 1.3085 | 0.4605 |
+| V_DS-matched  | 20 | 1.3737 | 0.4398 |
+| old diode 1:8 | 31 | 1.4133 | 0.4264 |
+| V_DS-matched  | 31 | 1.5874 | 0.3674 |
+
+Delta @20: Amp +0.065 V; V(tail) −0.021 V — V_DS match does not raise the tail; swing headroom preserved / improved `[SCH]`.
+Code 31 Amp > 1.40 at fixed max bias is expected; search backs off (hard limit checked during SAR).

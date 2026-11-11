@@ -1,0 +1,24 @@
+# D22 step 1c bottom-band Amp @ code 31 (real DAC) [SCH]
+
+LO min = 0.54 V (ss/−40: 0.66 V) — lo-divider-topology.md §9.
+
+| MOS | cap | T | Amp (V) | V(tail) | LO min | margin (V) |
+|---|---|---|---|---|---|---|
+| mos_tt | cap_typ | -40 | 1.0179 | 0.4485 | 0.54 | +0.4779 |
+| mos_tt | cap_typ | 27 | 0.9874 | 0.4554 | 0.54 | +0.4474 |
+| mos_tt | cap_typ | 85 | 0.9594 | 0.4549 | 0.54 | +0.4194 |
+| mos_ss | cap_wcs | -40 | 0.9529 | 0.4172 | 0.66 | +0.2929 |
+| mos_ss | cap_wcs | 27 | 0.9287 | 0.4183 | 0.54 | +0.3887 |
+| mos_ss | cap_wcs | 85 | 0.8980 | 0.4144 | 0.54 | +0.3580 |
+| mos_ss | cap_bcs | -40 | 1.1054 | 0.4223 | 0.66 | +0.4454 |
+| mos_ss | cap_bcs | 27 | 1.0819 | 0.4236 | 0.54 | +0.5419 |
+| mos_ss | cap_bcs | 85 | 1.0567 | 0.4200 | 0.54 | +0.5167 |
+| mos_ff | cap_wcs | -40 | 0.9299 | 0.4799 | 0.54 | +0.3899 |
+| mos_ff | cap_wcs | 27 | 0.8959 | 0.4881 | 0.54 | +0.3559 |
+| mos_ff | cap_wcs | 85 | 0.8617 | 0.4894 | 0.54 | +0.3217 |
+| mos_ff | cap_bcs | -40 | 1.0631 | 0.4750 | 0.54 | +0.5231 |
+| mos_ff | cap_bcs | 27 | 1.0286 | 0.4828 | 0.54 | +0.4886 |
+| mos_ff | cap_bcs | 85 | 0.9953 | 0.4847 | 0.54 | +0.4553 |
+
+Worst margin: +0.2929 V at mos_ss/cap_wcs/-40 (Amp=0.9529, LO min=0.66) `[SCH]`
+vs LO: PASS `[SCH]`

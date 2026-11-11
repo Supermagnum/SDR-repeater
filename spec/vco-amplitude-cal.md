@@ -240,3 +240,55 @@ Tail **bypass only** closed during search. Bank/var bypass AC-grounds MIM/varact
 
 No change. Amp cal remains +10.0 µs; wake **109–130 µs ≤ 150 µs** (`wake_timing.py`). SCH settle 0.20 µs fits inside the 1.00 µs RTL bit time.
 
+---
+
+## 9. Step 1c results (2026-11-11) — DAC scale, tail-only bypass, SE cmp
+
+Sources: `analog/vco/ampcal/out/{dac,bottom,sar,cmp,pn,headroom}/`, `rtl/afe/{afe_seq,bandcal}.sv`, `wake_timing.py`.
+
+### 9.1 DAC full-scale root cause and fix `[SCH]`
+
+**Cause:** code 31 delivered 3.26–3.65 mA (INL ≈ 2 LSB) because the NMOS 1:8 mirror ran with **V(tail) ≈ 0.44–0.49 V** while the diode reference sat at V_GS — Early / V_DS mismatch. A cascode on the tail mirror was **rejected** (no headroom at V_tail ≈ 0.47 V).
+
+**Fix:** **V_DS-matched reference** — OTA servos `nbf` so V(xref) ≈ V(tail_f); wide mr/mt (60 µm/12, 480 µm/96); I_master = 10.5 µA so units deliver ~10 µA into the low-V_DS node. Keeps `rbf`/`cbf`/`mbp_rbf` for D9 + bypass.
+
+| Check | Result |
+|---|---|
+| code 31 = 4.0 mA ± 3 %, never > 4.0+3 %, tt/ss/ff × −40/27/85 | **PASS** (worst ss/85 −2.92 %; ff/−40 +2.77 %) |
+| \|INL\| ≤ 1 LSB @ 27 °C | **PASS** (tt 0.23, ss 0.43, ff 0.13 LSB) |
+| Mono + MC N=20 | **PASS** (worst \|DNL\| MC 0.46 LSB); ss major-carry \|DNL\| 0.84 NOTE |
+| Headroom Amp / V(tail) @ code 20 | old 1.309 V / 0.461 V → new 1.374 V / 0.440 V — tail **lower**, Amp up `[SCH]` |
+
+### 9.2 Bottom band @ code 31 vs LO min `[SCH]`
+
+15 VCO corner×temp cases. LO min 0.54 V (ss/−40: 0.66 V) — `lo-divider-topology.md` §9.
+
+- Amp 0.862–1.105 V; **worst margin +0.293 V** (ss/wcs/−40: Amp 0.953 vs 0.66). **PASS** vs LO.
+
+### 9.3 Tail-only bypass during search `[RTL]` `[SCH]`
+
+- `en_vco_bias_bp`: wake all-resistor bypass, **36 cycles only** (unchanged).
+- `en_vco_tail_bp`: wake **or** `cal_busy` — tail filter only.
+- Deck: `vbp` → bank/var; `vbp_tail` → `mbp_rbf`. Spec §6 + cocotb updated (2/2 PASS).
+
+### 9.4 Full corner search `[SCH]`
+
+30 cases, real V_DS-matched DAC, tail-only bypass (`out/sar/summary_search.txt`):
+
+- **Top:** final Amp 1.202–1.270 V; codes 9–19; all tnr=0.
+- **Bottom:** all code 31, tnr=1; Amp 0.852–1.089 V.
+- tt/27 top: code **14**, Amp **1.251 V** (was 19 / 1.243 with short DAC).
+- **Amp ≤ 1.40 throughout: FAIL** on 4 top cases (peak during SAR transient): tt/85 1.437; ss/wcs/85 1.448; ff/wcs/27 1.402; ff/bcs/85 1.416. Final Amp still inside 1.25±0.10. Settle 0.20 µs/step, 1.20 µs total `[SCH]`.
+
+### 9.5 Comparator SE node `[SCH]`
+
+First-stage `co` swings only ±70 mV around 1 V — inverter never tripped. **Second OTA** (vip=`co2`, vin=`co`) → `cmp`. MC N=40: SE and co−co2 Amp 3σ = **16 mV** ≪ 0.10 V **PASS**. Search SCH still uses `vsense > V_th`.
+
+### 9.6 Detector PN `[SCH]` / `[HAND]`
+
+Bank-omitted PSS at tt 3.65 and ss85 4.20 with detector off: **PSS aborted** both. `[HAND]` bound ΔL @ 1 MHz ≈ **0 dB** (powered down); gate ≤ 0.5 dB **PASS by [HAND]**.
+
+### 9.7 Wake `[MODEL]`
+
+Unchanged: **109–130 µs ≤ 150 µs**.
+

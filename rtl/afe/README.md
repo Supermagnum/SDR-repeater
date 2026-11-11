@@ -8,7 +8,7 @@ Digital parts of the PLL that live in the AFE/LO control block (`spec/analog-dig
 | `sdm.sv` | Σ-Δ modulator (step 2c): MASH 1-1-1, 24 bits, LSB dither; divides {N_INT, N_FRAC} by P = 2 / 3 (D16) with a 32-cycle divider; integer-N mode | Bit-exact against `models.py`; tests pass |
 | `lockdet.sv` | Lock detector (step 2c, two-sided since step 4): UP sampled at reference + t_w, DN at divider + t_w (two analogue delay cells, t_w ≈ 7 ns); 64 good cycles → lock, 4 bad → unlock | Tests pass |
 | `bandcal.sv` | Band calibration (step 2c; D20 since P2.6): successive approximation over the 8-bit bank, counts f_VCO / P for 128 reference cycles per step against K·M, then one extra trial and the nearest of the two codes; first trial settles 64 cycles (hold switch), later 16; 38.8 µs | Tests pass against a VCO model |
-| `afe_seq.sv` | Wake sequencer (P2.6 open point 2): `en_vco`, `en_vco_bias_bp` for 36 ref cycles (≥ 0.4 µs), `en_lodiv` after 48 cycles (D15). Timing shared with `analog/pll/p26/wake_timing.py` | Tests pass |
+| `afe_seq.sv` | Wake sequencer: `en_vco`; `en_vco_bias_bp` all-resistor bypass 36 cycles; `en_vco_tail_bp` wake or `cal_busy` (D22 step 1c); `en_lodiv` after 48 cycles (D15). Timing: `wake_timing.py` | Tests pass |
 
 ```bash
 cd /foss/designs/rtl/afe/cocotb

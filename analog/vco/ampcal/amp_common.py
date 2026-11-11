@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
-"""D22 step 1b: differential max detector + unit-cell VCO_BIAS DAC.
+"""D22 step 1c: differential max detector + V_DS-matched VCO_BIAS DAC.
 
-Detector (redesign): two NMOS with gates on tp/tn, shared source = hold; replica
+Detector (1b): two NMOS with gates on tp/tn, shared source = hold; replica
 pair gates at ct. C_gate << 10 fF. V_sense = V_hold - V_rep ~= Amp/2 - V_loss.
 Threshold = Amp_target/2 - V_LOSS (fixed design-time conduction-angle loss).
 
-DAC: identical 10 uA PMOS unit cells — offset 19 + bits 1/2/4/8/16 — into the
-VCO 1:8 mirror -> I_tail = 1.52 mA + code x 0.08 mA (D22). Series PMOS switches
-(gate=0 on), same style as the P2.5 I_cp DAC.
+DAC: identical ~10 uA PMOS unit cells — offset 19 + bits 1/2/4/8/16 — into a
+V_DS-matched 1:8 NMOS mirror -> I_tail = 1.52 mA + code x 0.08 mA (D22).
+Master current 10.3 uA so units deliver ~10 uA into the low-V_DS xref node
+(PMOS Early vs diode master). Series PMOS switches (gate=0 on).
+
+Mirror: cascode rejected (V_tail ~0.47 V leaves no cascode headroom). OTA
+servos nbf so V(xref)=V(tail_f); rbf/cbf keep the D9 noise filter; mbp_rbf
+across rbf for wake/search bypass.
 """
 import os
 import re
@@ -40,6 +45,12 @@ I_DET = 4e-6          # few uA
 # Gate devices: W=0.5u L=0.13 -> Cgg ~ 0.5-1 fF each; 2 on tank << 10 fF
 W_DET = "0.5u"
 L_DET = "0.13u"
+
+# DAC / mirror (step 1c)
+I_MASTER = 10.5e-6    # above 10 uA so code31 stays within ±3% at ss/85 (PMOS Early into low V_DS)
+# Wide mirror: lowers V_GS so PMOS units see less Early vs diode master; 3x step-1b
+W_MR, NG_MR = "60u", 12     # was 20u / 4
+W_MT, NG_MT = "480u", 96    # was 160u / 32  (still 1:8)
 
 SIG_VT_N, SIG_VT_P = 3.9e-3, 2.2e-3
 SIG_B_N, SIG_B_P = 0.005, 0.0033
@@ -80,35 +91,18 @@ def pm_units(m):
     return f"sg13_lv_pmos w={2 * m:g}u l=2u ng={m}"
 
 
-def dac_snippet(code, nb_node="nb"):
-    """Unit-cell PMOS DAC into VCO bias diode node (I_ref = I_tail/8).
+def dac_pmos_snippet(code, out_node="xraw", mismatch=None):
+    """Unit-cell PMOS DAC into out_node (I_ref = I_tail/8 target).
 
-    Master 10 uA; offset 19 + bits 1/2/4/8/16 of identical 2/2 um fingers
+    Master I_MASTER; offset 19 + bits 1/2/4/8/16 of identical 2/2 um fingers
     (P2.5 pm() law). Series PMOS switches L=0.13u, gate 0 = on.
     """
     bits = [(0, 1), (1, 2), (2, 4), (3, 8), (4, 16)]
     n = [
-        f"// D22 unit-cell DAC code={code} I_tail={itail(code)*1e3:.3f} mA\n",
-        "imaster (pbias 0) isource dc=10u\n",
-        f"mm0 (pbias pbias vdd vdd) {pm_units(1)}\n",
-        f"moff (xoff pbias vdd vdd) {pm_units(19)}\n",
-        f"msoff ({nb_node} 0 xoff vdd) sg13_lv_pmos w=38u l=0.13u ng=1\n",
+        f"// D22 unit-cell DAC code={code} I_tail={itail(code)*1e3:.3f} mA "
+        f"I_master={I_MASTER*1e6:.2f}uA\n",
+        f"imaster (pbias 0) isource dc={I_MASTER:.6g}\n",
     ]
-    for b, m in bits:
-        on = (int(code) >> b) & 1
-        gsw = "0" if on else "vdd"
-        n.append(f"mdb{b} (xd{b} pbias vdd vdd) {pm_units(m)}\n")
-        n.append(f"msw{b} ({nb_node} {gsw} xd{b} vdd) sg13_lv_pmos w={2 * m:g}u l=0.13u ng=1\n")
-    return "".join(n)
-
-
-def dac_transistor_body(code, mismatch=None):
-    """Standalone DAC + VCO 1:8 mirror for DC / MC characterisation.
-
-    I_ref sensed with series 0 V (xref -> iref). Never short iref to vdd.
-    """
-    bits = [(0, 1), (1, 2), (2, 4), (3, 8), (4, 16)]
-    n = ["vdd (vdd 0) vsource dc=1.2\n", "imaster (pbias 0) isource dc=10u\n"]
     if mismatch:
         n.append(f"vo_m0 (g_m0 pbias) vsource dc={mismatch.get('m0', 0):.6g}\n")
         n.append(f"mm0 (pbias g_m0 vdd vdd) {pm_units(1)}\n")
@@ -118,7 +112,7 @@ def dac_transistor_body(code, mismatch=None):
         n.append(f"mm0 (pbias pbias vdd vdd) {pm_units(1)}\n")
         g_off = "pbias"
     n.append(f"moff (xoff {g_off} vdd vdd) {pm_units(19)}\n")
-    n.append("msoff (xref 0 xoff vdd) sg13_lv_pmos w=38u l=0.13u ng=1\n")
+    n.append(f"msoff ({out_node} 0 xoff vdd) sg13_lv_pmos w=38u l=0.13u ng=1\n")
     for b, m in bits:
         on = (int(code) >> b) & 1
         gsw = "0" if on else "vdd"
@@ -129,12 +123,74 @@ def dac_transistor_body(code, mismatch=None):
         else:
             gg = "pbias"
         n.append(f"mdb{b} (xd{b} {gg} vdd vdd) {pm_units(m)}\n")
-        n.append(f"msw{b} (xref {gsw} xd{b} vdd) sg13_lv_pmos w={2 * m:g}u l=0.13u ng=1\n")
-    n += [
-        "vr (xref iref) vsource dc=0\n",
-        "mr (iref iref 0 0) sg13_lv_nmos w=20u l=4u ng=4\n",
-        "mt (tail iref 0 0) sg13_lv_nmos w=160u l=4u ng=32\n",
-        "vs (vdd tail) vsource dc=0\n",
+        n.append(
+            f"msw{b} ({out_node} {gsw} xd{b} vdd) sg13_lv_pmos "
+            f"w={2 * m:g}u l=0.13u ng=1\n"
+        )
+    return "".join(n)
+
+
+def mirror_vds_match_snippet(tail_node="tail", sense_from="xraw"):
+    """V_DS-matched 1:8 NMOS mirror + OTA gate servo.
+
+    OTA forces V(xref) ~= V(tail_f) so mr sees the same V_DS as mt. Cascode
+    rejected: V_tail ~0.44-0.49 V leaves no room for a cascode stack [SCH].
+    Keeps rbf/cbf so mbp_rbf (nb/nbf) still bypasses the D9 filter.
+    """
+    return (
+        f"// V_DS-matched 1:8 mirror (OTA servos V(xref)=V(tail_f)); "
+        f"mr {W_MR}/{NG_MR} mt {W_MT}/{NG_MT}\n"
+        f"vsense ({sense_from} xref) vsource dc=0\n"
+        f"mr (xref nbf 0 0) sg13_lv_nmos w={W_MR} l=4u ng={NG_MR}\n"
+        f"mt ({tail_node} nbf 0 0) sg13_lv_nmos w={W_MT} l=4u ng={NG_MT}\n"
+        # RF-isolated sense of the tail node for the OTA
+        "rtf (tail tail_f) resistor r=100k\n"
+        "ctf (tail_f 0) capacitor c=1p\n"
+        # Diff OTA: vip=xref, vin=tail_f, out -> nb (then rbf -> nbf)
+        "mo1 (d1 xref ss 0) sg13_lv_nmos w=8u l=2u ng=2\n"
+        "mo2 (d2 tail_f ss 0) sg13_lv_nmos w=8u l=2u ng=2\n"
+        "iss (ss 0) isource dc=20u\n"
+        "mp1 (d1 d1 vdd vdd) sg13_lv_pmos w=4u l=2u ng=2\n"
+        "mp2 (d2 d1 vdd vdd) sg13_lv_pmos w=4u l=2u ng=2\n"
+        "rout (d2 nb) resistor r=1\n"
+        "rbf (nb nbf) resistor r=1M noisy=1\n"
+        "cbf (nbf 0) capacitor c=50p\n"
+        "rpd (nb 0) resistor r=200k\n"
+    )
+
+
+def dac_snippet(code, nb_node="nb"):
+    """Legacy name: full DAC+mirror inject when nb_node unused.
+
+    Prefer inject_dac_det which replaces the VCO bias block. Kept for callers
+    that only swapped iref; those must now use inject_bias_block.
+    """
+    return dac_pmos_snippet(code, "xraw") + mirror_vds_match_snippet()
+
+
+def dac_transistor_body(code, mismatch=None, vtail=0.47):
+    """Standalone DAC + V_DS-matched 1:8 mirror for DC / MC characterisation.
+
+    I_ref sensed with series 0 V (xraw -> xref). Never short xref to vdd.
+    Fixed V(tail)=vtail mimics the oscillating VCO common-source node.
+    """
+    n = [
+        "vdd (vdd 0) vsource dc=1.2\n",
+        dac_pmos_snippet(code, "xraw", mismatch=mismatch),
+        # Compact mirror (no RF filter on sense; DC V_tail fixed)
+        f"vt (tail 0) vsource dc={vtail}\n",
+        "vsense (xraw xref) vsource dc=0\n",
+        f"mr (xref nbf 0 0) sg13_lv_nmos w={W_MR} l=4u ng={NG_MR}\n",
+        f"mt (tail nbf 0 0) sg13_lv_nmos w={W_MT} l=4u ng={NG_MT}\n",
+        "mo1 (d1 xref ss 0) sg13_lv_nmos w=8u l=2u ng=2\n",
+        "mo2 (d2 tail ss 0) sg13_lv_nmos w=8u l=2u ng=2\n",
+        "iss (ss 0) isource dc=20u\n",
+        "mp1 (d1 d1 vdd vdd) sg13_lv_pmos w=4u l=2u ng=2\n",
+        "mp2 (d2 d1 vdd vdd) sg13_lv_pmos w=4u l=2u ng=2\n",
+        "rout (d2 nbf) resistor r=1\n",
+        "cl (nbf 0) capacitor c=10p\n",
+        "rpd (nbf 0) resistor r=200k\n",
+        # I_tail = i(vt); do not also place a 0 V sense from vdd (conflicts with vt).
     ]
     return "".join(n)
 
@@ -160,15 +216,22 @@ def detector_snippet(en=True):
         f"mrtn (vdd ct rep 0) sg13_lv_nmos w={W_DET} l={L_DET} ng=1\n",
         f"irep (rep 0) isource dc={ib}\n",
         f"crep (rep 0) capacitor c={C_HOLD:.6g}\n",
-        # Comparator: vip = hold, vin = rep + V_th
+        # Comparator: vip = hold, vin = rep + V_th. Amp high → co < co2.
+        # First-stage co only swings ~±70 mV around 1 V — a CMOS inverter never
+        # trips. Second OTA (vip=co2, vin=co) makes a real single-ended cmp.
         f"vth (vthn rep) vsource dc={th:.6g}\n",
         "mc1 (co hold ttail 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
         "mc2 (co2 vthn ttail 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
         "itt (ttail 0) isource dc=20u\n",
         "rc1 (vdd co) resistor r=20k\n",
         "rc2 (vdd co2) resistor r=20k\n",
-        "minv (cmp co 0 0) sg13_lv_nmos w=2u l=0.13u ng=1\n",
-        "rpu (vdd cmp) resistor r=50k\n",
+        # Diff→SE stage: high when co2 > co (Amp above target)
+        "ms1 (n1 co2 ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
+        "ms2 (cmp co ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
+        "iss2 (ss2 0) isource dc=20u\n",
+        "mpl1 (n1 n1 vdd vdd) sg13_lv_pmos w=4u l=0.5u ng=2\n",
+        "mpl2 (cmp n1 vdd vdd) sg13_lv_pmos w=4u l=0.5u ng=2\n",
+        "cl_cmp (cmp 0) capacitor c=50f\n",
     ]
     return "".join(n)
 
@@ -178,13 +241,33 @@ def a_est_from_holds(v_hold, v_rep):
     return float(2.0 * ((v_hold - v_rep) + V_LOSS))
 
 
+_BIAS_BLOCK_RE = re.compile(
+    r"mt \(tail nbf 0 0\)[^\n]+\n"
+    r"rbf \(nb nbf\)[^\n]+\n"
+    r"cbf \(nbf 0\)[^\n]+\n"
+    r"mr \(nb nb 0 0\)[^\n]+\n"
+    r"iref \(vdd nb\) isource dc=[^\n]+\n",
+    re.MULTILINE,
+)
+
+
+def bias_block_vds(code):
+    """Full VCO bias: DAC + V_DS-matched mirror (replaces mt/rbf/cbf/mr/iref)."""
+    return dac_pmos_snippet(code, "xraw") + mirror_vds_match_snippet()
+
+
 def inject_dac_det(sim_path, bias_code, det=True):
+    """Replace VCO diode+iref bias with DAC + V_DS-matched mirror; optional det."""
     text = open(sim_path).read()
-    text = re.sub(
-        r"iref \(vdd nb\) isource dc=[^\n]+\n",
-        dac_snippet(bias_code, "nb"),
-        text,
-    )
+    repl = bias_block_vds(bias_code)
+    text2, n = _BIAS_BLOCK_RE.subn(repl, text, count=1)
+    if n != 1:
+        # Fallback: only swap iref (legacy) — still wrong scale without mirror
+        text2 = re.sub(
+            r"iref \(vdd nb\) isource dc=[^\n]+\n",
+            dac_pmos_snippet(bias_code, "nb"),
+            text,
+        )
     if det:
-        text = text.replace("\ncontrol\n", "\n" + detector_snippet(True) + "\ncontrol\n")
-    open(sim_path, "w").write(text)
+        text2 = text2.replace("\ncontrol\n", "\n" + detector_snippet(True) + "\ncontrol\n")
+    open(sim_path, "w").write(text2)

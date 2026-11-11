@@ -127,6 +127,7 @@ RF frequency: **f_RF = (N_INT + N_FRAC / 2²⁴) · f_ref / D**, D = 8 (UHF) or 
 | Signal | Dir. (from AFE block) | Width | Meaning |
 |---|---|---|---|
 | `en_refbuf`, `en_pll`, `en_vco`, `en_lodiv` | out | 4 × 1 | LO chain enables; `en_lodiv` sequenced after `en_vco` (D15, §6) |
+| `en_vco_bias_bp`, `en_vco_tail_bp` | out | 2 × 1 | VCO bias bypasses (§6): all-resistor wake; tail-only during cal |
 | `en_lna`, `en_mix`, `en_tia`, `en_adc` | out | 4 × 1 | RX chain enables |
 | `en_dac`, `en_txmod`, `en_padrv` | out | 3 × 1 | TX chain enables |
 | `lna_gain`, `tia_gain` | out | 2 + 4 | RX gain steps (static during reception) |
@@ -160,8 +161,11 @@ The enable sequencer has to follow the back end's **effective** mode, including 
 
 - **Wake:** the back end already waits `WAKE` output frames before `valid_iq`. The host sets `WAKE` to cover the analogue settling plus PLL lock: at 500 kHz one frame is 2 µs, so the 125 µs PLL lock (`analog/pll-model/`) needs `WAKE` ≥ 63 when the PLL starts cold, and much less with `PLL_CTRL[0]`. Cold wake includes the VCO bias start-up bypass below (0.50 µs at 36 MHz), inside the 150 µs budget.
 - **Band change:** write `BAND`, `N_INT`/`N_FRAC`, start calibration, then wait for `pll_lock` (IRQ). The back end's 64-clock relock window is only a digital handshake.
-- **VCO bias start-up bypass (P2.6 open point 2, 2026-10-31; D22 2026-11-02):** `afe_seq` drives `en_vco_bias_bp` high for **36 reference cycles** at wake and **holds it high while `cal_busy`** (band + amplitude calibration). 36 cycles = 1.00 µs at 36 MHz (≥ 0.4 µs / ≥ 6–7 τ). Gates LV NMOS across every VCO bias resistor (`analog/vco/step2/run_step2.py`). Timing: `analog/pll/p26/wake_timing.py`. After cal, bypass opens and the resistors keep filtering for lock.
-- **D22 amplitude search:** `bandcal.sv` runs amp SAR (5 bits) → band SAR → amp touch-up; `VCO_BIAS[4:0]` held; `[5]` target-not-reached; `[7]` manual skips amp. Settle 36 cycles/bit × 10 = 10.0 µs amp + 38.8 µs band ≈ **48.8 µs** cal.
+- **VCO bias start-up bypass (P2.6 open point 2, 2026-10-31; D22 step 1c 2026-11-11):** two enables from `afe_seq`:
+  - **`en_vco_bias_bp`** — wake **all-resistor** bypass (tail + bank + var) for **36 reference cycles** only (1.00 µs at 36 MHz; ≥ 0.4 µs / ≥ 6–7 τ). Unchanged wake window.
+  - **`en_vco_tail_bp`** — **tail-filter** bypass: high at wake **and** while `cal_busy` (band + amplitude search). Bank/var stay open during search — closing them AC-grounds MIM/varactor plates and collapses Amp `[SCH]`.
+  Gates: `vbp` → bank/var NMOS; `vbp_tail` → `mbp_rbf` (`analog/vco/step2/run_step2.py`). Timing: `analog/pll/p26/wake_timing.py`. After cal, both open and the resistors keep filtering for lock.
+- **D22 amplitude search:** `bandcal.sv` runs amp SAR (5 bits) → band SAR → amp touch-up; `afe_seq` asserts `en_vco_tail_bp` from `cal_busy` / `hold`. `VCO_BIAS[4:0]` held; `[5]` target-not-reached; `[7]` manual skips amp. Settle 36 cycles/bit × 10 = 10.0 µs amp + 38.8 µs band ≈ **48.8 µs** cal.
 - **LO divider enable (D15):** `en_lodiv` rises **48 reference cycles** after `en_vco` (1.33 µs at 36 MHz; after the bias bypass has opened), from the same sequencer. It is pulsed low for the same time and raised again after a write to `BAND` or `VCO_BAND`, and when calibration or lock fails (`PLL_STATUS[2]`, or no `pll_lock` within the lock window), before the next attempt. Reason: a CML divider on during VCO start-up can lock into its free-running state (P2.4 step 2, `spec/lo-divider-topology.md` §8). `AFE_FORCE` can still force it for test.
 - **TX protection / lock loss:** `en_padrv` is held low while `pll_lock` is low or `TX_ATT[7]` is set, so an unlocked LO never reaches the PA. **Requirement (met in AFE/LO control):** lock loss must mute TX immediately — already implemented by gating `en_padrv` on `pll_lock` (this bullet). No extra host action is required for the mute itself; the back end also surfaces `pll_lock` on `INFO[2]` / `IRQ_EN[3]`.
 - **V_tune monitor and temperature re-calibration (host requirements, no on-chip host code):**
