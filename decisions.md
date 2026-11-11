@@ -326,3 +326,10 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - Detector phase noise: [HAND] ≈ 0 dB powered down; SCH check deferred to post-layout (PSS does
   not converge with the detector devices), like the bank-bypass bound.
 - Interim A2 retired once the on-chip search runs on the single-ended comparator (step 1d).
+
+## 2026-11-11 — P2.3 real LO load (open point 6) closed
+- Accepted closed on: band shift ≤ 0.285 %, bottom margin 63.3 MHz (3.057 GHz), carries even,
+  divider pull ≤ 55 ppm, kick-back ≤ −107 dBc, reverse isolation 67.8 dB [SCH]; ΔL(1 MHz)
+  ≤ +0.14 dB buffer [SCH] + ≤ 0.3 dB dividers [HAND] ≤ 0.5 dB.
+- PSS with the CML dividers attached does not converge in VACASK; confirmation by post-layout
+  phase noise with the extracted load (P2.7), with the bank-switch and detector bounds.

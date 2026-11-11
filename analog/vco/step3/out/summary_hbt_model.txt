@@ -1,0 +1,21 @@
+# P2.3 D1 — SiGe HBT core comparison (NMOS baseline unchanged)
+
+## 2. Model check — npn13G2 in VACASK (PDK a49358cc) [SCH]/[DS]
+
+### Device limits from SG13G2_os_process_spec.pdf §3.1 `npn13g2` [DS]
+
+| Limit | min | typ |
+|---|---|---|
+| BVCEO | 1.4 V | 1.6 V |
+| BVCBO | 3.8 V | 4.8 V |
+| BVEBO (reverse V_BE) | 1.0 V | 1.6 V |
+| Ic_max per stripe | — | 3.5 mA |
+
+Flicker: VBIC `kfn=6e-9*(4/nx)`, `afn=1.80`, `bfn=1.00` in `sg13g2_hbt_mod.lib` — flicker is modelled `[DS]`.
+
+CE op+tran: PASS `[SCH]`
+
+LC PSS/pnoise: FAIL — Analysis 'pn' aborted. `[SCH]`
+
+Finding: VACASK PSS/pnoise does not converge on a simple HBT oscillator. Stop per prompt item 2. No full comparison without a working method.
+

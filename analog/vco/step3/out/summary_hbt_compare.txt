@@ -1,0 +1,101 @@
+# P2.3 D1 — SiGe HBT core comparison (NMOS baseline unchanged)
+
+## 2. Model check — npn13G2 in VACASK (PDK a49358cc) [SCH]/[DS]
+
+### Device limits from SG13G2_os_process_spec.pdf §3.1 `npn13g2` [DS]
+
+| Limit | min | typ |
+|---|---|---|
+| BVCEO | 1.4 V | 1.6 V |
+| BVCBO | 3.8 V | 4.8 V |
+| BVEBO (reverse V_BE) | 1.0 V | 1.6 V |
+| Ic_max per stripe | — | 3.5 mA |
+
+Flicker: VBIC `kfn=6e-9*(4/nx)`, `afn=1.80`, `bfn=1.00` in `sg13g2_hbt_mod.lib` — flicker is modelled `[DS]`.
+
+CE op+tran: PASS `[SCH]`
+
+LC tran: PASS — f=3.499 GHz Amp=0.939 V `[SCH]`
+
+LC PSS/pnoise: converges with measured tper + series R on L (`reltol=1e-4`) —
+f=3.498 GHz Amp=0.958 V L@1MHz=−160.4 dBc/Hz `[SCH]`.
+
+**Sanity:** Leeson on the same Rp≈600 Ω / Q≈15 / Amp predicts ≈ −125 dBc/Hz `[HAND]`.
+VACASK VBIC pnoise is ~35 dB too optimistic — absolute HBT PSS L is **not trusted**.
+
+## 3. HBT core on the same tank — headroom and size [SCH]
+
+Target: VR_ANA1 pad ≈ 1.2 V (D21), I_tail ≤ 4 mA (D12), nx=8 (Ic_max ≫ 4 mA `[DS]`).
+
+tt code 91 @ 1.2 V / 4.0 mA: f=3.5265 GHz Amp=0.991 V; VCE max/min=0.989/−0.004 V;
+VBE max=0.989 V; VBE_rev max=0.004 V; |VCB|peak≈0.991 V `[SCH]`
+
+vs limits `[DS]`: BVCEO min 1.4 V (OK); BVEBO min 1.0 V (OK); BVCBO min 3.8 V (OK).
+
+Paper ≈ 1.6 V differential swing `[HAND]` would push VCE ≈ 1.65 V above BVCEO min 1.4 V;
+not usable on D21 1.2 V. A second rail ≈ 1.8–2.5 V (or AC-coupled bases + raised CT)
+would be required; D21 unchanged → not proposed.
+
+## 4. Phase noise — HBT vs NMOS
+
+NMOS L from `summary_pn_real_buf.txt` `[SCH]`. HBT L from Leeson `[HAND]`
+(Q=15, F=2.5, Amp from HBT tran). Fair HAND–HAND delta also shown.
+
+| Case | Core | f (GHz) | Code | I (mA) | Amp (V) | L@0.6 | L@1 | L@2 | tag |
+|---|---|---|---|---|---|---|---|---|---|
+| tt_3.65 | NMOS | 3.661 | 91 | 3.96 | 1.159 | −116.7 | −122.6 | −129.5 | `[SCH]` |
+| tt_3.65 | HBT | 3.527 | 91 | 4.00 | 0.991 | −120.4 | −124.9 | −130.9 | `[HAND]` |
+| ss85_4.20 | NMOS | 4.223 | 21 | 3.59 | 1.248 | −113.1 | −119.3 | −126.6 | `[SCH]` |
+| ss85_4.20 | HBT | 3.983 | 21 | 4.00 | 0.978 | −118.7 | −123.2 | −129.2 | `[HAND]` (f short of 4.20) |
+| tt_3.12 | HBT | 3.130 | 189 | 4.00 | 0.946 | −121.6 | −126.0 | −132.0 | `[HAND]` |
+| tt_4.20 | HBT | 4.090 | 0 | 4.00 | 1.027 | −118.8 | −123.2 | −129.3 | `[HAND]` (top short of 4.20) |
+
+Fair Leeson both cores (Q=15): NMOS F=3 Amp=1.159 → −124.9; HBT F=2.5 Amp=0.991 → −124.8;
+Δ ≈ **+0.1 dB** at tt (HBT no better). At ss85-like Amp: Δ ≈ **+0.6 dB** (HBT worse) `[HAND]`.
+
+Untrusted HBT PSS at tt code 91: L@1MHz=−137.6 `[SCH]` — discarded (see §2 sanity).
+
+1/f³ corner: not extracted for HBT (no trusted PSS spectrum); NMOS SCH flicker handled by D9 filters.
+
+## 4b. Tuning range / KVCO / start-up (HBT, tt 27 °C) [SCH]
+
+| point | code | V_tune | f (GHz) | Amp (V) | VCE_max |
+|---|---|---|---|---|---|
+| top | 0 | 0.95 | 4.103 | 1.027 | 1.013 |
+| bot | 255 | 0.25 | 2.911 | 0.918 | 0.943 |
+| KVCO lo | 91 | 0.25 | 3.519 | 0.991 | 0.989 |
+| KVCO hi | 91 | 0.95 | 3.533 | 0.992 | 0.990 |
+
+KVCO (code 91): **20.8 MHz/V** `[SCH]` (NMOS step-2 mid-band ~30–40 MHz/V order — HBT Cje loads the tank).
+
+**Coverage:** top 4.103 GHz < 4.20 GHz — HBT Cje eats the top of the 8-bit bank; does **not** cover the VHF high edge without bank re-trim. Bottom 2.911 GHz OK vs 3.12 GHz.
+
+Start-up to 90 % of 0.991 V: **1.0 ns** `[SCH]` (kick present; NMOS similar order).
+
+## 4c. Area estimate [HAND]
+
+NMOS core drawn-width proxy: ≈ 256 µm² `[HAND]`
+HBT core (nx=8×2, 0.07×0.9 µm emitters, ×25 cell): ≈ 25 µm² `[HAND]`
+Tank / bank / varactor dominate; schedule cost is supply / bias / PSS method, not µm².
+
+## 5. Conclusion (comparison only — NMOS baseline unchanged)
+
+| Item | NMOS (baseline) | HBT (this run) |
+|---|---|---|
+| Supply | VR_ANA1 ≈ 1.2 V (D21) | same; paper 1.6 V swing needs ≈ 1.8–2.5 V |
+| I_tail | ≤ 4 mA (D12) | 4.0 mA |
+| Amp @ mid | 1.16 V `[SCH]` | 0.99 V `[SCH]` |
+| L@1 MHz duplex | −122.6 / −119.3 `[SCH]` | HAND fair ≈ NMOS ±0.6 dB; PSS untrusted |
+| Band top | covers 4.20 GHz | **4.10 GHz — miss** `[SCH]` |
+| BVCEO | N/A (MOS oxide) | OK at Amp≈1 V; 1.6 V swing exceeds min 1.4 V |
+| Area core | ~256 µm² | ~25 µm² `[HAND]` |
+
+**Conclusion: keep the NMOS core (D1).** On D21/D12 the HBT does not deliver the paper ≈ 5 dB /
+1.6 V win; fair Leeson is a wash; the top of the band is short; VACASK HBT PSS L is unusable.
+A higher CT rail would reverse D21 — not proposed. Design unchanged.
+
+## Summary
+
+- Keep NMOS (D1). No finding to switch.
+- HBT PSS L untrusted (~35 dB vs Leeson).
+- HBT top f = 4.10 GHz < 4.20 GHz `[SCH]`.
