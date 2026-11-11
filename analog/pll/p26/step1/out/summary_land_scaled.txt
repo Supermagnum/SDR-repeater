@@ -1,0 +1,40 @@
+# P2.6 step-1 landing with real-load bank scale [MODEL]
+
+Scaled behavioural bank: F_LO/F_HI × 1.00285 (+0.285 %). Not the transistor bank — frequency shift from `analog/vco/step3/out/summary_real_load.txt` applied uniformly.
+
+## Baseline (unscaled) [MODEL]
+
+## Where V_tune lands after the band calibration [MODEL]
+
+Every VCO target from 3.12 to 4.20 GHz in 0.5 MHz steps (VHF, P = 3) and 3.20–3.84 GHz (UHF, P = 2), 2858 channels; V_tune after lock = V_hold + (f_target − f(code, V_hold)) / K. Window 0.25–0.95 V (slow corner 0.25–0.85 V). 'highest' = the RTL rule; 'nearest' = one more trial on the next code and keep the closer count. One band step is 0.45–0.59 V of V_tune with 7 bits, half that with 8. Counting f / P instead of f / 4P gives 4 × the counts (3700–6400 instead of 920–1600 per 128 reference cycles).
+
+| Bank, counter | Rule | Calibration (µs) | tt: V_tune min–max, outside | ss | ff |
+|---|---|---|---|---|---|
+| as designed (7 bits, count f / 4P) | highest | 30.5 | 0.02–0.89 V, 19.7 % | -0.04–0.85 V, 31.9 % | 0.10–1.00 V, 9.0 % |
+| as designed (7 bits, count f / 4P) | nearest | 34.7 | 0.18–1.04 V, 0.8 % | 0.14–0.92 V, 4.7 % | 0.28–1.08 V, 3.7 % |
+| 7 bits, count f / P | highest | 30.5 | 0.01–0.64 V, 36.5 % | -0.06–0.58 V, 49.7 % | 0.07–0.73 V, 23.3 % |
+| 7 bits, count f / P | nearest | 34.7 | 0.27–0.88 V, 0.0 % | 0.20–0.81 V, 4.0 % | 0.35–0.95 V, 0.1 % |
+| 8 bits, count f / 4P | highest | 34.7 | 0.30–0.91 V, 0.0 % | 0.23–0.84 V, 0.2 % | 0.37–1.01 V, 0.2 % |
+| 8 bits, count f / 4P | nearest | 38.8 | 0.34–0.92 V, 0.0 % | 0.28–0.86 V, 0.1 % | 0.42–1.04 V, 0.3 % |
+| 8 bits, count f / P | highest | 34.7 | 0.30–0.67 V, 0.0 % | 0.23–0.58 V, 1.8 % | 0.35–0.72 V, 0.0 % |
+| 8 bits, count f / P | nearest | 38.8 | 0.42–0.74 V, 0.0 % | 0.34–0.67 V, 0.0 % | 0.49–0.82 V, 0.0 % |
+
+## Scaled +0.285 % (real LO load) [MODEL]
+
+## Where V_tune lands after the band calibration [MODEL]
+
+Every VCO target from 3.12 to 4.20 GHz in 0.5 MHz steps (VHF, P = 3) and 3.20–3.84 GHz (UHF, P = 2), 2858 channels; V_tune after lock = V_hold + (f_target − f(code, V_hold)) / K. Window 0.25–0.95 V (slow corner 0.25–0.85 V). 'highest' = the RTL rule; 'nearest' = one more trial on the next code and keep the closer count. One band step is 0.45–0.59 V of V_tune with 7 bits, half that with 8. Counting f / P instead of f / 4P gives 4 × the counts (3700–6400 instead of 920–1600 per 128 reference cycles).
+
+| Bank, counter | Rule | Calibration (µs) | tt: V_tune min–max, outside | ss | ff |
+|---|---|---|---|---|---|
+| as designed (7 bits, count f / 4P) | highest | 30.5 | 0.03–0.93 V, 20.2 % | -0.07–0.85 V, 31.5 % | 0.10–1.00 V, 9.4 % |
+| as designed (7 bits, count f / 4P) | nearest | 34.7 | 0.21–1.03 V, 0.6 % | 0.14–0.96 V, 4.8 % | 0.31–1.10 V, 3.9 % |
+| 7 bits, count f / P | highest | 30.5 | 0.01–0.64 V, 36.9 % | -0.07–0.58 V, 49.6 % | 0.08–0.73 V, 23.8 % |
+| 7 bits, count f / P | nearest | 34.7 | 0.27–0.89 V, 0.0 % | 0.21–0.82 V, 3.9 % | 0.35–0.96 V, 0.1 % |
+| 8 bits, count f / 4P | highest | 34.7 | 0.30–0.92 V, 0.0 % | 0.23–0.87 V, 0.1 % | 0.37–0.99 V, 0.2 % |
+| 8 bits, count f / 4P | nearest | 38.8 | 0.34–0.92 V, 0.0 % | 0.31–0.85 V, 0.0 % | 0.43–1.03 V, 0.3 % |
+| 8 bits, count f / P | highest | 34.7 | 0.29–0.64 V, 0.0 % | 0.22–0.58 V, 1.9 % | 0.36–0.73 V, 0.0 % |
+| 8 bits, count f / P | nearest | 38.8 | 0.40–0.75 V, 0.0 % | 0.34–0.68 V, 0.0 % | 0.48–0.82 V, 0.0 % |
+
+Window remains 0.25–0.95 V (ss 0.25–0.85 V). Compare outside-% columns.
+
