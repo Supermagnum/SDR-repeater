@@ -1,0 +1,119 @@
+# P2.7 synthesizer floorplan memo
+
+Status: **awaiting owner decision (proposed D23), 2026-11-11.** Planning only — no layout in this run. Companion plan: `spec/p27-layout-notes.md` § Plan. Die context: SX1255-compatible MLPQ-W 5 × 5 mm, 32 leads (`spec/rf-frontend.md` §2); digital back end `phase1l` **339 617 µm²** of 340 000 (`decisions.md` 2026-10-19). Pin 3 = **VR_ANA1** (D21).
+
+---
+
+## 1. Constraints that drive placement
+
+| Constraint | Number / rule | Source |
+|---|---|---|
+| Digital already placed | 339 617 µm²; no area left in back end | `[SCH]` phase1l |
+| AFE/LO control (D3) | Separate small digital island next to PLL (MMD, Σ-Δ, bandcal, lockdet, afe_seq) | D3 |
+| VR_ANA1 | Pin 3; LDO → 10 Ω → pad → 100 nF; VCO+LO+CP from **pad** side | D21 |
+| Loop-filter MOS | C1 30.8 + C2 465 pF ≈ **0.062 mm²** | D19 `[HAND]` |
+| LDO Cg | 100 pF ≈ **0.0125 mm²** MOS preferred | D21 / `p27-layout-notes` |
+| Tank inductor | Tapped L2n0; keep clear of digital and CP switching | `[EM]` tapped |
+| LO RF path | Short VCO → buffer → CML ÷N; retimed CMOS toward mixer (Phase 3) | P2.4 |
+| Coupling target | Raw ≤ **−35 dBc** VHF / **−15 dBc** UHF at VCO before the loop | `pll-topology` §13 |
+| Local GHz bypass | MIM/MOS at VCO CT and each CML/TSPC supply tap | D21 layout note |
+
+Die aspect for this memo: assume a ~**1.6 × 1.6 mm** active core inside the 5 × 5 package (typical for this class) `[HAND]`; exact die size is Phase 5. Coordinates below are relative: N = pin-1/3 edge (VR_ANA1 / VR_PA), S = RF_IN / RF_OP edge (pins 27–30), E/W = remaining pad sides.
+
+---
+
+## 2. Area sketch for the synthesizer island `[HAND]`
+
+| Block | Area | Notes |
+|---|---|---|
+| Tapped L2n0 + keep-out | ≈ 0.05–0.06 mm² | Octagon + metal exclusion |
+| VCO core / bank / var / amp-cal / bypass | ≈ 0.10–0.14 mm² | Bank MIMs + switches dominate |
+| LO buffer + CML + converter + TSPC | ≈ 0.05–0.08 mm² | Dual chains, one powered |
+| PFD + CP + replica + bias + I_cp DAC | ≈ 0.03–0.05 mm² | |
+| Loop filter (D19) | ≈ 0.062 mm² | MOS C1/C2 + MIM C3 |
+| V_tune hold + window delay + monitors | ≈ 0.01–0.02 mm² | |
+| VR_ANA1 LDO + 10 Ω + Cg | ≈ 0.02–0.03 mm² | Cg 0.0125 mm² |
+| AFE/LO digital (D3) | ≈ 0.01–0.02 mm² | Outside phase1l budget |
+| **Synth analog + AFE digital** | **≈ 0.35–0.45 mm²** | Excludes phase1l |
+| Routing / guard / fill | ≈ 0.08–0.12 mm² | |
+| **Synth island total** | **≈ 0.45–0.55 mm²** | Aspect ~1:1 to 1.5:1 |
+
+---
+
+## 3. Option A — “Inductor NW, quiet; digital SE; RF south”
+
+**Placement:** L2n0 in the **NW** corner (near pin 3 / VR_ANA1). VCO core and bank immediately east of the inductor (short CT and tank leads). LO buffer on the south face of the VCO; CML ÷2/÷3 and converter continue south toward the future mixer / RF edge. PFD / CP / bias and the D19 loop filter in a **NE** strip, east of the bank, with V_tune running east–west ≤ ~150 µm. VR_ANA1 LDO sits next to pin 3 (west of inductor or between pad and 10 Ω). **phase1l digital** stays **SE / S** (away from inductor). AFE/LO control abuts the PLL east side.
+
+| Metric | Estimate `[HAND]` |
+|---|---|
+| Synth island area / aspect | ≈ 0.50 mm²; ~700 × 700 µm |
+| VCO→buffer→CML path | ≈ 80–150 µm differential |
+| V_tune line (CP/LF → varactor) | ≈ 100–200 µm |
+| Inductor ↔ digital (phase1l) | ≈ 500–800 µm edge-to-edge |
+| Inductor ↔ charge pump | ≈ 250–400 µm |
+| Guard / DNW | Deep-n-well under VCO+LO; guard ring around inductor; substrate ties dense at VCO/CP boundary; digital on its own ring |
+| Supply split | VR_ANA1 pad metal feeds VCO CT, LO, CP star from pad node; LDO output before 10 Ω stays local; VR_DIG only into AFE/phase1l; analog gnd star under VCO |
+| Coupling target | Best of the three: max inductor–digital distance; CP switching east of bank shield; LO CMOS edges south, not under coil |
+| Post-layout noise | Short tank–buffer helps Amp and kick-back; local CT/CML caps easy; LF large MOS away from coil reduces C2 modulation from digital |
+
+**Pros:** Best isolation for −35/−15 dBc coupling; natural VR_ANA1 adjacency; RF path points to RF pads.  
+**Cons:** Synth island spans NW–NE; V_tune crosses bank–LF gap; die may need a tall N strip.
+
+---
+
+## 4. Option B — “Inductor north-centre; synth east of digital”
+
+**Placement:** L2n0 **north-centre**. VCO south of the coil. LO chain continues south-west toward RF. PLL / LF / LDO form a **column on the east**, between phase1l (SE) and the VCO. Pin 3 VR_ANA1 routes north then east into LDO → 10 Ω → pad spur into the east column and west into VCO CT.
+
+| Metric | Estimate `[HAND]` |
+|---|---|
+| Synth island area / aspect | ≈ 0.48 mm²; ~600 × 800 µm |
+| VCO→buffer→CML path | ≈ 100–180 µm |
+| V_tune line | ≈ 80–150 µm (LF next to VCO east face) |
+| Inductor ↔ digital | ≈ 400–600 µm |
+| Inductor ↔ charge pump | ≈ 200–350 µm |
+| Guard / DNW | Same idea; CP closer to coil than Option A |
+| Supply split | Longer VR_ANA1 spine N→E; more IR and bond-return sharing risk at GHz unless local caps are dense |
+| Coupling target | Weaker than A: CP nearer coil; digital still south but closer |
+| Post-layout noise | Shorter V_tune helps hold/monitor; LO path slightly longer |
+
+**Pros:** Compact; short V_tune; clear east “PLL street”.  
+**Cons:** Worse inductor–CP spacing; VR_ANA1 routing longer; coupling margin tighter.
+
+---
+
+## 5. Option C — “Compact cluster at pin 3 (rejected as primary)”
+
+**Placement:** Entire synth (inductor + VCO + LO + PLL + LF + LDO) packed in the **NW** within ~500 × 500 µm; digital SE.
+
+| Metric | Estimate `[HAND]` |
+|---|---|
+| Synth island area / aspect | ≈ 0.45 mm²; ~500 × 500 µm |
+| VCO→buffer→CML | ≈ 50–100 µm (best) |
+| V_tune | ≈ 50–100 µm (best) |
+| Inductor ↔ digital | ≈ 600–900 µm (good) |
+| Inductor ↔ charge pump | ≈ 100–200 µm (**poor**) |
+| Coupling / noise | Fails the spirit of the −35 dBc VHF layout target: CP and Σ-Δ edges sit under or beside the coil |
+
+**Pros:** Shortest RF and V_tune; smallest bounding box.  
+**Cons:** Couples CP / digital edges into the tank; hard to meet integer-boundary isolation without exotic shielding. **Not proposed.**
+
+---
+
+## 6. Proposal — **D23: Option A**
+
+Adopt **Option A** (inductor NW near VR_ANA1; VCO east of coil; LO south; PLL/LF NE; phase1l SE; AFE digital on PLL east face).
+
+**Reasons:**
+1. Maximises inductor–digital distance while keeping pin-3 adjacency for D21.
+2. Keeps the charge pump and large C2 MOS off the coil — needed for the VHF raw ≤ −35 dBc coupling budget (`pll-topology` §13).
+3. LO path points toward RF pads for Phase 3 mixer without crossing the digital core.
+4. Area (~0.50 mm²) and routing lengths are acceptable `[HAND]`; Option B saves little area and spends isolation.
+
+**Not decided here:** exact die outline, pad-ring abuts, or Phase 3 RX/TX placement (they follow the Phase 2 gate).
+
+---
+
+## 7. Owner decision
+
+Please accept **D23 = Option A**, choose **Option B**, or request a variant (e.g. inductor NE with pin-3 routing). No layout starts until this is recorded in `decisions.md`.
