@@ -1,24 +1,22 @@
-# D22 step 1b amplitude SAR (diff-max det + unit DAC, bypass closed) [SCH]
+# D22 step 1d amplitude SAR on single-ended cmp [SCH]
 
-Settle 0.20 µs/step (elec); target 1.25 V ± 0.1 V; hard 1.4 V; V_LOSS=0.220 V.
+Decision: v(cmp) > 0.85 V; settle 0.20 µs/step; target 1.25±0.1 V; steady ≤1.4 V; transient ≤1.5 V.
 
-| MOS | CAP | T | band | code | Amp | A_est | tnr | Amp_peak | t_step_elec (µs) | t_tot_elec (µs) | ≤1.40 |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| mos_tt | cap_typ | 27 | top | 14 | 1.251 | 1.249 | 0 | 1.296 | 0.20 | 1.20 | PASS |
-    bit4 trial=16 keep=0 Amp=1.286 A_est=1.280 cmp_high=1
-    bit3 trial=8 keep=1 Amp=1.105 A_est=1.126 cmp_high=0
-    bit2 trial=12 keep=1 Amp=1.204 A_est=1.209 cmp_high=0
-    bit1 trial=14 keep=1 Amp=1.251 A_est=1.249 cmp_high=0
-    bit0 trial=15 keep=0 Amp=1.274 A_est=1.268 cmp_high=1
-| mos_tt | cap_typ | 27 | bottom | 31 | 0.974 | 0.996 | 1 | 0.995 | 0.20 | 1.20 | PASS |
-    bit4 trial=16 keep=1 Amp=0.697 A_est=0.798 cmp_high=0
-    bit3 trial=24 keep=1 Amp=0.855 A_est=0.908 cmp_high=0
-    bit2 trial=28 keep=1 Amp=0.925 A_est=0.959 cmp_high=0
-    bit1 trial=30 keep=1 Amp=0.958 A_est=0.984 cmp_high=0
-    bit0 trial=31 keep=1 Amp=0.974 A_est=0.996 cmp_high=0
+| MOS | CAP | T | band | code | Amp | A_est | tnr | Amp_peak | code_1c | Δcode | t_tot (µs) | steady≤1.40 | peak≤1.50 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| mos_tt | cap_typ | 27 | top | 14 | 1.250 | 1.248 | 0 | 1.296 | 14 | 0 | 1.20 | PASS | PASS |
+    bit4 trial=16 keep=0 Amp=1.286 cmp=1.063 cmp_high=1 vsense_high=1
+    bit3 trial=8 keep=1 Amp=1.105 cmp=0.514 cmp_high=0 vsense_high=0
+    bit2 trial=12 keep=1 Amp=1.203 cmp=0.580 cmp_high=0 vsense_high=0
+    bit1 trial=14 keep=1 Amp=1.250 cmp=0.664 cmp_high=0 vsense_high=0
+    bit0 trial=15 keep=0 Amp=1.273 cmp=0.946 cmp_high=1 vsense_high=1
+| mos_tt | cap_typ | 27 | bottom | 31 | 0.974 | 0.997 | 1 | 0.995 | 31 | 0 | 1.20 | PASS | PASS |
+    bit4 trial=16 keep=1 Amp=0.697 cmp=0.409 cmp_high=0 vsense_high=0
+    bit3 trial=24 keep=1 Amp=0.855 cmp=0.422 cmp_high=0 vsense_high=0
+    bit2 trial=28 keep=1 Amp=0.925 cmp=0.435 cmp_high=0 vsense_high=0
+    bit1 trial=30 keep=1 Amp=0.958 cmp=0.443 cmp_high=0 vsense_high=0
+    bit0 trial=31 keep=1 Amp=0.974 cmp=0.448 cmp_high=0 vsense_high=0
 
-Amp ≤ 1.40 V all steps: PASS `[SCH]`
+Steady ≤ 1.4 V and peak ≤ 1.5 V all cases: PASS `[SCH]`
 
-## Step-1 top-band tnr explanation (tt/27)
-
-Top now reaches Amp=1.251 V at code 14 (tnr=0). Step-1 top tnr at 1.15 V was a **detector artefact** (under-read → search kept raising code / mis-compared). `[SCH]`
+No code changes vs step 1c. `[SCH]`

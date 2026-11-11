@@ -118,7 +118,7 @@ Status: **draft for human review, 2026-10-19.** It records how the signed-off di
 | 0x29 | VCO_BAND | 0x80 | [7:0] capacitor-bank code (8 bits since D20, 2026-10-25; 7 bits in D8). Written by the calibration, or by the host when `PLL_CTRL`[7] = 1 (manual) |
 | 0x2A | PLL_STATUS | — | Read only. [0] lock (synchronised), [1] calibration busy, [2] calibration failed, [3] committed N not yet applied, [4] V_tune below the monitor window (≈ 0.28 V), [5] V_tune above it (≈ 0.775 V) — D20 V_tune monitor (`analog/pll/vtune_mon/`, sync `rtl/afe/vtune_sync.sv`); host handling in §6 |
 | 0x2B | AFE_FORCE | 0x00 | Test: [7] override; [6:0] force individual enables (§6) on regardless of mode |
-| 0x2C | VCO_BIAS | 0x10 | **[4:0]** DAC: **I_tail = 1.52 mA + code × 0.08 mA** (1.52–4.00 mA; D12 at code 31). **[5]** target not reached (sticky, set by amp cal when code 31 still below 1.25 V; expected on bottom bands, not a fault). **[6]** reserved. **[7]** manual: host owns [4:0], skip on-chip amp search (interim A2). When [7]=0, [4:0] are written by the D22 search and held |
+| 0x2C | VCO_BIAS | 0x10 | **[4:0]** DAC: **I_tail = 1.52 mA + code × 0.08 mA** (1.52–4.00 mA; D12 at code 31; reset mid-code 16). **[5]** target not reached (sticky; set by amp cal when code 31 still below target — expected on bottom bands, not a fault). **[6]** reserved. **[7]** manual: host owns [4:0], skip on-chip amp search (test / override; **interim A2 retired 2026-11-11**). When [7]=0, [4:0] are written by the D22 SE-cmp search and held |
 
 RF frequency: **f_RF = (N_INT + N_FRAC / 2²⁴) · f_ref / D**, D = 8 (UHF) or 24 (VHF). Resolution 0.08 Hz (VHF) and 0.24 Hz (UHF) at 32 MHz.
 

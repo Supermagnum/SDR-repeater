@@ -24,7 +24,7 @@ W, L = 4.0, 0.5
 SIG = A.SIG_VT_N / (W * L) ** 0.5
 TH = A.v_th()
 CM = 0.70
-CMP_MID = 0.85  # SE trip level (lo≈0.58, bal≈0.67, hi≈1.11) [SCH]
+CMP_MID = A.CMP_HIGH  # SE trip level (lo≈0.58, bal≈0.67, hi≈1.11) [SCH]
 
 
 def op_full(vip, vin, vos, tag):
@@ -39,8 +39,8 @@ def op_full(vip, vin, vos, tag):
         "itt (tt 0) isource dc=20u\n"
         "rc1 (vdd co) resistor r=20k\n"
         "rc2 (vdd co2) resistor r=20k\n"
-        "ms1 (n1 co2 ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2\n"
-        "ms2 (cmp co ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2\n"
+        "mcs1 (n1 co2 ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2\n"
+        "mcs2 (cmp co ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2\n"
         "iss2 (ss2 0) isource dc=20u\n"
         "mpl1 (n1 n1 vdd vdd) sg13_lv_pmos w=4u l=0.5u ng=2\n"
         "mpl2 (cmp n1 vdd vdd) sg13_lv_pmos w=4u l=0.5u ng=2\n"

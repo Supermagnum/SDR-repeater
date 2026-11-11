@@ -1,6 +1,6 @@
 # VCO amplitude control (P2.3 open point §9.3)
 
-Status: **D22 accepted 2026-11-02.** Step 1b (2026-11-02): differential-max detector + unit-cell DAC + corner search — see §8. Interim A2 still applies until C is accepted for production use.
+Status: **D22 accepted 2026-11-02. Step 1 done 2026-11-11** (§10): end-to-end search on the single-ended comparator PASS; **interim A2 retired** for all bands. Calibration sets every band; bottom bands end at code 31 with tnr = 1.
 
 Items 1–2 of `prompts/06-design-next-step.md` are closed (P2.6 accepted 2026-10-31; open points 1–3 closed). Newest status report `reports/status-2026-10-30.md`: no failed re-run; amplitude cal listed as open work, not as an unverified blocking result.
 
@@ -10,6 +10,8 @@ Items 1–2 of `prompts/06-design-next-step.md` are closed (P2.6 accepted 2026-1
 
 | Limit | Value | Source |
 |---|---|---|
+| Steady-state differential Amp (D22) | ≤ **1.40 V** | Owner 2026-11-11 |
+| Transient Amp during amplitude search only | ≤ **1.50 V** (≈ 1 µs/step, cal only) | Owner 2026-11-11 |
 | Upper: peak V_GS / V_GD of the LV core | ≤ **1.5 V** (process abs. max 1.65 V) | `[DS]` / step-3 gate in `summary_8bit_range.txt` |
 | Peak V_GS vs differential amplitude | In the 15 corner cases, **peak V_GS = Amp** (to the reported precision) | `[SCH]` `summary_8bit_range.txt` |
 | Lower: tank swing for the P2.4 LO chain | Buffer target **≥ 0.5 V per side** into CML (25 % over the ÷3 minimum 0.40 V at slow / 1.08 V) | `[SCH]` `spec/lo-divider-topology.md` §7 |
@@ -291,4 +293,26 @@ Bank-omitted PSS at tt 3.65 and ss85 4.20 with detector off: **PSS aborted** bot
 ### 9.7 Wake `[MODEL]`
 
 Unchanged: **109–130 µs ≤ 150 µs**.
+
+---
+
+## 10. Step 1d — end-to-end on SE comparator; D22 step 1 closed (2026-11-11)
+
+Sources: `analog/vco/ampcal/out/summary_search.txt` (1d), `amp_common.py` (CMP_HIGH=0.85 V).
+
+**Path:** detector → second-stage SE `cmp` → digital SAR (`v(cmp) > 0.85`) → V_DS-matched DAC → VCO; `en_vco_tail_bp` closed during search.
+
+### 30-case corner search `[SCH]` — **PASS**
+
+| Gate | Result |
+|---|---|
+| Steady Amp ≤ 1.40 V | **PASS** (final Amp 0.852–1.292 V) |
+| Transient peak ≤ 1.50 V | **PASS** (worst peak 1.447 V, ss/wcs/85 top) |
+| Top tnr=0, Amp in 1.25±0.10 | **PASS** (codes 10–20; tt/27 code **14**, Amp **1.250 V**) |
+| Bottom code 31, tnr=1 | **PASS** (expected; Amp above LO min) |
+| Elec time | 1.20 µs / search (0.20 µs × 6); RTL still 10.0 µs amp |
+
+**vs step 1c:** 12/15 top bands +1 LSB (bottom unchanged). Cause: SE `cmp` trips slightly later than `vsense > V_th` (1c MC mean SE offset ≈ +5.8 mV; CMP_HIGH=0.85 leaves a soft region near the Amp/2 trip) — search keeps one more bit. Final Amp still inside the window.
+
+**D22 step 1 is done. Interim A2 is retired for all bands.** The on-chip calibration sets every band; bottom bands end at code 31 with tnr = 1.
 

@@ -32,8 +32,11 @@ os.makedirs(OUT, exist_ok=True)
 I0 = 1.52e-3
 LSB = 0.08e-3
 A_TARGET = 1.25
-A_HARD = 1.40
+A_HARD = 1.40          # steady-state differential Amp (owner 2026-11-11)
+A_HARD_TRANSIENT = 1.50  # peak during amplitude search only (≈1 µs/step)
 A_WIN = 0.10
+# Single-ended cmp trip level after 2nd-stage OTA (bal≈0.67, hi≈1.11) [SCH]
+CMP_HIGH = 0.85
 # Step-1 topology constants (diagnosis only)
 C_AC = 4e-15
 HOLD_C = 200e-15
@@ -225,9 +228,10 @@ def detector_snippet(en=True):
         "itt (ttail 0) isource dc=20u\n",
         "rc1 (vdd co) resistor r=20k\n",
         "rc2 (vdd co2) resistor r=20k\n",
-        # Diff→SE stage: high when co2 > co (Amp above target)
-        "ms1 (n1 co2 ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
-        "ms2 (cmp co ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
+        # Diff→SE stage: high when co2 > co (Amp above target).
+        # Names mcs* — avoid ms1/ms2 (bank switch fingers in the VCO deck).
+        "mcs1 (n1 co2 ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
+        "mcs2 (cmp co ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
         "iss2 (ss2 0) isource dc=20u\n",
         "mpl1 (n1 n1 vdd vdd) sg13_lv_pmos w=4u l=0.5u ng=2\n",
         "mpl2 (cmp n1 vdd vdd) sg13_lv_pmos w=4u l=0.5u ng=2\n",

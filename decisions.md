@@ -314,3 +314,15 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - `VCO_BIAS` DAC with an offset: **I_tail = 1.52 mA + code × 0.08 mA** (1.52–4.00 mA, 5 bits; D12 cap at code 31) instead of code/31 × 4 mA.
 - Bottom bands: where 4 mA does not reach the target, the search ends at the top code and sets a **"target not reached"** flag; expected, not a fault (D12 unchanged).
 - Interim until C is designed: option **A2** (per-band table, top bands derated for margin to 1.5 V).
+
+## 2026-11-11 — D22 step 1c results
+
+- Amplitude limit clarified: ≤ 1.40 V differential in steady state; ≤ 1.50 V for transients
+  during the amplitude search (≈ 1 µs per step, calibration only). Step 1c peaks of
+  1.402–1.448 V on four hot top-band cases accepted on that basis.
+- VCO_BIAS DAC (V_DS-matched OTA, wide mirror) accepted: code 31 within ±3 % of 4.0 mA at all
+  corners, INL ≤ 0.43 LSB, monotonic in MC; ss major-carry DNL 0.84 LSB noted.
+- Bottom bands end at code 31 with tnr = 1 (0.85–1.09 V, above the LO minimum): expected.
+- Detector phase noise: [HAND] ≈ 0 dB powered down; SCH check deferred to post-layout (PSS does
+  not converge with the detector devices), like the bank-bypass bound.
+- Interim A2 retired once the on-chip search runs on the single-ended comparator (step 1d).
