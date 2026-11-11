@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted 2026-11-11.** P2.7.1 xschem capture done (`analog/vco/sch/`); SVG/PDF exported; LDO DC + D22 search PASS; VCO range vs archived `range.json` FAIL on both capture and pure step2 re-run — owner decision on re-baseline. **No layout yet.** **Tapped L2n0 EM done** 2026-11-01. Open IHP LVS #861/#753/#512 workarounds stand.
+Status: **D23 Option A accepted.** P2.7.1 capture accepted. **P2.7.1b (2026-11-11):** range shift = off-state bank/var bypass C; re-baselined. 15-corner coverage PASS (worst top margin 39 MHz); **band steps FAIL (1.06 V at MSB)** — fix before P2.7.2. **No layout.** LVS #861/#753/#512 workarounds stand.
 
 ---
 
@@ -99,14 +99,16 @@ Dependency order. Every analogue block: **xschem `.sch` + SVG/PDF**, then layout
 **Outputs:** this file; `spec/p27-floorplan.md`; `phase2-plan.md` §3 update.  
 **Pass:** D23 Option A recorded 2026-11-11. **No layout.**
 
-### P2.7.1 — xschem capture: VCO + amp-cal + LDO (done 2026-11-11, finding)
-**Inputs:** `analog/vco/step2|step3`, `ampcal/`, `ldo/`; tapped L2n0; D23.  
-**Outputs:** `analog/vco/sch/` hierarchy (`l2n0`, `vco_core`, `vco_bank`, `vco_var`, `vco_tail_dac`, `ampcal_det`, `vrana1_ldo`, `vco_sim_flat`); `exports/*.svg|pdf`; `netlists/`; `out/summary_xsch_vco.txt`, `summary_equiv.txt`, `summary_range_recheck.txt`. Whole-die area tally in `spec/p27-floorplan.md` §8.  
+### P2.7.1 — xschem capture: VCO + amp-cal + LDO ✅
+**Outputs:** `analog/vco/sch/`; SVG/PDF; `out/summary_xsch_vco.txt`. Whole-die tally in `p27-floorplan.md` §8.  
+**Pass:** capture accepted (`decisions.md` P2.7.1 results). Range miss deferred to 1b.
+
+### P2.7.1b — Range shift cause + re-baseline (done 2026-11-11, finding)
+**Outputs:** `sch/out/summary_p271b.txt`, `summary_range_shift.txt`; `step2/out/range.json` + `range_2026-10-25.json`; `summary_range.txt`, `summary_steps.txt`; `step3/out/summary_8bit_range.txt`; D22 `ampcal/out/summary_search_rebaseline.txt`; landing `sch/out/summary_land_rebaseline.txt`.  
 **Pass / finding:**
-- Capture + SVG/PDF: done. Equiv diffs explained (l2n0 expand; LDO TB sources; svaricap body).
-- LDO DC PASS; D22 search tt/27 top PASS (code 14).
-- VCO range 0/128/255 vs `range.json`: **FAIL** (|df| up to 0.53 %, |dA|~0.07 V). Same FAIL on pure `S2.tran` — archive drift, not xschem-only.
-**Re-run:** none until owner re-baselines or waives.
+- Cause: off-state **bank** (+ var) bypass C (−18 MHz at code 0 vs nobp). PDK pinned.
+- Re-baseline done. 15-corner **3.12–4.20 covered**; oxide ≤ 1.46 V; worst top margin **39 MHz**.
+- Band steps **FAIL** (1.06 V at 127→128). **Hold P2.7.2** until steps fixed (proposal in `vco-topology.md` §9 / `summary_p271b.txt`).
 
 ### P2.7.2 — Layout: VCO (inductor + core + bank + var + bypasses + amp-cal)
 **Inputs:** P2.7.1; floorplan D23; tapped GDS.  

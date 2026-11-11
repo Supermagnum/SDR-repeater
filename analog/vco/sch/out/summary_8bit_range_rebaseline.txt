@@ -1,0 +1,26 @@
+# P2.3 step 3
+
+Sizing from step 2 (8-bit bank): LSB 7.25 fF, fixed 190 fF, varactor 20 fingers, bias resistors 2 MOhm.
+
+## 2. Tuning range and swing at corners (60 ns transients)
+
+Top: code 0 at 1.0 V, I_tail 3.45 mA. Bottom: code 255 at 0.3 V, I_tail 4.00 mA. Needed: top >= 4.20 GHz, bottom <= 3.12 GHz; peak V_GS / V_GD <= 1.5 V.
+
+| MOS | CAP | T (degC) | f top (GHz) | f bottom (GHz) | Covers | Amp top / bottom (V) | Peak V_GS | Peak V_GD |
+|---|---|---|---|---|---|---|---|---|
+| mos_tt | cap_typ | -40 | 4.324 | 2.791 | yes | 1.40 / 0.88 | 1.40 | 1.40 |
+| mos_tt | cap_typ | 27 | 4.328 | 2.788 | yes | 1.32 / 0.79 | 1.33 | 1.32 |
+| mos_tt | cap_typ | 85 | 4.333 | 2.785 | yes | 1.23 / 0.66 | 1.25 | 1.23 |
+| mos_ss | cap_wcs | -40 | 4.239 | 2.671 | yes | 1.42 / 0.81 | 1.42 | 1.42 |
+| mos_ss | cap_wcs | 27 | 4.243 | 2.667 | yes | 1.34 / 0.70 | 1.36 | 1.34 |
+| mos_ss | cap_wcs | 85 | 4.245 | 2.662 | yes | 1.26 / 0.57 | 1.29 | 1.26 |
+| mos_ss | cap_bcs | -40 | 4.418 | 2.934 | yes | 1.46 / 0.98 | 1.46 | 1.46 |
+| mos_ss | cap_bcs | 27 | 4.424 | 2.932 | yes | 1.38 / 0.88 | 1.39 | 1.38 |
+| mos_ss | cap_bcs | 85 | 4.428 | 2.928 | yes | 1.30 / 0.76 | 1.32 | 1.30 |
+| mos_ff | cap_wcs | -40 | 4.242 | 2.666 | yes | 1.31 / 0.77 | 1.31 | 1.31 |
+| mos_ff | cap_wcs | 27 | 4.246 | 2.663 | yes | 1.22 / 0.67 | 1.23 | 1.22 |
+| mos_ff | cap_wcs | 85 | 4.251 | 2.659 | yes | 1.12 / 0.53 | 1.15 | 1.12 |
+| mos_ff | cap_bcs | -40 | 4.418 | 2.927 | yes | 1.35 / 0.91 | 1.35 | 1.35 |
+| mos_ff | cap_bcs | 27 | 4.425 | 2.925 | yes | 1.26 / 0.81 | 1.26 | 1.26 |
+| mos_ff | cap_bcs | 85 | 4.432 | 2.923 | yes | 1.16 / 0.68 | 1.18 | 1.16 |
+

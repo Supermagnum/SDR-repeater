@@ -1,0 +1,72 @@
+[INFO] USER_ID: 1000, GROUP_ID: 1000
+[INFO] Final PATH variable: /headless/.local/bin:/foss/tools/bin:/foss/tools/sak:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/foss/tools/kactus2:/foss/tools/klayout:/foss/tools/osic-multitool
+[INFO] Final PYTHONPATH variable: /headless/.local/lib/python3.12/site-packages:/usr/lib/python312.zip:/usr/lib/python3.12:/usr/lib/python3.12/lib-dynload:/usr/local/lib/python3.12/dist-packages:/usr/lib/python3/dist-packages:/foss/tools/ngspyce/local/lib/python3.12/dist-packages:/foss/tools/openems/local/lib/python3.12/dist-packages:/foss/tools/pyopus/local/lib/python3.12/dist-packages:/foss/tools/yosys/share/yosys/python3:/foss/tools/klayout/pymod:/foss/tools/vacask/lib/vacask/python
+[INFO] SKIPPING UI STARTUP
+[INFO] Executing command: 'bash -lc 
+python3 - << "PY"
+import closed_loop as CL
+# Re-baseline ends from step2 range (code0@0.3 / code255@1.0 style for span)
+# Use measured ends: top code0 vtune0.3 = 4.302 GHz, bottom code255 vtune1.0 = 2.796 GHz from summary
+F_LO, F_HI = 2.796e9, 4.302e9
+print("# D20 landing with P2.7.1b re-baselined VCO ends [MODEL]\n")
+print(f"Behavioural bank ends F_LO={F_LO/1e9:.3f} F_HI={F_HI/1e9:.3f} GHz from new range.json span [SCH].\n")
+print("## Prior ends 2.90–4.41 GHz [MODEL]\n")
+CL.F_LO, CL.F_HI = 2.90e9, 4.41e9
+CL.f_bank = lambda code: CL.models.f_vco(code * 127 / (CL.ncodes() - 1))
+CL.land_sweep()
+print("## Re-baselined ends 2.796–4.302 GHz [MODEL]\n")
+CL.F_LO, CL.F_HI = F_LO, F_HI
+scale_lo = F_LO / 2.90e9
+scale_hi = F_HI / 4.41e9
+def f_bank(code):
+    # linear in code between new ends via existing shape scaled to new span
+    x = code * 127 / (CL.ncodes() - 1)
+    f0 = CL.models.f_vco(x)
+    # map old 2.90-4.41 shape onto new ends
+    t = (f0 - 2.90e9) / (4.41e9 - 2.90e9)
+    return F_LO + t * (F_HI - F_LO)
+CL.f_bank = f_bank
+CL.land_sweep()
+print(f"End scale vs prior: LO x{scale_lo:.4f}, HI x{scale_hi:.4f}.\n")
+PY
+'
+# D20 landing with P2.7.1b re-baselined VCO ends [MODEL]
+
+Behavioural bank ends F_LO=2.796 F_HI=4.302 GHz from new range.json span [SCH].
+
+## Prior ends 2.90–4.41 GHz [MODEL]
+
+## Where V_tune lands after the band calibration [MODEL]
+
+Every VCO target from 3.12 to 4.20 GHz in 0.5 MHz steps (VHF, P = 3) and 3.20–3.84 GHz (UHF, P = 2), 2858 channels; V_tune after lock = V_hold + (f_target − f(code, V_hold)) / K. Window 0.25–0.95 V (slow corner 0.25–0.85 V). 'highest' = the RTL rule; 'nearest' = one more trial on the next code and keep the closer count. One band step is 0.45–0.59 V of V_tune with 7 bits, half that with 8. Counting f / P instead of f / 4P gives 4 × the counts (3700–6400 instead of 920–1600 per 128 reference cycles).
+
+| Bank, counter | Rule | Calibration (µs) | tt: V_tune min–max, outside | ss | ff |
+|---|---|---|---|---|---|
+| as designed (7 bits, count f / 4P) | highest | 30.5 | 0.02–0.89 V, 19.7 % | -0.04–0.85 V, 31.9 % | 0.10–1.00 V, 9.0 % |
+| as designed (7 bits, count f / 4P) | nearest | 34.7 | 0.18–1.04 V, 0.8 % | 0.14–0.92 V, 4.7 % | 0.28–1.08 V, 3.7 % |
+| 7 bits, count f / P | highest | 30.5 | 0.01–0.64 V, 36.5 % | -0.06–0.58 V, 49.7 % | 0.07–0.73 V, 23.3 % |
+| 7 bits, count f / P | nearest | 34.7 | 0.27–0.88 V, 0.0 % | 0.20–0.81 V, 4.0 % | 0.35–0.95 V, 0.1 % |
+| 8 bits, count f / 4P | highest | 34.7 | 0.30–0.91 V, 0.0 % | 0.23–0.84 V, 0.2 % | 0.37–1.01 V, 0.2 % |
+| 8 bits, count f / 4P | nearest | 38.8 | 0.34–0.92 V, 0.0 % | 0.28–0.86 V, 0.1 % | 0.42–1.04 V, 0.3 % |
+| 8 bits, count f / P | highest | 34.7 | 0.30–0.67 V, 0.0 % | 0.23–0.58 V, 1.8 % | 0.35–0.72 V, 0.0 % |
+| 8 bits, count f / P | nearest | 38.8 | 0.42–0.74 V, 0.0 % | 0.34–0.67 V, 0.0 % | 0.49–0.82 V, 0.0 % |
+
+## Re-baselined ends 2.796–4.302 GHz [MODEL]
+
+## Where V_tune lands after the band calibration [MODEL]
+
+Every VCO target from 3.12 to 4.20 GHz in 0.5 MHz steps (VHF, P = 3) and 3.20–3.84 GHz (UHF, P = 2), 2858 channels; V_tune after lock = V_hold + (f_target − f(code, V_hold)) / K. Window 0.25–0.95 V (slow corner 0.25–0.85 V). 'highest' = the RTL rule; 'nearest' = one more trial on the next code and keep the closer count. One band step is 0.45–0.59 V of V_tune with 7 bits, half that with 8. Counting f / P instead of f / 4P gives 4 × the counts (3700–6400 instead of 920–1600 per 128 reference cycles).
+
+| Bank, counter | Rule | Calibration (µs) | tt: V_tune min–max, outside | ss | ff |
+|---|---|---|---|---|---|
+| as designed (7 bits, count f / 4P) | highest | 30.5 | 0.02–0.91 V, 22.2 % | -0.06–0.84 V, 34.2 % | 0.10–0.97 V, 10.5 % |
+| as designed (7 bits, count f / 4P) | nearest | 34.7 | 0.20–1.02 V, 0.6 % | 0.17–1.00 V, 4.3 % | 0.30–1.09 V, 3.2 % |
+| 7 bits, count f / P | highest | 30.5 | 0.00–0.63 V, 37.8 % | -0.07–0.56 V, 50.0 % | 0.07–0.71 V, 24.3 % |
+| 7 bits, count f / P | nearest | 34.7 | 0.27–0.89 V, 0.0 % | 0.20–0.81 V, 4.3 % | 0.35–0.95 V, 0.0 % |
+| 8 bits, count f / 4P | highest | 34.7 | 0.30–0.91 V, 0.0 % | 0.23–0.85 V, 0.1 % | 0.37–0.94 V, 0.0 % |
+| 8 bits, count f / 4P | nearest | 38.8 | 0.36–0.89 V, 0.0 % | 0.26–0.83 V, 0.0 % | 0.43–1.01 V, 0.1 % |
+| 8 bits, count f / P | highest | 34.7 | 0.29–0.66 V, 0.0 % | 0.22–0.58 V, 2.6 % | 0.37–0.71 V, 0.0 % |
+| 8 bits, count f / P | nearest | 38.8 | 0.41–0.74 V, 0.0 % | 0.34–0.67 V, 0.0 % | 0.49–0.81 V, 0.0 % |
+
+End scale vs prior: LO x0.9641, HI x0.9755.
+

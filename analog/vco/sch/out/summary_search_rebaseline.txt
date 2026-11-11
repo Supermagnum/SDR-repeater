@@ -1,0 +1,24 @@
+# D22 step 1d amplitude SAR on single-ended cmp [SCH]
+
+Decision: v(cmp) > 0.85 V; settle 0.20 µs/step; target 1.25±0.1 V; steady ≤1.4 V; transient ≤1.5 V.
+
+| MOS | CAP | T | band | code | Amp | A_est | tnr | Amp_peak | code_1c | Δcode | t_tot (µs) | steady≤1.40 | peak≤1.50 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| mos_tt | cap_typ | 27 | top | 16 | 1.261 | 1.257 | 0 | 1.437 | 14 | 2 | 1.20 | PASS | PASS |
+    bit4 trial=16 keep=1 Amp=1.261 cmp=0.754 cmp_high=0 vsense_high=1
+    bit3 trial=24 keep=0 Amp=1.429 cmp=1.183 cmp_high=1 vsense_high=1
+    bit2 trial=20 keep=0 Amp=1.347 cmp=1.154 cmp_high=1 vsense_high=1
+    bit1 trial=18 keep=0 Amp=1.304 cmp=1.110 cmp_high=1 vsense_high=1
+    bit0 trial=17 keep=0 Amp=1.283 cmp=1.032 cmp_high=1 vsense_high=1
+| mos_tt | cap_typ | 27 | bottom | 31 | 0.918 | 0.955 | 1 | 0.939 | 31 | 0 | 1.20 | PASS | PASS |
+    bit4 trial=16 keep=1 Amp=0.640 cmp=0.408 cmp_high=0 vsense_high=0
+    bit3 trial=24 keep=1 Amp=0.799 cmp=0.415 cmp_high=0 vsense_high=0
+    bit2 trial=28 keep=1 Amp=0.869 cmp=0.424 cmp_high=0 vsense_high=0
+    bit1 trial=30 keep=1 Amp=0.902 cmp=0.430 cmp_high=0 vsense_high=0
+    bit0 trial=31 keep=1 Amp=0.918 cmp=0.434 cmp_high=0 vsense_high=0
+
+Steady ≤ 1.4 V and peak ≤ 1.5 V all cases: PASS `[SCH]`
+
+## Code changes vs step 1c [SCH]
+
+- mos_tt/cap_typ/27/top: 14 → 16 (cmp/vsense disagree on 1 bit(s)); final Amp=1.261 V, cmp=0.754 V

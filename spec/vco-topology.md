@@ -1,6 +1,6 @@
 # VCO topology memo (P2.3)
 
-Status: **topology accepted by the owner, 2026-10-20 (D8–D10 as proposed, `decisions.md`). Step 1 device checks done 2026-10-20 (§8); D11 accepted 2026-10-20 (AC-coupled varactor). Steps 2–3 done 2026-10-20 (worst PN margin +3.6 dB, §9). Real LO load closed 2026-11-11 (§9 open point 6). HBT comparison (D1) done 2026-11-11 (§9 open point 7): keep NMOS — on D21/D12 HBT Amp ≈ 1.0 V, fair Leeson wash, top band 4.10 GHz < 4.20 GHz, VACASK HBT PSS L untrusted. P2.3 open items closed.** Numbers here are hand estimates `[HAND]` from `analog/vco/tank_budget.py` and the P2.2 model (`analog/pll-model/`), on the accepted EM tank values (`spec/provisional-tank-q.md`) and the P2.0 phase-noise validation (`reports/phase2-review/p20-flicker.md`).
+Status: **topology accepted (D8–D11). P2.3 open items closed.** **P2.7.1b (2026-11-11):** range shift vs 25-Oct `range.json` caused by off-state **bank** (and var) start-up bypass C; re-baselined. 15-corner coverage of 3.12–4.20 GHz **PASS** (worst top margin 39 MHz); band steps **FAIL** (1.06 V at MSB carry) — fix before P2.7.2 layout. See §9.
 
 ---
 
@@ -185,3 +185,17 @@ Slow MOS corner, 85 °C, 4 mA cap: 3.12 / 3.65 / 4.20 GHz at 1 MHz −122.8 / �
    - Fair Leeson (Q=15, F_HBT=2.5 / F_NMOS=3): ΔL(1 MHz) ≈ **+0.1…+0.6 dB** (HBT not better) `[HAND]`. NMOS SCH duplex −122.6 / −119.3 still the design numbers.
    - Range: top **4.10 GHz < 4.20 GHz** (HBT Cje); bottom 2.91 GHz OK; KVCO ≈ 21 MHz/V; start-up ≈ 1 ns `[SCH]`. Core area smaller (`[HAND]`) — not the cost driver.
    - **Conclusion:** paper ≈ 5 dB win not realised under D21/D12; band top misses; no switch.
+
+### P2.7.1b (2026-11-11) — range shift cause, re-baseline, coverage finding
+
+**Cause of miss vs `range_2026-10-25.json`:** off-state start-up **bank** bypass NMOS C on the tank plates (≈ −15 MHz at code 0), plus var bypass (≈ −3 MHz). Tail bypass ≈ 0. Sum of parts matches the full-bypass shift. Not PDK/tool (pinned `a49358cc`); not xschem. D22 det/DAC are ampcal-only. Details: `analog/vco/sch/out/summary_range_shift.txt`, `summary_p271b.txt` `[SCH]`.
+
+**Re-baseline:** new `analog/vco/step2/out/range.json` (LSB 7.25 fF, cfix 190 fF, trims ≈ 0.87–0.93); archive kept as `range_2026-10-25.json`. tt span 2.796–4.302 GHz.
+
+**Coverage [SCH]** (`step3/out/summary_8bit_range.txt`): all **15** MOS/CAP/T cases cover 3.12–4.20 GHz; peak V_GS/V_GD ≤ 1.46 V. Worst top margin **39 MHz** (mos_ss / cap_wcs / −40 °C, f_top 4.239 GHz). Worst bottom margin **186 MHz** (f_bot 2.934 GHz).
+
+**Band steps [SCH]** (`step2/out/summary_steps.txt`): **FAIL** — 127→128 is **1.060 V** of V_tune (need 0.24–0.29 V). Off-state bypass C breaks the prior trim. **Do not start P2.7.2 layout until steps are fixed.**
+
+**Proposal:** re-trim / re-size with bypass C in the model; or shrink / move bank bypass so off-C does not dominate MSB carries; or keep RF-plate bypass off if wake RC still meets 0.4 µs.
+
+**D22 search** tt/27: PASS (top code 16, Amp 1.261; bottom 31). **D20 landing [MODEL]** with new ends: 8-bit / f/4P / nearest still ~0 % outside.

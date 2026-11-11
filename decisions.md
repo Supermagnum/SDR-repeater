@@ -350,3 +350,14 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - P2.7 sub-step order and pass numbers as in spec/p27-layout-notes.md.
 - To add to the floorplan memo: a rough whole-die area tally (synthesizer, digital, RX, TX,
   LDOs, pads) against the package, so a squeeze shows before Phase 5.
+
+## 2026-11-11 — P2.7.1 results
+- xschem capture of VCO, D22 detector/comparator and D21 LDO accepted (3f116aa); LDO DC and
+  D22 search reproduce from the xschem netlist.
+- VCO range from the current deck misses range.json (25 Oct) — also with plain run_step2, so
+  it is a deck change since then, not the xschem capture. Before P2.7.2: find the cause,
+  re-baseline range.json from the current circuit, and re-run the 15-corner range and the
+  band steps. Layout only if 3.12–4.20 GHz is still covered at every corner.
+- Die size: the whole-die tally (spec/p27-floorplan.md §8) needs ≈ 3.5 mm²; a 1.6 × 1.6 mm
+  core does not fit, ≈ 2.5 × 2.5 mm does and fits the QFN-32 5 × 5 mm package. Die outline
+  decided in Phase 5 with refined RX/TX areas; P2.7 block layout proceeds.

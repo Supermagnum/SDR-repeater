@@ -1,0 +1,59 @@
+# P2.7.1b — VCO range shift cause, re-baseline, coverage
+
+PDK `a49358cc0b20635fcb53c0940505e3563763fc7a` (pinned). Container `hpretl/iic-osic-tools:2026.10`.
+
+## 1. Shift size vs range_2026-10-25.json [SCH]
+
+tt 27 °C, V_tune 0.65 V, itail 4.0 mA, today's default deck (bypass on):
+
+| code | f_arch | f_today | Δf (MHz) | Δf (%) | ΔA (V) |
+|---|---|---|---|---|---|
+| 0 | 4.4291 GHz | 4.4062 GHz | −22.96 | −0.518 | +0.057 |
+| 128 | 3.4407 GHz | 3.4337 GHz | −6.97 | −0.203 | +0.067 |
+| 255 | 2.9101 GHz | 2.9108 GHz | +0.70 | +0.024 | +0.073 |
+
+## 2. Cause [SCH]
+
+25-Oct circuit = no start-up bypass MOS (`bypass=False`). Today = bank+var+tail bypass present, gates tied low (off).
+
+| addition | Δf c0 (MHz) | Δf c128 | Δf c255 |
+|---|---|---|---|
+| bank_bypass | −14.53 | −5.50 | +1.07 |
+| var_bypass | −3.39 | −0.96 | −0.03 |
+| tail_bypass | −0.01 | +0.01 | +0.16 |
+| all_bypass (today) | −18.00 | −7.11 | +0.09 |
+| bank+var+tail sum | −17.92 | −6.45 | +1.20 |
+| residual (all − sum) | −0.08 | −0.66 | −1.11 |
+
+**Dominant cause: off-state bank bypass C on the tank plates; var bypass second.** Tail negligible. Sum matches all_bypass at c0 within 0.1 MHz.
+
+Other checks vs nobp: D22 detector ≈ −1 MHz; OTA DAC changes Amp (bias) more than f; removing stand-in buffer raises f (+20 MHz at c0) — stand-in was already in the 25-Oct deck.
+
+nobp vs archive residual: −5.0 / +0.1 / +0.6 MHz (−0.11 % at c0) — small; PDK/tool not the main story. Amp +0.06 V vs archive remains even with nobp (archive Amp mismatch separate from f shift).
+
+## 3. Re-baseline [SCH]
+
+- Kept `range_2026-10-25.json`; new `step2/out/range.json`.
+- Old trims 0.93–0.97 were outside 0.94–1.07× after the circuit change → **re-trimmed**.
+- New: LSB 7.25 fF, cfix 190 fF, trims ≈ 0.87–0.93, itail 4.0 mA, pnoise code 73.
+- tt span: **2.796–4.302 GHz** (covers 3.12–4.20 at typical).
+
+## 4. Coverage / steps / D22 / landing
+
+| Check | Result |
+|---|---|
+| 15-corner range | **PASS** — all cover; worst top margin **39 MHz** (mos_ss/cap_wcs/−40, f_top 4.239 GHz); worst bottom margin **186 MHz** (f_bot 2.934 GHz at ss/bcs/−40); peak V_GS/V_GD ≤ 1.46 V |
+| Band steps | **FAIL** — largest step **1.060 V** of V_tune at 127→128 (need 0.24–0.29 V); ratio 2.41× local mean |
+| D22 search tt/27 | **PASS** — top code 16 (was 14), Amp 1.261; bottom 31; peaks ≤ 1.50 V |
+| D20 landing [MODEL] | Accepted 8-bit / f/4P / nearest still ~0 % outside with new ends 2.796–4.302 |
+
+## Finding — band steps broken by bypass C
+
+Re-sizing/trim with off-state bank bypass on the plates does not restore even carries. Layout must **not** start until steps are fixed.
+
+**Proposal (pick one):**
+1. Re-work `trim()` / more passes with bypass present; or size bank bypass smaller / relocate so off-C does not scale badly with bit weight.
+2. Keep bypass off the RF plates (only across bias R far from tank) if start-up RC still meets 0.4 µs.
+3. Accept larger steps only with a D20 window / landing revisit (not preferred — 1.06 V > 0.7 V window).
+
+Sources: `sch/out/summary_range_shift.txt`, `step2/out/summary_range.txt`, `summary_steps.txt`, `step3/out/summary_8bit_range.txt`, `ampcal/out/summary_search_rebaseline.txt`, `sch/out/summary_land_rebaseline.txt`.

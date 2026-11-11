@@ -1,0 +1,57 @@
+# P2.7.1b VCO range shift isolation [SCH]
+
+PDK COMMIT: `a49358cc0b20635fcb53c0940505e3563763fc7a` (pinned target a49358cc)
+Container: hpretl/iic-osic-tools:2026.10
+Archived range.json mtime 2026-10-25; itail=4.000 mA; lsb=6.0667 fF; cfix=201.771 fF; nbits=8
+
+## 1. Total shift — today's deck vs range.json (tt 27 °C, V_tune 0.65 V)
+
+| code | f_arch [SCH] | f_today [SCH] | Δf (MHz) | Δf (%) | Amp_arch | Amp_today | ΔA (V) |
+|---|---|---|---|---|---|---|---|
+| 0 | 4.4291 GHz | 4.4062 GHz | -22.96 | -0.518 | 1.3464 | 1.4037 | 0.0573 |
+| 128 | 3.4407 GHz | 3.4337 GHz | -6.97 | -0.203 | 0.9676 | 1.0350 | 0.0674 |
+| 255 | 2.9101 GHz | 2.9108 GHz | 0.70 | 0.024 | 0.7776 | 0.8502 | 0.0726 |
+
+## 2. 25-Oct-style circuit (bypass=False) vs archive
+
+| code | f_arch | f_nobp | Δf (MHz) | Δf (%) |
+|---|---|---|---|---|
+| 0 | 4.4291 | 4.4242 | -4.96 | -0.112 |
+| 128 | 3.4407 | 3.4408 | 0.14 | 0.004 |
+| 255 | 2.9101 | 2.9107 | 0.62 | 0.021 |
+
+If nobp ≈ archive, the shift is from post-25-Oct additions, not PDK/tool.
+
+## 3. Addition → Δf vs nobp baseline (MHz) [SCH]
+
+Δf = f(config) − f(nobp). Sum of bank+var+tail should ≈ all_bypass − nobp.
+
+| addition | Δf c0 (MHz) | Δf c128 | Δf c255 | notes |
+|---|---|---|---|---|
+| bank_bypass | -14.53 | -5.50 | 1.07 | off-state MOS on bank bias R |
+| var_bypass | -3.39 | -0.96 | -0.03 | off-state MOS on var bias R |
+| tail_bypass | -0.01 | 0.01 | 0.16 | off-state MOS across rbf |
+| all_bypass | -18.00 | -7.11 | 0.09 | today step2 default |
+| no_standin | 20.14 | 10.31 | 6.60 | remove stand-in CML buffer |
+| det | -0.92 | -0.44 | -0.25 | D22 detector on tank (ampcal) |
+| dac | 16.94 | 4.02 | -1.01 | D22 OTA DAC replaces iref/mt |
+| dac_det | -2.04 | -3.25 | -1.24 | DAC+det on today's bypass deck |
+| today | -18.00 | -7.11 | 0.09 | same as all_bypass |
+
+### Sum check (bypass parts vs all_bypass)
+
+| code | bank+var+tail (MHz) | all_bypass (MHz) | residual (MHz) |
+|---|---|---|---|
+| 0 | -17.92 | -18.00 | -0.08 |
+| 128 | -6.45 | -7.11 | -0.66 |
+| 255 | 1.20 | 0.09 | -1.11 |
+
+### vs archive residual after nobp
+
+If nobp still differs from archive, residual is tool/model (not circuit).
+
+| code | archive−nobp (MHz) | archive−today (MHz) |
+|---|---|---|
+| 0 | 4.96 | 22.96 |
+| 128 | -0.14 | 6.97 |
+| 255 | -0.62 | -0.70 |
