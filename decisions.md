@@ -333,3 +333,11 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   ≤ +0.14 dB buffer [SCH] + ≤ 0.3 dB dividers [HAND] ≤ 0.5 dB.
 - PSS with the CML dividers attached does not converge in VACASK; confirmation by post-layout
   phase noise with the extracted load (P2.7), with the bank-switch and detector bounds.
+
+## 2026-11-11 — HBT core comparison (D1): keep NMOS
+- Owner confirms the NMOS core (D1 unchanged). HBT at 1.2 V / 4 mA: amplitude 0.99 V vs 1.16 V,
+  L(1 MHz) ≈ equal by fair Leeson [HAND], band top 4.10 GHz misses 4.20 GHz [SCH]. The paper
+  ≈ 5 dB gain needs ≈ 1.6 V swing and ≈ 1.8–2.5 V centre tap, which conflicts with D21 (1.2 V
+  VR_ANA1) and exceeds BV_CEO margins [DS].
+- VACASK VBIC PSS ≈ 35 dB optimistic against Leeson: not used for the decision. P2.3 open items
+  closed; next is P2.7 layout.
