@@ -361,3 +361,13 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - Die size: the whole-die tally (spec/p27-floorplan.md §8) needs ≈ 3.5 mm²; a 1.6 × 1.6 mm
   core does not fit, ≈ 2.5 × 2.5 mm does and fits the QFN-32 5 × 5 mm package. Die outline
   decided in Phase 5 with refined RX/TX areas; P2.7 block layout proceeds.
+
+## 2026-11-11 — P2.7.1b results; bank bypass sizing
+- Cause of the VCO range shift: off-state capacitance of the start-up bypass switches on the
+  bank plates (−14.5 MHz at code 0) and varactor bias (−3.4 MHz); PDK pinned a49358cc.
+  range.json re-baselined (old kept as range_2026-10-25.json); 15 corners cover 3.12–4.20 GHz
+  (top margin 39 MHz, bottom 186 MHz).
+- Band steps fail with equal-size bank bypass switches (127→128: 1.06 V of V_tune). Fix: bank
+  bypass switches sized in proportion to their bit (minimum width for the small bits), wake
+  charging still ≥ 6–7 τ within 1 µs; then re-trim. D20 window unchanged.
+- Amplitude +0.06 V against the archive noted; D22 sets the amplitude in operation.

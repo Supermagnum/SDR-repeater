@@ -1,6 +1,6 @@
 # VCO topology memo (P2.3)
 
-Status: **topology accepted (D8–D11). P2.3 open items closed.** **P2.7.1b (2026-11-11):** range shift vs 25-Oct `range.json` caused by off-state **bank** (and var) start-up bypass C; re-baselined. 15-corner coverage of 3.12–4.20 GHz **PASS** (worst top margin 39 MHz); band steps **FAIL** (1.06 V at MSB carry) — fix before P2.7.2 layout. See §9.
+Status: **topology accepted (D8–D11). P2.3 open items closed.** **P2.7.1c (2026-11-11):** binary-sized bank bypass + re-trim. Wake PASS; 15-corner PASS; MSB carry fixed (0.273 V). tt LSB steps max **0.296 V** vs 0.29 ceiling — owner accept or nudge before P2.7.2. See §9.
 
 ---
 
@@ -139,11 +139,11 @@ Source: `analog/vco/step2/`, `analog/vco/step3/` (VACASK, PDK `a49358cc`) `[SCH]
 
 **Circuit as simulated:** L2n0 lumped model, centre tap at 1.1 V; LV NMOS pair 32/0.13 µm; tail LV NMOS 160/4 µm, mirror 1:8, bias RC 1 MΩ / 50 pF, tail capacitor 8 pF; 7-bit bank, on-state LSB 11.5 fF after the review (10.9 fF before; sized automatically: the bank switches C_on − C_off, and the fixed capacitance without a fixed capacitor was only about 420 fF), about 100 µm of switch per 60 fF, plus a 204 fF fixed MIM (224 fF before the review); varactor 20 fingers AC-coupled through MIMs of about 5×, gates at 0.3 V; **2 MΩ** bank and varactor bias resistors.
 
-**Start-up bias bypass (P2.6 open point 2, 2026-10-31):** LV NMOS across `rbf` (20 µm / 0.13 µm, ng=4) and across every `rba*`/`rbb*` and `rvp`/`rvn` (5 µm / 0.13 µm, ng=2 — smaller on tank nodes), gate `vbp` / digital `en_vco_bias_bp`. Closed ≥ 0.4 µs at wake by `afe_seq` (36 ref cycles = 1.00 µs at 36 MHz). Stand-alone VCO range/pnoise runs keep `vbp` tied low. See `spec/analog-digital-interface.md` §6.
+**Start-up bias bypass (P2.6 open point 2, 2026-10-31; P2.7.1c binary bank 2026-11-11):** LV NMOS across `rbf` (20 µm / 0.13 µm, ng=4); bank `rba*`/`rbb*` **W_k = max(0.15 µm, 5 µm × 2^(k−7))** (MSB w=5u ng=2; PDK `nmos_minW`); var `rvp`/`rvn` unchanged (5 µm / 0.13 µm, ng=2). Gates `vbp` / `vbp_tail` / digital `en_vco_bias_bp`. Closed ≥ 0.4 µs at wake by `afe_seq` (36 ref cycles = 1.00 µs at 36 MHz). Stand-alone VCO range/pnoise runs keep `vbp` tied low. See `spec/analog-digital-interface.md` §6.
 
 **SCH re-run 2026-10-31:** range pass (`summary_range_rerun.txt`). PSS abort root cause: off-state **bank** bypass NMOS on the tank bottom plates (`summary_pss_bypass_parts.txt`; tail and varactor bypasses OK). Bank-omitted PN accepted for layout start: tt 3.65 GHz −122.7 dBc/Hz @ 1 MHz (+6.7 dB); ss 85 °C 4.20 GHz −119.4 (+3.4 dB) (`summary_pn_nobank.txt`). Linear bank equivalent abandoned. Switch-noise bound vs bank bias R **closed 2026-11-01** (`summary_bound_bank_switch.txt`): tt +0.59 dB worst-case bound (margin +6.1 dB); ss85 Δ +0.006 dB; owner gate (positive margin everywhere; worst-point move < 0.5 dB).
 
-**Bypass on-resistance `[SCH]`** (V_GS = 1.2 V, V_DS = 50 mV): tail switch Ron ≈ 29–34 Ω (tt/ss, −40/27 °C); bank/varactor switch Ron ≈ 124–143 Ω. With C_tail = 50 pF, τ ≈ 1.5–1.6 ns and 7 τ ≈ 11 ns — the 1 µs closed window is ≈ 90 × 7 τ even at ss / −40 °C. Bank MSB (~1.5 pF) is faster (7 τ ≈ 1.4 ns). Ron ≪ R_bias (1 MΩ / 2 MΩ), so the bypass is a true short for start-up.
+**Bypass on-resistance `[SCH]`** (V_GS = 1.2 V, V_DS = 50 mV): tail switch Ron ≈ 29–34 Ω (tt/ss, −40/27 °C); bank MSB Ron ≈ 131–162 Ω (ss/−40, ff/125); smaller bits higher Ron as W shrinks (floor 0.15 µm → ~3 kΩ). With C_tail = 50 pF, τ ≈ 1.5–1.6 ns and 7 τ ≈ 11 ns. Bank plates: worst wake nτ in 1.00 µs ≈ **3800** (bit 4, ff/125) — PASS ≫ 6–7 (`summary_wake_bank_bypass.txt`). Ron ≪ R_bias (1 MΩ / 2 MΩ).
 
 | Result | Value |
 |---|---|
@@ -199,3 +199,19 @@ Slow MOS corner, 85 °C, 4 mA cap: 3.12 / 3.65 / 4.20 GHz at 1 MHz −122.8 / �
 **Proposal:** re-trim / re-size with bypass C in the model; or shrink / move bank bypass so off-C does not dominate MSB carries; or keep RF-plate bypass off if wake RC still meets 0.4 µs.
 
 **D22 search** tt/27: PASS (top code 16, Amp 1.261; bottom 31). **D20 landing [MODEL]** with new ends: 8-bit / f/4P / nearest still ~0 % outside.
+
+### P2.7.1c (2026-11-11) — binary bank bypass, re-trim, coverage
+
+**Change:** bank bypass W tracks bit weight (`bank_bypass_geom` in `run_step2.py`; same in `vco_bank.sch`). Var/tail bypass unchanged. Details: `sch/out/summary_p271c.txt` `[SCH]`.
+
+**Wake:** ≥ 3800 τ in 1.00 µs at ss/−40 and ff/125 — PASS.
+
+**Re-trim:** LSB 6.18 fF, cfix 198 fF, trims ≈ 0.93–0.97; tt **2.903–4.404 GHz**.
+
+**Steps tt:** ratios **0.97–1.02** PASS; 127→128 **0.273 V** (was 1.060 V). Max step **0.296 V** (three top LSBs) — **strict FAIL vs 0.24–0.29** by ≤ 6 mV; within original D20 0.23–0.30 wording.
+
+**15-corner:** all cover; worst top margin **140 MHz**; worst bottom **77 MHz**; peak V_GS/V_GD ≤ 1.48 V. D22 tt/27 PASS (top code 14). D20 landing ~0 % outside with new ends.
+
+**Amp +0.06 V:** remains with bypass off in plain step2 — not bypass C; sizing/trim vs 25-Oct archive. D22 sets Amp in operation.
+
+**Decision:** accept 0.296 V LSB steps or nudge before **P2.7.2**.

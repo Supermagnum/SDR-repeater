@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.join(REPO, "analog", "vco", "ampcal"))
 sys.path.insert(0, os.path.join(REPO, "analog", "vco", "step2"))
 
 from xsch_lib import Sch, write_sym, side_um  # noqa: E402
+import run_step2 as S2  # noqa: E402
 
 RANGE_JSON = os.path.join(REPO, "analog", "vco", "step2", "out", "range.json")
 L2N0_INC = os.path.join(REPO, "analog", "vco", "models", "l2n0_lumped.inc")
@@ -196,10 +197,11 @@ def gen_vco_bank(rng):
                  f"{w:.2f}u", "0.13u", ng)
         sch.res(f"rba{k}", f"a{k}", f"bb{k}", R_BIAS)
         sch.res(f"rbb{k}", f"b{k}", f"bb{k}", R_BIAS)
+        bw, bl, bng = S2.bank_bypass_geom(k)
         sch.nmos(f"mbp_rba{k}", f"a{k}", "vbp", f"bb{k}", "gnd",
-                 "5u", "0.13u", 2)
+                 f"{bw:.4g}u", f"{bl:g}u", bng)
         sch.nmos(f"mbp_rbb{k}", f"b{k}", "vbp", f"bb{k}", "gnd",
-                 "5u", "0.13u", 2)
+                 f"{bw:.4g}u", f"{bl:g}u", bng)
     sch.write()
     write_sym(os.path.join(HERE, "vco_bank.sym"), "vco_bank", ports)
     return sch

@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted.** P2.7.1 capture accepted. **P2.7.1b (2026-11-11):** range shift = off-state bank/var bypass C; re-baselined. 15-corner coverage PASS (worst top margin 39 MHz); **band steps FAIL (1.06 V at MSB)** — fix before P2.7.2. **No layout.** LVS #861/#753/#512 workarounds stand.
+Status: **D23 Option A accepted.** P2.7.1–1c done. **P2.7.1c (2026-11-11):** binary bank bypass + re-trim; wake/corners/D22 PASS; MSB carry fixed; tt LSB max 0.296 V vs 0.29 — owner gate before P2.7.2. **No layout.** LVS #861/#753/#512 workarounds stand.
 
 ---
 
@@ -108,10 +108,18 @@ Dependency order. Every analogue block: **xschem `.sch` + SVG/PDF**, then layout
 **Pass / finding:**
 - Cause: off-state **bank** (+ var) bypass C (−18 MHz at code 0 vs nobp). PDK pinned.
 - Re-baseline done. 15-corner **3.12–4.20 covered**; oxide ≤ 1.46 V; worst top margin **39 MHz**.
-- Band steps **FAIL** (1.06 V at 127→128). **Hold P2.7.2** until steps fixed (proposal in `vco-topology.md` §9 / `summary_p271b.txt`).
+- Band steps **FAIL** (1.06 V at 127→128). Held for 1c.
+
+### P2.7.1c — Binary bank bypass + re-trim (done 2026-11-11; sub-step 1 closed pending owner on 0.296 V)
+**Outputs:** `sch/out/summary_p271c.txt`; `step2/run_step2.py` + `run_wake_bank_bypass.py`; `sch/vco_bank.sch` + exports; `range.json`; `summary_steps.txt`; `step3/out/summary_8bit_range.txt`, `summary_spot_steps.txt`; D22 `ampcal/out/summary_search_p271c.txt`; landing `summary_land_p271c.txt`.  
+**Pass / finding:**
+- Bank bypass W = max(0.15 µm, 5 µm × 2^(k−7)); wake ≥ 3800 τ in 1 µs — PASS.
+- Steps ratios PASS; 127→128 = 0.273 V. Max tt step **0.296 V** (strict 0.24–0.29) — **owner accept or nudge**.
+- 15-corner PASS (top margin 140 MHz, bottom 77 MHz); D22/D20 PASS.
+- **Next:** P2.7.2 after that gate.
 
 ### P2.7.2 — Layout: VCO (inductor + core + bank + var + bypasses + amp-cal)
-**Inputs:** P2.7.1; floorplan D23; tapped GDS.  
+**Inputs:** P2.7.1c (steps accepted); floorplan D23; tapped GDS.  
 **Outputs:** `vco*.gds.gz`; DRC/LVS reports; rendered PNG/SVG; checklist for #861/#753/#512.  
 **Pass:** DRC clean (incl. maximal SVaricap `w=3.74u`); LVS clean **or** waived with written #861/#753/#512 notes; device count checklist signed.  
 **Re-run:** none until PEX.

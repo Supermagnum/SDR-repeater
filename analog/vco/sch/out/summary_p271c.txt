@@ -1,0 +1,70 @@
+# P2.7.1c — binary-sized bank bypass, re-trim, coverage
+
+PDK `a49358cc` (nmos_minW = 0.15 µm). Container `hpretl/iic-osic-tools:2026.10`.
+Owner decision: `decisions.md` "2026-11-11 — P2.7.1b results; bank bypass sizing".
+
+## 1. Bank bypass sizing [SCH]
+
+W_k = max(0.15 µm, 5.0 µm × 2^(k−7)); MSB keeps w=5u ng=2 (wake-qualified).
+Bits 0–1 floored at 0.15u ng=1; bits 3–7 use ng=2. Var / vbp_tail unchanged.
+Deck: `step2/run_step2.py` `bank_bypass_geom` / `bias_bypass_switches`.
+xschem: `sch/vco_bank.sch` + SVG/PDF regenerated.
+
+## 2. Wake timing [SCH] (`step2/out/summary_wake_bank_bypass.txt`)
+
+Ron @ V_GS=1.2 V, V_DS=50 mV; τ = Ron × C_plate (one-side MIM from range.json).
+
+| corner | worst nτ in 1.00 µs | limiting bit | PASS (≥ 6–7) |
+|---|---|---|---|
+| mos_ss / −40 °C | 4301 | bit 4 | PASS |
+| mos_ff / 125 °C | 3785 | bit 4 | PASS |
+
+MSB (bit 7) τ ≈ 0.19–0.24 ns. Window 1.12 µs @ 32 MHz also ≫ 7 τ.
+
+## 3. Re-trim / steps [SCH]
+
+- New `step2/out/range.json`: LSB 6.18 fF, cfix 198 fF, trims ≈ 0.93–0.97, itail 4.0 mA, pnoise code 90.
+- tt span: **2.903–4.404 GHz**.
+- Steps (`summary_steps.txt`): ratios **0.97–1.02** (PASS 0.94–1.07×).
+  V_tune steps **0.247–0.296 V**. Carries OK (127→128 = **0.273 V**, was 1.060 V).
+  Three top LSB steps **0.292–0.296 V** exceed the 0.29 V ceiling by ≤ 6 mV →
+  **strict FAIL vs 0.24–0.29**; within the older D20 note 0.23–0.30 V.
+
+## 4. Coverage [SCH]
+
+| Check | Result |
+|---|---|
+| 15-corner range | **PASS** — all cover; worst top margin **140 MHz** (ss/wcs/−40 and ff/wcs/−40, f_top 4.340 GHz); worst bottom margin **77 MHz** (ss/bcs/−40, f_bot 3.043 GHz); peak V_GS/V_GD ≤ 1.48 V |
+| Spot steps ss85 / ff−40 | Reported (`summary_spot_steps.txt`). ss85 127→128 ratio 1.52 / 0.472 V (tt KVCO used for V column — ratio is the reliable figure). Not a tt gate. |
+| D22 search tt/27 | **PASS** — top code 14 Amp 1.249; bottom 31; peaks ≤ 1.50 V (`ampcal/out/summary_search_p271c.txt`) |
+| D20 landing [MODEL] | 8-bit / f/4P / nearest: tt 0.0 % outside; ss/ff ≤ 0.2 % with ends 2.903–4.404 (`summary_land_p271c.txt`) |
+
+## 5. Amp +0.06 V note [SCH]
+
+Archive Amp c0/0.65 @4 mA = 1.346 V; today +0.059 V with bypass on and **+0.060 V with bypass off** (plain step2, no D22 DAC). Not bypass C. Removing the stand-in buffer raises Amp further. Residual matches tank sizing/trim (higher top f / less C vs 25-Oct). D22 sets Amp in operation. (`summary_amp_note_p271c.txt`)
+
+## 6. Equiv [SCH]
+
+xschem export SVG/PDF OK. Bank bypass W match deck. Known diffs unchanged class (l2n0 expand, D22 DAC vs iref, svaricap `sub!`, LDO bias sources). Capture-vs-step2 |df| ≤ 0.12 %; |dA| ~0.06 V = DAC vs ideal (same as P2.7.1). (`summary_equiv.txt`)
+
+## Pass criteria vs result
+
+| Criterion | Result |
+|---|---|
+| Binary bank bypass + xschem sync | PASS |
+| Wake ≥ 6–7 τ in 1 µs | PASS |
+| Steps ratio 0.94–1.07× | PASS |
+| Steps 0.24–0.29 V | **MARGINAL / strict FAIL** (max 0.296 V) |
+| 15-corner 3.12–4.20, oxide ≤ 1.5 V | PASS |
+| D22 / D20 landing | PASS |
+
+## Decision needed
+
+Accept tt LSB steps at **0.292–0.296 V** (≤ 6 mV over 0.29; matches original D20 0.23–0.30 wording), or nudge C_TOP / trim for ≤ 0.29 before P2.7.2.
+
+## Found, not done
+
+- P2.7.2 VCO layout (next if steps accepted).
+- Corner spot-step unevenness at ss85 MSB (ratio 1.52) — not fixed; tt gate was the prompt.
+- Root cause of Amp +0.06 V beyond “sizing/trim vs archive” not isolated further.
+- VACASK PSS still broken with off bank bypass (unchanged).

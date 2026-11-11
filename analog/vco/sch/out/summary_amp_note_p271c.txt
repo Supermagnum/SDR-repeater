@@ -1,0 +1,8 @@
+# Amp +0.06 V note [SCH]
+
+Archive Amp c0/0.65 @4 mA: 1.3464 V
+Today binary-bypass on:      1.4049 V  (Δ +0.0585)
+Today bypass off:            1.4064 V  (Δ +0.0600)
+Today nobp, no stand-in buf: 1.4190 V  (Δ +0.0726)
+
+Conclusion: +Amp vs archive remains with bypass off in plain step2 (no D22 DAC). Likely tank/load deck drift since 25-Oct (sizing/trim/stand-in buffer), not start-up bypass. D22 sets Amp in operation.

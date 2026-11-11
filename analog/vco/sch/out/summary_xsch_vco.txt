@@ -1,37 +1,125 @@
-# summary_xsch_vco — P2.7.1
+# summary_xsch_vco
 
-## Pass criteria vs results
+Python equiv (VCO inventory vs step2): FAIL/DIFF
+Python equiv (LDO): FAIL/DIFF
+xschem spice vs inventory: FAIL or spice missing
+VACASK range 0/128/255: FAIL
+VACASK D22 search: True
+VACASK LDO DC: PASS
 
-| Criterion | Result |
-|---|---|
-| Hierarchical xschem `.sch`/`.sym` for VCO, D22, D21 LDO | DONE under `analog/vco/sch/` |
-| PDK symbols; values from `range.json` / amp_common / ldo_body | DONE (trims, ng, MIM sides, D22 sizes) |
-| SVG + PDF per schematic | DONE in `exports/` |
-| Netlist equivalence (same devices/sizes/connectivity; diffs explained) | CONDITIONAL PASS — see explained diffs |
-| VACASK VCO range codes 0/128/255 tt ≤0.2 % f, ≤0.02 V Amp vs `range.json` | **FAIL** (same FAIL on pure `S2.tran` re-run) |
-| VACASK D22 search tt 27 °C top | PASS (rerun = recorded: code 14, Amp 1.250) |
-| VACASK LDO DC | PASS (V_out=1.2950, V_pad=1.1985) |
+# P2.7.1 netlist equivalence and VACASK checks
 
-## Explained equivalence diffs (accepted for this run)
+## xschem export
 
-1. **step2 deck vs `vco_sim_flat` inventory:** inventory **expands** `l2n0` to lumped R/L/C from `l2n0_lumped.inc` [EM]; step2 instantiates subckt `xl`. Extra R 0.814837 / 0.827877 and C 29.86 fF are those EM elements — not a schematic error.
-2. **inventory vs xschem spice:** `vvb` 0.3 V source may netlist as a positional `value=` without `dc=` parse; svaricap `body=gnd` in inventory vs PDK default `sub!` in spice — same net for our TB (substrate ground). MOS/MIM/R/C sizes match after `w=`/`l=` lowercase fix.
-3. **`ldo_body` vs `vrana1_ldo` cell:** missing `vref` (0.64825 V) and `vin` (2.7 V) are **testbench sources**, not part of the LDO leaf cell (ports `vin`/`vref`). Cell MOS/MIM/R/C match.
-4. **netgen sch-vs-sch:** not conclusive on flat spice fragments without PDK `.subckt` wrappers; Python device compare is the gate used here.
+| sch | spice | svg | pdf |
+|---|---|---|---|
+| l2n0.sch | spice=yes rc=10 | svg=yes | pdf=yes |
+| vco_core.sch | spice=yes rc=10 | svg=yes | pdf=yes |
+| vco_bank.sch | spice=yes rc=10 | svg=yes | pdf=yes |
+| vco_var.sch | spice=yes rc=10 | svg=yes | pdf=yes |
+| vco_tail_dac.sch | spice=yes rc=10 | svg=yes | pdf=yes |
+| ampcal_det.sch | spice=yes rc=10 | svg=yes | pdf=yes |
+| vrana1_ldo.sch | spice=yes rc=10 | svg=yes | pdf=yes |
+| vco_sim_flat.sch | spice=yes rc=10 | svg=yes | pdf=yes |
 
-## VACASK range FAIL — finding
+## Compare step2 deck vs vco_sim_flat inventory (passive+MOS)
+ref=82 dut=87
+DIFF:
+  extra x2: ('res', (('r', '0.814837'),))
+  extra x2: ('res', (('r', '0.827877'),))
+  extra x1: ('capa', (('c', '2.98589e-14'),))
+RESULT: FAIL (see diffs; explain or fix)
 
-`out/summary_range_recheck.txt`: re-running **unmodified** `run_step2.tran` with `range.json` sizing/itail already misses the archived meas by ~0.5 % f / ~0.06 V Amp at code 0. Capture-equivalent decks match that re-run, not the archive. Likely VACASK/PDK numerical drift vs the day `range.json` was written — **not introduced by xschem**.
+### Expected / explained differences
+- `l2n0` in the step2 deck is a **subckt instance**; inventory expands to lumped R/L/C (same EM model file).
+- D22 `vco_tail_dac` replaces step2 `iref`+narrow `mt`/`mr` when amp-cal is bound; range TB uses step2 bias for frequency match.
+- Ideal `devices/res|capa|ind` in xschem vs VACASK `resistor|capacitor|inductor` OSDI — same values, different model class for LVS later.
+- xschem `sg13_svaricap` netlists pin order G2,NW,G1; VACASK is (g1,w,g2,bn) — converter remaps before compare.
+- `gnd` vs `0` net naming.
 
-| code | f_ref | f_new (S2.tran) | df% | dA |
-|---|---|---|---|---|
-| 0 | 4.4291 | 4.4055 | −0.53 | +0.057 |
-| 128 | 3.4407 | 3.4328 | −0.23 | +0.068 |
-| 255 | 2.9101 | 2.9096 | −0.02 | +0.073 |
+## Compare inventory vs xschem spice
+ref=94 dut=93
+DIFF:
+  missing x1: ('vsrc', (('dc', '0.3'),))
+  xv1: nodes ['vgp', 'vt', 'vgn', 'gnd'] vs ['vgp', 'vt', 'vgn', 'sub!']
+  xv2: nodes ['vgp', 'vt', 'vgn', 'gnd'] vs ['vgp', 'vt', 'vgn', 'sub!']
+RESULT: FAIL (see diffs; explain or fix)
 
-## Decision needed
+## netgen
+status=True
+```
+Netgen 1.5.324 compiled on Thu Oct 15 02:24:51 PM CEST 2026
+Warning: netgen command 'format' use fully-qualified name '::netgen::format'
+Warning: netgen command 'global' use fully-qualified name '::netgen::global'
+netgen P2.7.1 compare
+wrong # args: should be "readnet ?format? file ?filenum?"
+    while executing
+"readnet spice {/work/analog/vco/sch/netlists/vco_sim_flat.spice} vco_sim_flat"
+    (file "/work/analog/vco/sch/out/netgen_compare.tcl" line 4)
+    invoked from within
+"source /work/analog/vco/sch/out/netgen_compare.tcl"
+    ("eval" body line 1)
+    invoked from within
+"eval $argv"
 
-1. Accept P2.7.1 capture with explained equiv diffs and **re-baseline** `range.json` from today's `S2.tran` (or waive ≤0.2 % until baseline refresh), **or**
-2. Hold P2.7.2 until range archive matches a re-run (investigate PDK/container drift).
+```
 
-Whole-die area tally (§8 of `spec/p27-floorplan.md`): **1.6×1.6 mm core does not fit** (~3.5 mm² needed); need ≥~2.2×2.2 mm before Phase 5.
+## Compare ldo_body vs vrana1_ldo
+ref=15 dut=13
+DIFF:
+  missing x1: ('vsrc', (('dc', '0.64825'),))
+  missing x1: ('vsrc', (('dc', '2.7'),))
+RESULT: FAIL (see diffs; explain or fix)
+
+## VACASK checks
+
+# P2.7.1 VACASK VCO range from capture-equivalent deck (tt)
+| code | f_ref [SCH] | f_new [SCH] | df% | Amp_ref | Amp_new | dA |
+|---|---|---|---|---|---|---|
+| 0 | 4.4188 GHz | 4.4135 GHz | -0.119 | 1.344 | 1.405 | 0.061 | FAIL |
+| 128 | 3.4300 GHz | 3.4289 GHz | -0.032 | 0.963 | 1.031 | 0.068 | FAIL |
+| 255 | 2.8985 GHz | 2.9000 GHz | 0.053 | 0.772 | 0.844 | 0.072 | FAIL |
+
+Pass criteria: |df|≤0.2 %, |dA|≤0.02 V → FAIL `[SCH]`
+# P2.7.1 D22 search tt 27 top (rerun)
+exit=0
+# D22 step 1d amplitude SAR on single-ended cmp [SCH]
+
+Decision: v(cmp) > 0.85 V; settle 0.20 µs/step; target 1.25±0.1 V; steady ≤1.4 V; transient ≤1.5 V.
+
+| MOS | CAP | T | band | code | Amp | A_est | tnr | Amp_peak | code_1c | Δcode | t_tot (µs) | steady≤1.40 | peak≤1.50 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| mos_tt | cap_typ | 27 | top | 14 | 1.249 | 1.248 | 0 | 1.295 | 14 | 0 | 1.20 | PASS | PASS |
+    bit4 trial=16 keep=0 Amp=1.285 cmp=1.057 cmp_high=1 vsense_high=1
+    bit3 trial=8 keep=1 Amp=1.104 cmp=0.514 cmp_high=0 vsense_high=0
+    bit2 trial=12 keep=1 Amp=1.203 cmp=0.579 cmp_high=0 vsense_high=0
+    bit1 trial=14 keep=1 Amp=1.249 cmp=0.660 cmp_high=0 vsense_high=0
+    bit0 trial=15 keep=0 Amp=1.272 cmp=0.933 cmp_high=1 vsense_high=1
+| mos_tt | cap_typ | 27 | bottom | 31 | 0.969 | 0.993 | 1 | 0.990 | 31 | 0 | 1.20 | PASS | PASS |
+    bit4 trial=16 keep=1 Amp=0.692 cmp=0.409 cmp_high=0 vsense_high=0
+    bit3 trial=24 keep=1 Amp=0.850 cmp=0.421 cmp_high=0 vsense_high=0
+    bit2 trial=28 keep=1 Amp=0.920 cmp=0.434 cmp_high=0 vsense_high=0
+    bit1 trial=30 keep=1 Amp=0.953 cmp=0.442 cmp_high=0 vsense_high=0
+    bit0 trial=31 keep=1 Amp=0.969 cmp=0.446 cmp_high=0 vsense_high=0
+
+Steady ≤ 1.4 V and peak ≤ 1.5 V all cases: PASS `[SCH]`
+
+No code changes vs step 1c. `[SCH]`
+
+Recorded quick summary still:
+# D22 step 1d amplitude SAR on single-ended cmp [SCH]
+
+Decision: v(cmp) > 0.85 V; settle 0.20 µs/step; target 1.25±0.1 V; steady ≤1.4 V; transient ≤1.5 V.
+
+| MOS | CAP | T | band | code | Amp | A_est | tnr | Amp_peak | code_1c | Δcode | t_tot (µs) | steady≤1.40 | peak≤1.50 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| mos_tt | cap_typ | 27 | top | 14 | 1.250 | 1.248 | 0 | 1.296 | 14 | 0 | 1.20 | PASS | PASS |
+    bit4 trial=16 keep=0 Amp=1.286 cmp=1.063 cmp_high=1 vsense_high=1
+    bit3 trial=8 keep=1 Amp=1.105 cmp=0.514 cmp_high=0 vsense_high=0
+    bit2 trial=12 keep=1 Amp=1.203 cmp=0.580 cmp_high=0 vsense_high=0
+    bit1 trial=14 keep=1 Amp=1.250 cmp=0.664 cmp_high=0 vsense_high=0
+    bit0 trial=15 keep=0 Amp=1.273 cmp=0.946 cmp_high=1 vsense_high=1
+| mos_tt | cap_typ | 2
+# P2.7.1 LDO DC
+V_out=1.2950 V (ref 1.295)  V_pad=1.1985 V (ref 1.1985)
+PASS `[SCH]` (≤0.02 V)

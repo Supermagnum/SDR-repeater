@@ -1,0 +1,22 @@
+# D20 landing with P2.7.1c binary-bypass ends [MODEL]
+
+Behavioural bank ends F_LO=2.903 F_HI=4.404 GHz from new range.json span [SCH].
+
+## P2.7.1c ends 2.903–4.404 GHz [MODEL]
+
+## Where V_tune lands after the band calibration [MODEL]
+
+Every VCO target from 3.12 to 4.20 GHz in 0.5 MHz steps (VHF, P = 3) and 3.20–3.84 GHz (UHF, P = 2), 2858 channels; V_tune after lock = V_hold + (f_target − f(code, V_hold)) / K. Window 0.25–0.95 V (slow corner 0.25–0.85 V). 'highest' = the RTL rule; 'nearest' = one more trial on the next code and keep the closer count. One band step is 0.45–0.59 V of V_tune with 7 bits, half that with 8. Counting f / P instead of f / 4P gives 4 × the counts (3700–6400 instead of 920–1600 per 128 reference cycles).
+
+| Bank, counter | Rule | Calibration (µs) | tt: V_tune min–max, outside | ss | ff |
+|---|---|---|---|---|---|
+| as designed (7 bits, count f / 4P) | highest | 30.5 | 0.03–0.91 V, 19.2 % | -0.05–0.83 V, 31.9 % | 0.09–1.01 V, 8.3 % |
+| as designed (7 bits, count f / 4P) | nearest | 34.7 | 0.22–1.04 V, 0.7 % | 0.12–0.91 V, 4.4 % | 0.26–1.13 V, 3.3 % |
+| 7 bits, count f / P | highest | 30.5 | 0.01–0.65 V, 36.3 % | -0.06–0.57 V, 48.8 % | 0.08–0.72 V, 22.8 % |
+| 7 bits, count f / P | nearest | 34.7 | 0.28–0.87 V, 0.0 % | 0.20–0.80 V, 3.6 % | 0.35–0.95 V, 0.0 % |
+| 8 bits, count f / 4P | highest | 34.7 | 0.30–0.90 V, 0.0 % | 0.23–0.86 V, 0.3 % | 0.37–0.97 V, 0.1 % |
+| 8 bits, count f / 4P | nearest | 38.8 | 0.36–0.93 V, 0.0 % | 0.28–0.86 V, 0.1 % | 0.43–1.01 V, 0.2 % |
+| 8 bits, count f / P | highest | 34.7 | 0.30–0.66 V, 0.0 % | 0.23–0.58 V, 1.7 % | 0.37–0.72 V, 0.0 % |
+| 8 bits, count f / P | nearest | 38.8 | 0.42–0.75 V, 0.0 % | 0.33–0.67 V, 0.0 % | 0.49–0.82 V, 0.0 % |
+
+Accepted 8-bit / f/4P / nearest: tt 0.0 % outside; ss/ff ≤ 0.2 %. `[MODEL]`

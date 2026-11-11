@@ -1,0 +1,14 @@
+# P2.7.1c band-step spot-check [SCH]
+
+Sizing from step2 range.json: LSB 6.177 fF, cfix 198 fF, trim[7]=0.9272
+
+| corner | carry | Step (MHz) | ratio | KVCO (MHz/V) | Step in V_tune (V) |
+|---|---|---|---|---|---|
+| mos_ss/cap_wcs/85 | 63→64 | +8.51 | 1.09 | 26.9 | 0.316 |
+| mos_ss/cap_wcs/85 | 127→128 | +9.26 | 1.52 | 19.6 | 0.472 |
+| mos_ss/cap_wcs/85 | 191→192 | +4.84 | 1.14 | 16.0 | 0.303 |
+| mos_ff/cap_bcs/-40 | 63→64 | +6.12 | 0.88 | 26.9 | 0.227 |
+| mos_ff/cap_bcs/-40 | 127→128 | +2.76 | 0.56 | 19.6 | 0.141 |
+| mos_ff/cap_bcs/-40 | 191→192 | +3.64 | 0.90 | 16.0 | 0.228 |
+
+Pass criteria quoted for tt 27 °C (0.24–0.29 V, 0.94–1.07×); corners are spot-checks only.

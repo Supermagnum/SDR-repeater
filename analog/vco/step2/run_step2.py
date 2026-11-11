@@ -115,7 +115,29 @@ def side(c_ff):
 
 # Off-state bank bypass linear equivalent (extract_bank_bypass_off.py, mos_ff/125 °C leakage).
 # Used for PSS / post-layout PN when real off MOS break the shooting method.
+# Reference extract is MSB size (w=5u ng=2); linear mode is legacy / abandoned for PSS.
 BANK_OFF = dict(roff=6.185e6, c_ds=3.25e-15, c_db=0.0, c_sb=1.34e-15, r_shot=1.714e6)
+
+# P2.7.1c: bank bypass width tracks bit weight. MSB keeps the wake-qualified size
+# (w=5u ng=2). PDK LV NMOS finger minW = 0.15 µm (sg13g2_tech.json nmos_minW;
+# xschem sg13_lv_nmos.sym default w). In IHP, w is total drawn width.
+BANK_BP_W_MSB = 5.0       # µm; bit 7
+BANK_BP_W_MIN = 0.15      # µm; PDK nmos_minW
+BANK_BP_L = 0.13          # µm
+BANK_BP_NG_MSB = 2
+
+
+def bank_bypass_geom(k):
+    """(w_um, l_um, ng) for bank bypass on bit k. W_k = max(W_min, W_MSB × 2^(k−7))."""
+    w = max(BANK_BP_W_MIN, BANK_BP_W_MSB * (2.0 ** (k - 7)))
+    if k >= 7:
+        ng = BANK_BP_NG_MSB
+    elif w >= 2 * BANK_BP_W_MIN:
+        # Keep two fingers when each finger can meet Wmin (w is total width).
+        ng = 2
+    else:
+        ng = 1
+    return w, BANK_BP_L, ng
 
 
 def bias_bypass_bank_linear(nbits=None, p=None):
@@ -152,13 +174,15 @@ def bias_bypass_switches(nbits=None, groups=("tail", "bank", "var"), bank_mode="
 
     groups: which switches to instantiate. bank_mode: \"mos\" (schematic) or \"linear\"
     (off-state C_j / R_off / leakage-noise equivalent for PSS and post-layout PN).
+    Bank MOS widths are binary-weighted (P2.7.1c); var/tail unchanged.
     """
     nbits = NBITS if nbits is None else nbits
     # Tail filter is off the tank: large switch (~1 kOhm). Bank/varactor nodes touch the tank:
     # smaller switches to limit off-state capacitance (bypass time covers their RC).
     lines = [
         f"// bias bypass groups={','.join(groups)} bank_mode={bank_mode}; "
-        f"tail_gate={tail_gate} all_gate={all_gate}\n"
+        f"tail_gate={tail_gate} all_gate={all_gate}; bank binary W "
+        f"(MSB {BANK_BP_W_MSB:g}u ng={BANK_BP_NG_MSB}, floor {BANK_BP_W_MIN:g}u)\n"
     ]
     if "tail" in groups:
         lines.append(
@@ -169,9 +193,12 @@ def bias_bypass_switches(nbits=None, groups=("tail", "bank", "var"), bank_mode="
             lines.append(bias_bypass_bank_linear(nbits))
         else:
             for k in range(nbits):
+                w, l, ng = bank_bypass_geom(k)
                 lines.append(
-                    f"mbp_rba{k} (a{k} {all_gate} bb{k} 0) sg13_lv_nmos w=5u l=0.13u ng=2\n"
-                    f"mbp_rbb{k} (b{k} {all_gate} bb{k} 0) sg13_lv_nmos w=5u l=0.13u ng=2\n"
+                    f"mbp_rba{k} (a{k} {all_gate} bb{k} 0) sg13_lv_nmos "
+                    f"w={w:.4g}u l={l:g}u ng={ng}\n"
+                    f"mbp_rbb{k} (b{k} {all_gate} bb{k} 0) sg13_lv_nmos "
+                    f"w={w:.4g}u l={l:g}u ng={ng}\n"
                 )
     if "var" in groups:
         lines.append(
