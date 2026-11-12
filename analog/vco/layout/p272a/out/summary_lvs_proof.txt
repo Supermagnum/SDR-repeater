@@ -1,50 +1,39 @@
-# P2.7.2a LVS proof — dac_unit + bank_unit
+# P2.7.2a2 LVS proof — dac_unit + bank_unit
 
 PDK netgen setup: `/foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl` (exists=True)
-KLayout extract: PDK `libs.tech/klayout/tech/lvs/run_lvs.py` + `sg13g2.lvs`.
 
-## IHP workarounds on these cells
+## IHP workarounds
 
-- **#861** (SVaricap / ThickGateOx): does **not** apply — no SVaricap in dac_unit or bank_unit.
-- **#753** (SVaricap Nx): does **not** apply.
-- **#512** (rfcmim / cmim multi-port): bank_unit uses **two separate** `cmim` PCells; do not merge.
-- **SVaricap future (#861):** VCO varactor LVS cannot prove device presence until ThickGateOx is in the deck — keep a drawn-Nx checklist (#753) and textual waiver with issue ID.
+- **#861 / #753:** no SVaricap in these cells.
+- **#512:** two separate `cmim` PCells in bank_unit.
+- **SVaricap future (#861):** ThickGateOx missing — waiver + Nx checklist on varactor blocks.
 
-## Flow lessons (apply to later blocks)
+## Earlier bank_unit short (avoid in sub-block runs) — P2.7.2a2 root causes
 
-- Schematic must use **M/C/R devices**, not `X` subcircuit wrappers — else netgen builds placeholder cells and pin-permute fails.
-- Metal1 pin polygons = **8/2**; labels = **8/25** (not boxes on 25).
-- Gate Cont must sit on a **poly side-extension** outside Activ; Cont on the top overhang shorts G↔S/D on L=0.13 and trips Cnt.b.
-- Gate M1 landing width ≤ 0.16 µm for L=0.13 (S/D gap ≈ 0.35 µm).
-- NW tap (nactiv∩nwell + Cont + M1) ties PMOS bulk to vdd with `--disable_tap_extraction`.
-- `cmim` PCell: pass `C` together with `w`/`l` and `Calculate=w&l` or size sticks at 6.99 µm.
+- Cont 0.16 µm on L=0.13 gate poly overhangs onto Activ → G↔D/S short. **Fix:** upward
+  poly pad above real Activ top (min-W Activ top ≠ poly_top−0.18).
+- Gate M1 landing / Cont M1 between S/D M1 cols → M1.b and G short. **Fix:** Cont M1
+  only over Cont; rise above pad; then jog.
+- M1 strap under multi-finger / parallel devices spanning the other S/D column → a|b
+  merge. **Fix:** never draw M1 across the opposite column; use M2 via_stack bridges.
+- PCell `w=10.32u` with `ng=1` clamps to Wmin=0.15 (max finger 10.0 µm). **Fix:** two
+  parallel 5.16 µm devices (combine → W=10.32).
+- Hand via / strap M1 crossing a/b rails → `bb|g|vbp` merge. **Fix:** PDK `via_stack`.
+- netgen args are `{file cell}`, not `{cell file}`.
 
-## dac_unit — PASS (LVS)
+## dac_unit
 
-- Devices: 2× `sg13_lv_pmos` (mdb 4/2, msw 4/0.13), NW tap to vdd.
-- Extract: `M$1 xd pbias vdd vdd`; `M$2 xraw code xd vdd` [KLayout].
-- **KLayout LVS: PASS** (netlists match).
-- **netgen: Circuits match uniquely.**
-- DRC (`--minimum_drc`): density-only rules AFil.g / GFil.g / M1–5.j / TM1.c / TM2.c — **waived** at block level (fill at chip, Phase 5 / decisions.md).
-- DRC open (not waived): **Cnt.b** (8), **M1.b** (8), **Gat.d** (2) — Cont/M1 space and gate extension; fix in next pass. Not clean for sign-off.
+- DRC exit: 1; rules: ['AFil.g', 'GFil.g', 'M1.j', 'M2.j', 'M3.j', 'M4.j', 'M5.j', 'TM1.c', 'TM2.c']
+- DRC non-density: none → PASS
+- KLayout LVS: PASS (exit 0)
+- netgen: PASS (exit 0)
+- extracted: `/foss/designs/analog/vco/layout/p272a/out/lvs_dac_unit/dac_unit_extracted.cir`
 
-## bank_unit — FAIL (LVS)
+## bank_unit
 
-- Intent: LSB cmim + switch W=10.32 + 2× rhigh + 2× bypass.
-- Extract still merges `bb|g|vbp|…` and drops the W=10.32 switch; MIM bottoms land on the shorted net. Hand via-stack + gate straps still wrong.
-- **KLayout LVS: FAIL. netgen: MISMATCH** (7 vs 5 devices).
-- DRC: density waived set + Cnt.b / M1.b / Gat.d / TM1.a open.
+- DRC exit: 1; rules: ['AFil.g', 'GFil.g', 'M1.b', 'M1.j', 'M2.a', 'M2.j', 'M3.j', 'M4.j', 'M5.j', 'TM1.a', 'TM1.b', 'TM1.c', 'TM2.c']
+- DRC non-density: ['M1.b', 'M2.a', 'TM1.a', 'TM1.b'] → FAIL
+- KLayout LVS: FAIL (exit 0)
+- netgen: FAIL (exit 0)
+- extracted: `/foss/designs/analog/vco/layout/p272a/out/lvs_bank_unit/bank_unit_extracted.cir`
 
-## Verdict vs pass criteria
-
-| Criterion | Result |
-|-----------|--------|
-| PDK netgen setup used (not home-grown) | PASS |
-| KLayout extract from PDK LVS deck | PASS |
-| dac_unit DRC clean (excl. density fill) | FAIL (Cnt.b / M1.b / Gat.d) |
-| dac_unit LVS clean (device/net) | PASS |
-| bank_unit DRC clean (excl. density) | FAIL |
-| bank_unit LVS clean | FAIL |
-| #861 / #753 / #512 notes | recorded |
-
-**Flow proven on dac_unit.** bank_unit routing not yet LVS-clean — Found, not done for the second cell.

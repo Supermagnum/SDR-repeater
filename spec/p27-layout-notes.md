@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted. D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2 layout FINDING** (placement). **P2.7.2a partial:** hierarchy + area FINDING (stop); dac_unit LVS PASS; bank_unit LVS open; inductor via fix + EM pending/see § P2.7.2a.
+Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2 layout FINDING** (placement). **P2.7.2a done; P2.7.2a2 stop:** dac_unit DRC+LVS PASS; bank_unit still FAIL; inductor Q confirmation EM in flight / incomplete this run.
 
 ---
 
@@ -119,7 +119,7 @@ Dependency order. Every analogue block: **xschem `.sch` + SVG/PDF**, then layout
 - ss85 127→128 ratio 1.52 held for the P2.7.2 D20 landing gate.
 
 ### P2.7.2 — Layout: VCO (inductor + core + bank + var + bypasses + amp-cal)
-**Status: FINDING (placement d4284fc). Split a/b/c per `decisions.md` 2026-11-12. P2.7.2a in progress / area stop.**
+**Status: FINDING (placement d4284fc). Split a/b/c. P2.7.2a recorded; P2.7.2a2 stop (bank_unit + Q).**
 
 #### P2.7.2 layout (2026-11-12) — placement FINDING
 **Outputs:** `analog/vco/layout/` — `build_vco_layout.py`, `out/vco_top.gds.gz`,
@@ -136,18 +136,27 @@ PNG/SVG (top/core/bank/inductor), KLayout LVS extract + logs.
 - **Hierarchy:** `vco_top.sch` instantiates l2n0, vco_core, vco_bank, vco_var,
   vco_tail_dac, ampcal_det. Equivalence vs flat: bank/core/var/L match; explained
   diffs = D22 tail vs step2 stand-in, ampcal present, no CML buffer [SCH].
-- **LVS flow:** PDK `ihp-sg13g2_setup.tcl` + KLayout PDK LVS. **dac_unit:**
-  KLayout PASS + netgen “Circuits match uniquely.” **bank_unit:** FAIL (routing
-  shorts; W=10.32 switch missing in extract). DRC density waived; Cnt.b/M1.b/Gat.d
-  open on proof cells. #861/#753/#512 notes in `summary_lvs_proof.txt`.
-- **Inductor:** TopVia2 → 0.9 µm arrays; TV2.a clear (density only)
-  (`tapped/out/drc_ind_p272a.md`). Net/R PASS. EM vs prior tapped record
-  (`tapped/review/em_summary_p272a.md`): **ΔL ≤ 0.02 % PASS; ΔQ −3.3…−3.8 % FAIL
-  (<1 % gate);** |V_CT/V_diff| ~unchanged PASS.
-- **Area:** placement 0.4457 mm² → compact estimate **0.22–0.28 mm²** [HAND] vs
-  D23 **0.15–0.20**. Inductor+keep-out alone ≈ 0.090. **Budget cannot be met** —
-  finding in `summary_area_plan.txt`; **stop** before P2.7.2b pending D23 decision.
-  Proposal: raise D23 VCO+ind to ≈ 0.25–0.30 mm² (or new EM tank).
+- **LVS flow (a):** PDK netgen + KLayout. **dac_unit** MOS flow accepted; **bank_unit**
+  FAIL. Inductor TV2.a arrays DRC-clean; EM ΔL PASS / ΔQ −3.3…−3.8 % (one run).
+- **Area:** compact **0.22–0.28 mm²** [HAND] vs old D23 0.15–0.20 → **D23 amended**
+  to VCO island **≤ 0.30 mm²** (`decisions.md` 2026-11-12 — P2.7.2a result). Tank not
+  redesigned. Die tally §8 updated; still fits ≈ 2.5 × 2.5 mm with pad ring.
+
+#### P2.7.2a2 (2026-11-12) — proof cells clean, Q confirm, area tally
+**Outputs:** `analog/vco/layout/p272a/build_lvs_proof_cells.py`, `run_lvs_proof.py`,
+`out/summary_lvs_proof.txt`; `spec/p27-floorplan.md` §8; this note; `phase2-plan` §3.
+- **dac_unit PASS:** DRC clean (density waived); KLayout LVS PASS; netgen “Circuits
+  match uniquely.” Extract: 2× PMOS W/L match, bulk=vdd. Gate Cont on upward poly pad
+  above real Activ top; xraw exits sideways below pad band [SCH layout].
+- **bank_unit FAIL:** DRC non-density M1.b / M2.a / TM1.a / TM1.b; extract still merges
+  `bb|g` (and a/b into that net); tp/tn floating in last extract. Root causes recorded
+  in `summary_lvs_proof.txt` (Cont-on-L=0.13, M1 across opposite S/D, max finger W=10.0
+  → use 2×5.16 parallel, M2 bridges). **Sub-block runs must avoid those patterns.**
+- **Inductor Q:** second EM (finer mesh / TAPPED_CELL) **not finished this run** (tool
+  still running or prior partial). First-run ΔQ −3.3…−3.8 % still unconfirmed; wider via
+  arrays and swing/PN fallback **not done**.
+- **Area:** §8 re-totalled with VCO ≤ 0.30; die ≈ 3.6–3.7 mm² vs 6.25 — **fits**
+  2.5 × 2.5 mm + pad ring. No finding.
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin

@@ -26,17 +26,18 @@ Die aspect for this memo: assume a ~**1.6 × 1.6 mm** active core inside the 5 �
 
 | Block | Area | Notes |
 |---|---|---|
-| Tapped L2n0 + keep-out | ≈ 0.05–0.06 mm² | Octagon + metal exclusion |
-| VCO core / bank / var / amp-cal / bypass | ≈ 0.10–0.14 mm² | Bank MIMs + switches dominate |
+| Tapped L2n0 + keep-out | ≈ 0.05–0.06 mm² | Octagon + metal exclusion; tank not redesigned |
+| VCO core / bank / var / amp-cal / bypass | ≈ 0.16–0.22 mm² | P2.7.2a compact [HAND]; was 0.10–0.14 |
+| **VCO island (L2n0 + VCO analogue)** | **≤ 0.30 mm²** | **D23 amended 2026-11-12** (was 0.15–0.20); compact 0.22–0.28 |
 | LO buffer + CML + converter + TSPC | ≈ 0.05–0.08 mm² | Dual chains, one powered |
 | PFD + CP + replica + bias + I_cp DAC | ≈ 0.03–0.05 mm² | |
 | Loop filter (D19) | ≈ 0.062 mm² | MOS C1/C2 + MIM C3 |
 | V_tune hold + window delay + monitors | ≈ 0.01–0.02 mm² | |
 | VR_ANA1 LDO + 10 Ω + Cg | ≈ 0.02–0.03 mm² | Cg 0.0125 mm² |
 | AFE/LO digital (D3) | ≈ 0.01–0.02 mm² | Outside phase1l budget |
-| **Synth analog + AFE digital** | **≈ 0.35–0.45 mm²** | Excludes phase1l |
+| **Synth analog + AFE digital** | **≈ 0.40–0.52 mm²** | Excludes phase1l; VCO island raised |
 | Routing / guard / fill | ≈ 0.08–0.12 mm² | |
-| **Synth island total** | **≈ 0.45–0.55 mm²** | Aspect ~1:1 to 1.5:1 |
+| **Synth island total** | **≈ 0.50–0.62 mm²** | Aspect ~1:1 to 1.5:1 |
 
 ---
 
@@ -126,20 +127,24 @@ Rough Phase-5 squeeze check against the SX1255-compatible **MLPQ-W 5 × 5 mm** p
 
 | Block | Area (mm²) | Basis |
 |---|---|---|
-| Synthesizer island (D23 Option A) | **0.50** | §2 / D23 `[HAND]` |
+| VCO island (L2n0 + VCO analogue) | **≤ 0.30** | D23 amended 2026-11-12; compact 0.22–0.28 `[HAND]` / P2.7.2a |
+| Rest of synthesizer (LO+PLL+LF+LDO+AFE dig) | **≈ 0.28–0.32** | §2 remainder `[HAND]` |
+| Synthesizer island total (D23 Option A) | **≈ 0.55–0.62** | was ≈ 0.50; VCO raise `[HAND]` |
 | Digital back end (`phase1l`) | **0.340** | 339 617 µm² `[SCH]` |
 | RX (LNA + mixer + TIA/AAF + Σ-Δ ADC) | **0.90** | rf-frontend §7 first-cut; SX1255-class `[HAND]` |
 | TX (Σ-Δ DAC + recon filter + IQ mod + PA driver) | **0.65** | same `[HAND]` |
 | LDOs (VR_PA, VR_ANA1, VR_ANA2, VR_DIG) + local C | **0.10** | VR_ANA1 alone ≈ 0.02–0.03; four rails `[HAND]` |
 | Pad ring / ESD / seal (32 leads) | **0.55** | typical MLPQ pad + ESD strip `[HAND]` |
-| **Sum (no routing slack)** | **≈ 3.04** | |
-| Routing / guard / fill / DNW slack (~15 %) | **≈ 0.45** | `[HAND]` |
-| **Total estimate** | **≈ 3.5** | |
+| **Sum (no routing slack)** | **≈ 3.16–3.23** | |
+| Routing / guard / fill / DNW slack (~15 %) | **≈ 0.47** | `[HAND]` |
+| **Total estimate** | **≈ 3.6–3.7** | |
 
 | Against | Available | Fit? |
 |---|---|---|
-| Memo core 1.6 × 1.6 mm = 2.56 mm² | 2.56 | **NO — short ≈ 0.9 mm²** `[HAND]` |
-| Typical die 2.5 × 2.5 mm = 6.25 mm² | 6.25 | **YES — ~2.8 mm² slack** `[HAND]` |
+| Memo core 1.6 × 1.6 mm = 2.56 mm² | 2.56 | **NO — short ≈ 1.1 mm²** `[HAND]` |
+| Typical die 2.5 × 2.5 mm = 6.25 mm² | 6.25 | **YES — ~2.5–2.6 mm² slack** `[HAND]` |
 | Package outline 5 × 5 mm = 25 mm² | (die ≪ package) | Package is not the limit; die outline is |
 
-**Flag:** the §1 sketch of a **1.6 × 1.6 mm** active core **does not fit** the Phase 3/4 RX+TX + synth + digital + pads tally. Before Phase 5, plan on a die closer to **≥ ~2.2 × 2.2 mm** (≈ 4.8 mm²) or tighten RX/TX area after topology. Synthesizer island alone (0.50 mm²) is not the squeeze; RX+TX+pads dominate. Exact die size remains a Phase 5 decision.
+**P2.7.2a2 check:** VCO island ≤ 0.30 mm² (D23 amended) still fits inside ≈ 2.5 × 2.5 mm with pad ring. Die-size squeeze remains RX+TX+pads, not the VCO raise. Exact die size remains a Phase 5 decision.
+
+**Flag:** the §1 sketch of a **1.6 × 1.6 mm** active core **does not fit** the Phase 3/4 RX+TX + synth + digital + pads tally. Before Phase 5, plan on a die closer to **≥ ~2.2 × 2.2 mm** (≈ 4.8 mm²) or tighten RX/TX area after topology.

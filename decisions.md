@@ -459,3 +459,16 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   (c) VCO top assembly, DRC / LVS clean.
 - VCO island 0.4457 mm² against the D23 budget 0.15–0.20 mm²: (a) gives an area breakdown and a
   plan to meet the budget, or a finding for D23 and the die-size tally.
+
+## 2026-11-12 — P2.7.2a result
+- D23 amended: VCO island budget raised from 0.15–0.20 mm² to ≤ 0.30 mm² (P2.7.2a compact
+  estimate 0.22–0.28 mm²). The tank / inductor is not redesigned. Die-size tally
+  (spec/p27-floorplan.md §8) is updated to match and must still fit the die.
+- Inductor via fix: ΔL ≤ 0.02 % accepted. The Q change (−3.3 to −3.8 %, one EM run) is not yet
+  accepted: confirm with a second EM run and try wider via arrays. Accept if the remaining
+  Q loss is < 2 %, or, if it is larger, if the bottom-band swing (ff, MIM worst, 85 °C) stays
+  ≥ 0.54 V differential and the worst-corner VCO phase-noise margin stays positive, both with
+  the new Q.
+- LVS flow accepted for MOS cells (dac_unit). bank_unit (MIM + switch + resistors + bypass) and
+  dac_unit DRC must be clean before P2.7.2b; use PDK pcells and via generators, not hand
+  via stacks.
