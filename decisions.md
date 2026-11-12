@@ -515,3 +515,12 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   1.0 mA/µm, centre tap 0.50 mA/µm at 4 mA accepted.
 - ng not extracted: accepted when total W matches and the finger count is checked in the
   layout.
+
+## 2026-11-12 — P2.7.2b core + tank accepted
+- Core + tank accepted: stages a–d DRC clean (density waived), KLayout LVS and netgen clean;
+  pair 2 × W = 32; area 0.1102 mm² [GDS]; fab / LVS GDS differ only in l2n0_em [TOOL].
+- Fixed tank capacitance stays rfcmim (its M1 shield is TIE; fx routed on M2, M1 drops only
+  outside the shield).
+- Open for P2.7.2c: the centre tap is not checked by LVS today (pin-only inductor, ct not
+  extracted). The top assembly must make ct a labelled, LVS-checked pin.
+- Next: P2.7.2b, D24 bank sub-block.
