@@ -1,4 +1,4 @@
-# P2.7.2a2 LVS proof — dac_unit + bank_unit
+# P2.7.2a3 LVS proof — dac_unit + bank_unit
 
 PDK netgen setup: `/foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl` (exists=True)
 
@@ -8,32 +8,27 @@ PDK netgen setup: `/foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl` 
 - **#512:** two separate `cmim` PCells in bank_unit.
 - **SVaricap future (#861):** ThickGateOx missing — waiver + Nx checklist on varactor blocks.
 
-## Earlier bank_unit short (avoid in sub-block runs) — P2.7.2a2 root causes
+## bank_unit short causes fixed in a3 (avoid in sub-block runs)
 
-- Cont 0.16 µm on L=0.13 gate poly overhangs onto Activ → G↔D/S short. **Fix:** upward
-  poly pad above real Activ top (min-W Activ top ≠ poly_top−0.18).
-- Gate M1 landing / Cont M1 between S/D M1 cols → M1.b and G short. **Fix:** Cont M1
-  only over Cont; rise above pad; then jog.
-- M1 strap under multi-finger / parallel devices spanning the other S/D column → a|b
-  merge. **Fix:** never draw M1 across the opposite column; use M2 via_stack bridges.
-- PCell `w=10.32u` with `ng=1` clamps to Wmin=0.15 (max finger 10.0 µm). **Fix:** two
-  parallel 5.16 µm devices (combine → W=10.32).
-- Hand via / strap M1 crossing a/b rails → `bb|g|vbp` merge. **Fix:** PDK `via_stack`.
-- netgen args are `{file cell}`, not `{cell file}`.
+- Cont on L=0.13 gate over Activ → Cont only on pad above Activ (finger 0); poly strap ties ng=2.
+- M1 across opposite S/D → join outers on M2 via side spurs; mid exits at different Y.
+- via_stack 2×2 M1 landing hit mid col → use 1×1, place off the SD columns.
+- rhigh/MIM tall M1 crossed gate jog / bb verticals → M2 outboard; rhigh top vs bottom on opposite sides.
+- TM1.a min width 1.64 µm → tp/tn traces ≥ 1.70 µm.
 
 ## dac_unit
 
-- DRC exit: 1; rules: ['AFil.g', 'GFil.g', 'M1.j', 'M2.j', 'M3.j', 'M4.j', 'M5.j', 'TM1.c', 'TM2.c']
+- DRC exit: 1; rules: density only (AFil.g, GFil.g, M*.j, TM*.c) → waived
 - DRC non-density: none → PASS
 - KLayout LVS: PASS (exit 0)
-- netgen: PASS (exit 0)
-- extracted: `/foss/designs/analog/vco/layout/p272a/out/lvs_dac_unit/dac_unit_extracted.cir`
+- netgen: Circuits match uniquely (exit 0)
+- extracted: `out/lvs_dac_unit/dac_unit_extracted.cir`
 
 ## bank_unit
 
-- DRC exit: 1; rules: ['AFil.g', 'GFil.g', 'M1.b', 'M1.j', 'M2.a', 'M2.j', 'M3.j', 'M4.j', 'M5.j', 'TM1.a', 'TM1.b', 'TM1.c', 'TM2.c']
-- DRC non-density: ['M1.b', 'M2.a', 'TM1.a', 'TM1.b'] → FAIL
-- KLayout LVS: FAIL (exit 0)
-- netgen: FAIL (exit 0)
-- extracted: `/foss/designs/analog/vco/layout/p272a/out/lvs_bank_unit/bank_unit_extracted.cir`
+- DRC exit: 1; rules: density only → waived
+- DRC non-density: none → PASS
+- KLayout LVS: PASS (exit 0); extract: switch W=10.32, 2× bypass 0.15, 2× rhigh, 2× cmim; nets bb/g/gnd/tn/tp/vbp separate
+- netgen: Circuits match uniquely (exit 0); property warnings (AS/AD/ng etc. missing on extract — topology match)
+- extracted: `out/lvs_bank_unit/bank_unit_extracted.cir`
 

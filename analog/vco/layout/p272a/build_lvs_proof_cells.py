@@ -132,7 +132,7 @@ class B:
         """
         gx = 0.5 * (gate_bb.left + gate_bb.right)
         # pad well above Activ (Gat.d=0.07; min-W Activ top ≠ poly_top−0.18)
-        pad_bot = max(activ_top + 0.25, gate_bb.top + 0.10)
+        pad_bot = max(activ_top + 0.40, gate_bb.top + 0.20)
         pad_top = pad_bot + 0.50
         stem_half = 0.5 * (gate_bb.right - gate_bb.left)
         cell.shapes(self.poly).insert(
@@ -221,14 +221,20 @@ class B:
         self.say(f"dac_unit bbox {c.bbox().to_dtype(self.ly.dbu)}")
         return c.cell_index()
 
-    def build_bank_unit(self):
-        c = self.ly.create_cell("bank_unit")
+    def box_m2(self, cell, x0, y0, x1, y1):
         m2 = self.ly.layer(10, 0)
+        # M2.a min width 0.14; use ≥0.28 for straps
+        cell.shapes(m2).insert(pya.DBox(min(x0, x1), min(y0, y1),
+                                        max(x0, x1), max(y0, y1)))
+
+    def build_bank_unit(self):
+        """P2.7.2a3 bank_unit: ng=2 switch (2×5.16), M2 joins, gate pads off Activ."""
+        c = self.ly.create_cell("bank_unit")
         mim = self.pcell("cmim", {"w": "2.88u", "l": "2.88u", "C": "12.4f",
                                  "Calculate": "w&l", "guardRingType": "none"})
-        # MIMs high; switch pair low-left; bypass right; rhigh far right
-        mim_bb0, t_m0 = self.place(c, mim, 0, 40)
-        mim_bb1, t_m1 = self.place(c, mim, mim_bb0.right + 14.0, 40)
+        # Floor: r0 | bp0 | SWITCH | bp1 | r1 ; MIMs above switch
+        mim_bb0, t_m0 = self.place(c, mim, 25.0, 55.0)
+        mim_bb1, t_m1 = self.place(c, mim, mim_bb0.right + 16.0, 55.0)
         cell_m = self.ly.cell(mim)
 
         def layer_boxes(tr, layer):
@@ -243,24 +249,19 @@ class B:
         tm_0 = layer_boxes(t_m0, self.tm1)
         tm_1 = layer_boxes(t_m1, self.tm1)
 
-        # max finger W=10.0 µm → two parallel 5.16 µm (combine → W=10.32)
-        sw = self.pcell("nmos", {"w": "5.16u", "l": "0.13u", "ng": 1, "m": 1,
+        # ng=2, Wtot=10.32 → 2 fingers × 5.16 (max finger 10.0)
+        sw = self.pcell("nmos", {"w": "10.32u", "l": "0.13u", "ng": 2, "m": 1,
                                  "guardRingType": "none"})
-        bb_s0, t_s0 = self.place(c, sw, 20.0, 0)
-        bb_s1, t_s1 = self.place(c, sw, bb_s0.right + 8.0, 0)
-        cols0 = self.m1_cols(sw, t_s0)
-        cols1 = self.m1_cols(sw, t_s1)
-        g_s0 = self.poly_gates(sw, t_s0)[0]
-        g_s1 = self.poly_gates(sw, t_s1)[0]
-        at_s = self.activ_top(sw, t_s0)
-        a0, b0 = cols0[0], cols0[1]
-        a1, b1 = cols1[0], cols1[1]
+        bb_sw, t_sw = self.place(c, sw, 30.0, 0)
+        cols = self.m1_cols(sw, t_sw)
+        gates = self.poly_gates(sw, t_sw)
+        at_sw = self.activ_top(sw, t_sw)
+        a_l, b_m, a_r = cols[0], cols[1], cols[2]  # S-G-D-G-S → outers=a, mid=b
 
-        # bypass: bp0 (net a) left of switches; bp1 (net b) right — no M1 span across
         bp = self.pcell("nmos", {"w": "0.15u", "l": "0.13u", "ng": 1, "m": 1,
                                  "guardRingType": "none"})
-        bb_bp0, t_bp0 = self.place(c, bp, 2.0, 0)
-        bb_bp1, t_bp1 = self.place(c, bp, bb_s1.right + 12.0, 0)
+        bb_bp0, t_bp0 = self.place(c, bp, 12.0, 0)                 # left of switch
+        bb_bp1, t_bp1 = self.place(c, bp, bb_sw.right + 10.0, 0)   # right
         cols_bp0 = self.m1_cols(bp, t_bp0)
         cols_bp1 = self.m1_cols(bp, t_bp1)
         g_bp0 = self.poly_gates(bp, t_bp0)[0]
@@ -268,115 +269,155 @@ class B:
         at_bp0 = self.activ_top(bp, t_bp0)
         at_bp1 = self.activ_top(bp, t_bp1)
 
-        # r0 on a (left), r1 on b (right) — no M1 span across switch S/D
         rh = self.pcell("rhigh", {"w": "5.0u", "l": "60.8u", "Calculate": "R",
                                  "guardRingType": "none"})
-        bb_r0, _ = self.place(c, rh, -18.0, 0)
-        bb_r1, _ = self.place(c, rh, max(mim_bb1.right, bb_bp1.right) + 12.0, 0)
+        bb_r0, _ = self.place(c, rh, -20.0, 0)
+        bb_r1, _ = self.place(c, rh, bb_bp1.right + 14.0, 0)
 
         vs5 = self.pcell("via_stack", {
             "b_layer": "Metal1", "t_layer": "Metal5",
             "vn_columns": 2, "vn_rows": 2,
         })
+        # 1×1: 2×2 M1 landing (~0.7 µm) overlaps adjacent SD cols on ng=2
         vs12 = self.pcell("via_stack", {
             "b_layer": "Metal1", "t_layer": "Metal2",
             "vn_columns": 1, "vn_rows": 1,
         })
-        mx0 = 0.5 * (m5_0[0].left + m5_0[0].right) if m5_0 else 0.5 * (mim_bb0.left + mim_bb0.right)
-        mx1 = 0.5 * (m5_1[0].left + m5_1[0].right) if m5_1 else 0.5 * (mim_bb1.left + mim_bb1.right)
-        y_vs = 22.0
+        mx0 = 0.5 * (m5_0[0].left + m5_0[0].right)
+        mx1 = 0.5 * (m5_1[0].left + m5_1[0].right)
+        y_vs = 28.0
         bb_vs0, _ = self.place(c, vs5, mx0 - 0.35, y_vs)
         bb_vs1, _ = self.place(c, vs5, mx1 - 0.35, y_vs)
 
-        ya, yb, y_bb = -3.0, -6.0, -12.0
+        ya, yb, y_bb = -4.0, -8.0, -14.0
 
-        # --- switch a cols: local drops + M2 bridge (never span M1 across b cols) ---
-        for col in (a0, a1):
-            self.box_m1(c, col.left, ya, col.right, col.bottom)
-            self.box_m1(c, col.left, -1.8, col.right, col.bottom)
-        self.box_m1(c, a0.left - 2.0, ya, a0.right, ya + 0.35)
-        self.place(c, vs12, a0.left, -1.8)
-        self.place(c, vs12, a1.left, -1.8)
-        c.shapes(m2).insert(pya.DBox(a0.left, -1.8, a1.right, -1.4))
+        # --- net a (outers): narrow drops + side spurs; M2 join clear of mid ---
+        # (via on SD col at y=2.5 shorted a↔b — 2×2 landing hit mid M1)
+        self.box_m1(c, a_l.left, ya, a_l.right, a_l.bottom)
+        self.box_m1(c, a_l.left - 3.0, ya, a_l.right, ya + 0.35)
+        self.place(c, vs12, a_l.left - 2.6, ya)
+        self.box_m1(c, a_r.left, ya, a_r.right, a_r.bottom)
+        self.box_m1(c, a_r.left, ya, a_r.right + 3.0, ya + 0.35)
+        self.place(c, vs12, a_r.right + 1.6, ya)
+        self.box_m2(c, a_l.left - 2.8, ya - 0.15, a_r.right + 2.8, ya + 0.55)
 
-        # --- switch b cols: drops + bottom bus below a ---
-        for col in (b0, b1):
-            self.box_m1(c, col.left, yb, col.right, col.bottom)
-            self.box_m1(c, col.left, y_bb + 2.0, col.right, yb + 0.35)
-        self.box_m1(c, b0.left, y_bb + 2.0, b1.right + 2.0, y_bb + 2.35)
+        # --- net b: mid drop to yb (below a join); jog RIGHT ---
+        self.box_m1(c, b_m.left, yb, b_m.right, b_m.bottom)
+        self.box_m1(c, b_m.left, yb, a_r.right + 5.0, yb + 0.35)
 
-        # --- via_stack M1→M5 + MIM bottoms ---
-        # a → vs0: up between bp0 and switch, then left (never across bp0 bb col at ya)
-        self.box_m1(c, a0.left - 2.0, ya, a0.left - 1.6, y_vs + 0.4)
-        self.box_m1(c, bb_vs0.left, y_vs, a0.left - 1.6, y_vs + 0.4)
-        self.box_m1(c, bb_vs0.left, y_vs, bb_vs0.left + 0.4, bb_vs0.bottom)
-        if m5_0:
-            self.box_m5(c, bb_vs0.left, bb_vs0.top - 0.1,
-                        bb_vs0.right, m5_0[0].bottom + 0.2)
-        # b → vs1: up on right of switches
-        self.box_m1(c, b1.right + 1.6, y_bb + 2.0, b1.right + 2.0, y_vs + 0.4)
-        self.box_m1(c, bb_vs1.left, y_vs, b1.right + 2.0, y_vs + 0.4)
-        self.box_m1(c, bb_vs1.left, y_vs, bb_vs1.left + 0.4, bb_vs1.bottom)
-        if m5_1:
-            self.box_m5(c, bb_vs1.left, bb_vs1.top - 0.1,
-                        bb_vs1.right, m5_1[0].bottom + 0.2)
-
-        # --- bypass: drain faces the switch bus; far col → bb (no M1 through S/D gap) ---
-        # bp0 (left of sw): right col → a, left col → bb
+        # --- bp0 (a): right → a; left → bb jogged LEFT (no vertical through ya rail) ---
         self.box_m1(c, cols_bp0[1].left, ya, cols_bp0[1].right, cols_bp0[1].bottom)
-        self.box_m1(c, cols_bp0[1].left, ya, a0.right, ya + 0.35)
-        self.box_m1(c, cols_bp0[0].left, y_bb, cols_bp0[0].right, cols_bp0[0].bottom)
-        # bp1 (right of sw): left col → b, right col → bb
+        self.box_m1(c, cols_bp0[1].left, ya, a_l.left - 2.6, ya + 0.35)
+        x_bb0 = cols_bp0[0].left - 2.5
+        self.box_m1(c, x_bb0, cols_bp0[0].bottom - 0.05,
+                    cols_bp0[0].right, cols_bp0[0].bottom + 0.25)
+        self.box_m1(c, x_bb0, y_bb, x_bb0 + 0.35, cols_bp0[0].bottom)
+
+        # --- bp1 (b): left → b; right → bb jogged RIGHT (no vertical through yb rail) ---
         self.box_m1(c, cols_bp1[0].left, yb, cols_bp1[0].right, cols_bp1[0].bottom)
-        self.box_m1(c, b1.right + 1.6, yb, cols_bp1[0].right, yb + 0.35)
-        self.box_m1(c, cols_bp1[1].left, y_bb, cols_bp1[1].right, cols_bp1[1].bottom)
+        self.box_m1(c, a_r.right + 4.6, yb, cols_bp1[0].right, yb + 0.35)
+        x_bb1 = cols_bp1[1].right + 2.5
+        self.box_m1(c, cols_bp1[1].left, cols_bp1[1].bottom - 0.05,
+                    x_bb1 + 0.35, cols_bp1[1].bottom + 0.25)
+        self.box_m1(c, x_bb1, y_bb, x_bb1 + 0.35, cols_bp1[1].bottom)
 
-        # --- bb: M2 strap (long span under switch) ---
-        self.box_m1(c, bb_r0.left + 1.5, y_bb, bb_r0.left + 2.0, bb_r0.bottom - 0.5)
-        self.box_m1(c, bb_r1.left + 1.5, y_bb, bb_r1.left + 2.0, bb_r1.bottom - 0.5)
-        for xvia in (cols_bp0[0].left, cols_bp1[1].left, bb_r0.left + 1.5, bb_r1.left + 1.5):
+        # --- MIM bottoms: M2 risers OUTBOARD; M1 at y_vs must overlap via landing ---
+        x_m2a = a_l.left - 6.0
+        self.box_m1(c, x_m2a, ya, a_l.left - 2.4, ya + 0.35)
+        self.place(c, vs12, x_m2a, ya)
+        self.place(c, vs12, x_m2a, y_vs)
+        self.box_m2(c, x_m2a - 0.2, ya - 0.15, x_m2a + 0.5, y_vs + 0.5)
+        self.box_m1(c, x_m2a - 0.2, y_vs, bb_vs0.right + 0.1, y_vs + 0.5)
+        self.box_m1(c, bb_vs0.left, y_vs, bb_vs0.left + 0.4, bb_vs0.bottom)
+        self.box_m5(c, bb_vs0.left, bb_vs0.top - 0.1, bb_vs0.right, m5_0[0].bottom + 0.2)
+        x_m2b = a_r.right + 8.0
+        self.box_m1(c, a_r.right + 4.4, yb, x_m2b + 0.35, yb + 0.35)
+        self.place(c, vs12, x_m2b, yb)
+        self.place(c, vs12, x_m2b, y_vs)
+        self.box_m2(c, x_m2b - 0.2, yb - 0.15, x_m2b + 0.5, y_vs + 0.5)
+        self.box_m1(c, min(bb_vs1.left, x_m2b) - 0.2, y_vs,
+                    max(bb_vs1.right, x_m2b) + 0.35, y_vs + 0.5)
+        self.box_m1(c, bb_vs1.left, y_vs, bb_vs1.left + 0.4, bb_vs1.bottom)
+        self.box_m5(c, bb_vs1.left, bb_vs1.top - 0.1, bb_vs1.right, m5_1[0].bottom + 0.2)
+
+        # --- rhigh: top toward chip, bottom away — opposite sides so M2 never crosses ---
+        # r0: top x_out = right of r0; bot = left of r0. r1: mirror.
+        x_top0, x_bot0 = bb_r0.right + 1.5, bb_r0.left - 7.0
+        x_top1, x_bot1 = bb_r1.left - 1.5, bb_r1.right + 7.0
+        for bb_r, y_rail, x_land, x_top in (
+            (bb_r0, ya, 20.0, x_top0),
+            (bb_r1, yb, 37.0, x_top1),
+        ):
+            xt = bb_r.left + 1.5
+            self.box_m1(c, xt, bb_r.top - 0.3, xt + 0.6, bb_r.top + 0.4)
+            self.place(c, vs12, xt, bb_r.top - 0.1)
+            self.box_m2(c, min(xt, x_top) - 0.2, bb_r.top - 0.3,
+                        max(xt, x_top) + 0.5, bb_r.top + 0.5)
+            self.box_m2(c, x_top - 0.2, y_rail - 0.15, x_top + 0.5, bb_r.top + 0.5)
+            self.box_m2(c, min(x_top, x_land) - 0.2, y_rail - 0.15,
+                        max(x_top, x_land) + 0.5, y_rail + 0.55)
+            self.place(c, vs12, x_land, y_rail)
+
+        for bb_r, x_bot in ((bb_r0, x_bot0), (bb_r1, x_bot1)):
+            xb = bb_r.left + 1.5
+            self.box_m1(c, xb, bb_r.bottom - 0.5, xb + 0.6, bb_r.bottom + 0.3)
+            self.place(c, vs12, xb, bb_r.bottom - 0.1)
+            self.box_m2(c, min(xb, x_bot) - 0.2, bb_r.bottom - 0.3,
+                        max(xb, x_bot) + 0.5, bb_r.bottom + 0.5)
+            self.box_m2(c, x_bot - 0.2, y_bb - 0.15, x_bot + 0.5, bb_r.bottom + 0.5)
+            self.place(c, vs12, x_bot, y_bb)
+        for xvia in (x_bb0, x_bb1):
             self.place(c, vs12, xvia, y_bb)
-        c.shapes(m2).insert(pya.DBox(bb_r0.left + 1.5, y_bb, bb_r1.left + 2.0, y_bb + 0.4))
-        self.pin_m1(c, cols_bp0[0].left, y_bb - 1.5, "bb")
-        self.box_m1(c, cols_bp0[0].left, y_bb - 1.5, cols_bp0[0].right, y_bb + 0.4)
-        # rhigh tops → a (left) / b (right) without crossing switch S/D
-        self.box_m1(c, bb_r0.left + 1.5, bb_r0.top + 0.5, bb_r0.left + 2.0, ya + 0.35)
-        self.box_m1(c, bb_r0.left + 1.5, ya, cols_bp0[1].right, ya + 0.35)
-        self.box_m1(c, bb_r1.left + 1.5, bb_r1.top + 0.5, bb_r1.left + 2.0, yb + 0.35)
-        self.box_m1(c, cols_bp1[0].left, yb, bb_r1.left + 2.0, yb + 0.35)
+        self.box_m2(c, x_bot0 - 0.2, y_bb - 0.1, x_bot1 + 0.5, y_bb + 0.5)
+        self.box_m1(c, x_bb0, y_bb - 2.0, x_bb0 + 0.35, y_bb + 0.4)
+        self.pin_m1(c, x_bb0 + 0.17, y_bb - 1.8, "bb")
 
-        # gates — switch from outside; bypass each locally; strap vbp on M2 if needed
-        y_g = at_s + 10.0
-        self.gate_contact(c, g_s0, at_s, bb_s0.left - 6.0, y_g, "g")
-        self.gate_contact(c, g_s1, at_s, bb_s1.right + 6.0, y_g, "g")
-        self.box_m1(c, bb_s0.left - 6.5, y_g, bb_s1.right + 6.5, y_g + 0.20)
+        # --- gates: ng=2 fingers separate in pcell — poly strap into finger0 pad ---
+        g0, g1 = gates[0], gates[1]
+        # continuous strap up to pad_bot so Gat.b does not see a 0.12 µm notch
+        c.shapes(self.poly).insert(pya.DBox(
+            g0.left, at_sw + 0.08, g1.right, at_sw + 0.55))
+        y_g = at_sw + 12.0
+        self.gate_contact(c, g0, at_sw, bb_sw.left - 8.0, y_g, "g")
 
-        y_vbp = max(at_bp0, at_bp1) + 10.0
+        # vbp strap ABOVE MIM stacks (y_vs=28) so it cannot cross a/b M2 risers
+        y_vbp = y_vs + 8.0
         self.gate_contact(c, g_bp0, at_bp0, bb_bp0.left - 6.0, y_vbp, "vbp")
         self.gate_contact(c, g_bp1, at_bp1, bb_bp1.right + 6.0, y_vbp, "vbp")
-        # vbp strap on M2 over the switch island
         self.place(c, vs12, bb_bp0.left - 6.2, y_vbp)
         self.place(c, vs12, bb_bp1.right + 5.8, y_vbp)
-        c.shapes(m2).insert(pya.DBox(bb_bp0.left - 6.2, y_vbp, bb_bp1.right + 6.2, y_vbp + 0.4))
-        self.box_m1(c, bb_bp0.left - 6.5, y_vbp, bb_bp0.left - 5.5, y_vbp + 0.20)
-        self.box_m1(c, bb_bp1.right + 5.5, y_vbp, bb_bp1.right + 6.5, y_vbp + 0.20)
+        self.box_m2(c, bb_bp0.left - 6.4, y_vbp - 0.1, bb_bp1.right + 6.4, y_vbp + 0.5)
 
-        # tp / tn — keep TM1 pin ≥1.0 µm from MIM TM1 (TM1.a)
-        for boxes, name in ((tm_0, "tp"), (tm_1, "tn")):
-            if not boxes:
-                continue
+        # --- tp / tn: TM1.a min width 1.64 µm; stub from plate, side exit, then up ---
+        tw = 1.70  # ≥ TM1.a
+        for boxes, name, side in ((tm_0, "tp", -1), (tm_1, "tn", +1)):
             t = boxes[0]
-            x, y = 0.5 * (t.left + t.right), t.top + 4.0
-            c.shapes(self.tm1).insert(pya.DBox(x - 0.4, t.top + 1.0, x + 0.4, y))
-            self.pin_tm1(c, x, y, name)
+            x_mid = 0.5 * (t.left + t.right)
+            x_jog = x_mid + side * 8.0
+            y_pin = t.top + 8.0
+            y_bus = t.top + 2.0
+            # vertical stub overlapping plate top → bus height
+            c.shapes(self.tm1).insert(pya.DBox(
+                x_mid - tw * 0.5, t.top - 0.5, x_mid + tw * 0.5, y_bus + tw))
+            # horizontal to jog
+            c.shapes(self.tm1).insert(pya.DBox(
+                min(x_mid, x_jog) - tw * 0.5, y_bus,
+                max(x_mid, x_jog) + tw * 0.5, y_bus + tw))
+            # vertical to pin landing
+            c.shapes(self.tm1).insert(pya.DBox(
+                x_jog - tw * 0.5, y_bus, x_jog + tw * 0.5, y_pin + tw * 0.5))
+            c.shapes(self.tm1pin).insert(pya.DBox(
+                x_jog - tw * 0.5, y_pin - tw * 0.5, x_jog + tw * 0.5, y_pin + tw * 0.5))
+            c.shapes(self.tm1txt).insert(pya.DText(name, pya.DTrans(x_jog, y_pin)))
 
         pt = self.pcell("ptap1", {"w": "0.78u", "l": "0.78u"})
-        bb_pt, _ = self.place(c, pt, 5.0, -16.0)
-        self.box_m1(c, bb_pt.left, bb_pt.bottom - 2.5, bb_pt.right, bb_pt.bottom)
+        bb_pt, _ = self.place(c, pt, 18.0, -18.0)
+        # overlap ptap M1 (M1.b=0.18; a 0.12 µm gap fails)
+        self.box_m1(c, bb_pt.left, bb_pt.bottom - 2.5, bb_pt.right, bb_pt.bottom + 0.2)
         self.pin_m1(c, 0.5 * (bb_pt.left + bb_pt.right), bb_pt.bottom - 2.3, "gnd")
 
         self.say(f"bank_unit bbox {c.bbox().to_dtype(self.ly.dbu)}")
-        self.say(f"  via_stack M1→M5 @ x={mx0:.2f},{mx1:.2f}; switch 2×5.16 parallel")
+        self.say(f"  via_stack M1→M5 @ x={mx0:.2f},{mx1:.2f}; switch ng=2 W=10.32")
         return c.cell_index()
 
     def write_cell(self, name, cid):
@@ -401,7 +442,7 @@ Mmsw xraw code xd vdd sg13_lv_pmos w=4.0u l=0.13u
 .ends
 """)
     open(os.path.join(OUT, "bank_unit.spice"), "w").write(
-        """* P2.7.2a2 bank_unit LSB [SCH]
+        """* P2.7.2a3 bank_unit LSB [SCH]
 .subckt bank_unit tp tn g vbp bb gnd
 Cxb tp a cap_cmim w=2.81e-06 l=2.81e-06 m=1
 Cxn tn b cap_cmim w=2.81e-06 l=2.81e-06 m=1

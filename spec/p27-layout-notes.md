@@ -148,15 +148,28 @@ PNG/SVG (top/core/bank/inductor), KLayout LVS extract + logs.
 - **dac_unit PASS:** DRC clean (density waived); KLayout LVS PASS; netgen “Circuits
   match uniquely.” Extract: 2× PMOS W/L match, bulk=vdd. Gate Cont on upward poly pad
   above real Activ top; xraw exits sideways below pad band [SCH layout].
-- **bank_unit FAIL:** DRC non-density M1.b / M2.a / TM1.a / TM1.b; extract still merges
-  `bb|g` (and a/b into that net); tp/tn floating in last extract. Root causes recorded
-  in `summary_lvs_proof.txt` (Cont-on-L=0.13, M1 across opposite S/D, max finger W=10.0
-  → use 2×5.16 parallel, M2 bridges). **Sub-block runs must avoid those patterns.**
-- **Inductor Q:** second EM (finer mesh / TAPPED_CELL) **not finished this run** (tool
-  still running or prior partial). First-run ΔQ −3.3…−3.8 % still unconfirmed; wider via
-  arrays and swing/PN fallback **not done**.
-- **Area:** §8 re-totalled with VCO ≤ 0.30; die ≈ 3.6–3.7 mm² vs 6.25 — **fits**
-  2.5 × 2.5 mm + pad ring. No finding.
+- **bank_unit FAIL (a2):** DRC non-density M1.b / M2.a / TM1.*; extract merged `bb|g`.
+  Causes recorded for a3 (Cont-on-L=0.13, M1 across S/D, finger W clamp).
+- **Inductor Q:** mesh1 not finished in a2; ΔQ −3.3…−3.8 % unconfirmed then.
+- **Area:** §8 re-totalled; die ≈ 3.6–3.7 mm² fits 2.5 × 2.5 mm + pad ring.
+
+#### P2.7.2a3 (2026-11-12) — bank_unit clean + inductor Q gate
+**Outputs:** `build_lvs_proof_cells.py` (a3 rewrite), `out/summary_lvs_proof.txt`,
+`out/q_gate/summary_q_gate.txt`, `sim/em/.../em_summary_p272a2_mesh1.md`; this note;
+`phase2-plan` §3; `decisions.md` a3 result.
+- **bank_unit PASS:** DRC non-density none (density waived); KLayout LVS PASS; netgen
+  “Circuits match uniquely.” Extract: NMOS W=10.32 (ng=2), 2×0.15 bypass, 2×rhigh,
+  2×cmim; pins bb/g/gnd/tn/tp/vbp separate [SCH layout]. Fixes: ng=2 + poly gate strap;
+  Cont off Activ; M2 side-spur outer join; 1×1 via_stack; rhigh/MIM on outboard M2;
+  TM1 ≥ 1.70 µm (TM1.a).
+- **Inductor Q gate:** mesh1 finished [EM]: L≈1.69 nH; Q 13.70/14.74/16.31 at
+  3.1/3.5/4.2 GHz; ΔQ −3.54/−3.63/−3.49 % vs tapped (worst −3.63 % ≥ 2 %). No wider-via
+  EM this run. Swing ff/cap_wcs/85 °C I_tail=4 mA: **0.6435 V** ≥ 0.54 → PASS [SCH].
+  Worst-corner VACASK PSS/pnoise **did not converge** (several settings) [SCH tool].
+  Leeson ΔL from ΔQ ≈ 0.32 dB [HAND]; prior ss85 4.20 margin +3.6 dB → est. **+3.28 dB**
+  [HAND]. Formal SCH PN gate left for owner decision.
+- **P2.7.2a finished** pending owner accept of Q (SCH PN or HAND). Next: **P2.7.2b**
+  (first routed sub-block — core + tank).
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin

@@ -472,3 +472,18 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - LVS flow accepted for MOS cells (dac_unit). bank_unit (MIM + switch + resistors + bypass) and
   dac_unit DRC must be clean before P2.7.2b; use PDK pcells and via generators, not hand
   via stacks.
+
+## 2026-11-12 — P2.7.2a2 result
+- Area: VCO island ≤ 0.30 mm² and die re-total ≈ 3.6–3.7 mm² on ≈ 2.5 × 2.5 mm accepted.
+- Order kept: bank_unit DRC / LVS clean and the inductor Q gate (2026-11-12 "P2.7.2a result")
+  come before P2.7.2b. Finished in P2.7.2a3.
+- If the finer-mesh EM does not finish within the run, the Q gate is decided by the swing /
+  phase-noise check using the worst recorded Q loss (−3.8 %).
+
+## 2026-11-12 — P2.7.2a3 result
+- bank_unit: DRC clean (density waived); KLayout LVS and netgen topology match (property
+  warnings only). Switch W=10.32 ng=2; devices present at schematic size; nets not merged.
+- Inductor mesh1 [EM]: ΔQ worst −3.63 % @ 3.5 GHz (≥ 2 %). Swing ff/cap_wcs/85 °C top DAC:
+  0.6435 V ≥ 0.54 PASS [SCH]. VACASK PSS/pnoise at ss/cap_typ/85/4.20 did not converge
+  [SCH tool]. Leeson from ΔQ ≈ 0.32 dB; prior +3.6 dB → est. +3.28 dB [HAND].
+- Owner decision: accept Q gate on HAND PN margin (or re-run SCH PN) before P2.7.2b.

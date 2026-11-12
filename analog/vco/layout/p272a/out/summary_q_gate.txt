@@ -1,0 +1,12 @@
+# P2.7.2a3 Q gate
+- ΔQ = −3.63 % (mesh1 worst @ 3.5 GHz) [EM]
+- Swing ff/cap_wcs/85 I_tail=4 mA: 0.6435 V (PASS ≥ 0.54) [SCH]
+- PN worst margin: n/a (FAIL > 0) [SCH]
+- Gate: FAIL
+
+## PN SCH status
+- VACASK PSS failed to converge (16000/8000/4000 pts; reltol 1e-6 and 1e-5) [SCH tool]
+- Leeson ΔL from ΔQ −3.63 %: 0.32 dB [HAND]
+- Prior ss/cap_typ/85/4.20 margin +3.6 dB [SCH summary_4ma.txt]
+- Estimated margin with new Q: +3.28 dB [HAND] (still > 0)
+- Formal Q-gate SCH PN check: UNCERTAIN (tool did not finish)
