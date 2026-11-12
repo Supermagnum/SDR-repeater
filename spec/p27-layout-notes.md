@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted. D24 segmented bank recorded.** **P2.7.2c gate PASS (2026-11-12)** at VR_ANA1 pad supplies (`summary_p272c_gate.txt`). Next: **P2.7.2 VCO layout**. LVS #861/#753/#512 workarounds stand.
+Status: **D23 Option A accepted. D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate FAIL (2026-11-12):** ss high landing spur −102.9 dBc vs ≤ −105 (`summary_p272_lin.txt`) — **no layout**. LVS #861/#753/#512 workarounds stand.
 
 ---
 
@@ -119,7 +119,13 @@ Dependency order. Every analogue block: **xschem `.sch` + SVG/PDF**, then layout
 - ss85 127→128 ratio 1.52 held for the P2.7.2 D20 landing gate.
 
 ### P2.7.2 — Layout: VCO (inductor + core + bank + var + bypasses + amp-cal)
-**Status: FINDING — P2.7.2 gate FAIL; P2.7.2b (D24) gate FAIL; no layout.**
+**Status: FINDING — P2.7.2 lin gate FAIL at ss high landing extreme; no layout.**
+
+#### P2.7.2 lin (2026-11-12, VR_ANA1 pad supplies)
+Landing extremes + mid holds; Q(dt) 1–5 ns with bias generator [SCH]; spur via `pll_behav` D19 [MODEL] (`summary_p272_lin.txt`).
+- INL ≤ 18.1 ps, |ΔI_cp| ≤ 8.1 %, lock 2.71–3.10 ns UP — all PASS.
+- **FAIL:** ss 0.897 V VHF spur **−102.9 dBc** (limit ≤ −105); UHF −126.8 PASS. Other extremes ≤ −117.9.
+- Layout **not started**.
 
 #### P2.7.2 gate (2026-11-11, binary bank)
 - ss85 127→128 ratio 1.52, ΔV 0.542 V; ff 0.56 / 0.117 V [SCH].

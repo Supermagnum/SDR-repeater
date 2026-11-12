@@ -432,3 +432,10 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   on the UP side — not only a 10 % current drop. Checked at the landing extremes before layout.
 - Recorded results on 1.08 / 1.32 V for VR_ANA1 blocks stay valid as conservative bounds (the
   pad range lies inside); re-run with pad corners only post-layout.
+
+## 2026-11-12 — P2.7.2 pump-linearity finding (no layout)
+- Landing-extreme lin gate (`summary_p272_lin.txt`): INL / ΔI_cp / UP lock PASS everywhere.
+- **FAIL:** ss 1.108 V / 85 °C / V_tune 0.897 V — VHF boundary spur **−102.9 dBc** [MODEL]
+  vs ≤ −105 dBc (still 7.9 dB inside −95). Layout not started.
+- Owner decision open: accept the −102.9 figure, improve the pump at ss high V_tune, or
+  pull the ss landing high extreme down before layout.
