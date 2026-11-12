@@ -1,0 +1,9 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 12/11/2026 14:16
+
+.SUBCKT vco_core_tank gnd tail tn|tp
+M$1 tail tn|tp tn|tp gnd sg13_lv_nmos L=0.13u W=64u AS=13.36p AD=13.36p
++ PS=78.68u PD=78.68u rfmode=0
+R$17 gnd gnd gnd rhigh w=2u l=15.2u ps=0u b=0 m=1
+C$18 tn|tp \$7 gnd rfcmim w=16u l=16u A=256p P=64u m=1 wfeed=5u
+C$19 tn|tp \$8 gnd rfcmim w=16u l=16u A=256p P=64u m=1 wfeed=5u
+.ENDS vco_core_tank

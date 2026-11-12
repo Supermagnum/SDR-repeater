@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2 layout FINDING** (placement). **P2.7.2a done; P2.7.2a2 stop:** dac_unit DRC+LVS PASS; bank_unit still FAIL; inductor Q confirmation EM in flight / incomplete this run.
+Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b STOP:** core+tank GDS drawn; DRC/LVS **FAIL** (tn|tp merge; M1.b/M2.b/V1.a).
 
 ---
 
@@ -168,8 +168,27 @@ PNG/SVG (top/core/bank/inductor), KLayout LVS extract + logs.
   Worst-corner VACASK PSS/pnoise **did not converge** (several settings) [SCH tool].
   Leeson ΔL from ΔQ ≈ 0.32 dB [HAND]; prior ss85 4.20 margin +3.6 dB → est. **+3.28 dB**
   [HAND]. Formal SCH PN gate left for owner decision.
-- **P2.7.2a finished** pending owner accept of Q (SCH PN or HAND). Next: **P2.7.2b**
-  (first routed sub-block — core + tank).
+- **P2.7.2a finished**; Q gate accepted in `decisions.md` (2026-11-12 — P2.7.2a3 result,
+  inductor Q gate). Next was **P2.7.2b**.
+
+#### P2.7.2b (2026-11-12) — first routed sub-block (core + tank) STOP
+**Outputs:** `analog/vco/layout/p272b/` — `build_core_tank.py`, `run_drc_lvs.py`,
+`out/vco_core_tank.gds.gz`, PNG/SVG, DRC/LVS/netgen logs, `summary_drc_lvs.txt`,
+`summary_rc_tank.txt`, `summary_build.txt`.
+- **Cell:** via-fixed `L_2n0_tapped` + XC pair (W=32 ng=8, mirrored) + 2× rfcmim 16×16 +
+  rfx + CT≡vdd TM1 strap; ports tp/tn/tail/ct/vdd/gnd. Keep-out 30 µm [HAND]. Area
+  **0.107 mm² ≈ 36 %** of ≤ 0.30 mm² island [SCH layout].
+- **EM dens [HAND]:** TM1 tank 4 µm → J=1.0 mA/µm; CT 8 µm → 0.50 (open PDK has no EM
+  table; HAND limit TM1 ≈ 5 mA/µm).
+- **Pass criteria: FAIL.** DRC non-density M1.b / M2.b / V1.a (density waived). KLayout
+  LVS FAIL; netgen FAIL. Extract: `gnd` and `tail` separate; **`tn|tp` still merged**;
+  pair seen as one W=64 device. Root causes hit this run: PCell psub GR M1 shorting S/D;
+  MIM TM1 overlapping CT; gnd rail crossing drain M1; gate M1 jog crossing drain spur.
+  End dummies deferred (bridged gnd→tank).
+- **RC report only [HAND]:** C_add/side ≈ 15–25 fF; Rs pair→L ≈ 0.2 Ω; no spare-bank flag
+  vs §2. Formal PEX deferred to P2.7.3 after LVS-clean.
+- **Next:** re-spin core+tank routing until DRC+LVS+properties PASS, **or** owner accepts
+  partial and continues to D24 bank sub-block with this as FINDING.
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin

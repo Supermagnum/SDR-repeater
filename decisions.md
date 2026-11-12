@@ -480,10 +480,13 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - If the finer-mesh EM does not finish within the run, the Q gate is decided by the swing /
   phase-noise check using the worst recorded Q loss (−3.8 %).
 
-## 2026-11-12 — P2.7.2a3 result
-- bank_unit: DRC clean (density waived); KLayout LVS and netgen topology match (property
-  warnings only). Switch W=10.32 ng=2; devices present at schematic size; nets not merged.
-- Inductor mesh1 [EM]: ΔQ worst −3.63 % @ 3.5 GHz (≥ 2 %). Swing ff/cap_wcs/85 °C top DAC:
-  0.6435 V ≥ 0.54 PASS [SCH]. VACASK PSS/pnoise at ss/cap_typ/85/4.20 did not converge
-  [SCH tool]. Leeson from ΔQ ≈ 0.32 dB; prior +3.6 dB → est. +3.28 dB [HAND].
-- Owner decision: accept Q gate on HAND PN margin (or re-run SCH PN) before P2.7.2b.
+## 2026-11-12 — P2.7.2a3 result, inductor Q gate
+- LVS flow proven on dac_unit and bank_unit (DRC clean, KLayout LVS and netgen topology clean).
+  netgen property warnings (AS / AD / ng) are resolved or explained before sign-off; W / L / ng
+  must be compared, not only topology.
+- Inductor via fix accepted: ΔQ −3.5 to −3.6 % [EM, mesh1], ΔL negligible, |V_CT / V_diff| pass.
+  Bottom-band swing at ff / MIM worst / 85 °C / 4 mA = 0.6435 V ≥ 0.54 V [SCH]. VCO phase-noise
+  margin ≈ +3.3 dB [HAND, Leeson from ΔQ]; schematic PSS did not converge.
+- The simulated phase-noise confirmation with the new Q moves to P2.7.3 (post-layout VCO PN).
+  Wider via arrays are not pursued.
+- Next: P2.7.2b, first routed sub-block (core + tank).

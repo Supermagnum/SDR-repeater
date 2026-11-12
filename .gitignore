@@ -17,11 +17,28 @@
 !**/layout/out/lvs_klayout/
 !**/layout/out/lvs_klayout/*.cir
 !**/layout/out/lvs_klayout/*.log
+# P2.7.2 lettered sub-runs (p272a, p272b, …)
+!**/layout/p272*/out/
+!**/layout/p272*/out/*.gds.gz
+!**/layout/p272*/out/*.png
+!**/layout/p272*/out/*.svg
+!**/layout/p272*/out/*.spice
+!**/layout/p272*/out/*_extracted.cir
+!**/layout/p272*/out/*_run.log
+!**/layout/p272*/out/*.log
+!**/layout/p272*/out/netgen_*.json
+!**/layout/p272*/out/netgen_*.tcl
+!**/layout/p272*/out/lvs_*/
+!**/layout/p272*/out/lvs_*/*.cir
+!**/layout/p272*/out/lvs_*/*.log
 # keep ignoring bulky DRC databases and intermediate cell GDS
 **/layout/out/drc/
 **/layout/out/*.gds
 **/layout/out/_*.py
 **/layout/out/_*.drc
+**/layout/p272*/out/*.gds
+**/layout/p272*/out/_*.py
+**/layout/p272*/out/drc_*/
 sim/em/**/output/
 sim/em/**/palace_model/
 sim/em/**/vendor/

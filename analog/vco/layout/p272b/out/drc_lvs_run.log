@@ -1,0 +1,9 @@
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b/out/vco_core_tank.gds --topcell=vco_core_tank --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b/out/drc_vco_core_tank --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b/out/drc_vco_core_tank.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b/out/vco_core_tank.gds --netlist=/foss/designs/analog/vco/layout/p272b/out/vco_core_tank.spice --topcell=vco_core_tank --run_dir=/foss/designs/analog/vco/layout/p272b/out/lvs_vco_core_tank --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b/out/lvs_klayout_vco_core_tank.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b/out/netgen_vco_core_tank.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b/out/netgen_vco_core_tank.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b/out/_klayout_shot.py -rd out=/foss/designs/analog/vco/layout/p272b/out -rd name=vco_core_tank
+  exit 0; log /foss/designs/analog/vco/layout/p272b/out/render_vco_core_tank.log
+wrote /foss/designs/analog/vco/layout/p272b/out/summary_drc_lvs.txt

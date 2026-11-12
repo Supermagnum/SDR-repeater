@@ -1,0 +1,71 @@
+Netgen 1.5.324 compiled on Thu Oct 15 02:24:51 PM CEST 2026
+Warning: netgen command 'format' use fully-qualified name '::netgen::format'
+Warning: netgen command 'global' use fully-qualified name '::netgen::global'
+Reading netlist file /foss/designs/analog/vco/layout/p272b/out/vco_core_tank.spice for /foss/designs/analog/vco/layout/p272b/out/vco_core_tank.spice vco_core_tank
+Call to undefined subcircuit sg13_lv_nmos
+Creating placeholder cell definition.
+Call to undefined subcircuit cap_rfcmim
+Creating placeholder cell definition.
+Reading netlist file /foss/designs/analog/vco/layout/p272b/out/lvs_vco_core_tank/vco_core_tank_extracted.cir for /foss/designs/analog/vco/layout/p272b/out/lvs_vco_core_tank/vco_core_tank_extracted.cir vco_core_tank
+
+Reading setup file /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl
+
+No property w found for device r
+No property l found for device r
+Model sg13_lv_nmos pin 1 == 3
+No property as found for device sg13_lv_nmos
+No property ad found for device sg13_lv_nmos
+No property pd found for device sg13_lv_nmos
+No property ps found for device sg13_lv_nmos
+No property trise found for device sg13_lv_nmos
+No property z1 found for device sg13_lv_nmos
+No property z2 found for device sg13_lv_nmos
+No property wmin found for device sg13_lv_nmos
+No property rfmode found for device sg13_lv_nmos
+No property pre_layout found for device sg13_lv_nmos
+No such pin 1 in model sg13_lv_nmos
+Unable to permute model sg13_lv_nmos pins 1, 3.
+No property ng found for device sg13_lv_nmos
+No property as found for device sg13_lv_nmos
+No property ad found for device sg13_lv_nmos
+No property pd found for device sg13_lv_nmos
+No property ps found for device sg13_lv_nmos
+No property trise found for device sg13_lv_nmos
+No property z1 found for device sg13_lv_nmos
+No property z2 found for device sg13_lv_nmos
+No property wmin found for device sg13_lv_nmos
+No property pre_layout found for device sg13_lv_nmos
+No property ic found for device cap_rfcmim
+Comparison output logged to file /foss/designs/analog/vco/layout/p272b/out/netgen_vco_core_tank.json
+Logging to file "/foss/designs/analog/vco/layout/p272b/out/netgen_vco_core_tank.json" enabled
+
+Contents of circuit 1:  Circuit: 'sg13_lv_nmos'
+Circuit sg13_lv_nmos contains 0 device instances.
+Circuit contains 0 nets.
+Contents of circuit 2:  Circuit: 'sg13_lv_nmos'
+Circuit sg13_lv_nmos contains 0 device instances.
+Circuit contains 0 nets, and 4 disconnected pins.
+
+Circuit sg13_lv_nmos contains no devices.
+
+Contents of circuit 1:  Circuit: 'vco_core_tank'
+Circuit vco_core_tank contains 6 device instances.
+  Class: r                     instances:   2
+  Class: cap_rfcmim            instances:   2
+  Class: sg13_lv_nmos          instances:   2
+Circuit contains 15 nets.
+Contents of circuit 2:  Circuit: 'vco_core_tank'
+Circuit vco_core_tank contains 4 device instances.
+  Class: sg13_lv_nmos          instances:   1
+  Class: gnd                   instances:   3
+Circuit contains 9 nets.
+
+Circuit 1 contains 6 devices, Circuit 2 contains 4 devices. *** MISMATCH ***
+Circuit 1 contains 15 nets,    Circuit 2 contains 9 nets. *** MISMATCH ***
+
+
+Final result: 
+Top level cell failed pin matching.
+
+Logging to file "/foss/designs/analog/vco/layout/p272b/out/netgen_vco_core_tank.json" disabled
+LVS Done.

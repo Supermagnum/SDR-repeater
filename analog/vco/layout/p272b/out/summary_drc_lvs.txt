@@ -1,0 +1,31 @@
+# P2.7.2b DRC / LVS — vco_core_tank
+
+PDK a49358cc; container iic-osic-tools:2026.10.
+
+- DRC rules: AFil.g GFil.g M1.b M1.j M2.b M2.j M3.j M4.j M5.j TM1.c TM2.c V1.a
+- density/fill waived: AFil.g GFil.g M1.j M2.j M3.j M4.j M5.j TM1.c TM2.c
+- DRC non-density: M1.b M2.b V1.a → FAIL
+- KLayout LVS: FAIL
+- extracted: `lvs_vco_core_tank/vco_core_tank_extracted.cir`
+- netgen: FAIL (pin / device mismatch; tn|tp merged)
+- render: `vco_core_tank.png` / `.svg`
+- area: 0.1071 mm² ≈ 35.7 % of ≤ 0.30 mm² [SCH layout]
+
+## Extract (latest)
+
+```
+.SUBCKT vco_core_tank gnd tail tn|tp
+M$1 tail tn|tp tn|tp gnd sg13_lv_nmos L=0.13u W=64u ...
+R$17 gnd gnd gnd rhigh w=2u l=15.2u ...
+C$18 tn|tp $7 gnd rfcmim w=16u l=16u ...
+C$19 tn|tp $8 gnd rfcmim w=16u l=16u ...
+```
+
+gnd and tail separate; **tn|tp still one net**; pair collapsed to W=64.
+S/D column sense vs PCell may also be swapped (D extracted on tail).
+
+## Verdict
+
+- Pass criteria DRC (density waived): FAIL
+- KLayout LVS: FAIL
+- netgen (+ properties): FAIL

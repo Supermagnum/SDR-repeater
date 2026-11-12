@@ -1,0 +1,17 @@
+# P2.7.2b vco_core_tank build
+
+PDK a49358cc; container iic-osic-tools:2026.10.
+Inductor: `/foss/designs/sim/em/sg13-octagon-l2n0/tapped/L_2n0_tapped.gds` (via-fixed TV2 arrays).
+
+# P2.7.2b — building vco_core_tank
+
+inductor bbox (-127,-14.61;127,284) [EM]
+keep-out Activ y ≤ -44.61 µm (30 µm from ind) [HAND]
+M1 (-7.38,-57.15;-3,-52.79); M2 (3,-57.15;7.38,-52.79)
+EM dens [HAND]: tank TM1 4.0 µm → J=1.00 mA/µm (limit 5.0); CT 8.0 µm → J=0.50 (limit 5.0)
+MIM L (-33.26,-115.04;-6,-87.78); MIM R (6,-115.04;33.26,-87.78) (clear of CT |x|<4.0)
+vco_core_tank bbox (-127,-137.65;127,284)
+area 0.1071 mm² = 35.7 % of ≤ 0.30 mm² island [SCH layout]
+wrote /foss/designs/analog/vco/layout/p272b/out/vco_core_tank.gds (125640 bytes)
+wrote /foss/designs/analog/vco/layout/p272b/out/vco_core_tank.gds.gz
+wrote /foss/designs/analog/vco/layout/p272b/out/vco_core_tank.spice
