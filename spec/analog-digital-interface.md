@@ -135,7 +135,8 @@ RF frequency: **f_RF = (N_INT + N_FRAC / 2²⁴) · f_ref / D**, D = 8 (UHF) or 
 | `filt_sel` | out | 3 | Filter corner |
 | `hr_en`, `lo8_en` | out | 2 | Harmonic-reject mixer, 8-phase LO |
 | `cp_cur` | out | 3 | Charge-pump current |
-| `vco_band` | out | 7 | Capacitor bank (D8) |
+| `en_cp_offset` | out | 1 | D18 offset-current enable; low while `hold` (D24) |
+| `vco_band` | out | 8 | Capacitor-bank code (D20); AFE `vco_band_dec` expands [7:5] to 7 thermometer lines + [4:0] binary (D24) |
 | `vco_bias` | out | 5 | VCO tail-current DAC (D9) |
 | `div_n` | out | 8 | Modulus for the multi-modulus divider, updated each `div_clk` |
 | `div_clk` | in | 1 | Feedback-divider output (clocks the Σ-Δ and the calibration counter) |
@@ -166,6 +167,7 @@ The enable sequencer has to follow the back end's **effective** mode, including 
   - **`en_vco_tail_bp`** — **tail-filter** bypass: high at wake **and** while `cal_busy` (band + amplitude search). Bank/var stay open during search — closing them AC-grounds MIM/varactor plates and collapses Amp `[SCH]`.
   Gates: `vbp` → bank/var NMOS; `vbp_tail` → `mbp_rbf` (`analog/vco/step2/run_step2.py`). Timing: `analog/pll/p26/wake_timing.py`. After cal, both open and the resistors keep filtering for lock.
 - **D22 amplitude search:** `bandcal.sv` runs amp SAR (5 bits) → band SAR → amp touch-up; `afe_seq` asserts `en_vco_tail_bp` from `cal_busy` / `hold`. `VCO_BIAS[4:0]` held; `[5]` target-not-reached; `[7]` manual skips amp. Settle 36 cycles/bit × 10 = 10.0 µs amp + 38.8 µs band ≈ **48.8 µs** cal.
+- **D24 segmented bank + hold offset:** `vco_band_dec.sv` maps `VCO_BAND[7:0]` to 5 binary + 7 thermometer unit enables (each unit = 32 LSB). `afe_seq.en_cp_offset = pll_on & ~hold` so the D18 offset current is off during the V_tune hold; held voltage ≈ VDD/2 (tt 0.577 / ss 0.512 / ff 0.649 V [SCH]).
 - **LO divider enable (D15):** `en_lodiv` rises **48 reference cycles** after `en_vco` (1.33 µs at 36 MHz; after the bias bypass has opened), from the same sequencer. It is pulsed low for the same time and raised again after a write to `BAND` or `VCO_BAND`, and when calibration or lock fails (`PLL_STATUS[2]`, or no `pll_lock` within the lock window), before the next attempt. Reason: a CML divider on during VCO start-up can lock into its free-running state (P2.4 step 2, `spec/lo-divider-topology.md` §8). `AFE_FORCE` can still force it for test.
 - **TX protection / lock loss:** `en_padrv` is held low while `pll_lock` is low or `TX_ATT[7]` is set, so an unlocked LO never reaches the PA. **Requirement (met in AFE/LO control):** lock loss must mute TX immediately — already implemented by gating `en_padrv` on `pll_lock` (this bullet). No extra host action is required for the mute itself; the back end also surfaces `pll_lock` on `INFO[2]` / `IRQ_EN[3]`.
 - **V_tune monitor and temperature re-calibration (host requirements, no on-chip host code):**

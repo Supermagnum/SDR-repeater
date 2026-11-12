@@ -386,3 +386,23 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - D20 nearest landing with corner banks/holds: tt PASS (0.333–0.919 V); ss FAIL
   (0.206–0.860 vs 0.25–0.85); ff FAIL (0.456–0.962 vs 0.25–0.95). Layout blocked.
 - Owner decision open: re-trim at ss85, amend D20 window/hold, or exclude edge channels.
+
+## 2026-11-12 — D24 segmented capacitor bank
+- P2.7.2 gate failed (analog/vco/step3/out/summary_p272_gate.txt): the 127→128 carry is
+  corner-dependent (ratio 1.52 at ss 85 °C, 0.56 at ff −40 °C), so the D20 landing leaves the
+  window at ss (0.206–0.860 V) and ff (up to 0.962 V). A trim at one corner cannot fix both.
+- D24: the 8-bit bank becomes segmented — the 3 MSBs as 7 identical thermometer unit cells
+  (32 LSB each) plus 5 binary LSB cells — with a 3→7 decoder in the AFE digital. 8-bit code,
+  VCO_BAND register and D20 unchanged. Supersedes the "binary" in D8 for the MSBs.
+- The D18 offset current is switched off during the V_tune hold, so the hold voltage sits
+  closer to mid-window.
+- The P2.7.2 gate (all carries at ss 85 °C / ff −40 °C, D20 landing inside the window at every
+  corner) must pass before layout.
+
+## 2026-11-12 — P2.7.2b gate finding (D24 implemented; no layout)
+- D24 bank + offset-off hold implemented. Holds [SCH]: tt 0.577 / ss 0.512 / ff 0.649 V.
+- tt steps: max 0.298 V PASS; 95→96 ratio 0.90 sole miss vs 0.94–1.07.
+- Landing [MODEL] (`summary_p272b_gate.txt`): tt PASS (0.355–0.942 V); **ss FAIL**
+  (max 0.882 vs 0.85); **ff FAIL** (max 0.997 vs 0.95). ss85 127→128 now ratio 1.01.
+- Owner decision open: widen ss/ff high window slightly, host-exclude edge channels, or
+  further bank/hold work. Layout still blocked.

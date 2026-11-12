@@ -1,4 +1,4 @@
-"""Run all AFE/LO RTL tests: python3 run_afe.py  [ONLY=mmd|sdm|lockdet|bandcal|afe_seq|vtune_sync]."""
+"""Run all AFE/LO RTL tests: python3 run_afe.py  [ONLY=mmd|sdm|lockdet|bandcal|afe_seq|vtune_sync|vco_band_dec]."""
 import os
 from pathlib import Path
 
@@ -11,6 +11,7 @@ UNITS = {
     "bandcal": "test_bandcal",
     "afe_seq": "test_afe_seq",
     "vtune_sync": "test_vtune_sync",
+    "vco_band_dec": "test_vco_band_dec",
 }
 
 

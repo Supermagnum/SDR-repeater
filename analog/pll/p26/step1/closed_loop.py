@@ -18,7 +18,7 @@ Blocks, each from its circuit result:
   Loop filter  C1 39 pF || (R1 9.5 kOhm + C2 355 pF), R3 34 kOhm, C3 3.9 pF (P2.2), solved exactly.
   Divider    ref 36 MHz; P = 3 (VHF) / 2 (UHF) from the LO chain; MMD ratio every cycle from the bit-exact
              MASH 1-1-1 model (rtl/afe/sdm.sv); random initial divider phase after the hold is released.
-  Calibration  rtl/afe/bandcal.sv: V_tune held at the step-4 hold voltage (0.568 V tt, 0.498 V ss, 0.641 V ff);
+  Calibration  rtl/afe/bandcal.sv: V_tune held at the step-4 hold voltage (D24 offset-off: 0.577 V tt, 0.512 V ss, 0.649 V ff);
              SAR over 7 bits, prescaler output f/(4P) counted for 128 reference cycles with a random count
              phase; result = highest code whose count is >= the target. Variant 'nearest' (proposal): one more
              trial on the next code (code + 1, the first one below the target) and keep whichever count is
@@ -53,7 +53,8 @@ LF = LF_BUILT if "built" in sys.argv[1:] else LF_NEW
 K_LOG2, SETTLE, SETTLE0 = 7, 16, 64
 T_RST = 0.25e-9
 T_W = 7.4e-9
-CORNERS = {"tt": dict(vhold=0.568, vup=0.95), "ss": dict(vhold=0.498, vup=0.85), "ff": dict(vhold=0.641, vup=0.95)}
+# D24: D18 offset off during hold → divider mid [SCH] step4/out/summary_hold_d24.txt
+CORNERS = {"tt": dict(vhold=0.577, vup=0.95), "ss": dict(vhold=0.512, vup=0.85), "ff": dict(vhold=0.649, vup=0.95)}
 WINDOW = {"tt": (0.25, 0.95), "ss": (0.25, 0.85), "ff": (0.25, 0.95)}
 F_LO, F_HI = 2.90e9, 4.41e9
 

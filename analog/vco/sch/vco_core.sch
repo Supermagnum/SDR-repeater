@@ -47,8 +47,8 @@ C {devices/lab_pin.sym} 240 0 0 0 {name=p8 sig_type=std_logic lab=gnd}
 C {sg13g2_pr/cap_rfcmim.sym} 440 0 0 0 {name=xf1
 model=cap_rfcmim
 lvs_model=rfcmim
-w=1.624600e-05
-l=1.624600e-05
+w=1.600000e-05
+l=1.600000e-05
 wfeed=5.0e-6
 m=1
 mm_ok=1
@@ -63,8 +63,8 @@ C {devices/lab_pin.sym} 410 0 0 0 {name=p11 sig_type=std_logic lab=gnd}
 C {sg13g2_pr/cap_rfcmim.sym} 660 0 0 0 {name=xf2
 model=cap_rfcmim
 lvs_model=rfcmim
-w=1.624600e-05
-l=1.624600e-05
+w=1.600000e-05
+l=1.600000e-05
 wfeed=5.0e-6
 m=1
 mm_ok=1

@@ -1,0 +1,29 @@
+# P2.5 step 4 — bias generator, window delay cell, hold switch
+
+## V_tune hold switch [SCH]
+
+D24: D18 offset current **off** during hold (divider sets ~VDD/2). Loop filter precharged to V0, hold from t0. V_tune = C3 node (VCO side). Error against its final value; first trial: settle 64 reference cycles (1.78 µs), then count 128 cycles (3.56 µs); for comparison the step-2c timing (settle 16 cycles = 0.44 µs). Limit: mean error over the first count ≤ 10 mV.
+
+| Corner | V0 (V) | V_tune held (V) | Error at 0.44 / 1.78 µs (mV) | Mean error over the count, settle 16 / 64 cycles (mV) | Time constant (µs) | Pass (64) |
+|---|---|---|---|---|---|---|
+| tt | 0.00 | 0.577 | 330.8 / 19.1 | 44.5 / 2.5 | 0.67 | yes |
+| tt | 0.25 | 0.577 | 185.4 / 11.8 | 25.8 / 1.6 | 0.67 | yes |
+| tt | 0.95 | 0.577 | 201.5 / 18.6 | 31.5 / 2.7 | 0.66 | yes |
+| tt | 1.20 | 0.577 | 344.4 / 27.7 | 50.7 / 4.0 | 0.66 | yes |
+| ss | 0.00 | 0.512 | 301.7 / 23.3 | 44.9 / 3.7 | 0.71 | yes |
+| ss | 0.25 | 0.512 | 150.4 / 13.7 | 23.8 / 2.3 | 0.70 | yes |
+| ss | 0.95 | 0.512 | 240.7 / 31.9 | 43.1 / 6.8 | 0.68 | yes |
+| ss | 1.08 | 0.512 | 318.2 / 37.4 | 54.0 / 8.0 | 0.68 | yes |
+| ff | 0.00 | 0.649 | 366.3 / 17.6 | 47.0 / 2.0 | 0.66 | yes |
+| ff | 0.25 | 0.649 | 223.9 / 11.3 | 29.3 / 1.3 | 0.66 | yes |
+| ff | 0.95 | 0.649 | 166.0 / 10.0 | 23.2 / 1.2 | 0.67 | yes |
+| ff | 1.32 | 0.649 | 372.6 / 20.8 | 50.2 / 2.4 | 0.66 | yes |
+
+Switch leakage with hold off (both switched nodes held at V, divider off), into the loop filter:
+
+| Corner | 0.25 V (nA) | 0.6 V (nA) | 0.95 V (nA) |
+|---|---|---|---|
+| ff hot | 7.6 | 5.3 | 3.3 |
+| tt | 0.0 | 0.0 | 0.0 |
+| ss | 3.4 | 2.1 | 0.7 |
+

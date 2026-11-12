@@ -176,20 +176,25 @@ def gen_vco_tail_dac():
 
 
 def gen_vco_bank(rng):
+    """D24 segmented bank: 5 binary + 7 thermometer unit cells (or legacy binary)."""
+    S2.apply_range_trims(rng)
+    ncell = S2.n_bank_cells()
     sch = Sch("vco_bank", os.path.join(HERE, "vco_bank.sch"))
     ports = ["tp", "tn", "vbp", "gnd"]
-    for k in range(8):
+    for k in range(ncell):
         ports += [f"g{k}", f"bb{k}"]
     for p in ports:
         sch.iopin(p)
-    sch.title("vco_bank_8bit_trim")
+    title = ("vco_bank_D24_seg" if S2.BANK_ARCH == "d24"
+             else "vco_bank_8bit_trim")
+    sch.title(title)
     lsb = float(rng["lsb"])
-    trim = list(rng["trim"])
-    nbits = int(rng.get("nbits", 8))
-    for k in range(nbits):
-        c_mim = 2 * lsb * (2 ** k) * trim[k]
+    for k in range(ncell):
+        wt = S2.cell_weight(k)
+        tr = S2.cell_trim(k)
+        c_mim = 2 * lsb * wt * tr
         s = side_um(c_mim)
-        w = SW_PER_FF * lsb * (2 ** k) * trim[k]
+        w = SW_PER_FF * lsb * wt * tr
         ng = max(1, int(round(w / 2.5)))
         sch.mim(f"xb{k}p", "tp", f"a{k}", "gnd", f"{s:.3f}u", f"{s:.3f}u")
         sch.mim(f"xb{k}n", "tn", f"b{k}", "gnd", f"{s:.3f}u", f"{s:.3f}u")

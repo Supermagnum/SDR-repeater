@@ -1,13 +1,12 @@
-# summary_xsch_vco
+# P2.7.1 netlist equivalence and VACASK checks
 
-Python equiv (VCO inventory vs step2): FAIL/DIFF
-Python equiv (LDO): FAIL/DIFF
-xschem spice vs inventory: FAIL or spice missing
-VACASK range 0/128/255: FAIL
-VACASK D22 search: True
-VACASK LDO DC: PASS
+## xschem export
 
-o_bank.sch | spice=yes rc=10 | svg=yes | pdf=yes |
+| sch | spice | svg | pdf |
+|---|---|---|---|
+| l2n0.sch | spice=yes rc=10 | svg=yes | pdf=yes |
+| vco_core.sch | spice=yes rc=10 | svg=yes | pdf=yes |
+| vco_bank.sch | spice=yes rc=10 | svg=yes | pdf=yes |
 | vco_var.sch | spice=yes rc=10 | svg=yes | pdf=yes |
 | vco_tail_dac.sch | spice=yes rc=10 | svg=yes | pdf=yes |
 | ampcal_det.sch | spice=yes rc=10 | svg=yes | pdf=yes |
@@ -15,11 +14,64 @@ o_bank.sch | spice=yes rc=10 | svg=yes | pdf=yes |
 | vco_sim_flat.sch | spice=yes rc=10 | svg=yes | pdf=yes |
 
 ## Compare step2 deck vs vco_sim_flat inventory (passive+MOS)
-ref=82 dut=87
+ref=110 dut=115
 DIFF:
+  missing x2: ('mim', (('l', '4.063u'), ('w', '4.063u')))
+  missing x1: ('nmos', (('l', '0.13u'), ('ng', '8'), ('w', '20.63u')))
+  missing x2: ('mim', (('l', '5.746u'), ('w', '5.746u')))
+  missing x1: ('nmos', (('l', '0.13u'), ('ng', '17'), ('w', '41.27u')))
+  missing x2: ('mim', (('l', '8.126u'), ('w', '8.126u')))
+  missing x1: ('nmos', (('l', '0.13u'), ('ng', '33'), ('w', '82.53u')))
+  missing x2: ('mim', (('l', '11.491u'), ('w', '11.491u')))
+  missing x1: ('nmos', (('l', '0.13u'), ('ng', '66'), ('w', '165.07u')))
+  missing x14: ('mim', (('l', '16.251u'), ('w', '16.251u')))
+  missing x7: ('nmos', (('l', '0.13u'), ('ng', '132'), ('w', '330.13u')))
   extra x2: ('res', (('r', '0.814837'),))
   extra x2: ('res', (('r', '0.827877'),))
   extra x1: ('capa', (('c', '2.98589e-14'),))
+  extra x2: ('mim', (('l', '3.982u'), ('w', '3.982u')))
+  extra x1: ('nmos', (('l', '0.13u'), ('ng', '8'), ('w', '19.82u')))
+  extra x2: ('mim', (('l', '5.596u'), ('w', '5.596u')))
+  extra x1: ('nmos', (('l', '0.13u'), ('ng', '16'), ('w', '39.15u')))
+  extra x2: ('mim', (('l', '7.874u'), ('w', '7.874u')))
+  extra x1: ('nmos', (('l', '0.13u'), ('ng', '31'), ('w', '77.5u')))
+  extra x2: ('mim', (('l', '11.122u'), ('w', '11.122u')))
+  extra x1: ('nmos', (('l', '0.13u'), ('ng', '62'), ('w', '154.63u')))
+  extra x14: ('mim', (('l', '15.712u'), ('w', '15.712u')))
+  extra x7: ('nmos', (('l', '0.13u'), ('ng', '123'), ('w', '308.58u')))
+  ms1: params {'w': '20.63u', 'l': '0.13u', 'ng': '8'} vs {'w': '19.82u', 'l': '0.13u', 'ng': '8'}
+  ms10: params {'w': '330.13u', 'l': '0.13u', 'ng': '132'} vs {'w': '308.58u', 'l': '0.13u', 'ng': '123'}
+  ms11: params {'w': '330.13u', 'l': '0.13u', 'ng': '132'} vs {'w': '308.58u', 'l': '0.13u', 'ng': '123'}
+  ms2: params {'w': '41.27u', 'l': '0.13u', 'ng': '17'} vs {'w': '39.15u', 'l': '0.13u', 'ng': '16'}
+  ms3: params {'w': '82.53u', 'l': '0.13u', 'ng': '33'} vs {'w': '77.5u', 'l': '0.13u', 'ng': '31'}
+  ms4: params {'w': '165.07u', 'l': '0.13u', 'ng': '66'} vs {'w': '154.63u', 'l': '0.13u', 'ng': '62'}
+  ms5: params {'w': '330.13u', 'l': '0.13u', 'ng': '132'} vs {'w': '308.58u', 'l': '0.13u', 'ng': '123'}
+  ms6: params {'w': '330.13u', 'l': '0.13u', 'ng': '132'} vs {'w': '308.58u', 'l': '0.13u', 'ng': '123'}
+  ms7: params {'w': '330.13u', 'l': '0.13u', 'ng': '132'} vs {'w': '308.58u', 'l': '0.13u', 'ng': '123'}
+  ms8: params {'w': '330.13u', 'l': '0.13u', 'ng': '132'} vs {'w': '308.58u', 'l': '0.13u', 'ng': '123'}
+  ms9: params {'w': '330.13u', 'l': '0.13u', 'ng': '132'} vs {'w': '308.58u', 'l': '0.13u', 'ng': '123'}
+  xb10n: params {'w': '16.251u', 'l': '16.251u'} vs {'w': '15.712u', 'l': '15.712u'}
+  xb10p: params {'w': '16.251u', 'l': '16.251u'} vs {'w': '15.712u', 'l': '15.712u'}
+  xb11n: params {'w': '16.251u', 'l': '16.251u'} vs {'w': '15.712u', 'l': '15.712u'}
+  xb11p: params {'w': '16.251u', 'l': '16.251u'} vs {'w': '15.712u', 'l': '15.712u'}
+  xb1n: params {'w': '4.063u', 'l': '4.063u'} vs {'w': '3.982u', 'l': '3.982u'}
+  xb1p: params {'w': '4.063u', 'l': '4.063u'} vs {'w': '3.982u', 'l': '3.982u'}
+  xb2n: params {'w': '5.746u', 'l': '5.746u'} vs {'w': '5.596u', 'l': '5.596u'}
+  xb2p: params {'w': '5.746u', 'l': '5.746u'} vs {'w': '5.596u', 'l': '5.596u'}
+  xb3n: params {'w': '8.126u', 'l': '8.126u'} vs {'w': '7.874u', 'l': '7.874u'}
+  xb3p: params {'w': '8.126u', 'l': '8.126u'} vs {'w': '7.874u', 'l': '7.874u'}
+  xb4n: params {'w': '11.491u', 'l': '11.491u'} vs {'w': '11.122u', 'l': '11.122u'}
+  xb4p: params {'w': '11.491u', 'l': '11.491u'} vs {'w': '11.122u', 'l': '11.122u'}
+  xb5n: params {'w': '16.251u', 'l': '16.251u'} vs {'w': '15.712u', 'l': '15.712u'}
+  xb5p: params {'w': '16.251u', 'l': '16.251u'} vs {'w': '15.712u', 'l': '15.712u'}
+  xb6n: params {'w': '16.251u', 'l': '16.251u'} vs {'w': '15.712u', 'l': '15.712u'}
+  xb6p: params {'w': '16.251u', 'l': '16.251u'} vs {'w': '15.712u', 'l': '15.712u'}
+  xb7n: params {'w': '16.251u', 'l': '16.251u'} vs {'w': '15.712u', 'l': '15.712u'}
+  xb7p: params {'w': '16.251u', 'l': '16.251u'} vs {'w': '15.712u', 'l': '15.712u'}
+  xb8n: params {'w': '16.251u', 'l': '16.251u'} vs {'w': '15.712u', 'l': '15.712u'}
+  xb8p: params {'w': '16.251u', 'l': '16.251u'} vs {'w': '15.712u', 'l': '15.712u'}
+  xb9n: params {'w': '16.251u', 'l': '16.251u'} vs {'w': '15.712u', 'l': '15.712u'}
+  xb9p: params {'w': '16.251u', 'l': '16.251u'} vs {'w': '15.712u', 'l': '15.712u'}
 RESULT: FAIL (see diffs; explain or fix)
 
 ### Expected / explained differences
@@ -30,7 +82,7 @@ RESULT: FAIL (see diffs; explain or fix)
 - `gnd` vs `0` net naming.
 
 ## Compare inventory vs xschem spice
-ref=94 dut=93
+ref=122 dut=121
 DIFF:
   missing x1: ('vsrc', (('dc', '0.3'),))
   xv1: nodes ['vgp', 'vt', 'vgn', 'gnd'] vs ['vgp', 'vt', 'vgn', 'sub!']
@@ -46,10 +98,10 @@ Warning: netgen command 'global' use fully-qualified name '::netgen::global'
 netgen P2.7.1 compare
 wrong # args: should be "readnet ?format? file ?filenum?"
     while executing
-"readnet spice {/work/analog/vco/sch/netlists/vco_sim_flat.spice} vco_sim_flat"
-    (file "/work/analog/vco/sch/out/netgen_compare.tcl" line 4)
+"readnet spice {/foss/designs/analog/vco/sch/netlists/vco_sim_flat.spice} vco_sim_flat"
+    (file "/foss/designs/analog/vco/sch/out/netgen_compare.tcl" line 4)
     invoked from within
-"source /work/analog/vco/sch/out/netgen_compare.tcl"
+"source /foss/designs/analog/vco/sch/out/netgen_compare.tcl"
     ("eval" body line 1)
     invoked from within
 "eval $argv"
@@ -68,9 +120,9 @@ RESULT: FAIL (see diffs; explain or fix)
 # P2.7.1 VACASK VCO range from capture-equivalent deck (tt)
 | code | f_ref [SCH] | f_new [SCH] | df% | Amp_ref | Amp_new | dA |
 |---|---|---|---|---|---|---|
-| 0 | 4.4188 GHz | 4.4135 GHz | -0.119 | 1.344 | 1.405 | 0.061 | FAIL |
-| 128 | 3.4300 GHz | 3.4289 GHz | -0.032 | 0.963 | 1.031 | 0.068 | FAIL |
-| 255 | 2.8985 GHz | 2.9000 GHz | 0.053 | 0.772 | 0.844 | 0.072 | FAIL |
+| 0 | 4.4205 GHz | 4.3353 GHz | -1.926 | 1.363 | 1.407 | 0.044 | FAIL |
+| 128 | 3.4325 GHz | 3.3468 GHz | -2.495 | 1.055 | 1.095 | 0.040 | FAIL |
+| 255 | 2.9014 GHz | 2.8235 GHz | -2.684 | 0.841 | 0.878 | 0.037 | FAIL |
 
 Pass criteria: |df|≤0.2 %, |dA|≤0.02 V → FAIL `[SCH]`
 # P2.7.1 D22 search tt 27 top (rerun)
@@ -81,18 +133,18 @@ Decision: v(cmp) > 0.85 V; settle 0.20 µs/step; target 1.25±0.1 V; steady ≤1
 
 | MOS | CAP | T | band | code | Amp | A_est | tnr | Amp_peak | code_1c | Δcode | t_tot (µs) | steady≤1.40 | peak≤1.50 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| mos_tt | cap_typ | 27 | top | 14 | 1.249 | 1.248 | 0 | 1.295 | 14 | 0 | 1.20 | PASS | PASS |
-    bit4 trial=16 keep=0 Amp=1.285 cmp=1.057 cmp_high=1 vsense_high=1
-    bit3 trial=8 keep=1 Amp=1.104 cmp=0.514 cmp_high=0 vsense_high=0
-    bit2 trial=12 keep=1 Amp=1.203 cmp=0.579 cmp_high=0 vsense_high=0
-    bit1 trial=14 keep=1 Amp=1.249 cmp=0.660 cmp_high=0 vsense_high=0
-    bit0 trial=15 keep=0 Amp=1.272 cmp=0.933 cmp_high=1 vsense_high=1
-| mos_tt | cap_typ | 27 | bottom | 31 | 0.969 | 0.993 | 1 | 0.990 | 31 | 0 | 1.20 | PASS | PASS |
-    bit4 trial=16 keep=1 Amp=0.692 cmp=0.409 cmp_high=0 vsense_high=0
-    bit3 trial=24 keep=1 Amp=0.850 cmp=0.421 cmp_high=0 vsense_high=0
-    bit2 trial=28 keep=1 Amp=0.920 cmp=0.434 cmp_high=0 vsense_high=0
-    bit1 trial=30 keep=1 Amp=0.953 cmp=0.442 cmp_high=0 vsense_high=0
-    bit0 trial=31 keep=1 Amp=0.969 cmp=0.446 cmp_high=0 vsense_high=0
+| mos_tt | cap_typ | 27 | top | 14 | 1.254 | 1.251 | 0 | 1.299 | 14 | 0 | 1.20 | PASS | PASS |
+    bit4 trial=16 keep=0 Amp=1.289 cmp=1.074 cmp_high=1 vsense_high=1
+    bit3 trial=8 keep=1 Amp=1.109 cmp=0.517 cmp_high=0 vsense_high=0
+    bit2 trial=12 keep=1 Amp=1.208 cmp=0.584 cmp_high=0 vsense_high=0
+    bit1 trial=14 keep=1 Amp=1.254 cmp=0.686 cmp_high=0 vsense_high=1
+    bit0 trial=15 keep=0 Amp=1.277 cmp=0.982 cmp_high=1 vsense_high=1
+| mos_tt | cap_typ | 27 | bottom | 31 | 1.000 | 1.018 | 1 | 1.022 | 31 | 0 | 1.20 | PASS | PASS |
+    bit4 trial=16 keep=1 Amp=0.724 cmp=0.410 cmp_high=0 vsense_high=0
+    bit3 trial=24 keep=1 Amp=0.882 cmp=0.427 cmp_high=0 vsense_high=0
+    bit2 trial=28 keep=1 Amp=0.952 cmp=0.442 cmp_high=0 vsense_high=0
+    bit1 trial=30 keep=1 Amp=0.984 cmp=0.452 cmp_high=0 vsense_high=0
+    bit0 trial=31 keep=1 Amp=1.000 cmp=0.457 cmp_high=0 vsense_high=0
 
 Steady ≤ 1.4 V and peak ≤ 1.5 V all cases: PASS `[SCH]`
 

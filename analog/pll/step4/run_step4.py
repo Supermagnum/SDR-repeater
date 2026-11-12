@@ -324,8 +324,12 @@ LF = (dict(C1=39e-12, C2=355e-12, R1=9.5e3, R3=34e3, C3=3.9e-12) if "lf22" in AR
       else dict(C1=30.8e-12, C2=465.2e-12, R1=22.9e3, R3=107.8e3, C3=3.08e-12))
 
 
-def hold_net(vdd, v0=None, t0=0.5e-6, held=True, vfix=None):
-    """Loop filter (n1 = CP output, n2 = C2 node, n3 = V_tune at the VCO) with the hold switches and divider."""
+def hold_net(vdd, v0=None, t0=0.5e-6, held=True, vfix=None, offset_on=False):
+    """Loop filter (n1 = CP output, n2 = C2 node, n3 = V_tune at the VCO) with the hold switches and divider.
+
+    D24: offset_on=False by default — D18 offset is switched off during V_tune hold so the
+    held voltage sits at the divider mid (~VDD/2) rather than being pulled by I_off.
+    """
     # first run: the supply source was missing (divider top switch and inverter unpowered, V_tune held at 0)
     s = f"vdd (vdd 0) vsource dc={vdd}\n"
     s += (f"c1 (n1 0) capacitor c={LF['C1']:.4e}\nr1 (n1 n2) resistor r={LF['R1']:.1f}\n"
@@ -333,8 +337,9 @@ def hold_net(vdd, v0=None, t0=0.5e-6, held=True, vfix=None):
          f"c3 (n3 0) capacitor c={LF['C3']:.4e}\n" if vfix is None else "")
     if vfix is not None:      # DC leakage check: both switched nodes held, current probed
         s += f"vn1 (n1 0) vsource dc={vfix}\nvn2 (n2 0) vsource dc={vfix}\n"
-    else:
-        s += "ioff (n1 0) isource dc=1e-5\n"                              # D18 offset sink, on during hold
+    elif offset_on:
+        s += "ioff (n1 0) isource dc=1e-5\n"                              # legacy: D18 on during hold
+    # else D24: no offset sink while holding
     if v0 is not None:
         s += (f"vpre (pre 0) vsource dc={v0}\nmodel tswp tsw t0={t0:.3e} ron=10 roff=1e12\n"
               "xp1 (n1 pre) tswp\nxp2 (n2 pre) tswp\nxp3 (n3 pre) tswp\n")
@@ -351,7 +356,8 @@ def hold_net(vdd, v0=None, t0=0.5e-6, held=True, vfix=None):
 
 def check_hold():
     print("## V_tune hold switch [SCH]\n")
-    print("Loop filter precharged to V0, hold from t0. V_tune = C3 node (VCO side). Error against its final value; "
+    print("D24: D18 offset current **off** during hold (divider sets ~VDD/2). "
+          "Loop filter precharged to V0, hold from t0. V_tune = C3 node (VCO side). Error against its final value; "
           "first trial: settle 64 reference cycles (1.78 µs), then count 128 cycles (3.56 µs); for comparison the "
           "step-2c timing (settle 16 cycles = 0.44 µs). Limit: mean error over the first count ≤ 10 mV.\n")
     print("| Corner | V0 (V) | V_tune held (V) | Error at 0.44 / 1.78 µs (mV) | Mean error over the count, settle 16 / 64 "

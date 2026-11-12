@@ -15,8 +15,9 @@ Circuit (generated netlist out/vco_*.sim):
   core      LV NMOS cross-coupled pair, 32/0.13 um each
   tail      LV NMOS 160/4 um, mirror 1:8 from an ideal reference, RC filter 1 MOhm / 50 pF on the bias (D9),
             tail capacitor 8 pF (D9); start-up NMOS bypass across rbf (gate vbp)
-  bank      8 bits (D20; 7 in P2.3), binary; per bit two cap_rfcmim (bottom plate to the switch) and an LV NMOS switch,
-            about 100 um of switch per 60 fF, 2 MOhm bias resistors; NMOS bypass across each (gate vbp)
+  bank      8 bits (D20/D24): 5 binary LSB cells + 7 identical thermometer units (32 LSB each); per cell two
+            cap_rfcmim (bottom plate to the switch) and an LV NMOS switch, about 100 um of switch per 60 fF,
+            2 MOhm bias resistors; NMOS bypass across each (gate vbp). Code maps as the AFE 3→7 decoder.
   varactor  AC-coupled (D11): 17 fingers of sg13_hv_svaricap (local _fx copy, step 1) behind cap_rfcmim
             coupling capacitors of about 5x, gates biased to 0.3 V through 2 MOhm, well = V_tune;
             NMOS bypass across rvp/rvn (gate vbp)
@@ -56,9 +57,17 @@ V_OX = 1.5           # oxide limit with 10 % margin (step 1)
 
 NBITS = next((int(a[5:]) for a in sys.argv[1:] if a.startswith("bits=")), 8)   # D20: 8 bits (D8: 7)
 CMAX = (1 << NBITS) - 1
+# D24 segmented bank (default for 8 bits): 5 binary LSBs + 7 thermo units of 32 LSB.
+N_BIN = 5
+N_THERMO = 7
+N_CELLS = N_BIN + N_THERMO          # 12 physical cells
+UNIT_W = 1 << N_BIN                  # 32 LSB per thermometer unit
 LSB_FF = 7.5 / 2 ** (NBITS - 7)   # differential on-capacitance of the LSB, fF; resized by size()
 C_FIX_FF = 0.0       # extra fixed differential capacitance, fF; set by size()
-TRIM = [1.0] * 16    # per-bit size factor (MIM and switch), set by trim(): equal band steps at the carries
+TRIM = [1.0] * 16    # legacy flat trim (binary-only / old loaders)
+TRIM_BIN = [1.0] * N_BIN             # D24: per binary bit
+TRIM_UNIT = 1.0                      # D24: common trim for all thermometer units
+BANK_ARCH = "d24" if NBITS >= 8 else "binary"
 NFING = 20           # varactor fingers (two instances of nx = NFING / 2)
 C_TOP_FF = 762.0     # wanted total at code 0 (4.37 GHz with L + 3 %, tank_budget.py)
 C_SWITCH_FF = 1003.0  # wanted switched range: 955 fF (3.00 GHz with L - 3 %) + 5 % (P2.3 review 2026-10-20:
@@ -118,26 +127,57 @@ def side(c_ff):
 # Reference extract is MSB size (w=5u ng=2); linear mode is legacy / abandoned for PSS.
 BANK_OFF = dict(roff=6.185e6, c_ds=3.25e-15, c_db=0.0, c_sb=1.34e-15, r_shot=1.714e6)
 
-# P2.7.1c: bank bypass width tracks bit weight. MSB keeps the wake-qualified size
-# (w=5u ng=2). PDK LV NMOS finger minW = 0.15 µm (sg13g2_tech.json nmos_minW;
-# xschem sg13_lv_nmos.sym default w). In IHP, w is total drawn width.
-BANK_BP_W_MSB = 5.0       # µm; bit 7
+# P2.7.1c / D24: bank bypass width tracks cell weight in LSB units.
+# Weight 128 (old MSB / 4 thermo units) keeps the wake-qualified size (w=5u ng=2).
+# PDK LV NMOS finger minW = 0.15 µm (sg13g2_tech.json nmos_minW).
+BANK_BP_W_MSB = 5.0       # µm; weight 128
 BANK_BP_W_MIN = 0.15      # µm; PDK nmos_minW
 BANK_BP_L = 0.13          # µm
 BANK_BP_NG_MSB = 2
+BANK_BP_W_REF = 128.0     # LSB units corresponding to BANK_BP_W_MSB
 
 
-def bank_bypass_geom(k):
-    """(w_um, l_um, ng) for bank bypass on bit k. W_k = max(W_min, W_MSB × 2^(k−7))."""
-    w = max(BANK_BP_W_MIN, BANK_BP_W_MSB * (2.0 ** (k - 7)))
-    if k >= 7:
+def cell_weight(i):
+    """On-capacitance weight of physical cell i, in LSB units."""
+    if BANK_ARCH == "d24":
+        return (1 << i) if i < N_BIN else UNIT_W
+    return 1 << i
+
+
+def cell_trim(i):
+    if BANK_ARCH == "d24":
+        return TRIM_BIN[i] if i < N_BIN else TRIM_UNIT
+    return TRIM[i]
+
+
+def cell_on(code, i):
+    """Whether physical cell i is on for the 8-bit (or NBITS) logical code."""
+    if BANK_ARCH == "d24":
+        if i < N_BIN:
+            return (code >> i) & 1
+        return 1 if (i - N_BIN) < ((code >> N_BIN) & 0x7) else 0
+    return (code >> i) & 1
+
+
+def n_bank_cells():
+    return N_CELLS if BANK_ARCH == "d24" else NBITS
+
+
+def bank_bypass_geom_w(weight):
+    """(w_um, l_um, ng) for a bypass whose plate weight is `weight` LSB units."""
+    w = max(BANK_BP_W_MIN, BANK_BP_W_MSB * (float(weight) / BANK_BP_W_REF))
+    if weight >= BANK_BP_W_REF - 0.5:
         ng = BANK_BP_NG_MSB
     elif w >= 2 * BANK_BP_W_MIN:
-        # Keep two fingers when each finger can meet Wmin (w is total width).
         ng = 2
     else:
         ng = 1
     return w, BANK_BP_L, ng
+
+
+def bank_bypass_geom(k):
+    """(w_um, l_um, ng) for physical cell k (D24) or legacy binary bit k."""
+    return bank_bypass_geom_w(cell_weight(k))
 
 
 def bias_bypass_bank_linear(nbits=None, p=None):
@@ -146,11 +186,11 @@ def bias_bypass_bank_linear(nbits=None, p=None):
     R_shot (noisy) is placed in parallel with R_off (noiseless): DC ≈ R_off∥R_shot.
     No series blocking C — a 100 pF coupler from the tank plate aborted the warm transient.
     """
-    nbits = NBITS if nbits is None else nbits
+    ncell = n_bank_cells() if nbits is None else nbits
     p = dict(BANK_OFF if p is None else p)
     lines = ["// off-state bank bypass linear equivalent (PSS / PEX PN)\n"]
     for side, node in (("a", "a"), ("b", "b")):
-        for k in range(nbits):
+        for k in range(ncell):
             n, bb = f"{node}{k}", f"bb{k}"
             tag = f"{side}{k}"
             lines.append(
@@ -174,15 +214,13 @@ def bias_bypass_switches(nbits=None, groups=("tail", "bank", "var"), bank_mode="
 
     groups: which switches to instantiate. bank_mode: \"mos\" (schematic) or \"linear\"
     (off-state C_j / R_off / leakage-noise equivalent for PSS and post-layout PN).
-    Bank MOS widths are binary-weighted (P2.7.1c); var/tail unchanged.
+    Bank MOS widths track cell weight (P2.7.1c / D24); var/tail unchanged.
     """
-    nbits = NBITS if nbits is None else nbits
-    # Tail filter is off the tank: large switch (~1 kOhm). Bank/varactor nodes touch the tank:
-    # smaller switches to limit off-state capacitance (bypass time covers their RC).
+    ncell = n_bank_cells() if nbits is None else nbits
     lines = [
         f"// bias bypass groups={','.join(groups)} bank_mode={bank_mode}; "
-        f"tail_gate={tail_gate} all_gate={all_gate}; bank binary W "
-        f"(MSB {BANK_BP_W_MSB:g}u ng={BANK_BP_NG_MSB}, floor {BANK_BP_W_MIN:g}u)\n"
+        f"tail_gate={tail_gate} all_gate={all_gate}; bank {BANK_ARCH} W "
+        f"(ref {BANK_BP_W_MSB:g}u @ weight {BANK_BP_W_REF:g}, floor {BANK_BP_W_MIN:g}u)\n"
     ]
     if "tail" in groups:
         lines.append(
@@ -190,9 +228,9 @@ def bias_bypass_switches(nbits=None, groups=("tail", "bank", "var"), bank_mode="
         )
     if "bank" in groups:
         if bank_mode == "linear":
-            lines.append(bias_bypass_bank_linear(nbits))
+            lines.append(bias_bypass_bank_linear(ncell))
         else:
-            for k in range(nbits):
+            for k in range(ncell):
                 w, l, ng = bank_bypass_geom(k)
                 lines.append(
                     f"mbp_rba{k} (a{k} {all_gate} bb{k} 0) sg13_lv_nmos "
@@ -237,12 +275,14 @@ def netlist(title, code, vtune, analysis, itail=ITAIL, extra="", drive_vbp=False
              "mr (nb nb 0 0) sg13_lv_nmos w=20u l=4u ng=4\n"
              f"iref (vdd nb) isource dc={itail / 8:.6g}\n")
     rflag = "noisy=1" if bank_r_noisy else "noisy=0"
-    for k in range(NBITS):
-        c_mim = 2 * LSB_FF * 2 ** k * TRIM[k]            # each MIM is twice the differential value
+    for k in range(n_bank_cells()):
+        wt = cell_weight(k)
+        tr = cell_trim(k)
+        c_mim = 2 * LSB_FF * wt * tr                     # each MIM is twice the differential value
         s = side(c_mim)
-        w = SW_PER_FF * LSB_FF * 2 ** k * TRIM[k]
+        w = SW_PER_FF * LSB_FF * wt * tr
         ng = max(1, int(round(w / 2.5)))
-        on = (code >> k) & 1
+        on = cell_on(code, k)
         n.append(f"xb{k}p (tp a{k} 0) cap_rfcmim w={s:.3f}u l={s:.3f}u\n"
                  f"xb{k}n (tn b{k} 0) cap_rfcmim w={s:.3f}u l={s:.3f}u\n"
                  f"ms{k} (a{k} g{k} b{k} 0) sg13_lv_nmos w={w:.2f}u l=0.13u ng={ng}\n"
@@ -360,25 +400,67 @@ def size(passes=2):
 
 
 def trim(passes=2):
-    """D20 first run (2026-10-25): with plain binary sizing the band step at the carries grew towards the MSB
-    (127 -> 128: about 2.8 x a normal step, 0.72 V of V_tune), because small cells switch relatively less
-    capacitance (perimeter and switch parasitics in the off state do not scale with the cell). Each bit k is
-    therefore trimmed so that the step at the carry (2^k - 1 -> 2^k) equals the mean of the single-LSB steps
-    beside it; bits are done from the bottom up, since a bit's error shows in all higher carries."""
-    print("## Bank trim (equal steps at the carries)\n")
+    """Equalise band steps at carries.
+
+    D24: trim binary bits 1..4 at their carries, then one common thermometer-unit trim at 31->32.
+    Legacy binary: each bit 1..NBITS-1 bottom-up (D20).
+    """
+    global TRIM_UNIT
+    print(f"## Bank trim ({BANK_ARCH}, equal steps at the carries)\n")
     lsb_sw = C_SWITCH_FF / CMAX
     for p in range(passes):
         rows = []
-        for k in range(1, NBITS):
-            c = 1 << k
-            f = {x: tran(x, VTUNE_MID, f"trim{p}_c{x}")["f"] for x in (c - 2, c - 1, c, c + 1)}
+        if BANK_ARCH == "d24":
+            targets = [(f"bin{k}", 1 << k, 1 << k, "bin", k) for k in range(1, N_BIN)]
+            targets.append(("unit", UNIT_W, UNIT_W, "unit", None))
+        else:
+            targets = [(f"bit{k}", 1 << k, 1 << k, "leg", k) for k in range(1, NBITS)]
+        for label, c, weight, kind, idx in targets:
+            f = {x: tran(x, VTUNE_MID, f"trim{p}_{label}_c{x}")["f"]
+                 for x in (c - 2, c - 1, c, c + 1)}
             carry = f[c - 1] - f[c]
             lsb = 0.5 * ((f[c - 2] - f[c - 1]) + (f[c] - f[c + 1]))
-            dc = (carry - lsb) * 2 * c_of(f[c]) / f[c]          # excess switched capacitance of bit k, fF
-            old = TRIM[k]
-            TRIM[k] = old - dc / (c * lsb_sw)                   # bit k switches about TRIM[k] c lsb_sw
-            rows.append(f"bit {k}: carry {carry/1e6:.2f} / LSB {lsb/1e6:.2f} MHz -> trim {old:.4f} -> {TRIM[k]:.4f}")
+            dc = (carry - lsb) * 2 * c_of(f[c]) / f[c]
+            if kind == "bin":
+                old = TRIM_BIN[idx]
+                TRIM_BIN[idx] = old - dc / (weight * lsb_sw)
+                newv = TRIM_BIN[idx]
+            elif kind == "unit":
+                old = TRIM_UNIT
+                TRIM_UNIT = old - dc / (weight * lsb_sw)
+                newv = TRIM_UNIT
+            else:
+                old = TRIM[idx]
+                TRIM[idx] = old - dc / (weight * lsb_sw)
+                newv = TRIM[idx]
+            rows.append(
+                f"{label}: carry {carry/1e6:.2f} / LSB {lsb/1e6:.2f} MHz "
+                f"-> trim {old:.4f} -> {newv:.4f}")
         print(f"pass {p+1}: " + "; ".join(rows) + "\n")
+
+
+def apply_range_trims(r):
+    """Load trim fields from range.json into module globals."""
+    global TRIM_UNIT, BANK_ARCH
+    arch = r.get("bank_arch", "binary")
+    if arch == "d24" or "trim_unit" in r:
+        BANK_ARCH = "d24"
+        tb = r.get("trim_bin", r.get("trim", [1.0] * N_BIN)[:N_BIN])
+        TRIM_BIN[:len(tb)] = tb
+        TRIM_UNIT = float(r.get("trim_unit", 1.0))
+        TRIM[:N_BIN] = TRIM_BIN
+        for i in range(N_BIN, N_CELLS):
+            TRIM[i] = TRIM_UNIT
+    else:
+        BANK_ARCH = "binary"
+        TRIM[:len(r.get("trim", []))] = r.get("trim", [])
+
+
+def range_trim_dict():
+    if BANK_ARCH == "d24":
+        return dict(bank_arch="d24", trim_bin=list(TRIM_BIN), trim_unit=TRIM_UNIT,
+                    trim=list(TRIM_BIN) + [TRIM_UNIT] * N_THERMO)
+    return dict(bank_arch="binary", trim=TRIM[:NBITS])
 
 
 def do_range():
@@ -431,9 +513,10 @@ def do_range():
         print("\nTail current per band for about 1.3 V (VCO_BIAS): " + ", ".join(
             f"code {c}: {min(I_MAX, ITAIL * A_TARGET / res[f'{c},{VTUNE_MID}']['amp'])*1e3:.1f} mA"
             for c in CODES if f"{c},{VTUNE_MID}" in res))
-        json.dump(dict(code=code, vtune=VTUNE_MID, f=m2["f"], itail=itail, lsb=LSB_FF, cfix=C_FIX_FF, nbits=NBITS,
-                       trim=TRIM[:NBITS],
-                       nfing=NFING, meas=res), open(os.path.join(OUT, "range.json"), "w"), indent=1)
+        payload = dict(code=code, vtune=VTUNE_MID, f=m2["f"], itail=itail, lsb=LSB_FF, cfix=C_FIX_FF,
+                       nbits=NBITS, nfing=NFING, meas=res, n_cells=n_bank_cells())
+        payload.update(range_trim_dict())
+        json.dump(payload, open(os.path.join(OUT, "range.json"), "w"), indent=1)
 
 
 CODES = [0] + [round(k * (CMAX + 1) / 4) for k in (1, 2, 3)] + [CMAX]
@@ -449,7 +532,7 @@ def do_steps():
         sys.exit("out/range.json missing: run 'python3 run_step2.py range' first")
     r = json.load(open(rj))
     LSB_FF, C_FIX_FF, NFING = r["lsb"], r["cfix"], r["nfing"]
-    TRIM[:len(r.get("trim", []))] = r.get("trim", [])
+    apply_range_trims(r)
     meas = r["meas"]
     kv = {}
     for c in CODES:
@@ -459,8 +542,13 @@ def do_steps():
     print(f"\n## Band steps ({NBITS}-bit bank, V_tune {VTUNE_MID} V)\n")
     print("| Codes | f (GHz) | Step (MHz) | Step / mean step nearby | KVCO (MHz/V) | Step in V_tune (V) |")
     print("|---|---|---|---|---|---|")
-    pairs = [(0, 1), (1, 2)] + [((1 << k) - 1, 1 << k) for k in range(1, NBITS)]
-    pairs += [((3 << (NBITS - 2)) - 1, 3 << (NBITS - 2)), (CMAX - 2, CMAX - 1), (CMAX - 1, CMAX)]
+    if BANK_ARCH == "d24":
+        pairs = [(0, 1), (1, 2)] + [((1 << k) - 1, 1 << k) for k in range(1, N_BIN)]
+        pairs += [(UNIT_W * u - 1, UNIT_W * u) for u in range(1, N_THERMO + 1)]
+        pairs += [(CMAX - 2, CMAX - 1), (CMAX - 1, CMAX)]
+    else:
+        pairs = [(0, 1), (1, 2)] + [((1 << k) - 1, 1 << k) for k in range(1, NBITS)]
+        pairs += [((3 << (NBITS - 2)) - 1, 3 << (NBITS - 2)), (CMAX - 2, CMAX - 1), (CMAX - 1, CMAX)]
     pairs = sorted(set(pairs))
     worst = 0.0
     for c0, c1 in pairs:
@@ -486,7 +574,7 @@ def do_pn():
     global LSB_FF, C_FIX_FF, NFING
     r = json.load(open(rj))
     code, vt, f0 = r["code"], r["vtune"], r["f"]
-    TRIM[:len(r.get("trim", []))] = r.get("trim", [])
+    apply_range_trims(r)
     LSB_FF, C_FIX_FF, NFING, itail = r.get("lsb", LSB_FF), r.get("cfix", C_FIX_FF), r.get("nfing", NFING), \
         r.get("itail", ITAIL)
     vals = ", ".join(f"{x:.0f}" for x in OFFSETS)

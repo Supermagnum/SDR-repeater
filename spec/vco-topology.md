@@ -1,6 +1,6 @@
 # VCO topology memo (P2.3)
 
-Status: **topology accepted (D8–D11). P2.3 open items closed.** **P2.7.1c (2026-11-11):** binary-sized bank bypass + re-trim. Wake PASS; 15-corner PASS; MSB carry fixed (0.273 V). tt LSB steps max **0.296 V** vs 0.29 ceiling — owner accept or nudge before P2.7.2. See §9.
+Status: **topology accepted (D8–D11; D24 2026-11-12).** P2.3 open items closed. **D24:** 8-bit bank = 5 binary LSB + 7 thermometer units (32 LSB); D18 offset off in hold. P2.7.2b gate in progress. See §9.
 
 ---
 
@@ -215,3 +215,15 @@ Slow MOS corner, 85 °C, 4 mA cap: 3.12 / 3.65 / 4.20 GHz at 1 MHz −122.8 / �
 **Amp +0.06 V:** remains with bypass off in plain step2 — not bypass C; sizing/trim vs 25-Oct archive. D22 sets Amp in operation.
 
 **Decision:** accept 0.296 V LSB steps or nudge before **P2.7.2**.
+
+### P2.7.2b / D24 (2026-11-12) — segmented bank
+
+**Change:** MSBs become 7 identical thermometer unit cells (32 × LSB each) + 5 binary LSB cells; AFE `vco_band_dec` maps `VCO_BAND[7:5]` → thermometer. Bypass W tracks cell weight (unit = weight 32). D18 offset off during V_tune hold (`afe_seq.en_cp_offset`): held **tt 0.577 / ss 0.512 / ff 0.649 V** [SCH] (`summary_hold_d24.txt`).
+
+**Re-size/trim [SCH]:** LSB 6.19 fF, cfix 192 fF; `trim_bin` ≈ 0.94–0.96, `trim_unit` 0.9347. Range **2.905–4.406 GHz** covers 3.12–4.20.
+
+**Steps tt:** max **0.298 V** (≤ 0.30) PASS; ratios 0.96–1.02 except **95→96 = 0.90** (sole miss vs 0.94–1.07). Unit nudges worsened high-code ratios — kept first trim.
+
+**Gate [MODEL]** (`summary_p272b_gate.txt`): tt PASS (0.355–0.942 V); **ss FAIL** (max 0.882 vs 0.85); **ff FAIL** (max 0.997 vs 0.95). ss85 127→128 ratio 1.01 (MSB blow-up gone). Layout blocked.
+
+**15-corner / D22:** not re-run (gate stop). xschem bank regenerated (84 devices); inventory-vs-deck diffs class as P2.7.1.

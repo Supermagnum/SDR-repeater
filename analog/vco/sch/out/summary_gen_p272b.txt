@@ -1,0 +1,18 @@
+Generated cells: l2n0, vco_core, vco_tail_dac, vco_bank, vco_var, ampcal_det, vrana1_ldo + vco_sim_flat
+Devices in vco_sim_flat: 122
+  l2n0: 9 devices
+  vco_core: 5 devices
+  vco_tail_dac: 30 devices
+  vco_bank: 84 devices
+  vco_var: 9 devices
+  ampcal_det: 20 devices
+  vrana1_ldo: 13 devices
+# summary_xsch_vco
+
+Python equiv (VCO inventory vs step2): FAIL/DIFF
+Python equiv (LDO): FAIL/DIFF
+xschem spice vs inventory: FAIL or spice missing
+VACASK range 0/128/255: FAIL
+VACASK D22 search: True
+VACASK LDO DC: PASS
+

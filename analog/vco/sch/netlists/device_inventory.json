@@ -142,8 +142,8 @@
         "gnd"
       ],
       "params": {
-        "w": "16.246u",
-        "l": "16.246u",
+        "w": "16.000u",
+        "l": "16.000u",
         "model": "cap_rfcmim"
       }
     },
@@ -156,8 +156,8 @@
         "gnd"
       ],
       "params": {
-        "w": "16.246u",
-        "l": "16.246u",
+        "w": "16.000u",
+        "l": "16.000u",
         "model": "cap_rfcmim"
       }
     },
@@ -615,8 +615,8 @@
         "gnd"
       ],
       "params": {
-        "w": "2.870u",
-        "l": "2.870u",
+        "w": "2.873u",
+        "l": "2.873u",
         "model": "cap_rfcmim"
       }
     },
@@ -629,8 +629,8 @@
         "gnd"
       ],
       "params": {
-        "w": "2.870u",
-        "l": "2.870u",
+        "w": "2.873u",
+        "l": "2.873u",
         "model": "cap_rfcmim"
       }
     },
@@ -644,7 +644,7 @@
         "gnd"
       ],
       "params": {
-        "w": "10.30u",
+        "w": "10.32u",
         "l": "0.13u",
         "ng": "4",
         "model": "sg13_lv_nmos"
@@ -713,8 +713,8 @@
         "gnd"
       ],
       "params": {
-        "w": "3.996u",
-        "l": "3.996u",
+        "w": "3.982u",
+        "l": "3.982u",
         "model": "cap_rfcmim"
       }
     },
@@ -727,8 +727,8 @@
         "gnd"
       ],
       "params": {
-        "w": "3.996u",
-        "l": "3.996u",
+        "w": "3.982u",
+        "l": "3.982u",
         "model": "cap_rfcmim"
       }
     },
@@ -742,7 +742,7 @@
         "gnd"
       ],
       "params": {
-        "w": "19.96u",
+        "w": "19.82u",
         "l": "0.13u",
         "ng": "8",
         "model": "sg13_lv_nmos"
@@ -811,8 +811,8 @@
         "gnd"
       ],
       "params": {
-        "w": "5.601u",
-        "l": "5.601u",
+        "w": "5.596u",
+        "l": "5.596u",
         "model": "cap_rfcmim"
       }
     },
@@ -825,8 +825,8 @@
         "gnd"
       ],
       "params": {
-        "w": "5.601u",
-        "l": "5.601u",
+        "w": "5.596u",
+        "l": "5.596u",
         "model": "cap_rfcmim"
       }
     },
@@ -840,7 +840,7 @@
         "gnd"
       ],
       "params": {
-        "w": "39.22u",
+        "w": "39.15u",
         "l": "0.13u",
         "ng": "16",
         "model": "sg13_lv_nmos"
@@ -909,8 +909,8 @@
         "gnd"
       ],
       "params": {
-        "w": "7.891u",
-        "l": "7.891u",
+        "w": "7.874u",
+        "l": "7.874u",
         "model": "cap_rfcmim"
       }
     },
@@ -923,8 +923,8 @@
         "gnd"
       ],
       "params": {
-        "w": "7.891u",
-        "l": "7.891u",
+        "w": "7.874u",
+        "l": "7.874u",
         "model": "cap_rfcmim"
       }
     },
@@ -938,7 +938,7 @@
         "gnd"
       ],
       "params": {
-        "w": "77.84u",
+        "w": "77.50u",
         "l": "0.13u",
         "ng": "31",
         "model": "sg13_lv_nmos"
@@ -1007,8 +1007,8 @@
         "gnd"
       ],
       "params": {
-        "w": "11.134u",
-        "l": "11.134u",
+        "w": "11.122u",
+        "l": "11.122u",
         "model": "cap_rfcmim"
       }
     },
@@ -1021,8 +1021,8 @@
         "gnd"
       ],
       "params": {
-        "w": "11.134u",
-        "l": "11.134u",
+        "w": "11.122u",
+        "l": "11.122u",
         "model": "cap_rfcmim"
       }
     },
@@ -1036,7 +1036,7 @@
         "gnd"
       ],
       "params": {
-        "w": "154.96u",
+        "w": "154.63u",
         "l": "0.13u",
         "ng": "62",
         "model": "sg13_lv_nmos"
@@ -1105,8 +1105,8 @@
         "gnd"
       ],
       "params": {
-        "w": "15.733u",
-        "l": "15.733u",
+        "w": "15.712u",
+        "l": "15.712u",
         "model": "cap_rfcmim"
       }
     },
@@ -1119,8 +1119,8 @@
         "gnd"
       ],
       "params": {
-        "w": "15.733u",
-        "l": "15.733u",
+        "w": "15.712u",
+        "l": "15.712u",
         "model": "cap_rfcmim"
       }
     },
@@ -1134,9 +1134,9 @@
         "gnd"
       ],
       "params": {
-        "w": "309.41u",
+        "w": "308.58u",
         "l": "0.13u",
-        "ng": "124",
+        "ng": "123",
         "model": "sg13_lv_nmos"
       }
     },
@@ -1203,8 +1203,8 @@
         "gnd"
       ],
       "params": {
-        "w": "22.204u",
-        "l": "22.204u",
+        "w": "15.712u",
+        "l": "15.712u",
         "model": "cap_rfcmim"
       }
     },
@@ -1217,8 +1217,8 @@
         "gnd"
       ],
       "params": {
-        "w": "22.204u",
-        "l": "22.204u",
+        "w": "15.712u",
+        "l": "15.712u",
         "model": "cap_rfcmim"
       }
     },
@@ -1232,9 +1232,9 @@
         "gnd"
       ],
       "params": {
-        "w": "616.27u",
+        "w": "308.58u",
         "l": "0.13u",
-        "ng": "247",
+        "ng": "123",
         "model": "sg13_lv_nmos"
       }
     },
@@ -1270,7 +1270,7 @@
         "gnd"
       ],
       "params": {
-        "w": "2.5u",
+        "w": "1.25u",
         "l": "0.13u",
         "ng": "2",
         "model": "sg13_lv_nmos"
@@ -1286,7 +1286,7 @@
         "gnd"
       ],
       "params": {
-        "w": "2.5u",
+        "w": "1.25u",
         "l": "0.13u",
         "ng": "2",
         "model": "sg13_lv_nmos"
@@ -1301,8 +1301,8 @@
         "gnd"
       ],
       "params": {
-        "w": "31.264u",
-        "l": "31.264u",
+        "w": "15.712u",
+        "l": "15.712u",
         "model": "cap_rfcmim"
       }
     },
@@ -1315,8 +1315,8 @@
         "gnd"
       ],
       "params": {
-        "w": "31.264u",
-        "l": "31.264u",
+        "w": "15.712u",
+        "l": "15.712u",
         "model": "cap_rfcmim"
       }
     },
@@ -1330,9 +1330,9 @@
         "gnd"
       ],
       "params": {
-        "w": "1221.83u",
+        "w": "308.58u",
         "l": "0.13u",
-        "ng": "489",
+        "ng": "123",
         "model": "sg13_lv_nmos"
       }
     },
@@ -1368,7 +1368,7 @@
         "gnd"
       ],
       "params": {
-        "w": "5u",
+        "w": "1.25u",
         "l": "0.13u",
         "ng": "2",
         "model": "sg13_lv_nmos"
@@ -1384,7 +1384,399 @@
         "gnd"
       ],
       "params": {
-        "w": "5u",
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb8p",
+      "nodes": [
+        "tp",
+        "a8",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb8n",
+      "nodes": [
+        "tn",
+        "b8",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "ms8",
+      "nodes": [
+        "a8",
+        "g8",
+        "b8",
+        "gnd"
+      ],
+      "params": {
+        "w": "308.58u",
+        "l": "0.13u",
+        "ng": "123",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rba8",
+      "nodes": [
+        "a8",
+        "bb8"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rbb8",
+      "nodes": [
+        "b8",
+        "bb8"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rba8",
+      "nodes": [
+        "a8",
+        "vbp",
+        "bb8",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rbb8",
+      "nodes": [
+        "b8",
+        "vbp",
+        "bb8",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb9p",
+      "nodes": [
+        "tp",
+        "a9",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb9n",
+      "nodes": [
+        "tn",
+        "b9",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "ms9",
+      "nodes": [
+        "a9",
+        "g9",
+        "b9",
+        "gnd"
+      ],
+      "params": {
+        "w": "308.58u",
+        "l": "0.13u",
+        "ng": "123",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rba9",
+      "nodes": [
+        "a9",
+        "bb9"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rbb9",
+      "nodes": [
+        "b9",
+        "bb9"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rba9",
+      "nodes": [
+        "a9",
+        "vbp",
+        "bb9",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rbb9",
+      "nodes": [
+        "b9",
+        "vbp",
+        "bb9",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb10p",
+      "nodes": [
+        "tp",
+        "a10",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb10n",
+      "nodes": [
+        "tn",
+        "b10",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "ms10",
+      "nodes": [
+        "a10",
+        "g10",
+        "b10",
+        "gnd"
+      ],
+      "params": {
+        "w": "308.58u",
+        "l": "0.13u",
+        "ng": "123",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rba10",
+      "nodes": [
+        "a10",
+        "bb10"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rbb10",
+      "nodes": [
+        "b10",
+        "bb10"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rba10",
+      "nodes": [
+        "a10",
+        "vbp",
+        "bb10",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rbb10",
+      "nodes": [
+        "b10",
+        "vbp",
+        "bb10",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb11p",
+      "nodes": [
+        "tp",
+        "a11",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb11n",
+      "nodes": [
+        "tn",
+        "b11",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "ms11",
+      "nodes": [
+        "a11",
+        "g11",
+        "b11",
+        "gnd"
+      ],
+      "params": {
+        "w": "308.58u",
+        "l": "0.13u",
+        "ng": "123",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rba11",
+      "nodes": [
+        "a11",
+        "bb11"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rbb11",
+      "nodes": [
+        "b11",
+        "bb11"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rba11",
+      "nodes": [
+        "a11",
+        "vbp",
+        "bb11",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rbb11",
+      "nodes": [
+        "b11",
+        "vbp",
+        "bb11",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
         "l": "0.13u",
         "ng": "2",
         "model": "sg13_lv_nmos"
@@ -2114,8 +2506,8 @@
         "gnd"
       ],
       "params": {
-        "w": "16.246u",
-        "l": "16.246u",
+        "w": "16.000u",
+        "l": "16.000u",
         "model": "cap_rfcmim"
       }
     },
@@ -2128,8 +2520,8 @@
         "gnd"
       ],
       "params": {
-        "w": "16.246u",
-        "l": "16.246u",
+        "w": "16.000u",
+        "l": "16.000u",
         "model": "cap_rfcmim"
       }
     },
@@ -2153,8 +2545,8 @@
         "gnd"
       ],
       "params": {
-        "w": "2.870u",
-        "l": "2.870u",
+        "w": "2.873u",
+        "l": "2.873u",
         "model": "cap_rfcmim"
       }
     },
@@ -2167,8 +2559,8 @@
         "gnd"
       ],
       "params": {
-        "w": "2.870u",
-        "l": "2.870u",
+        "w": "2.873u",
+        "l": "2.873u",
         "model": "cap_rfcmim"
       }
     },
@@ -2182,7 +2574,7 @@
         "gnd"
       ],
       "params": {
-        "w": "10.30u",
+        "w": "10.32u",
         "l": "0.13u",
         "ng": "4",
         "model": "sg13_lv_nmos"
@@ -2251,8 +2643,8 @@
         "gnd"
       ],
       "params": {
-        "w": "3.996u",
-        "l": "3.996u",
+        "w": "3.982u",
+        "l": "3.982u",
         "model": "cap_rfcmim"
       }
     },
@@ -2265,8 +2657,8 @@
         "gnd"
       ],
       "params": {
-        "w": "3.996u",
-        "l": "3.996u",
+        "w": "3.982u",
+        "l": "3.982u",
         "model": "cap_rfcmim"
       }
     },
@@ -2280,7 +2672,7 @@
         "gnd"
       ],
       "params": {
-        "w": "19.96u",
+        "w": "19.82u",
         "l": "0.13u",
         "ng": "8",
         "model": "sg13_lv_nmos"
@@ -2349,8 +2741,8 @@
         "gnd"
       ],
       "params": {
-        "w": "5.601u",
-        "l": "5.601u",
+        "w": "5.596u",
+        "l": "5.596u",
         "model": "cap_rfcmim"
       }
     },
@@ -2363,8 +2755,8 @@
         "gnd"
       ],
       "params": {
-        "w": "5.601u",
-        "l": "5.601u",
+        "w": "5.596u",
+        "l": "5.596u",
         "model": "cap_rfcmim"
       }
     },
@@ -2378,7 +2770,7 @@
         "gnd"
       ],
       "params": {
-        "w": "39.22u",
+        "w": "39.15u",
         "l": "0.13u",
         "ng": "16",
         "model": "sg13_lv_nmos"
@@ -2447,8 +2839,8 @@
         "gnd"
       ],
       "params": {
-        "w": "7.891u",
-        "l": "7.891u",
+        "w": "7.874u",
+        "l": "7.874u",
         "model": "cap_rfcmim"
       }
     },
@@ -2461,8 +2853,8 @@
         "gnd"
       ],
       "params": {
-        "w": "7.891u",
-        "l": "7.891u",
+        "w": "7.874u",
+        "l": "7.874u",
         "model": "cap_rfcmim"
       }
     },
@@ -2476,7 +2868,7 @@
         "gnd"
       ],
       "params": {
-        "w": "77.84u",
+        "w": "77.50u",
         "l": "0.13u",
         "ng": "31",
         "model": "sg13_lv_nmos"
@@ -2545,8 +2937,8 @@
         "gnd"
       ],
       "params": {
-        "w": "11.134u",
-        "l": "11.134u",
+        "w": "11.122u",
+        "l": "11.122u",
         "model": "cap_rfcmim"
       }
     },
@@ -2559,8 +2951,8 @@
         "gnd"
       ],
       "params": {
-        "w": "11.134u",
-        "l": "11.134u",
+        "w": "11.122u",
+        "l": "11.122u",
         "model": "cap_rfcmim"
       }
     },
@@ -2574,7 +2966,7 @@
         "gnd"
       ],
       "params": {
-        "w": "154.96u",
+        "w": "154.63u",
         "l": "0.13u",
         "ng": "62",
         "model": "sg13_lv_nmos"
@@ -2643,8 +3035,8 @@
         "gnd"
       ],
       "params": {
-        "w": "15.733u",
-        "l": "15.733u",
+        "w": "15.712u",
+        "l": "15.712u",
         "model": "cap_rfcmim"
       }
     },
@@ -2657,8 +3049,8 @@
         "gnd"
       ],
       "params": {
-        "w": "15.733u",
-        "l": "15.733u",
+        "w": "15.712u",
+        "l": "15.712u",
         "model": "cap_rfcmim"
       }
     },
@@ -2672,9 +3064,9 @@
         "gnd"
       ],
       "params": {
-        "w": "309.41u",
+        "w": "308.58u",
         "l": "0.13u",
-        "ng": "124",
+        "ng": "123",
         "model": "sg13_lv_nmos"
       }
     },
@@ -2741,8 +3133,8 @@
         "gnd"
       ],
       "params": {
-        "w": "22.204u",
-        "l": "22.204u",
+        "w": "15.712u",
+        "l": "15.712u",
         "model": "cap_rfcmim"
       }
     },
@@ -2755,8 +3147,8 @@
         "gnd"
       ],
       "params": {
-        "w": "22.204u",
-        "l": "22.204u",
+        "w": "15.712u",
+        "l": "15.712u",
         "model": "cap_rfcmim"
       }
     },
@@ -2770,9 +3162,9 @@
         "gnd"
       ],
       "params": {
-        "w": "616.27u",
+        "w": "308.58u",
         "l": "0.13u",
-        "ng": "247",
+        "ng": "123",
         "model": "sg13_lv_nmos"
       }
     },
@@ -2808,7 +3200,7 @@
         "gnd"
       ],
       "params": {
-        "w": "2.5u",
+        "w": "1.25u",
         "l": "0.13u",
         "ng": "2",
         "model": "sg13_lv_nmos"
@@ -2824,7 +3216,7 @@
         "gnd"
       ],
       "params": {
-        "w": "2.5u",
+        "w": "1.25u",
         "l": "0.13u",
         "ng": "2",
         "model": "sg13_lv_nmos"
@@ -2839,8 +3231,8 @@
         "gnd"
       ],
       "params": {
-        "w": "31.264u",
-        "l": "31.264u",
+        "w": "15.712u",
+        "l": "15.712u",
         "model": "cap_rfcmim"
       }
     },
@@ -2853,8 +3245,8 @@
         "gnd"
       ],
       "params": {
-        "w": "31.264u",
-        "l": "31.264u",
+        "w": "15.712u",
+        "l": "15.712u",
         "model": "cap_rfcmim"
       }
     },
@@ -2868,9 +3260,9 @@
         "gnd"
       ],
       "params": {
-        "w": "1221.83u",
+        "w": "308.58u",
         "l": "0.13u",
-        "ng": "489",
+        "ng": "123",
         "model": "sg13_lv_nmos"
       }
     },
@@ -2906,7 +3298,7 @@
         "gnd"
       ],
       "params": {
-        "w": "5u",
+        "w": "1.25u",
         "l": "0.13u",
         "ng": "2",
         "model": "sg13_lv_nmos"
@@ -2922,7 +3314,399 @@
         "gnd"
       ],
       "params": {
-        "w": "5u",
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb8p",
+      "nodes": [
+        "tp",
+        "a8",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb8n",
+      "nodes": [
+        "tn",
+        "b8",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "ms8",
+      "nodes": [
+        "a8",
+        "g8",
+        "b8",
+        "gnd"
+      ],
+      "params": {
+        "w": "308.58u",
+        "l": "0.13u",
+        "ng": "123",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rba8",
+      "nodes": [
+        "a8",
+        "bb8"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rbb8",
+      "nodes": [
+        "b8",
+        "bb8"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rba8",
+      "nodes": [
+        "a8",
+        "vbp",
+        "bb8",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rbb8",
+      "nodes": [
+        "b8",
+        "vbp",
+        "bb8",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb9p",
+      "nodes": [
+        "tp",
+        "a9",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb9n",
+      "nodes": [
+        "tn",
+        "b9",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "ms9",
+      "nodes": [
+        "a9",
+        "g9",
+        "b9",
+        "gnd"
+      ],
+      "params": {
+        "w": "308.58u",
+        "l": "0.13u",
+        "ng": "123",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rba9",
+      "nodes": [
+        "a9",
+        "bb9"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rbb9",
+      "nodes": [
+        "b9",
+        "bb9"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rba9",
+      "nodes": [
+        "a9",
+        "vbp",
+        "bb9",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rbb9",
+      "nodes": [
+        "b9",
+        "vbp",
+        "bb9",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb10p",
+      "nodes": [
+        "tp",
+        "a10",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb10n",
+      "nodes": [
+        "tn",
+        "b10",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "ms10",
+      "nodes": [
+        "a10",
+        "g10",
+        "b10",
+        "gnd"
+      ],
+      "params": {
+        "w": "308.58u",
+        "l": "0.13u",
+        "ng": "123",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rba10",
+      "nodes": [
+        "a10",
+        "bb10"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rbb10",
+      "nodes": [
+        "b10",
+        "bb10"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rba10",
+      "nodes": [
+        "a10",
+        "vbp",
+        "bb10",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rbb10",
+      "nodes": [
+        "b10",
+        "vbp",
+        "bb10",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb11p",
+      "nodes": [
+        "tp",
+        "a11",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xb11n",
+      "nodes": [
+        "tn",
+        "b11",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "ms11",
+      "nodes": [
+        "a11",
+        "g11",
+        "b11",
+        "gnd"
+      ],
+      "params": {
+        "w": "308.58u",
+        "l": "0.13u",
+        "ng": "123",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rba11",
+      "nodes": [
+        "a11",
+        "bb11"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rbb11",
+      "nodes": [
+        "b11",
+        "bb11"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rba11",
+      "nodes": [
+        "a11",
+        "vbp",
+        "bb11",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rbb11",
+      "nodes": [
+        "b11",
+        "vbp",
+        "bb11",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
         "l": "0.13u",
         "ng": "2",
         "model": "sg13_lv_nmos"

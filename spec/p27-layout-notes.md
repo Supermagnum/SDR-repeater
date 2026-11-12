@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted.** P2.7.1–1c done. **P2.7.2 gate FAIL (2026-11-11):** D20 landing with corner-specific SCH steps leaves ss/ff V_tune outside the window — finding, **no layout**. LVS #861/#753/#512 workarounds stand.
+Status: **D23 Option A accepted. D24 segmented bank recorded.** **P2.7.2b gate FAIL (2026-11-12):** D24 + offset-off hold; tt landing PASS; ss/ff still overshoot high window — finding, **no layout**. LVS #861/#753/#512 workarounds stand.
 
 ---
 
@@ -119,18 +119,23 @@ Dependency order. Every analogue block: **xschem `.sch` + SVG/PDF**, then layout
 - ss85 127→128 ratio 1.52 held for the P2.7.2 D20 landing gate.
 
 ### P2.7.2 — Layout: VCO (inductor + core + bank + var + bypasses + amp-cal)
-**Status: FINDING (2026-11-11) — gate failed; no layout.**  
-**Gate inputs:** P2.7.1c accepted bank; D23; `closed_loop.py` holds 0.498 / 0.568 / 0.641 V.  
-**Gate outputs:** `step3/out/summary_p272_gate.txt`, `p272_gate.json`; scripts `run_p272_gate.py`, `run_p272_gate_resume.py`.  
-**Gate result [SCH]+[MODEL]:**
-- ss85 carries/LSB measured; 127→128 ratio **1.52**, ΔV **0.542 V** [SCH].
-- ff−40 127→128 ratio **0.56**, ΔV **0.117 V** [SCH].
-- D20 nearest landing: **tt PASS** (0.333–0.919 V, margins +0.083/+0.031);
-  **ss FAIL** (0.206–0.860 vs 0.25–0.85, outside 0.15 %, margins −0.044/−0.010);
-  **ff FAIL** (0.456–0.962 vs 0.25–0.95, outside 0.03 %, margins +0.206/−0.012) [MODEL].
-- Layout / DRC / LVS / gds.gz **not started**.
-**Owner decision needed:** re-trim at ss85, amend D20 window/hold, or exclude edge channels (see summary proposals).  
-**When unblocked:** DRC clean (incl. maximal SVaricap `w=3.74u`); LVS clean **or** waived with #861/#753/#512 notes; device checklist; then P2.7.3 PEX.
+**Status: FINDING — P2.7.2 gate FAIL; P2.7.2b (D24) gate FAIL; no layout.**
+
+#### P2.7.2 gate (2026-11-11, binary bank)
+- ss85 127→128 ratio 1.52, ΔV 0.542 V; ff 0.56 / 0.117 V [SCH].
+- Landing: tt PASS; ss 0.206–0.860 FAIL; ff to 0.962 FAIL [MODEL].
+
+#### P2.7.2b (2026-11-12, D24)
+**Implemented:** segmented bank in `run_step2.py` + `vco_bank.sch`; `vco_band_dec.sv`; `afe_seq.en_cp_offset`; hold offset-off (`summary_hold_d24.txt`); closed_loop holds 0.512 / 0.577 / 0.649 V.
+**tt steps:** max 0.298 V PASS; 95→96 ratio 0.90 (sole miss vs 0.94–1.07).
+**Gate [SCH]+[MODEL]** (`summary_p272b_gate.txt`):
+- ss85 127→128 ratio **1.01** (fixed); ff 127→128 ratio **0.89**.
+- Landing: **tt PASS** (0.355–0.942, +0.105/+0.008);
+  **ss FAIL** (0.256–0.882 vs 0.25–0.85, outside 0.12 %, mhi −0.032);
+  **ff FAIL** (0.463–0.997 vs 0.25–0.95, outside 0.15 %, mhi −0.047).
+- Layout **not started**. 15-corner / D22 re-run **not done** (gate stop).
+**Owner decision needed:** slight high-window widen, exclude edge channels, or further hold/bank work.  
+**When unblocked:** DRC/LVS/gds as before; then P2.7.3 PEX.
 
 ### P2.7.3 — PEX + post-layout VCO range / steps / PN bounds
 **Inputs:** P2.7.2 PEX.  
