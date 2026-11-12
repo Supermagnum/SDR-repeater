@@ -1,0 +1,81 @@
+Netgen 1.5.324 compiled on Thu Oct 15 02:24:51 PM CEST 2026
+Warning: netgen command 'format' use fully-qualified name '::netgen::format'
+Warning: netgen command 'global' use fully-qualified name '::netgen::global'
+Reading netlist file /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_dummy_netgen.spice for /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_dummy_netgen.spice bank_cell_dummy
+Call to undefined subcircuit cap_rfcmim
+Creating placeholder cell definition.
+Call to undefined subcircuit rhigh
+Creating placeholder cell definition.
+Reading netlist file /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_dummy_extracted_netgen.cir for /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_dummy_extracted_netgen.cir bank_cell_dummy
+Call to undefined subcircuit rhigh
+Creating placeholder cell definition.
+Call to undefined subcircuit cap_rfcmim
+Creating placeholder cell definition.
+
+Reading setup file /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl
+
+No property as found for device sg13_lv_nmos
+No property ad found for device sg13_lv_nmos
+No property ps found for device sg13_lv_nmos
+No property pd found for device sg13_lv_nmos
+Model rhigh pin 1 == 2
+No property b found for device rhigh
+Model rhigh pin 1 == 2
+No such pin 1 in model sg13_lv_nmos
+Unable to permute model sg13_lv_nmos pins 1, 3.
+No property ng found for device sg13_lv_nmos
+No property as found for device sg13_lv_nmos
+No property ad found for device sg13_lv_nmos
+No property pd found for device sg13_lv_nmos
+No property ps found for device sg13_lv_nmos
+No property trise found for device sg13_lv_nmos
+No property z1 found for device sg13_lv_nmos
+No property z2 found for device sg13_lv_nmos
+No property wmin found for device sg13_lv_nmos
+No property rfmode found for device sg13_lv_nmos
+No property pre_layout found for device sg13_lv_nmos
+No such pin 1 in model sg13_lv_nmos
+Unable to permute model sg13_lv_nmos pins 1, 3.
+No property ng found for device sg13_lv_nmos
+No property as found for device sg13_lv_nmos
+No property ad found for device sg13_lv_nmos
+No property pd found for device sg13_lv_nmos
+No property ps found for device sg13_lv_nmos
+No property trise found for device sg13_lv_nmos
+No property z1 found for device sg13_lv_nmos
+No property z2 found for device sg13_lv_nmos
+No property wmin found for device sg13_lv_nmos
+No property pre_layout found for device sg13_lv_nmos
+No property ic found for device cap_rfcmim
+No property ic found for device cap_rfcmim
+Comparison output logged to file /foss/designs/analog/vco/layout/p272b_bank/out/netgen_bank_cell_dummy.json
+Logging to file "/foss/designs/analog/vco/layout/p272b_bank/out/netgen_bank_cell_dummy.json" enabled
+Circuit cap_rfcmim contains no devices.
+Circuit rhigh contains no devices.
+
+Contents of circuit 1:  Circuit: 'bank_cell_dummy'
+Circuit bank_cell_dummy contains 7 device instances.
+  Class: cap_rfcmim            instances:   2
+  Class: rhigh                 instances:   2
+  Class: sg13_lv_nmos          instances:   3
+Circuit contains 3 nets.
+Contents of circuit 2:  Circuit: 'bank_cell_dummy'
+Circuit bank_cell_dummy contains 7 device instances.
+  Class: cap_rfcmim            instances:   2
+  Class: rhigh                 instances:   2
+  Class: sg13_lv_nmos          instances:   3
+Circuit contains 3 nets.
+
+Circuit 1 contains 7 devices, Circuit 2 contains 7 devices.
+Circuit 1 contains 3 nets,    Circuit 2 contains 3 nets.
+
+
+Final result: 
+Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ bank_cell_dummy
+
+Logging to file "/foss/designs/analog/vco/layout/p272b_bank/out/netgen_bank_cell_dummy.json" disabled
+LVS Done.

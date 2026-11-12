@@ -1,4 +1,4 @@
-* P2.7.2b D24 bank_cell_u [SCH sizes; layout kind=rfcmim]
+* P2.7.2b D24 bank_cell_u [SCH sizes; LVS props from extract k=5]
 .subckt bank_cell_u tp tn g vbp bb gnd
 Cxb tp a gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
 Cxn tn b gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1

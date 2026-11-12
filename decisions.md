@@ -524,3 +524,24 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - Open for P2.7.2c: the centre tap is not checked by LVS today (pin-only inductor, ct not
   extracted). The top assembly must make ct a labelled, LVS-checked pin.
 - Next: P2.7.2b, D24 bank sub-block.
+
+## 2026-11-12 — P2.7.2b D24 bank
+- Bank connectivity, centroid order [0,1,2,D,3,4,5,6] and binary row accepted: DRC clean,
+  KLayout LVS and netgen clean (property noise as core + tank). Decoder stays in AFE RTL.
+- Before the next sub-block, a short bank fix run:
+  - finger count: schematic and layout must agree (ng ≤ 100 per device, or the switch split),
+    then re-check band range at the worst corner;
+  - dummy cell in the empty centroid slot, tied to gnd and in the schematic;
+  - area forecast for the remaining VCO sub-blocks against ≤ 0.30 mm² (core + tank + bank =
+    0.2611 mm²): denser bank packing, or a D23 finding.
+- P2.7.3 gate: extracted thermometer / binary boundary step ≤ ½ LSB from ideal and monotonic
+  codes (today 0.69 LSB step [SCH / HAND]).
+
+## 2026-11-12 — P2.7.2b bank fix
+- Area forecast [HAND/TOOL]: remaining ≈ 0.028 mm² vs 0.038 free after bank → **fits**;
+  no D23. Bank after denser pack + dummy **0.1514 mm²**; island with core **0.2616 mm²**.
+- Finger: sch / step2 / layout **ng=100** at W=308.58 (not split). Worst-corner band
+  range still covers (+130 / +76 MHz) [SCH].
+- Dummy in centroid D: unit cell, all terminals → gnd; DRC + KLayout LVS + netgen PASS
+  (property noise). Denser: gap_x=2, gap_y=5.5, corridor=4.
+- Next: P2.7.2b, next sub-block — tail / DAC / OTA.

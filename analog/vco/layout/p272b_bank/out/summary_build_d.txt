@@ -12,28 +12,33 @@ rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
 bank_cell_b4: W=154.63 ng_req=62 ng_lay=62 ncols=63 kind=rfcmim side=11.122
 rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
   bbox (2.59,-20.58;109.43,61.91)
-bank_cell_u0: W=308.58 ng_req=123 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+bank_cell_u0: W=308.58 ng_req=100 ng_lay=100 ncols=101 kind=rfcmim side=15.712
 rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
   bbox (2.59,-20.58;128.81,61.91)
-bank_cell_u1: W=308.58 ng_req=123 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+bank_cell_u1: W=308.58 ng_req=100 ng_lay=100 ncols=101 kind=rfcmim side=15.712
 rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
   bbox (2.59,-20.58;128.81,61.91)
-bank_cell_u2: W=308.58 ng_req=123 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+bank_cell_u2: W=308.58 ng_req=100 ng_lay=100 ncols=101 kind=rfcmim side=15.712
 rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
   bbox (2.59,-20.58;128.81,61.91)
-bank_cell_u3: W=308.58 ng_req=123 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+bank_cell_u3: W=308.58 ng_req=100 ng_lay=100 ncols=101 kind=rfcmim side=15.712
 rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
   bbox (2.59,-20.58;128.81,61.91)
-bank_cell_u4: W=308.58 ng_req=123 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+bank_cell_u4: W=308.58 ng_req=100 ng_lay=100 ncols=101 kind=rfcmim side=15.712
 rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
   bbox (2.59,-20.58;128.81,61.91)
-bank_cell_u5: W=308.58 ng_req=123 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+bank_cell_u5: W=308.58 ng_req=100 ng_lay=100 ncols=101 kind=rfcmim side=15.712
 rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
   bbox (2.59,-20.58;128.81,61.91)
-bank_cell_u6: W=308.58 ng_req=123 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+bank_cell_u6: W=308.58 ng_req=100 ng_lay=100 ncols=101 kind=rfcmim side=15.712
 rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
   bbox (2.59,-20.58;128.81,61.91)
-centroid order [0, 1, 2, 'D', 3, 4, 5, 6]; pitch 130.2x90.5 um; D=empty (LVS); binary row south; TM1 channels in row gaps
-pins tp=12 tn=12 vbp=24 gnd=12
-vco_bank bbox (-8.85,-3;531.23,276.47) area_mm2=0.1509 (50.3% of 0.30); with core 0.1102 → 0.2611
+bank_cell_dummy: W=308.58 ng_req=100 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
+  bbox (2.59,-20.58;128.81,61.91)
+dummy pins→gnd; vias only on east corridor; texts→gnd
+wrote /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_dummy.gds (+ .gz)
+centroid order [0, 1, 2, 'D', 3, 4, 5, 6]; pitch 134.5x90.8 um; D=dummy→gnd; gap_x=2.0 gap_y=5.5 corridor=4.0; binary row south; TM1 channels in row gaps
+pins tp=12 tn=12 vbp=24 gnd=13
+vco_bank bbox (-4.85,-3;546.23,271.77) area_mm2=0.1514 (50.5% of 0.30); with core 0.1102 → 0.2616
 wrote /foss/designs/analog/vco/layout/p272b_bank/out/vco_bank.gds (+ .gz)

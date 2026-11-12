@@ -1,0 +1,29 @@
+# P2.7.2b D24 bank DRC/LVS — vco_bank
+
+- DRC rules: ['AFil.g', 'GFil.g', 'M1.j', 'M2.j', 'M3.j', 'M4.j', 'M5.j', 'TM1.c', 'TM2.c']
+- density/fill waived: ['AFil.g', 'GFil.g', 'M1.j', 'M2.j', 'M3.j', 'M4.j', 'M5.j', 'TM1.c', 'TM2.c']
+- DRC non-density: none → PASS
+- KLayout LVS: PASS
+- netgen: PASS
+- netgen note: rfcmim↔cap_rfcmim + C/R→X for netgen [PDK]
+- extracted: `/foss/designs/analog/vco/layout/p272b_bank/out/lvs_vco_bank/vco_bank_extracted.cir`
+- render: True
+
+### netgen excerpt (Final result)
+
+```
+Final result: 
+Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ vco_bank
+
+Logging to file "/foss/designs/analog/vco/layout/p272b_bank/out/netgen_vco_bank.json" disabled
+LVS Done.
+
+```
+
+## Verdict
+
+PASS

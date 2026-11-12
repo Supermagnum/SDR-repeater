@@ -1,0 +1,37 @@
+# P2.7.2b bank-fix — VCO island area forecast [HAND / GDS / TOOL]
+
+Island limit ≤ 0.30 mm² (D23). After this fix [GDS]:
+  core + tank  0.1102 mm²
+  bank         0.1514 mm²
+  sum          0.2616 mm²
+  remaining    0.0384 mm²
+
+## Remaining blocks (device PCell bbox [TOOL] × place/route factor [HAND])
+
+| Block | Device bbox sum [TOOL] | × place [HAND] | Est. mm² |
+|-------|------------------------|----------------|----------|
+| Tail FET Xmt 480/4 ng96 | 0.00226 | 2.5 | 0.0057 |
+| Tail mirror Xmr 60/4 | 0.00028 | 2.5 | 0.0007 |
+| DAC PMOS ladder + off + sw | ≈ 0.0006 | 3.0 | 0.0018 |
+| OTA / ampcal sense | ≈ 0.0004 | 3.0 | 0.0012 |
+| Tail RC (rhigh + C) | ≈ 0.0007 | 2.0 | 0.0014 |
+| Var 2× rfcmim 21.3 | 0.00212 | 2.0 | 0.0042 |
+| Var 2× SVaricap Nx10 | 0.00016 | 3.0 | 0.0005 |
+| Var bias R + bypass | ≈ 0.0008 | 2.0 | 0.0016 |
+| D22 detector + cmp | ≈ 0.0003 | 3.0 | 0.0009 |
+| Hold/rep / misc bypass | ≈ 0.0002 | 2.0 | 0.0004 |
+| Top-assembly route + guard | — | — | 0.0100 |
+| **Remaining total** | | | **≈ 0.0284** |
+
+Fits in 0.0384 with **≈ 0.010 mm² slack** [HAND].
+
+## Bank packing (this run)
+
+- Finger fix: sch/layout ng=100 at W=308.58 (not parallel split) [TOOL]
+- Dummy in slot D: MIM+SW unit, all terminals → gnd on M3 east ring [GDS]
+- Denser: gap_x=2, gap_y=5.5, corridor=4; pitch 134.5×90.8 µm
+- Bank 0.1514 mm² (dummy east ring ≈ +0.0005 vs pre-fix 0.1509)
+
+## Verdict [HAND]
+
+**Fits** without a D23 raise. No D23 finding.

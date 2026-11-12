@@ -1,0 +1,10 @@
+# P2.7.2b bank fix — band range after thermo ng=100 (same W) [SCH]
+
+Finger fix: sch/layout/step2 clamp ng ≤ 100 at W=308.58 µm (was formula ng=123). V_pad ss = 1.108 V [HAND].
+
+| case | MOS | CAP | T | code | Vtune | f (GHz) | limit | margin (MHz) | Amp | PASS |
+|---|---|---|---|---|---|---|---|---|---|---|
+| top | mos_ss | cap_wcs | -40 | 0 | 1.0 | 4.330 | 4.20 | 130 | 1.45 | yes |
+| bot | mos_ss | cap_bcs | -40 | 255 | 0.3 | 3.044 | 3.12 | 76 | 1.09 | yes |
+
+Coverage PASS: yes (3.12–4.20 GHz at least-margin corners) [SCH].

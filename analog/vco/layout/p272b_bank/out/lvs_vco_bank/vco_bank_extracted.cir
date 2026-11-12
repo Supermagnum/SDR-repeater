@@ -1,125 +1,135 @@
-* Extracted by KLayout with SG13G2 LVS runset on : 12/11/2026 16:33
+* Extracted by KLayout with SG13G2 LVS runset on : 12/11/2026 18:18
 
 .SUBCKT vco_bank bb0 bb1 bb10 bb11 bb2 bb3 bb4 bb5 bb6 bb7 bb8 bb9 g0 g1 g10
 + g11 g2 g3 g4 g5 g6 g7 g8 g9 gnd tn tp vbp
-M$1 bb5 vbp \$14 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p PS=3.18u
+M$1 bb5 vbp \$17 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p PS=3.18u
 + PD=3.18u rfmode=0
-M$2 \$14 g5 \$11 gnd sg13_lv_nmos L=0.13u W=308.5u AS=59.07775p AD=59.07775p
+M$2 \$17 g5 \$13 gnd sg13_lv_nmos L=0.13u W=308.5u AS=59.07775p AD=59.07775p
 + PS=349.885u PD=349.885u rfmode=0
-M$102 \$11 vbp bb5 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
+M$102 \$13 vbp bb5 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
 + PS=3.18u PD=3.18u rfmode=0
-M$103 bb6 vbp \$15 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
+M$103 bb6 vbp \$18 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
 + PS=3.18u PD=3.18u rfmode=0
-M$104 \$15 g6 \$12 gnd sg13_lv_nmos L=0.13u W=308.5u AS=59.07775p AD=59.07775p
+M$104 \$18 g6 \$14 gnd sg13_lv_nmos L=0.13u W=308.5u AS=59.07775p AD=59.07775p
 + PS=349.885u PD=349.885u rfmode=0
-M$204 \$12 vbp bb6 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
+M$204 \$14 vbp bb6 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
 + PS=3.18u PD=3.18u rfmode=0
-M$205 bb7 vbp \$16 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
+M$205 bb7 vbp \$19 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
 + PS=3.18u PD=3.18u rfmode=0
-M$206 \$16 g7 \$13 gnd sg13_lv_nmos L=0.13u W=308.5u AS=59.07775p AD=59.07775p
+M$206 \$19 g7 \$15 gnd sg13_lv_nmos L=0.13u W=308.5u AS=59.07775p AD=59.07775p
 + PS=349.885u PD=349.885u rfmode=0
-M$306 \$13 vbp bb7 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
+M$306 \$15 vbp bb7 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
 + PS=3.18u PD=3.18u rfmode=0
-M$307 bb8 vbp \$85 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
+M$307 bb8 vbp \$104 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
 + PS=3.18u PD=3.18u rfmode=0
-M$308 \$85 g8 \$81 gnd sg13_lv_nmos L=0.13u W=308.5u AS=59.07775p AD=59.07775p
+M$308 \$104 g8 \$100 gnd sg13_lv_nmos L=0.13u W=308.5u AS=59.07775p
++ AD=59.07775p PS=349.885u PD=349.885u rfmode=0
+M$408 \$100 vbp bb8 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
++ PS=3.18u PD=3.18u rfmode=0
+M$409 bb9 vbp \$105 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
++ PS=3.18u PD=3.18u rfmode=0
+M$410 \$105 g9 \$101 gnd sg13_lv_nmos L=0.13u W=308.5u AS=59.07775p
++ AD=59.07775p PS=349.885u PD=349.885u rfmode=0
+M$510 \$101 vbp bb9 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
++ PS=3.18u PD=3.18u rfmode=0
+M$511 bb10 vbp \$106 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
++ PS=3.18u PD=3.18u rfmode=0
+M$512 \$106 g10 \$102 gnd sg13_lv_nmos L=0.13u W=308.5u AS=59.07775p
++ AD=59.07775p PS=349.885u PD=349.885u rfmode=0
+M$612 \$102 vbp bb10 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
++ PS=3.18u PD=3.18u rfmode=0
+M$613 bb11 vbp \$107 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
++ PS=3.18u PD=3.18u rfmode=0
+M$614 gnd gnd \$20 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
++ PS=3.18u PD=3.18u rfmode=0
+M$615 \$107 g11 \$103 gnd sg13_lv_nmos L=0.13u W=308.5u AS=59.07775p
++ AD=59.07775p PS=349.885u PD=349.885u rfmode=0
+M$715 \$20 gnd \$16 gnd sg13_lv_nmos L=0.13u W=308.5u AS=59.07775p AD=59.07775p
 + PS=349.885u PD=349.885u rfmode=0
-M$408 \$81 vbp bb8 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
+M$815 \$103 vbp bb11 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
 + PS=3.18u PD=3.18u rfmode=0
-M$409 bb9 vbp \$86 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
+M$816 \$16 gnd gnd gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
 + PS=3.18u PD=3.18u rfmode=0
-M$410 \$86 g9 \$82 gnd sg13_lv_nmos L=0.13u W=308.5u AS=59.07775p AD=59.07775p
-+ PS=349.885u PD=349.885u rfmode=0
-M$510 \$82 vbp bb9 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
-+ PS=3.18u PD=3.18u rfmode=0
-M$511 bb10 vbp \$87 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
-+ PS=3.18u PD=3.18u rfmode=0
-M$512 \$87 g10 \$83 gnd sg13_lv_nmos L=0.13u W=308.5u AS=59.07775p AD=59.07775p
-+ PS=349.885u PD=349.885u rfmode=0
-M$612 \$83 vbp bb10 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
-+ PS=3.18u PD=3.18u rfmode=0
-M$613 bb11 vbp \$88 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
-+ PS=3.18u PD=3.18u rfmode=0
-M$614 \$88 g11 \$84 gnd sg13_lv_nmos L=0.13u W=308.5u AS=59.07775p AD=59.07775p
-+ PS=349.885u PD=349.885u rfmode=0
-M$714 \$84 vbp bb11 gnd sg13_lv_nmos L=0.13u W=1.25u AS=0.425p AD=0.425p
-+ PS=3.18u PD=3.18u rfmode=0
-M$715 bb0 vbp \$174 gnd sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p AD=0.1005p
+M$817 bb0 vbp \$193 gnd sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p AD=0.1005p
 + PS=1.34u PD=1.34u rfmode=0
-M$716 \$174 g0 \$169 gnd sg13_lv_nmos L=0.13u W=10.32u AS=2.3478p AD=2.3478p
+M$818 \$193 g0 \$188 gnd sg13_lv_nmos L=0.13u W=10.32u AS=2.3478p AD=2.3478p
 + PS=14.72u PD=14.72u rfmode=0
-M$720 \$169 vbp bb0 gnd sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p AD=0.1005p
+M$822 \$188 vbp bb0 gnd sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p AD=0.1005p
 + PS=1.34u PD=1.34u rfmode=0
-M$721 bb1 vbp \$175 gnd sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p AD=0.1005p
+M$823 bb1 vbp \$194 gnd sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p AD=0.1005p
 + PS=1.34u PD=1.34u rfmode=0
-M$722 \$175 g1 \$170 gnd sg13_lv_nmos L=0.13u W=19.8u AS=4.13325p AD=4.13325p
+M$824 \$194 g1 \$189 gnd sg13_lv_nmos L=0.13u W=19.8u AS=4.13325p AD=4.13325p
 + PS=25.615u PD=25.615u rfmode=0
-M$730 \$170 vbp bb1 gnd sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p AD=0.1005p
+M$832 \$189 vbp bb1 gnd sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p AD=0.1005p
 + PS=1.34u PD=1.34u rfmode=0
-M$731 bb2 vbp \$176 gnd sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p AD=0.1005p
+M$833 bb2 vbp \$195 gnd sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p AD=0.1005p
 + PS=1.34u PD=1.34u rfmode=0
-M$732 \$176 g2 \$171 gnd sg13_lv_nmos L=0.13u W=39.12u AS=7.79955p AD=7.79955p
+M$834 \$195 g2 \$190 gnd sg13_lv_nmos L=0.13u W=39.12u AS=7.79955p AD=7.79955p
 + PS=47.945u PD=47.945u rfmode=0
-M$748 \$171 vbp bb2 gnd sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p AD=0.1005p
+M$850 \$190 vbp bb2 gnd sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p AD=0.1005p
 + PS=1.34u PD=1.34u rfmode=0
-M$749 bb3 vbp \$177 gnd sg13_lv_nmos L=0.13u W=0.31u AS=0.1054p AD=0.1054p
+M$851 bb3 vbp \$196 gnd sg13_lv_nmos L=0.13u W=0.31u AS=0.1054p AD=0.1054p
 + PS=1.3u PD=1.3u rfmode=0
-M$750 \$177 g3 \$172 gnd sg13_lv_nmos L=0.13u W=77.5u AS=15.1p AD=15.1p
+M$852 \$196 g3 \$191 gnd sg13_lv_nmos L=0.13u W=77.5u AS=15.1p AD=15.1p
 + PS=92.08u PD=92.08u rfmode=0
-M$781 \$172 vbp bb3 gnd sg13_lv_nmos L=0.13u W=0.31u AS=0.1054p AD=0.1054p
+M$883 \$191 vbp bb3 gnd sg13_lv_nmos L=0.13u W=0.31u AS=0.1054p AD=0.1054p
 + PS=1.3u PD=1.3u rfmode=0
-M$782 bb4 vbp \$178 gnd sg13_lv_nmos L=0.13u W=0.62u AS=0.2108p AD=0.2108p
+M$884 bb4 vbp \$197 gnd sg13_lv_nmos L=0.13u W=0.62u AS=0.2108p AD=0.2108p
 + PS=1.92u PD=1.92u rfmode=0
-M$783 \$178 g4 \$173 gnd sg13_lv_nmos L=0.13u W=154.38u AS=29.7057p AD=29.7057p
+M$885 \$197 g4 \$192 gnd sg13_lv_nmos L=0.13u W=154.38u AS=29.7057p AD=29.7057p
 + PS=180.73u PD=180.73u rfmode=0
-M$845 \$173 vbp bb4 gnd sg13_lv_nmos L=0.13u W=0.62u AS=0.2108p AD=0.2108p
+M$947 \$192 vbp bb4 gnd sg13_lv_nmos L=0.13u W=0.62u AS=0.2108p AD=0.2108p
 + PS=1.92u PD=1.92u rfmode=0
-R$846 bb5 \$14 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$847 bb5 \$11 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$848 bb6 \$15 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$849 bb6 \$12 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$850 bb7 \$16 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$851 bb7 \$13 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$852 bb8 \$85 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$853 bb8 \$81 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$854 bb9 \$86 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$855 bb9 \$82 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$856 bb10 \$87 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$857 bb10 \$83 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$858 bb11 \$88 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$859 bb11 \$84 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$860 bb0 \$174 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$861 bb0 \$169 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$862 bb1 \$175 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$863 bb1 \$170 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$864 bb2 \$176 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$865 bb2 \$171 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$866 bb3 \$177 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$867 bb3 \$172 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$868 bb4 \$178 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-R$869 bb4 \$173 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
-C$870 tp \$174 cap_cmim w=2.81u l=2.81u A=7.8961p P=11.24u m=1
-C$871 tp \$175 cap_cmim w=3.92u l=3.92u A=15.3664p P=15.68u m=1
-C$872 tn \$170 cap_cmim w=3.92u l=3.92u A=15.3664p P=15.68u m=1
-C$873 tn \$169 cap_cmim w=2.81u l=2.81u A=7.8961p P=11.24u m=1
-C$874 tp \$176 cap_cmim w=5.53u l=5.53u A=30.5809p P=22.12u m=1
-C$875 tn \$171 cap_cmim w=5.53u l=5.53u A=30.5809p P=22.12u m=1
-C$876 tp \$88 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
-C$877 tp \$87 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
-C$878 tn \$82 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
-C$879 tn \$173 gnd rfcmim w=11.12u l=11.12u A=123.6544p P=44.48u m=1 wfeed=5u
-C$880 tn \$83 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
-C$881 tn \$172 gnd rfcmim w=7.87u l=7.87u A=61.9369p P=31.48u m=1 wfeed=5u
-C$882 tp \$178 gnd rfcmim w=11.12u l=11.12u A=123.6544p P=44.48u m=1 wfeed=5u
-C$883 tn \$81 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
-C$884 tn \$11 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
-C$885 tp \$85 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
-C$886 tn \$84 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
-C$887 tp \$177 gnd rfcmim w=7.87u l=7.87u A=61.9369p P=31.48u m=1 wfeed=5u
-C$888 tp \$16 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
-C$889 tp \$86 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
-C$890 tp \$14 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
-C$891 tp \$15 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
-C$892 tn \$12 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
-C$893 tn \$13 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+R$948 bb5 \$17 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$949 bb5 \$13 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$950 bb6 \$18 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$951 bb6 \$14 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$952 bb7 \$19 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$953 bb7 \$15 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$954 gnd \$20 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$955 gnd \$16 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$956 bb8 \$104 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$957 bb8 \$100 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$958 bb9 \$105 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$959 bb9 \$101 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$960 bb10 \$106 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$961 bb10 \$102 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$962 bb11 \$107 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$963 bb11 \$103 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$964 bb0 \$193 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$965 bb0 \$188 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$966 bb1 \$194 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$967 bb1 \$189 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$968 bb2 \$195 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$969 bb2 \$190 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$970 bb3 \$196 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$971 bb3 \$191 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$972 bb4 \$197 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$973 bb4 \$192 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+C$974 tn \$188 cap_cmim w=2.81u l=2.81u A=7.8961p P=11.24u m=1
+C$975 tp \$193 cap_cmim w=2.81u l=2.81u A=7.8961p P=11.24u m=1
+C$976 tp \$194 cap_cmim w=3.92u l=3.92u A=15.3664p P=15.68u m=1
+C$977 tp \$195 cap_cmim w=5.53u l=5.53u A=30.5809p P=22.12u m=1
+C$978 tn \$189 cap_cmim w=3.92u l=3.92u A=15.3664p P=15.68u m=1
+C$979 tn \$190 cap_cmim w=5.53u l=5.53u A=30.5809p P=22.12u m=1
+C$980 tp \$106 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+C$981 tp \$105 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+C$982 tp \$104 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+C$983 gnd \$16 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+C$984 gnd \$20 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+C$985 tn \$192 gnd rfcmim w=11.12u l=11.12u A=123.6544p P=44.48u m=1 wfeed=5u
+C$986 tp \$19 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+C$987 tn \$191 gnd rfcmim w=7.87u l=7.87u A=61.9369p P=31.48u m=1 wfeed=5u
+C$988 tn \$102 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+C$989 tn \$101 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+C$990 tp \$196 gnd rfcmim w=7.87u l=7.87u A=61.9369p P=31.48u m=1 wfeed=5u
+C$991 tp \$107 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+C$992 tp \$18 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+C$993 tn \$103 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+C$994 tn \$100 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+C$995 tp \$197 gnd rfcmim w=11.12u l=11.12u A=123.6544p P=44.48u m=1 wfeed=5u
+C$996 tp \$17 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+C$997 tn \$13 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+C$998 tn \$14 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
+C$999 tn \$15 gnd rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1 wfeed=5u
 .ENDS vco_bank

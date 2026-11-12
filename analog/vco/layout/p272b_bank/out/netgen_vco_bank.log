@@ -58,22 +58,22 @@ Circuit rhigh contains no devices.
 Circuit cap_rfcmim contains no devices.
 
 Contents of circuit 1:  Circuit: 'vco_bank'
-Circuit vco_bank contains 84 device instances.
-  Class: cap_rfcmim            instances:  18
-  Class: rhigh                 instances:  24
-  Class: sg13_lv_nmos          instances:  36
+Circuit vco_bank contains 91 device instances.
+  Class: cap_rfcmim            instances:  20
+  Class: rhigh                 instances:  26
+  Class: sg13_lv_nmos          instances:  39
   Class: cap_cmim              instances:   6
-Circuit contains 52 nets.
+Circuit contains 54 nets.
 Contents of circuit 2:  Circuit: 'vco_bank'
-Circuit vco_bank contains 84 device instances.
-  Class: cap_rfcmim            instances:  18
-  Class: rhigh                 instances:  24
-  Class: sg13_lv_nmos          instances:  36
+Circuit vco_bank contains 91 device instances.
+  Class: cap_rfcmim            instances:  20
+  Class: rhigh                 instances:  26
+  Class: sg13_lv_nmos          instances:  39
   Class: cap_cmim              instances:   6
-Circuit contains 52 nets.
+Circuit contains 54 nets.
 
-Circuit 1 contains 84 devices, Circuit 2 contains 84 devices.
-Circuit 1 contains 52 nets,    Circuit 2 contains 52 nets.
+Circuit 1 contains 91 devices, Circuit 2 contains 91 devices.
+Circuit 1 contains 54 nets,    Circuit 2 contains 54 nets.
 
 
 Final result: 

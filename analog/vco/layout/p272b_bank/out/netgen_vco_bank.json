@@ -31,158 +31,171 @@ Subcircuit summary:
 Circuit 1: vco_bank                        |Circuit 2: vco_bank                        
 -------------------------------------------|-------------------------------------------
 cap_cmim (6)                               |cap_cmim (6)                               
-sg13_lv_nmos (36)                          |sg13_lv_nmos (36)                          
-rhigh (24)                                 |rhigh (24)                                 
-cap_rfcmim (18)                            |cap_rfcmim (18)                            
-Number of devices: 84                      |Number of devices: 84                      
-Number of nets: 52                         |Number of nets: 52                         
+sg13_lv_nmos (39)                          |sg13_lv_nmos (39)                          
+rhigh (26)                                 |rhigh (26)                                 
+cap_rfcmim (20)                            |cap_rfcmim (20)                            
+Number of devices: 91                      |Number of devices: 91                      
+Number of nets: 54                         |Number of nets: 54                         
 ---------------------------------------------------------------------------------------
 Resolving symmetries by property value.
 Resolving symmetries by pin name.
-Netlists match uniquely with property errors.
-cap_rfcmim:xb4n vs. cap_rfcmim:$879:
+Resolving symmetries by net name.
+Netlists match with 4 symmetries with property errors.
+cap_rfcmim:xbdump vs. cap_rfcmim:$983:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb4n vs. cap_rfcmim:$879:
+cap_rfcmim:xbdump vs. cap_rfcmim:$983:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb4p vs. cap_rfcmim:$882:
+cap_rfcmim:xbdumn vs. cap_rfcmim:$984:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb4p vs. cap_rfcmim:$882:
+cap_rfcmim:xbdumn vs. cap_rfcmim:$984:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb3n vs. cap_rfcmim:$881:
+cap_rfcmim:xb3n vs. cap_rfcmim:$987:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb3n vs. cap_rfcmim:$881:
+cap_rfcmim:xb3n vs. cap_rfcmim:$987:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb3p vs. cap_rfcmim:$887:
+cap_rfcmim:xb3p vs. cap_rfcmim:$990:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb3p vs. cap_rfcmim:$887:
+cap_rfcmim:xb3p vs. cap_rfcmim:$990:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb9n vs. cap_rfcmim:$878:
+cap_rfcmim:xb4n vs. cap_rfcmim:$985:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb9n vs. cap_rfcmim:$878:
+cap_rfcmim:xb4n vs. cap_rfcmim:$985:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb10n vs. cap_rfcmim:$880:
+cap_rfcmim:xb4p vs. cap_rfcmim:$995:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb10n vs. cap_rfcmim:$880:
+cap_rfcmim:xb4p vs. cap_rfcmim:$995:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb8n vs. cap_rfcmim:$883:
+cap_rfcmim:xb10n vs. cap_rfcmim:$988:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb8n vs. cap_rfcmim:$883:
+cap_rfcmim:xb10n vs. cap_rfcmim:$988:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb5n vs. cap_rfcmim:$884:
+cap_rfcmim:xb9n vs. cap_rfcmim:$989:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb5n vs. cap_rfcmim:$884:
+cap_rfcmim:xb9n vs. cap_rfcmim:$989:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb11n vs. cap_rfcmim:$886:
+cap_rfcmim:xb11n vs. cap_rfcmim:$993:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb11n vs. cap_rfcmim:$886:
+cap_rfcmim:xb11n vs. cap_rfcmim:$993:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb6n vs. cap_rfcmim:$892:
+cap_rfcmim:xb8n vs. cap_rfcmim:$994:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb6n vs. cap_rfcmim:$892:
+cap_rfcmim:xb8n vs. cap_rfcmim:$994:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb7n vs. cap_rfcmim:$893:
+cap_rfcmim:xb5n vs. cap_rfcmim:$997:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb7n vs. cap_rfcmim:$893:
+cap_rfcmim:xb5n vs. cap_rfcmim:$997:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb11p vs. cap_rfcmim:$876:
+cap_rfcmim:xb6n vs. cap_rfcmim:$998:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb11p vs. cap_rfcmim:$876:
+cap_rfcmim:xb6n vs. cap_rfcmim:$998:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb10p vs. cap_rfcmim:$877:
+cap_rfcmim:xb7n vs. cap_rfcmim:$999:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb10p vs. cap_rfcmim:$877:
+cap_rfcmim:xb7n vs. cap_rfcmim:$999:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb8p vs. cap_rfcmim:$885:
+cap_rfcmim:xb10p vs. cap_rfcmim:$980:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb8p vs. cap_rfcmim:$885:
+cap_rfcmim:xb10p vs. cap_rfcmim:$980:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb7p vs. cap_rfcmim:$888:
+cap_rfcmim:xb9p vs. cap_rfcmim:$981:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb7p vs. cap_rfcmim:$888:
+cap_rfcmim:xb9p vs. cap_rfcmim:$981:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb9p vs. cap_rfcmim:$889:
+cap_rfcmim:xb8p vs. cap_rfcmim:$982:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb9p vs. cap_rfcmim:$889:
+cap_rfcmim:xb8p vs. cap_rfcmim:$982:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb5p vs. cap_rfcmim:$890:
+cap_rfcmim:xb7p vs. cap_rfcmim:$986:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb5p vs. cap_rfcmim:$890:
+cap_rfcmim:xb7p vs. cap_rfcmim:$986:
 Property A in circuit2 has no matching property in circuit1
-cap_rfcmim:xb6p vs. cap_rfcmim:$891:
+cap_rfcmim:xb11p vs. cap_rfcmim:$991:
 Property P in circuit2 has no matching property in circuit1
-cap_rfcmim:xb6p vs. cap_rfcmim:$891:
+cap_rfcmim:xb11p vs. cap_rfcmim:$991:
 Property A in circuit2 has no matching property in circuit1
-rhigh:rba11 vs. rhigh:$858:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rbb11 vs. rhigh:$859:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rba10 vs. rhigh:$856:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rbb10 vs. rhigh:$857:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rba9 vs. rhigh:$854:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rbb9 vs. rhigh:$855:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rba8 vs. rhigh:$852:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rbb8 vs. rhigh:$853:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rba7 vs. rhigh:$850:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rbb7 vs. rhigh:$851:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rba6 vs. rhigh:$848:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rbb6 vs. rhigh:$849:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rba5 vs. rhigh:$846:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rbb5 vs. rhigh:$847:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rba3 vs. rhigh:$866:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rbb3 vs. rhigh:$867:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rba4 vs. rhigh:$868:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rbb4 vs. rhigh:$869:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rba0 vs. rhigh:$860:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rbb0 vs. rhigh:$861:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rba1 vs. rhigh:$862:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rbb1 vs. rhigh:$863:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rba2 vs. rhigh:$864:
-Property ps in circuit2 has no matching property in circuit1
-rhigh:rbb2 vs. rhigh:$865:
-Property ps in circuit2 has no matching property in circuit1
-cap_cmim:xb1n vs. cap_cmim:$872:
+cap_rfcmim:xb6p vs. cap_rfcmim:$992:
 Property P in circuit2 has no matching property in circuit1
-cap_cmim:xb1n vs. cap_cmim:$872:
+cap_rfcmim:xb6p vs. cap_rfcmim:$992:
 Property A in circuit2 has no matching property in circuit1
-cap_cmim:xb1p vs. cap_cmim:$871:
+cap_rfcmim:xb5p vs. cap_rfcmim:$996:
 Property P in circuit2 has no matching property in circuit1
-cap_cmim:xb1p vs. cap_cmim:$871:
+cap_rfcmim:xb5p vs. cap_rfcmim:$996:
 Property A in circuit2 has no matching property in circuit1
-cap_cmim:xb0n vs. cap_cmim:$873:
+rhigh:bbdum vs. rhigh:$954:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbadum vs. rhigh:$955:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba11 vs. rhigh:$962:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb11 vs. rhigh:$963:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba10 vs. rhigh:$960:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb10 vs. rhigh:$961:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba9 vs. rhigh:$958:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb9 vs. rhigh:$959:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba8 vs. rhigh:$956:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb8 vs. rhigh:$957:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba7 vs. rhigh:$952:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb7 vs. rhigh:$953:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba6 vs. rhigh:$950:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb6 vs. rhigh:$951:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba5 vs. rhigh:$948:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb5 vs. rhigh:$949:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba3 vs. rhigh:$970:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb3 vs. rhigh:$971:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba4 vs. rhigh:$972:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb4 vs. rhigh:$973:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba0 vs. rhigh:$964:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb0 vs. rhigh:$965:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba1 vs. rhigh:$966:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb1 vs. rhigh:$967:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba2 vs. rhigh:$968:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb2 vs. rhigh:$969:
+Property ps in circuit2 has no matching property in circuit1
+cap_cmim:xb0n vs. cap_cmim:$974:
 Property P in circuit2 has no matching property in circuit1
-cap_cmim:xb0n vs. cap_cmim:$873:
+cap_cmim:xb0n vs. cap_cmim:$974:
 Property A in circuit2 has no matching property in circuit1
-cap_cmim:xb0p vs. cap_cmim:$870:
+cap_cmim:xb0p vs. cap_cmim:$975:
 Property P in circuit2 has no matching property in circuit1
-cap_cmim:xb0p vs. cap_cmim:$870:
+cap_cmim:xb0p vs. cap_cmim:$975:
 Property A in circuit2 has no matching property in circuit1
-cap_cmim:xb2n vs. cap_cmim:$875:
+cap_cmim:xb1n vs. cap_cmim:$978:
 Property P in circuit2 has no matching property in circuit1
-cap_cmim:xb2n vs. cap_cmim:$875:
+cap_cmim:xb1n vs. cap_cmim:$978:
 Property A in circuit2 has no matching property in circuit1
-cap_cmim:xb2p vs. cap_cmim:$874:
+cap_cmim:xb1p vs. cap_cmim:$976:
 Property P in circuit2 has no matching property in circuit1
-cap_cmim:xb2p vs. cap_cmim:$874:
+cap_cmim:xb1p vs. cap_cmim:$976:
+Property A in circuit2 has no matching property in circuit1
+cap_cmim:xb2n vs. cap_cmim:$979:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:xb2n vs. cap_cmim:$979:
+Property A in circuit2 has no matching property in circuit1
+cap_cmim:xb2p vs. cap_cmim:$977:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:xb2p vs. cap_cmim:$977:
 Property A in circuit2 has no matching property in circuit1
 
 Subcircuit pins:
@@ -214,8 +227,8 @@ bb3                                        |bb3
 bb0                                        |bb0                                        
 bb1                                        |bb1                                        
 bb2                                        |bb2                                        
-tp                                         |tp                                         
 tn                                         |tn                                         
+tp                                         |tp                                         
 ---------------------------------------------------------------------------------------
 Cell pin lists are equivalent.
 Device classes vco_bank and vco_bank are equivalent.

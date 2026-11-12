@@ -281,7 +281,8 @@ def netlist(title, code, vtune, analysis, itail=ITAIL, extra="", drive_vbp=False
         c_mim = 2 * LSB_FF * wt * tr                     # each MIM is twice the differential value
         s = side(c_mim)
         w = SW_PER_FF * LSB_FF * wt * tr
-        ng = max(1, int(round(w / 2.5)))
+        # PCell clamps ng ≤ 100; sch/layout use the same total W [TOOL]
+        ng = min(100, max(1, int(round(w / 2.5))))
         on = cell_on(code, k)
         n.append(f"xb{k}p (tp a{k} 0) cap_rfcmim w={s:.3f}u l={s:.3f}u\n"
                  f"xb{k}n (tn b{k} 0) cap_rfcmim w={s:.3f}u l={s:.3f}u\n"

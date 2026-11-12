@@ -1136,7 +1136,7 @@
       "params": {
         "w": "308.58u",
         "l": "0.13u",
-        "ng": "123",
+        "ng": "100",
         "model": "sg13_lv_nmos"
       }
     },
@@ -1234,7 +1234,7 @@
       "params": {
         "w": "308.58u",
         "l": "0.13u",
-        "ng": "123",
+        "ng": "100",
         "model": "sg13_lv_nmos"
       }
     },
@@ -1332,7 +1332,7 @@
       "params": {
         "w": "308.58u",
         "l": "0.13u",
-        "ng": "123",
+        "ng": "100",
         "model": "sg13_lv_nmos"
       }
     },
@@ -1430,7 +1430,7 @@
       "params": {
         "w": "308.58u",
         "l": "0.13u",
-        "ng": "123",
+        "ng": "100",
         "model": "sg13_lv_nmos"
       }
     },
@@ -1528,7 +1528,7 @@
       "params": {
         "w": "308.58u",
         "l": "0.13u",
-        "ng": "123",
+        "ng": "100",
         "model": "sg13_lv_nmos"
       }
     },
@@ -1626,7 +1626,7 @@
       "params": {
         "w": "308.58u",
         "l": "0.13u",
-        "ng": "123",
+        "ng": "100",
         "model": "sg13_lv_nmos"
       }
     },
@@ -1724,7 +1724,7 @@
       "params": {
         "w": "308.58u",
         "l": "0.13u",
-        "ng": "123",
+        "ng": "100",
         "model": "sg13_lv_nmos"
       }
     },
@@ -1773,6 +1773,104 @@
         "b11",
         "vbp",
         "bb11",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xbdump",
+      "nodes": [
+        "gnd",
+        "adum",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xbdumn",
+      "nodes": [
+        "gnd",
+        "bdum",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "msdum",
+      "nodes": [
+        "adum",
+        "gnd",
+        "bdum",
+        "gnd"
+      ],
+      "params": {
+        "w": "308.58u",
+        "l": "0.13u",
+        "ng": "100",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rbadum",
+      "nodes": [
+        "adum",
+        "gnd"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rbbdum",
+      "nodes": [
+        "bdum",
+        "gnd"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rbadum",
+      "nodes": [
+        "adum",
+        "gnd",
+        "gnd",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rbbdum",
+      "nodes": [
+        "bdum",
+        "gnd",
+        "gnd",
         "gnd"
       ],
       "params": {
@@ -3066,7 +3164,7 @@
       "params": {
         "w": "308.58u",
         "l": "0.13u",
-        "ng": "123",
+        "ng": "100",
         "model": "sg13_lv_nmos"
       }
     },
@@ -3164,7 +3262,7 @@
       "params": {
         "w": "308.58u",
         "l": "0.13u",
-        "ng": "123",
+        "ng": "100",
         "model": "sg13_lv_nmos"
       }
     },
@@ -3262,7 +3360,7 @@
       "params": {
         "w": "308.58u",
         "l": "0.13u",
-        "ng": "123",
+        "ng": "100",
         "model": "sg13_lv_nmos"
       }
     },
@@ -3360,7 +3458,7 @@
       "params": {
         "w": "308.58u",
         "l": "0.13u",
-        "ng": "123",
+        "ng": "100",
         "model": "sg13_lv_nmos"
       }
     },
@@ -3458,7 +3556,7 @@
       "params": {
         "w": "308.58u",
         "l": "0.13u",
-        "ng": "123",
+        "ng": "100",
         "model": "sg13_lv_nmos"
       }
     },
@@ -3556,7 +3654,7 @@
       "params": {
         "w": "308.58u",
         "l": "0.13u",
-        "ng": "123",
+        "ng": "100",
         "model": "sg13_lv_nmos"
       }
     },
@@ -3654,7 +3752,7 @@
       "params": {
         "w": "308.58u",
         "l": "0.13u",
-        "ng": "123",
+        "ng": "100",
         "model": "sg13_lv_nmos"
       }
     },
@@ -3703,6 +3801,104 @@
         "b11",
         "vbp",
         "bb11",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xbdump",
+      "nodes": [
+        "gnd",
+        "adum",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "mim",
+      "name": "xbdumn",
+      "nodes": [
+        "gnd",
+        "bdum",
+        "gnd"
+      ],
+      "params": {
+        "w": "15.712u",
+        "l": "15.712u",
+        "model": "cap_rfcmim"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "msdum",
+      "nodes": [
+        "adum",
+        "gnd",
+        "bdum",
+        "gnd"
+      ],
+      "params": {
+        "w": "308.58u",
+        "l": "0.13u",
+        "ng": "100",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rbadum",
+      "nodes": [
+        "adum",
+        "gnd"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "res",
+      "name": "rbbdum",
+      "nodes": [
+        "bdum",
+        "gnd"
+      ],
+      "params": {
+        "r": "2000000.0"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rbadum",
+      "nodes": [
+        "adum",
+        "gnd",
+        "gnd",
+        "gnd"
+      ],
+      "params": {
+        "w": "1.25u",
+        "l": "0.13u",
+        "ng": "2",
+        "model": "sg13_lv_nmos"
+      }
+    },
+    {
+      "kind": "nmos",
+      "name": "mbp_rbbdum",
+      "nodes": [
+        "bdum",
+        "gnd",
+        "gnd",
         "gnd"
       ],
       "params": {

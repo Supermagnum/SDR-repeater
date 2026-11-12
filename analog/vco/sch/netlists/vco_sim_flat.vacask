@@ -63,53 +63,60 @@ mbp_rba4 (a4 vbp bb4 0) sg13_lv_nmos w=0.625u l=0.13u ng=2
 mbp_rbb4 (b4 vbp bb4 0) sg13_lv_nmos w=0.625u l=0.13u ng=2
 xb5p (tp a5 0) cap_rfcmim w=15.712u l=15.712u
 xb5n (tn b5 0) cap_rfcmim w=15.712u l=15.712u
-ms5 (a5 g5 b5 0) sg13_lv_nmos w=308.58u l=0.13u ng=123
+ms5 (a5 g5 b5 0) sg13_lv_nmos w=308.58u l=0.13u ng=100
 rba5 (a5 bb5) resistor r=2000000.0
 rbb5 (b5 bb5) resistor r=2000000.0
 mbp_rba5 (a5 vbp bb5 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
 mbp_rbb5 (b5 vbp bb5 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
 xb6p (tp a6 0) cap_rfcmim w=15.712u l=15.712u
 xb6n (tn b6 0) cap_rfcmim w=15.712u l=15.712u
-ms6 (a6 g6 b6 0) sg13_lv_nmos w=308.58u l=0.13u ng=123
+ms6 (a6 g6 b6 0) sg13_lv_nmos w=308.58u l=0.13u ng=100
 rba6 (a6 bb6) resistor r=2000000.0
 rbb6 (b6 bb6) resistor r=2000000.0
 mbp_rba6 (a6 vbp bb6 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
 mbp_rbb6 (b6 vbp bb6 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
 xb7p (tp a7 0) cap_rfcmim w=15.712u l=15.712u
 xb7n (tn b7 0) cap_rfcmim w=15.712u l=15.712u
-ms7 (a7 g7 b7 0) sg13_lv_nmos w=308.58u l=0.13u ng=123
+ms7 (a7 g7 b7 0) sg13_lv_nmos w=308.58u l=0.13u ng=100
 rba7 (a7 bb7) resistor r=2000000.0
 rbb7 (b7 bb7) resistor r=2000000.0
 mbp_rba7 (a7 vbp bb7 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
 mbp_rbb7 (b7 vbp bb7 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
 xb8p (tp a8 0) cap_rfcmim w=15.712u l=15.712u
 xb8n (tn b8 0) cap_rfcmim w=15.712u l=15.712u
-ms8 (a8 g8 b8 0) sg13_lv_nmos w=308.58u l=0.13u ng=123
+ms8 (a8 g8 b8 0) sg13_lv_nmos w=308.58u l=0.13u ng=100
 rba8 (a8 bb8) resistor r=2000000.0
 rbb8 (b8 bb8) resistor r=2000000.0
 mbp_rba8 (a8 vbp bb8 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
 mbp_rbb8 (b8 vbp bb8 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
 xb9p (tp a9 0) cap_rfcmim w=15.712u l=15.712u
 xb9n (tn b9 0) cap_rfcmim w=15.712u l=15.712u
-ms9 (a9 g9 b9 0) sg13_lv_nmos w=308.58u l=0.13u ng=123
+ms9 (a9 g9 b9 0) sg13_lv_nmos w=308.58u l=0.13u ng=100
 rba9 (a9 bb9) resistor r=2000000.0
 rbb9 (b9 bb9) resistor r=2000000.0
 mbp_rba9 (a9 vbp bb9 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
 mbp_rbb9 (b9 vbp bb9 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
 xb10p (tp a10 0) cap_rfcmim w=15.712u l=15.712u
 xb10n (tn b10 0) cap_rfcmim w=15.712u l=15.712u
-ms10 (a10 g10 b10 0) sg13_lv_nmos w=308.58u l=0.13u ng=123
+ms10 (a10 g10 b10 0) sg13_lv_nmos w=308.58u l=0.13u ng=100
 rba10 (a10 bb10) resistor r=2000000.0
 rbb10 (b10 bb10) resistor r=2000000.0
 mbp_rba10 (a10 vbp bb10 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
 mbp_rbb10 (b10 vbp bb10 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
 xb11p (tp a11 0) cap_rfcmim w=15.712u l=15.712u
 xb11n (tn b11 0) cap_rfcmim w=15.712u l=15.712u
-ms11 (a11 g11 b11 0) sg13_lv_nmos w=308.58u l=0.13u ng=123
+ms11 (a11 g11 b11 0) sg13_lv_nmos w=308.58u l=0.13u ng=100
 rba11 (a11 bb11) resistor r=2000000.0
 rbb11 (b11 bb11) resistor r=2000000.0
 mbp_rba11 (a11 vbp bb11 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
 mbp_rbb11 (b11 vbp bb11 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
+xbdump (0 adum 0) cap_rfcmim w=15.712u l=15.712u
+xbdumn (0 bdum 0) cap_rfcmim w=15.712u l=15.712u
+msdum (adum 0 bdum 0) sg13_lv_nmos w=308.58u l=0.13u ng=100
+rbadum (adum 0) resistor r=2000000.0
+rbbdum (bdum 0) resistor r=2000000.0
+mbp_rbadum (adum 0 0 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
+mbp_rbbdum (bdum 0 0 0) sg13_lv_nmos w=1.25u l=0.13u ng=2
 xcp (tp vgp 0) cap_rfcmim w=21.292u l=21.292u
 xcn (tn vgn 0) cap_rfcmim w=21.292u l=21.292u
 rvp (vgp vvb) resistor r=2000000.0

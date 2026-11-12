@@ -195,7 +195,7 @@ def gen_vco_bank(rng):
         c_mim = 2 * lsb * wt * tr
         s = side_um(c_mim)
         w = SW_PER_FF * lsb * wt * tr
-        ng = max(1, int(round(w / 2.5)))
+        ng = min(100, max(1, int(round(w / 2.5))))  # PCell clamp [TOOL]
         sch.mim(f"xb{k}p", "tp", f"a{k}", "gnd", f"{s:.3f}u", f"{s:.3f}u")
         sch.mim(f"xb{k}n", "tn", f"b{k}", "gnd", f"{s:.3f}u", f"{s:.3f}u")
         sch.nmos(f"ms{k}", f"a{k}", f"g{k}", f"b{k}", "gnd",
@@ -206,6 +206,25 @@ def gen_vco_bank(rng):
         sch.nmos(f"mbp_rba{k}", f"a{k}", "vbp", f"bb{k}", "gnd",
                  f"{bw:.4g}u", f"{bl:g}u", bng)
         sch.nmos(f"mbp_rbb{k}", f"b{k}", "vbp", f"bb{k}", "gnd",
+                 f"{bw:.4g}u", f"{bl:g}u", bng)
+    # Centroid dummy (slot D): one thermo-sized unit, all terminals to gnd
+    if S2.BANK_ARCH == "d24":
+        wt = S2.cell_weight(5)
+        tr = S2.cell_trim(5)
+        c_mim = 2 * lsb * wt * tr
+        s = side_um(c_mim)
+        w = SW_PER_FF * lsb * wt * tr
+        ng = min(100, max(1, int(round(w / 2.5))))
+        bw, bl, bng = S2.bank_bypass_geom(5)
+        sch.mim("xbdump", "gnd", "adum", "gnd", f"{s:.3f}u", f"{s:.3f}u")
+        sch.mim("xbdumn", "gnd", "bdum", "gnd", f"{s:.3f}u", f"{s:.3f}u")
+        sch.nmos("msdum", "adum", "gnd", "bdum", "gnd",
+                 f"{w:.2f}u", "0.13u", ng)
+        sch.res("rbadum", "adum", "gnd", R_BIAS)
+        sch.res("rbbdum", "bdum", "gnd", R_BIAS)
+        sch.nmos("mbp_rbadum", "adum", "gnd", "gnd", "gnd",
+                 f"{bw:.4g}u", f"{bl:g}u", bng)
+        sch.nmos("mbp_rbbdum", "bdum", "gnd", "gnd", "gnd",
                  f"{bw:.4g}u", f"{bl:g}u", bng)
     sch.write()
     write_sym(os.path.join(HERE, "vco_bank.sym"), "vco_bank", ports)

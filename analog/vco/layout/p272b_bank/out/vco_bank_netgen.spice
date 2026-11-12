@@ -84,4 +84,11 @@ Xrba11 a11 bb11 gnd rhigh w=5.0u l=60.8u m=1
 Xrbb11 b11 bb11 gnd rhigh w=5.0u l=60.8u m=1
 Mbp_a11 a11 vbp bb11 gnd sg13_lv_nmos w=1.25u l=0.13u
 Mbp_b11 b11 vbp bb11 gnd sg13_lv_nmos w=1.25u l=0.13u
+Xxbdump gnd adum gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Xxbdumn gnd bdum gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mmsdum adum gnd bdum gnd sg13_lv_nmos w=308.5u l=0.13u
+Xrbadum adum gnd gnd rhigh w=5.0u l=60.8u m=1
+Xbbdum bdum gnd gnd rhigh w=5.0u l=60.8u m=1
+Mbp_adum adum gnd gnd gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_bdum bdum gnd gnd gnd sg13_lv_nmos w=1.25u l=0.13u
 .ends

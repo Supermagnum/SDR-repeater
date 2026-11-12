@@ -39,7 +39,7 @@ import sg13g2_pycell_lib  # noqa: E402, F401
 DBU = 0.001
 SIZES = json.load(open(os.path.join(HERE, "cell_sizes.json")))
 # Thermometer common-centroid order (indices into thermo[0..6] = cells 5..11)
-# 2×4 grid: U0 U1 U2 · / U3 U4 U5 U6 ; empty slots = D (no device; LVS has 12 cells)
+# 2×4 grid: U0 U1 U2 D / U3 U4 U5 U6 ; D = grounded dummy unit cell
 CENTROID_ORDER = [0, 1, 2, None, 3, 4, 5, 6]
 
 # KLayout extract property snaps [TOOL] — keyed by schematic k
@@ -75,6 +75,7 @@ class B:
         self.m1pin = self.ly.layer(8, 2)
         self.m1txt = self.ly.layer(8, 25)
         self.m2 = self.ly.layer(10, 0)
+        self.m3 = self.ly.layer(30, 0)
         self.cont = self.ly.layer(6, 0)
         self.poly = self.ly.layer(5, 0)
         self.activ = self.ly.layer(1, 0)
@@ -527,19 +528,122 @@ class B:
         local = self.ly.cell(cid).bbox().to_dtype(self.ly.dbu)
         return self.place(parent, cid, x_left - local.left, y_bottom - local.bottom)
 
+    def rename_pin_texts(self, cid, mapping):
+        """Rewrite pin text strings so dummy labels are not top-level ports."""
+        for layer in (self.tm1txt, self.m1txt):
+            for s in self.ly.cell(cid).shapes(layer).each():
+                if s.is_text() and s.text.string in mapping:
+                    t = s.text
+                    t.string = mapping[s.text.string]
+                    s.text = t
+
+    def tie_dummy_pins_to_gnd(self, cid):
+        """Short all pins to gnd; vias only east of the cell (avoid V1.b) [HAND].
+
+        M1 pins → south rail (below bbox) → east → one M1↔M3 via.
+        TM1 pins → east on TM1 → TM1↔M3 vias spaced ≥ 2 µm on east edge.
+        Pin texts renamed to gnd (1-port LVS).
+        """
+        cell = self.ly.cell(cid)
+        id_trans = pya.Trans(pya.Trans.R0, 0, 0)
+        gnds = [(x, y) for n, x, y in self.texts_in(cid, id_trans, self.m1txt)
+                if n == "gnd"]
+        if not gnds:
+            self.say("WARN: dummy has no gnd pin")
+            return
+        gx, gy = gnds[0]
+        bb0 = cell.bbox().to_dtype(self.ly.dbu)
+        x_east = bb0.right + 3.0
+        y_rail = bb0.bottom - 2.0
+        hw = 0.40
+        pad = 0.80
+        via_pitch = 4.0  # TM1.b ≥ 1.64 µm with tw=1.7 [DS]
+        vs13 = self.pcell("via_stack", {
+            "b_layer": "Metal1", "t_layer": "Metal3",
+            "vn_columns": 1, "vn_rows": 1,
+        })
+        vs_tm1m3 = self.pcell("via_stack", {
+            "b_layer": "Metal3", "t_layer": "TopMetal1",
+            "vn_columns": 1, "vn_rows": 1,
+        })
+        vs_bb = self.ly.cell(vs13).bbox().to_dtype(self.ly.dbu)
+
+        def m3_wire(x0, y0, x1, y1):
+            cell.shapes(self.m3).insert(pya.DBox(
+                min(x0, x1) - hw, min(y0, y1) - hw,
+                max(x0, x1) + hw, max(y0, y1) + hw))
+
+        def place_vs13(x, y):
+            self.box_m1(cell, x - pad, y - pad, x + pad, y + pad)
+            cell.shapes(self.m3).insert(
+                pya.DBox(x - pad, y - pad, x + pad, y + pad))
+            self.place(cell, vs13, x - vs_bb.left - 0.5 * vs_bb.width(),
+                       y - vs_bb.bottom - 0.5 * vs_bb.height())
+
+        # gnd → M3 east rail (single via at gnd)
+        place_vs13(gx, gy)
+        m3_wire(gx, gy, x_east, gy)
+        m3_wire(x_east, gy, x_east, y_rail)
+
+        # M1 pins: jog south outside the cell, then east to one shared via
+        for name, x, y in self.texts_in(cid, id_trans, self.m1txt):
+            if name == "gnd":
+                continue
+            x_out = bb0.left - 2.0 if x < 0.5 * (bb0.left + bb0.right) \
+                else bb0.right + 2.0
+            # stay outside: pin → x_out at y (only if already outside activ band)
+            # prefer: pin down/up to y_rail at pin x only when y already ≤ activ
+            if y <= bb0.bottom + 5.0:
+                self.box_m1(cell, x - hw, min(y, y_rail) - hw,
+                            x + hw, max(y, y_rail) + hw)
+                self.box_m1(cell, min(x, x_east) - hw, y_rail - hw,
+                            max(x, x_east) + hw, y_rail + hw)
+            else:
+                # upper M1 pins: outboard then south on outside edge
+                self.box_m1(cell, min(x, x_out) - hw, y - hw,
+                            max(x, x_out) + hw, y + hw)
+                self.box_m1(cell, x_out - hw, min(y, y_rail) - hw,
+                            x_out + hw, max(y, y_rail) + hw)
+                self.box_m1(cell, min(x_out, x_east) - hw, y_rail - hw,
+                            max(x_out, x_east) + hw, y_rail + hw)
+        place_vs13(x_east, y_rail)
+
+        # TM1 pins: east on TM1, vias on east edge spaced apart
+        tm1_pins = self.texts_in(cid, id_trans, self.tm1txt)
+        for i, (name, x, y) in enumerate(tm1_pins):
+            tw = 1.70
+            y_via = y_rail + (i + 1) * via_pitch
+            cell.shapes(self.tm1).insert(pya.DBox(
+                min(x, x_east) - tw * 0.5, y - tw * 0.5,
+                max(x, x_east) + tw * 0.5, y + tw * 0.5))
+            cell.shapes(self.tm1).insert(pya.DBox(
+                x_east - tw * 0.5, min(y, y_via) - tw * 0.5,
+                x_east + tw * 0.5, max(y, y_via) + tw * 0.5))
+            cell.shapes(self.m3).insert(
+                pya.DBox(x_east - pad, y_via - pad, x_east + pad, y_via + pad))
+            self.place(cell, vs_tm1m3, x_east - 0.145, y_via - 0.105)
+            m3_wire(x_east, y_via, x_east, y_rail)
+
+        self.rename_pin_texts(cid, {
+            "tp": "gnd", "tn": "gnd", "vbp": "gnd",
+            "xg": "gnd", "xbb": "gnd", "xtp": "gnd", "xtn": "gnd",
+            "xvbp": "gnd", "g": "gnd", "bb": "gnd",
+        })
+        self.say("dummy pins→gnd; vias only on east corridor; texts→gnd")
+
     def build_bank(self):
         """Assemble vco_bank: thermo common-centroid + binary row south + buses.
 
-        Floorplan (compact for ≤0.30 mm² island with core 0.1102):
-          thermo 2×4 (D empty) on top; binary b0..b4 in one row below.
+        Floorplan (denser pack for ≤0.30 mm² island with core 0.1102):
+          thermo 2×4 with D = grounded dummy; binary b0..b4 south.
         """
         top = self.ly.create_cell("vco_bank")
-        placements = []  # (cid, trans, k, row_id)
+        placements = []  # (cid, trans, k, row_id)  k=-1 for dummy
         tw = 1.70  # ≥ TM1.a; space ≥ TM1.b 1.64 µm [DS]
-        # Row gap fits tp + tn channel Y (2×tw + space) [DS TM1.b]
-        gap_x = 4.0
-        gap_y = 2.0 * tw + 2.0 + 2.0  # ≈ 7.4 → use 8
-        gap_y = 8.0
+        # Denser pack (area forecast): gap_x 2, gap_y 5.5 (≥ 2×tw + TM1.b)
+        gap_x = 2.0
+        gap_y = 5.5
+        corridor = 4.0
 
         cell_ids = []
         for sz in SIZES:
@@ -548,21 +652,35 @@ class B:
                 sz, pin_g=f"g{k}", pin_bb=f"bb{k}")
             cell_ids.append(cid)
 
+        # Dummy = thermo unit; all pin texts labeled gnd (1-port extract).
+        dum_cid, dum_name = self.build_bank_cell(
+            SIZES[5], name="bank_cell_dummy", pin_g="xg", pin_bb="xbb")
+        self.tie_dummy_pins_to_gnd(dum_cid)
+        self.write_cell(dum_name, dum_cid)
+        open(os.path.join(OUT, f"{dum_name}.spice"), "w").write(
+            self.spice_dummy())
+
         thermo = cell_ids[5:]
         u_bb = self.ly.cell(thermo[0]).bbox().to_dtype(self.ly.dbu)
-        pitch_x = u_bb.width() + gap_x
-        pitch_y = u_bb.height() + gap_y
+        d_bb = self.ly.cell(dum_cid).bbox().to_dtype(self.ly.dbu)
+        pitch_x = max(u_bb.width(), d_bb.width()) + gap_x
+        pitch_y = max(u_bb.height(), d_bb.height()) + gap_y
         self.say(
             f"centroid order "
             f"{[x if x is not None else 'D' for x in CENTROID_ORDER]}; "
-            f"pitch {pitch_x:.1f}x{pitch_y:.1f} um; D=empty (LVS); "
+            f"pitch {pitch_x:.1f}x{pitch_y:.1f} um; D=dummy→gnd; "
+            f"gap_x={gap_x} gap_y={gap_y} corridor={corridor}; "
             f"binary row south; TM1 channels in row gaps")
 
         thermo_bbs = []
         for i, idx in enumerate(CENTROID_ORDER):
-            if idx is None:
-                continue
             col, row = i % 4, i // 4
+            if idx is None:
+                bb, t = self.place_at_origin(
+                    top, dum_cid, col * pitch_x, row * pitch_y)
+                thermo_bbs.append(bb)
+                placements.append((dum_cid, t, -1, row))
+                continue
             cid = thermo[idx]
             k = 5 + idx
             bb, t = self.place_at_origin(
@@ -584,7 +702,14 @@ class B:
             [f"g{k}" for k in range(12)] +
             [f"bb{k}" for k in range(12)])}
         pin_row = {}  # (name,x,y) → row_id for tp/tn
-        for cid, t, _k, row in placements:
+        for cid, t, k, row in placements:
+            if k < 0:
+                # dummy: only the substrate ptap gnd (lowest Y), not renamed pins
+                gxy = [(x, y) for name, x, y in self.texts_in(cid, t, self.m1txt)
+                       if name == "gnd"]
+                if gxy:
+                    pins["gnd"].append(min(gxy, key=lambda p: p[1]))
+                continue
             for name, x, y in self.texts_in(cid, t, self.tm1txt):
                 if name in pins:
                     pins[name].append((x, y))
@@ -603,8 +728,8 @@ class B:
             "vn_columns": 2, "vn_rows": 2,
         })
         bb0 = top.bbox().to_dtype(self.ly.dbu)
-        x_west = bb0.left - 8.0
-        x_east = bb0.right + 8.0
+        x_west = bb0.left - corridor
+        x_east = bb0.right + corridor
         tw2 = 2.0  # TM2.a min width [DS]
 
         def tm1_wire(x0, y0, x1, y1):
@@ -659,7 +784,9 @@ class B:
 
         # vbp: M2 in row gaps → west corridor (never full-width at pin Y)
         if pins["vbp"]:
-            for cid, t, _k, row in placements:
+            for cid, t, k, row in placements:
+                if k < 0:
+                    continue
                 y_ch = row_top[row] + 1.0
                 for name, x, y in self.texts_in(cid, t, self.m1txt):
                     if name != "vbp":
@@ -705,6 +832,25 @@ class B:
                  f"with core 0.1102 → {area + 0.1102:.4f}")
         return top.cell_index()
 
+    def spice_dummy(self):
+        """Centroid dummy: 1-port (gnd); all device terminals → gnd [SCH]."""
+        prop = LVS_PROP[5]
+        side_lvs = prop["side"]
+        w_sw_lvs = prop["w_sw"]
+        w_bp = prop["bp_w"]
+        return (
+            "* P2.7.2b bank_cell_dummy — thermo unit, all terminals → gnd\n"
+            ".subckt bank_cell_dummy gnd\n"
+            f"Cxb gnd adum gnd rfcmim w={side_lvs}u l={side_lvs}u wfeed=5u m=1\n"
+            f"Cxn gnd bdum gnd rfcmim w={side_lvs}u l={side_lvs}u wfeed=5u m=1\n"
+            f"Mms adum gnd bdum gnd sg13_lv_nmos w={w_sw_lvs}u l=0.13u\n"
+            f"Rrba adum gnd gnd rhigh w=5.0u l=60.8u m=1\n"
+            f"Rrbb bdum gnd gnd rhigh w=5.0u l=60.8u m=1\n"
+            f"Mbp_a adum gnd gnd gnd sg13_lv_nmos w={w_bp}u l=0.13u\n"
+            f"Mbp_b bdum gnd gnd gnd sg13_lv_nmos w={w_bp}u l=0.13u\n"
+            ".ends\n"
+        )
+
     def spice_bank(self):
         lines = [
             "* P2.7.2b D24 vco_bank [SCH sizes; layout kind per cell]",
@@ -741,6 +887,25 @@ class B:
                 f"Mbp_a{k} {a} vbp bb{k} gnd sg13_lv_nmos w={w_bp}u l=0.13u")
             lines.append(
                 f"Mbp_b{k} {b} vbp bb{k} gnd sg13_lv_nmos w={w_bp}u l=0.13u")
+        # Centroid dummy (slot D): same thermo sizes, all nets → gnd
+        prop = LVS_PROP[5]
+        side_lvs = prop["side"]
+        w_sw_lvs = prop["w_sw"]
+        w_bp = prop["bp_w"]
+        lines.append(
+            f"Cxbdump gnd adum gnd rfcmim w={side_lvs}u l={side_lvs}u "
+            f"wfeed=5u m=1")
+        lines.append(
+            f"Cxbdumn gnd bdum gnd rfcmim w={side_lvs}u l={side_lvs}u "
+            f"wfeed=5u m=1")
+        lines.append(
+            f"Mmsdum adum gnd bdum gnd sg13_lv_nmos w={w_sw_lvs}u l=0.13u")
+        lines.append("Rrbadum adum gnd gnd rhigh w=5.0u l=60.8u m=1")
+        lines.append("Rbbdum bdum gnd gnd rhigh w=5.0u l=60.8u m=1")
+        lines.append(
+            f"Mbp_adum adum gnd gnd gnd sg13_lv_nmos w={w_bp}u l=0.13u")
+        lines.append(
+            f"Mbp_bdum bdum gnd gnd gnd sg13_lv_nmos w={w_bp}u l=0.13u")
         lines.append(".ends")
         return "\n".join(lines) + "\n"
 

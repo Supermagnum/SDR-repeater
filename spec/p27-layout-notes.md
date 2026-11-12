@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b re-spin 2 PASS** (core+tank). **P2.7.2b D24 bank PASS** (stages a–d).
+Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b re-spin 2 PASS** (core+tank). **P2.7.2b D24 bank PASS** (stages a–d). **P2.7.2b bank fix PASS** (ng=100, dummy, denser).
 
 ---
 
@@ -213,22 +213,23 @@ PNG/SVG, DRC/LVS/netgen logs, `summary_assemble_*_PASS.txt`, `summary_rc_tank.tx
 `vco_bank.gds.gz`, PNG/SVG, DRC/LVS/netgen per stage, `summary_rc_bank.txt`.
 - **Architecture [SCH]:** 5 binary + 7 thermo (32 LSB); bypass
   W=max(0.15, 5·2^(k−7)) µm; 3→7 decoder in AFE RTL → bank pins g0–g11 / bb*.
-- **Centroid order:** thermo [0,1,2,D,3,4,5,6] in 2×4; D empty (no extra devices
-  for LVS); binary row south; pitch 130.2×90.5 µm [LAYOUT].
-- **Stage a `bank_cell_b0`:** DRC PASS (density waived); KLayout LVS PASS; netgen PASS.
-- **Stage b `bank_cell_u`:** DRC PASS; KLayout LVS PASS; netgen uniquely match
-  (property noise). ng_req=123 → ng_lay=100 (PCell clamp) [TOOL]; W extract 308.5.
-- **Stage c:** all binary b0–b4 + thermo unit proved; LVS_PROP snaps (cmim side,
-  MOS W, bypass W) from extract [TOOL].
-- **Stage d `vco_bank`:** DRC PASS (density waived); KLayout LVS PASS; netgen
-  uniquely match (property noise). Area **0.1509 mm²**; with core+tank 0.1102 →
-  **0.2611 mm²** (87 % of ≤ 0.30) [GDS].
-- **Routing lessons [LAYOUT]:** Trans.trans(Vector) skips displacement — compose
-  Trans for pin coords. tp on TM1 west corridor; tn on TM2 east (same-layer spines
-  short). No M5↔TM1 via_stack (shorts intermediate metals). gnd east corridor —
-  vertical gnd through array shorted thermo a/b to gnd.
-- **RC [SCH/HAND]:** boundary step 8.58 fF ≈ 0.69 LSB (no flag vs ½ LSB);
-  wiring ~20–40 fF/side << 300 fF spare. See `out/summary_rc_bank.txt`.
+- **Centroid order:** thermo [0,1,2,D,3,4,5,6] in 2×4; binary row south.
+- **Stage a–d (first pass):** DRC/LVS/netgen PASS; area 0.1509 mm²; ng_req=123
+  clamped to ng_lay=100 [TOOL].
+- **Bank fix (2026-11-12) — PASS:**
+  - Area forecast [HAND/TOOL]: remaining blocks ≈ 0.028 mm² vs 0.038 free →
+    **fits** (no D23). See `out/summary_area_forecast.txt`.
+  - Finger: sch + step2 + layout **ng=100** at W=308.58 (not split); poly-count
+    script PASS (`out/summary_finger_check.txt`).
+  - Band range [SCH]: least-margin corners still cover (top +130 MHz, bottom
+    +76 MHz) — `step3/out/summary_bank_ng100_range.txt`.
+  - Dummy in slot D: unit cell, all pins → gnd on M3 east corridor (vias outside
+    cell); sch `xbdum*` / `msdum` in `vco_bank.sch`. DRC + KLayout LVS + netgen
+    PASS on `bank_cell_dummy` and `vco_bank` (density waived; property noise).
+  - Denser pack: gap_x=2, gap_y=5.5, corridor=4; pitch 134.5×90.8 µm; area
+    **0.1514 mm²**; with core 0.1102 → **0.2616 mm²** [GDS].
+- **RC [SCH/HAND]:** boundary step 8.58 fF ≈ 0.69 LSB (P2.7.3 flag); wiring
+  ~20–40 fF/side. See `out/summary_rc_bank.txt`.
 - **Next:** P2.7.2b next sub-block — tail / DAC / OTA.
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)

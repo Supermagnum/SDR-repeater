@@ -59,53 +59,60 @@ Xmbp_rba4 a4 vbp bb4 gnd sg13_lv_nmos w=0.625u l=0.13u ng=2 m=1 mm_ok=1
 Xmbp_rbb4 b4 vbp bb4 gnd sg13_lv_nmos w=0.625u l=0.13u ng=2 m=1 mm_ok=1
 Xxb5p tp a5 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
 Xxb5n tn b5 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
-Xms5 a5 g5 b5 gnd sg13_lv_nmos w=308.58u l=0.13u ng=123 m=1 mm_ok=1
+Xms5 a5 g5 b5 gnd sg13_lv_nmos w=308.58u l=0.13u ng=100 m=1 mm_ok=1
 rba5 a5 bb5 2000000.0
 rbb5 b5 bb5 2000000.0
 Xmbp_rba5 a5 vbp bb5 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
 Xmbp_rbb5 b5 vbp bb5 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
 Xxb6p tp a6 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
 Xxb6n tn b6 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
-Xms6 a6 g6 b6 gnd sg13_lv_nmos w=308.58u l=0.13u ng=123 m=1 mm_ok=1
+Xms6 a6 g6 b6 gnd sg13_lv_nmos w=308.58u l=0.13u ng=100 m=1 mm_ok=1
 rba6 a6 bb6 2000000.0
 rbb6 b6 bb6 2000000.0
 Xmbp_rba6 a6 vbp bb6 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
 Xmbp_rbb6 b6 vbp bb6 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
 Xxb7p tp a7 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
 Xxb7n tn b7 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
-Xms7 a7 g7 b7 gnd sg13_lv_nmos w=308.58u l=0.13u ng=123 m=1 mm_ok=1
+Xms7 a7 g7 b7 gnd sg13_lv_nmos w=308.58u l=0.13u ng=100 m=1 mm_ok=1
 rba7 a7 bb7 2000000.0
 rbb7 b7 bb7 2000000.0
 Xmbp_rba7 a7 vbp bb7 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
 Xmbp_rbb7 b7 vbp bb7 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
 Xxb8p tp a8 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
 Xxb8n tn b8 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
-Xms8 a8 g8 b8 gnd sg13_lv_nmos w=308.58u l=0.13u ng=123 m=1 mm_ok=1
+Xms8 a8 g8 b8 gnd sg13_lv_nmos w=308.58u l=0.13u ng=100 m=1 mm_ok=1
 rba8 a8 bb8 2000000.0
 rbb8 b8 bb8 2000000.0
 Xmbp_rba8 a8 vbp bb8 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
 Xmbp_rbb8 b8 vbp bb8 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
 Xxb9p tp a9 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
 Xxb9n tn b9 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
-Xms9 a9 g9 b9 gnd sg13_lv_nmos w=308.58u l=0.13u ng=123 m=1 mm_ok=1
+Xms9 a9 g9 b9 gnd sg13_lv_nmos w=308.58u l=0.13u ng=100 m=1 mm_ok=1
 rba9 a9 bb9 2000000.0
 rbb9 b9 bb9 2000000.0
 Xmbp_rba9 a9 vbp bb9 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
 Xmbp_rbb9 b9 vbp bb9 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
 Xxb10p tp a10 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
 Xxb10n tn b10 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
-Xms10 a10 g10 b10 gnd sg13_lv_nmos w=308.58u l=0.13u ng=123 m=1 mm_ok=1
+Xms10 a10 g10 b10 gnd sg13_lv_nmos w=308.58u l=0.13u ng=100 m=1 mm_ok=1
 rba10 a10 bb10 2000000.0
 rbb10 b10 bb10 2000000.0
 Xmbp_rba10 a10 vbp bb10 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
 Xmbp_rbb10 b10 vbp bb10 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
 Xxb11p tp a11 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
 Xxb11n tn b11 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
-Xms11 a11 g11 b11 gnd sg13_lv_nmos w=308.58u l=0.13u ng=123 m=1 mm_ok=1
+Xms11 a11 g11 b11 gnd sg13_lv_nmos w=308.58u l=0.13u ng=100 m=1 mm_ok=1
 rba11 a11 bb11 2000000.0
 rbb11 b11 bb11 2000000.0
 Xmbp_rba11 a11 vbp bb11 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
 Xmbp_rbb11 b11 vbp bb11 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+Xxbdump gnd adum gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xxbdumn gnd bdum gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xmsdum adum gnd bdum gnd sg13_lv_nmos w=308.58u l=0.13u ng=100 m=1 mm_ok=1
+rbadum adum gnd 2000000.0
+rbbdum bdum gnd 2000000.0
+Xmbp_rbadum adum gnd gnd gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+Xmbp_rbbdum bdum gnd gnd gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
 Xxcp tp vgp gnd cap_rfcmim w=2.129200e-05 l=2.129200e-05 wfeed=5.0e-6 m=1 mm_ok=1
 Xxcn tn vgn gnd cap_rfcmim w=2.129200e-05 l=2.129200e-05 wfeed=5.0e-6 m=1 mm_ok=1
 rvp vgp vvb 2000000.0

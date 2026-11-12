@@ -1,0 +1,10 @@
+* P2.7.2b bank_cell_dummy — thermo unit, all terminals → gnd
+.subckt bank_cell_dummy gnd
+Xxb gnd adum gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Xxn gnd bdum gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms adum gnd bdum gnd sg13_lv_nmos w=308.5u l=0.13u
+Xrba adum gnd gnd rhigh w=5.0u l=60.8u m=1
+Xrbb bdum gnd gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a adum gnd gnd gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b bdum gnd gnd gnd sg13_lv_nmos w=1.25u l=0.13u
+.ends

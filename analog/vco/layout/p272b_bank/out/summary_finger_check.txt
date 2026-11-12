@@ -1,0 +1,13 @@
+# Finger-count check vs cell_sizes.json [TOOL]
+
+Method: poly gate boxes in the widest MOS child instance.
+
+| cell | sch ng | layout ng | PASS |
+|---|---|---|---|
+| bank_cell_u | 100 | 100 | yes |
+| bank_cell_dummy | 100 | 100 | yes |
+| bank_cell_u0 | 100 | 100 | yes |
+| bank_cell_b4 | 62 | 62 | yes |
+| bank_cell_b0 | 4 | 4 | yes |
+
+All match: yes
