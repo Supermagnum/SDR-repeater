@@ -1,0 +1,48 @@
+# P2.7.2b D24 bank — RC report (no gate) [extracted RC / SCH]
+
+Sources: `cell_sizes.json` c_mim [SCH]; LVS extract W/L snaps [TOOL];
+bus geometry from stage-d GDS [GDS]. No PEX run.
+
+## Capacitance per bit per side (MIM on-state) [SCH]
+
+| bit | wt (LSB) | c_mim/side (fF) | kind (layout) |
+|-----|----------|-----------------|---------------|
+| b0  | 1        | 12.38           | cmim          |
+| b1  | 2        | 23.79           | cmim          |
+| b2  | 4        | 46.98           | cmim          |
+| b3  | 8        | 93.00           | rfcmim        |
+| b4  | 16       | 185.56          | rfcmim        |
+| u0..u6 | 32 each | 370.29       | rfcmim        |
+
+LSB (b0) = 12.38 fF/side [SCH]. Thermo unit / 32 = 11.57 fF per LSB-eq [SCH]
+(trim keeps on-step near-uniform; see D24 / step2).
+
+## D24 carry (31→32) vs one LSB [SCH]
+
+- Sum binary on-C/side = 12.38+23.79+46.98+93.00+185.56 = **361.71 fF**
+- One thermo unit = **370.29 fF**
+- Boundary step Δ = 370.29 − 361.71 = **8.58 fF** ≈ 0.69 × LSB (12.38)
+- Flag threshold: |Δ − LSB| > ½ LSB → 8.58 vs 12.38, error 3.8 fF < 6.19 fF
+  (½ LSB) → **no flag** (within ½ LSB of one LSB step).
+- Monotonicity of raw MIM sizes: each wt doubles within trim; no non-monotonic
+  raw c_mim sequence [SCH].
+
+## Fixed wiring capacitance bank adds to tank [HAND]
+
+- TM1 tp west corridor + per-row channels: ~12 risers × ~90 µm × 1.7 µm over
+  field ≈ **20–40 fF** add/side order-of-magnitude.
+- TM2 tn east corridor (via TM1↔TM2 at pins): similar **20–40 fF**/side.
+- M2 vbp in row gaps (not on tank): small vs tank.
+- Spare in `spec/vco-topology.md` §9 / §1: ~**300 fF** fixed-budget margin [HAND].
+- Bank wiring << spare → **no flag**.
+
+## Area [GDS]
+
+- vco_bank stage d: **0.1509 mm²** (50.3 % of 0.30)
+- With core+tank 0.1102 → **0.2611 mm²** (87.0 % of ≤ 0.30 island)
+
+## Notes
+
+- Decoder 3→7 is in AFE RTL (`vco_band_dec`); bank has g0–g11 pins [SCH].
+- Centroid order thermo: [0,1,2,D,3,4,5,6] in 2×4; D = empty (no device) [LAYOUT].
+- netgen: uniquely match; property noise (A/P/as/ad) as core+tank [TOOL].

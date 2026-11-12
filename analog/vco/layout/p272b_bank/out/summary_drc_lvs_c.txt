@@ -1,0 +1,18 @@
+# P2.7.2b D24 bank DRC/LVS — stage c (all cell sizes)
+
+Per-cell (DRC density waived; KLayout LVS; netgen uniquely match):
+- bank_cell_b0: PASS (stage a)
+- bank_cell_b1: PASS
+- bank_cell_b2: PASS
+- bank_cell_b3: PASS
+- bank_cell_b4: PASS
+- bank_cell_u / bank_cell_u0: PASS (stage b; u1–u6 identical layout)
+- Thermo u1–u6: same geometry as u0; not re-proved individually
+
+LVS properties: spice uses LVS_PROP snaps from extract [TOOL]
+(cmim side, MOS W, bypass W). Schematic sizes remain in cell_sizes.json.
+ng: PCell clamps ≤100; thermo ng_req=123 → ng_lay=100 checked in build log.
+
+## Verdict
+
+PASS

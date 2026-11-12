@@ -1,0 +1,87 @@
+* P2.7.2b D24 vco_bank [SCH sizes; layout kind per cell]
+.subckt vco_bank tp tn vbp gnd g0 bb0 g1 bb1 g2 bb2 g3 bb3 g4 bb4 g5 bb5 g6 bb6 g7 bb7 g8 bb8 g9 bb9 g10 bb10 g11 bb11
+Cxb0p tp a0 cap_cmim w=2.81u l=2.81u m=1
+Cxb0n tn b0 cap_cmim w=2.81u l=2.81u m=1
+Mms0 a0 g0 b0 gnd sg13_lv_nmos w=10.32u l=0.13u
+Rrba0 a0 bb0 gnd rhigh w=5.0u l=60.8u m=1
+Rrbb0 b0 bb0 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a0 a0 vbp bb0 gnd sg13_lv_nmos w=0.15u l=0.13u
+Mbp_b0 b0 vbp bb0 gnd sg13_lv_nmos w=0.15u l=0.13u
+Cxb1p tp a1 cap_cmim w=3.92u l=3.92u m=1
+Cxb1n tn b1 cap_cmim w=3.92u l=3.92u m=1
+Mms1 a1 g1 b1 gnd sg13_lv_nmos w=19.8u l=0.13u
+Rrba1 a1 bb1 gnd rhigh w=5.0u l=60.8u m=1
+Rrbb1 b1 bb1 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a1 a1 vbp bb1 gnd sg13_lv_nmos w=0.15u l=0.13u
+Mbp_b1 b1 vbp bb1 gnd sg13_lv_nmos w=0.15u l=0.13u
+Cxb2p tp a2 cap_cmim w=5.53u l=5.53u m=1
+Cxb2n tn b2 cap_cmim w=5.53u l=5.53u m=1
+Mms2 a2 g2 b2 gnd sg13_lv_nmos w=39.12u l=0.13u
+Rrba2 a2 bb2 gnd rhigh w=5.0u l=60.8u m=1
+Rrbb2 b2 bb2 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a2 a2 vbp bb2 gnd sg13_lv_nmos w=0.15u l=0.13u
+Mbp_b2 b2 vbp bb2 gnd sg13_lv_nmos w=0.15u l=0.13u
+Cxb3p tp a3 gnd rfcmim w=7.87u l=7.87u wfeed=5u m=1
+Cxb3n tn b3 gnd rfcmim w=7.87u l=7.87u wfeed=5u m=1
+Mms3 a3 g3 b3 gnd sg13_lv_nmos w=77.5u l=0.13u
+Rrba3 a3 bb3 gnd rhigh w=5.0u l=60.8u m=1
+Rrbb3 b3 bb3 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a3 a3 vbp bb3 gnd sg13_lv_nmos w=0.31u l=0.13u
+Mbp_b3 b3 vbp bb3 gnd sg13_lv_nmos w=0.31u l=0.13u
+Cxb4p tp a4 gnd rfcmim w=11.12u l=11.12u wfeed=5u m=1
+Cxb4n tn b4 gnd rfcmim w=11.12u l=11.12u wfeed=5u m=1
+Mms4 a4 g4 b4 gnd sg13_lv_nmos w=154.38u l=0.13u
+Rrba4 a4 bb4 gnd rhigh w=5.0u l=60.8u m=1
+Rrbb4 b4 bb4 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a4 a4 vbp bb4 gnd sg13_lv_nmos w=0.62u l=0.13u
+Mbp_b4 b4 vbp bb4 gnd sg13_lv_nmos w=0.62u l=0.13u
+Cxb5p tp a5 gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Cxb5n tn b5 gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms5 a5 g5 b5 gnd sg13_lv_nmos w=308.5u l=0.13u
+Rrba5 a5 bb5 gnd rhigh w=5.0u l=60.8u m=1
+Rrbb5 b5 bb5 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a5 a5 vbp bb5 gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b5 b5 vbp bb5 gnd sg13_lv_nmos w=1.25u l=0.13u
+Cxb6p tp a6 gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Cxb6n tn b6 gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms6 a6 g6 b6 gnd sg13_lv_nmos w=308.5u l=0.13u
+Rrba6 a6 bb6 gnd rhigh w=5.0u l=60.8u m=1
+Rrbb6 b6 bb6 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a6 a6 vbp bb6 gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b6 b6 vbp bb6 gnd sg13_lv_nmos w=1.25u l=0.13u
+Cxb7p tp a7 gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Cxb7n tn b7 gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms7 a7 g7 b7 gnd sg13_lv_nmos w=308.5u l=0.13u
+Rrba7 a7 bb7 gnd rhigh w=5.0u l=60.8u m=1
+Rrbb7 b7 bb7 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a7 a7 vbp bb7 gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b7 b7 vbp bb7 gnd sg13_lv_nmos w=1.25u l=0.13u
+Cxb8p tp a8 gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Cxb8n tn b8 gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms8 a8 g8 b8 gnd sg13_lv_nmos w=308.5u l=0.13u
+Rrba8 a8 bb8 gnd rhigh w=5.0u l=60.8u m=1
+Rrbb8 b8 bb8 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a8 a8 vbp bb8 gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b8 b8 vbp bb8 gnd sg13_lv_nmos w=1.25u l=0.13u
+Cxb9p tp a9 gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Cxb9n tn b9 gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms9 a9 g9 b9 gnd sg13_lv_nmos w=308.5u l=0.13u
+Rrba9 a9 bb9 gnd rhigh w=5.0u l=60.8u m=1
+Rrbb9 b9 bb9 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a9 a9 vbp bb9 gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b9 b9 vbp bb9 gnd sg13_lv_nmos w=1.25u l=0.13u
+Cxb10p tp a10 gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Cxb10n tn b10 gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms10 a10 g10 b10 gnd sg13_lv_nmos w=308.5u l=0.13u
+Rrba10 a10 bb10 gnd rhigh w=5.0u l=60.8u m=1
+Rrbb10 b10 bb10 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a10 a10 vbp bb10 gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b10 b10 vbp bb10 gnd sg13_lv_nmos w=1.25u l=0.13u
+Cxb11p tp a11 gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Cxb11n tn b11 gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms11 a11 g11 b11 gnd sg13_lv_nmos w=308.5u l=0.13u
+Rrba11 a11 bb11 gnd rhigh w=5.0u l=60.8u m=1
+Rrbb11 b11 bb11 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a11 a11 vbp bb11 gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b11 b11 vbp bb11 gnd sg13_lv_nmos w=1.25u l=0.13u
+.ends

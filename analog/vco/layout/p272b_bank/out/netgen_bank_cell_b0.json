@@ -1,0 +1,52 @@
+
+Subcircuit summary:
+Circuit 1: bank_cell_b0                    |Circuit 2: bank_cell_b0                    
+-------------------------------------------|-------------------------------------------
+cap_cmim (2)                               |cap_cmim (2)                               
+sg13_lv_nmos (3)                           |sg13_lv_nmos (3)                           
+gnd (2)                                    |gnd (2)                                    
+Number of devices: 7                       |Number of devices: 7                       
+Number of nets: 8                          |Number of nets: 8                          
+---------------------------------------------------------------------------------------
+Resolving symmetries by property value.
+Resolving symmetries by pin name.
+Netlists match uniquely with property errors.
+gnd:rbb vs. gnd:$8:
+Property b in circuit2 has no matching property in circuit1
+gnd:rbb vs. gnd:$8:
+Property ps in circuit2 has no matching property in circuit1
+gnd:rba vs. gnd:$7:
+Property b in circuit2 has no matching property in circuit1
+gnd:rba vs. gnd:$7:
+Property ps in circuit2 has no matching property in circuit1
+cap_cmim:xb vs. cap_cmim:$9:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:xb vs. cap_cmim:$9:
+Property A in circuit2 has no matching property in circuit1
+cap_cmim:xb vs. cap_cmim:$9:
+Property area in circuit2 has no matching property in circuit1
+cap_cmim:xn vs. cap_cmim:$10:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:xn vs. cap_cmim:$10:
+Property A in circuit2 has no matching property in circuit1
+cap_cmim:xn vs. cap_cmim:$10:
+Property area in circuit2 has no matching property in circuit1
+
+Subcircuit pins:
+Circuit 1: bank_cell_b0                    |Circuit 2: bank_cell_b0                    
+-------------------------------------------|-------------------------------------------
+vbp                                        |vbp                                        
+gnd                                        |gnd                                        
+bb                                         |bb                                         
+g                                          |g                                          
+tn                                         |tn                                         
+tp                                         |tp                                         
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes bank_cell_b0 and bank_cell_b0 are equivalent.
+
+Final result: Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ bank_cell_b0

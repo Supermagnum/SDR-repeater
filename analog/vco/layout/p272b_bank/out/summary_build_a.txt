@@ -1,0 +1,5 @@
+# P2.7.2b D24 bank build stage a
+
+bank_cell_b0: W=10.32 ng_req=4 ng_lay=4 ncols=5 kind=cmim side=2.873
+  bbox (2.53,-20.58;79.91,61.91)
+wrote /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_b0.gds (+ .gz)

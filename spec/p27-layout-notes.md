@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b re-spin 2 PASS** (stages b–d).
+Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b re-spin 2 PASS** (core+tank). **P2.7.2b D24 bank PASS** (stages a–d).
 
 ---
 
@@ -205,7 +205,31 @@ PNG/SVG, DRC/LVS/netgen logs, `summary_assemble_*_PASS.txt`, `summary_rc_tank.tx
   HAND limits M1–M5 ≈ 1.0 mA/µm, TM1 ≈ 5; tank 4 µm → J=1.0; CT 8 µm → 0.50 at 4 mA.
 - **RC report (routing changed) [HAND]:** C_add/side ≈ 15–30 fF; Rs pair→L ≈ 0.2–0.4 Ω;
   no spare-bank flag. See `out/summary_rc_tank.txt`.
-- **Next:** **D24 bank** (P2.7.2b next sub-block).
+- **Next:** was D24 bank (done below).
+
+#### P2.7.2b D24 bank (2026-11-12) — **PASS** (stages a–d)
+**Outputs:** `analog/vco/layout/p272b_bank/` — `build_cells.py`, `run_drc_lvs.py`,
+`cell_sizes.json`; `out/bank_cell_b{0..4}.gds.gz`, `bank_cell_u*.gds.gz`,
+`vco_bank.gds.gz`, PNG/SVG, DRC/LVS/netgen per stage, `summary_rc_bank.txt`.
+- **Architecture [SCH]:** 5 binary + 7 thermo (32 LSB); bypass
+  W=max(0.15, 5·2^(k−7)) µm; 3→7 decoder in AFE RTL → bank pins g0–g11 / bb*.
+- **Centroid order:** thermo [0,1,2,D,3,4,5,6] in 2×4; D empty (no extra devices
+  for LVS); binary row south; pitch 130.2×90.5 µm [LAYOUT].
+- **Stage a `bank_cell_b0`:** DRC PASS (density waived); KLayout LVS PASS; netgen PASS.
+- **Stage b `bank_cell_u`:** DRC PASS; KLayout LVS PASS; netgen uniquely match
+  (property noise). ng_req=123 → ng_lay=100 (PCell clamp) [TOOL]; W extract 308.5.
+- **Stage c:** all binary b0–b4 + thermo unit proved; LVS_PROP snaps (cmim side,
+  MOS W, bypass W) from extract [TOOL].
+- **Stage d `vco_bank`:** DRC PASS (density waived); KLayout LVS PASS; netgen
+  uniquely match (property noise). Area **0.1509 mm²**; with core+tank 0.1102 →
+  **0.2611 mm²** (87 % of ≤ 0.30) [GDS].
+- **Routing lessons [LAYOUT]:** Trans.trans(Vector) skips displacement — compose
+  Trans for pin coords. tp on TM1 west corridor; tn on TM2 east (same-layer spines
+  short). No M5↔TM1 via_stack (shorts intermediate metals). gnd east corridor —
+  vertical gnd through array shorted thermo a/b to gnd.
+- **RC [SCH/HAND]:** boundary step 8.58 fF ≈ 0.69 LSB (no flag vs ½ LSB);
+  wiring ~20–40 fF/side << 300 fF spare. See `out/summary_rc_bank.txt`.
+- **Next:** P2.7.2b next sub-block — tail / DAC / OTA.
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin

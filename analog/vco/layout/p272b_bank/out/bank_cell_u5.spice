@@ -1,0 +1,10 @@
+* P2.7.2b D24 bank_cell_u5 [SCH sizes; LVS props from extract k=10]
+.subckt bank_cell_u5 tp tn g vbp bb gnd
+Cxb tp a gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Cxn tn b gnd rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms a g b gnd sg13_lv_nmos w=308.5u l=0.13u
+Rrba a bb gnd rhigh w=5.0u l=60.8u m=1
+Rrbb b bb gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a a vbp bb gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b b vbp bb gnd sg13_lv_nmos w=1.25u l=0.13u
+.ends

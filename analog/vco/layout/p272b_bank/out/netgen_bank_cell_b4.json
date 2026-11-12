@@ -1,0 +1,72 @@
+
+Circuit 1 cell cap_rfcmim and Circuit 2 cell cap_rfcmim are black boxes.
+Warning: Equate pins:  cell cap_rfcmim is a placeholder, treated as a black box.
+Warning: Equate pins:  cell cap_rfcmim is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: cap_rfcmim                      |Circuit 2: cap_rfcmim                      
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes cap_rfcmim and cap_rfcmim are equivalent.
+
+Circuit 1 cell rhigh and Circuit 2 cell rhigh are black boxes.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: rhigh                           |Circuit 2: rhigh                           
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes rhigh and rhigh are equivalent.
+
+Subcircuit summary:
+Circuit 1: bank_cell_b4                    |Circuit 2: bank_cell_b4                    
+-------------------------------------------|-------------------------------------------
+cap_rfcmim (2)                             |cap_rfcmim (2)                             
+sg13_lv_nmos (3)                           |sg13_lv_nmos (3)                           
+rhigh (2)                                  |rhigh (2)                                  
+Number of devices: 7                       |Number of devices: 7                       
+Number of nets: 8                          |Number of nets: 8                          
+---------------------------------------------------------------------------------------
+Resolving symmetries by property value.
+Resolving symmetries by pin name.
+Netlists match uniquely with property errors.
+rhigh:rbb vs. rhigh:$66:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba vs. rhigh:$65:
+Property ps in circuit2 has no matching property in circuit1
+cap_rfcmim:xb vs. cap_rfcmim:$67:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb vs. cap_rfcmim:$67:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xn vs. cap_rfcmim:$68:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xn vs. cap_rfcmim:$68:
+Property A in circuit2 has no matching property in circuit1
+
+Subcircuit pins:
+Circuit 1: bank_cell_b4                    |Circuit 2: bank_cell_b4                    
+-------------------------------------------|-------------------------------------------
+vbp                                        |vbp                                        
+gnd                                        |gnd                                        
+bb                                         |bb                                         
+g                                          |g                                          
+tn                                         |tn                                         
+tp                                         |tp                                         
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes bank_cell_b4 and bank_cell_b4 are equivalent.
+
+Final result: Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ bank_cell_b4

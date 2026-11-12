@@ -1,0 +1,58 @@
+
+Circuit 1 cell rhigh and Circuit 2 cell rhigh are black boxes.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: rhigh                           |Circuit 2: rhigh                           
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes rhigh and rhigh are equivalent.
+
+Subcircuit summary:
+Circuit 1: bank_cell_b1                    |Circuit 2: bank_cell_b1                    
+-------------------------------------------|-------------------------------------------
+cap_cmim (2)                               |cap_cmim (2)                               
+sg13_lv_nmos (3)                           |sg13_lv_nmos (3)                           
+rhigh (2)                                  |rhigh (2)                                  
+Number of devices: 7                       |Number of devices: 7                       
+Number of nets: 8                          |Number of nets: 8                          
+---------------------------------------------------------------------------------------
+Resolving symmetries by property value.
+Resolving symmetries by pin name.
+Netlists match uniquely with property errors.
+rhigh:rbb vs. rhigh:$12:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba vs. rhigh:$11:
+Property ps in circuit2 has no matching property in circuit1
+cap_cmim:xb vs. cap_cmim:$13:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:xb vs. cap_cmim:$13:
+Property A in circuit2 has no matching property in circuit1
+cap_cmim:xn vs. cap_cmim:$14:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:xn vs. cap_cmim:$14:
+Property A in circuit2 has no matching property in circuit1
+
+Subcircuit pins:
+Circuit 1: bank_cell_b1                    |Circuit 2: bank_cell_b1                    
+-------------------------------------------|-------------------------------------------
+vbp                                        |vbp                                        
+gnd                                        |gnd                                        
+bb                                         |bb                                         
+g                                          |g                                          
+tn                                         |tn                                         
+tp                                         |tp                                         
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes bank_cell_b1 and bank_cell_b1 are equivalent.
+
+Final result: Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ bank_cell_b1

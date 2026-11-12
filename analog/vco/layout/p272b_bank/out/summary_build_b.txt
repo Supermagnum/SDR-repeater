@@ -1,0 +1,6 @@
+# P2.7.2b D24 bank build stage b
+
+bank_cell_u: W=308.58 ng_req=123 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
+  bbox (2.59,-20.58;128.81,61.91)
+wrote /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_u.gds (+ .gz)

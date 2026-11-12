@@ -1,0 +1,227 @@
+
+Circuit 1 cell rhigh and Circuit 2 cell rhigh are black boxes.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: rhigh                           |Circuit 2: rhigh                           
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes rhigh and rhigh are equivalent.
+
+Circuit 1 cell cap_rfcmim and Circuit 2 cell cap_rfcmim are black boxes.
+Warning: Equate pins:  cell cap_rfcmim is a placeholder, treated as a black box.
+Warning: Equate pins:  cell cap_rfcmim is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: cap_rfcmim                      |Circuit 2: cap_rfcmim                      
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes cap_rfcmim and cap_rfcmim are equivalent.
+
+Subcircuit summary:
+Circuit 1: vco_bank                        |Circuit 2: vco_bank                        
+-------------------------------------------|-------------------------------------------
+cap_cmim (6)                               |cap_cmim (6)                               
+sg13_lv_nmos (36)                          |sg13_lv_nmos (36)                          
+rhigh (24)                                 |rhigh (24)                                 
+cap_rfcmim (18)                            |cap_rfcmim (18)                            
+Number of devices: 84                      |Number of devices: 84                      
+Number of nets: 52                         |Number of nets: 52                         
+---------------------------------------------------------------------------------------
+Resolving symmetries by property value.
+Resolving symmetries by pin name.
+Netlists match uniquely with property errors.
+cap_rfcmim:xb4n vs. cap_rfcmim:$879:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb4n vs. cap_rfcmim:$879:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb4p vs. cap_rfcmim:$882:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb4p vs. cap_rfcmim:$882:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb3n vs. cap_rfcmim:$881:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb3n vs. cap_rfcmim:$881:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb3p vs. cap_rfcmim:$887:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb3p vs. cap_rfcmim:$887:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb9n vs. cap_rfcmim:$878:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb9n vs. cap_rfcmim:$878:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb10n vs. cap_rfcmim:$880:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb10n vs. cap_rfcmim:$880:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb8n vs. cap_rfcmim:$883:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb8n vs. cap_rfcmim:$883:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb5n vs. cap_rfcmim:$884:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb5n vs. cap_rfcmim:$884:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb11n vs. cap_rfcmim:$886:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb11n vs. cap_rfcmim:$886:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb6n vs. cap_rfcmim:$892:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb6n vs. cap_rfcmim:$892:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb7n vs. cap_rfcmim:$893:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb7n vs. cap_rfcmim:$893:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb11p vs. cap_rfcmim:$876:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb11p vs. cap_rfcmim:$876:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb10p vs. cap_rfcmim:$877:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb10p vs. cap_rfcmim:$877:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb8p vs. cap_rfcmim:$885:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb8p vs. cap_rfcmim:$885:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb7p vs. cap_rfcmim:$888:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb7p vs. cap_rfcmim:$888:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb9p vs. cap_rfcmim:$889:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb9p vs. cap_rfcmim:$889:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb5p vs. cap_rfcmim:$890:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb5p vs. cap_rfcmim:$890:
+Property A in circuit2 has no matching property in circuit1
+cap_rfcmim:xb6p vs. cap_rfcmim:$891:
+Property P in circuit2 has no matching property in circuit1
+cap_rfcmim:xb6p vs. cap_rfcmim:$891:
+Property A in circuit2 has no matching property in circuit1
+rhigh:rba11 vs. rhigh:$858:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb11 vs. rhigh:$859:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba10 vs. rhigh:$856:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb10 vs. rhigh:$857:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba9 vs. rhigh:$854:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb9 vs. rhigh:$855:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba8 vs. rhigh:$852:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb8 vs. rhigh:$853:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba7 vs. rhigh:$850:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb7 vs. rhigh:$851:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba6 vs. rhigh:$848:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb6 vs. rhigh:$849:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba5 vs. rhigh:$846:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb5 vs. rhigh:$847:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba3 vs. rhigh:$866:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb3 vs. rhigh:$867:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba4 vs. rhigh:$868:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb4 vs. rhigh:$869:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba0 vs. rhigh:$860:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb0 vs. rhigh:$861:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba1 vs. rhigh:$862:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb1 vs. rhigh:$863:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rba2 vs. rhigh:$864:
+Property ps in circuit2 has no matching property in circuit1
+rhigh:rbb2 vs. rhigh:$865:
+Property ps in circuit2 has no matching property in circuit1
+cap_cmim:xb1n vs. cap_cmim:$872:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:xb1n vs. cap_cmim:$872:
+Property A in circuit2 has no matching property in circuit1
+cap_cmim:xb1p vs. cap_cmim:$871:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:xb1p vs. cap_cmim:$871:
+Property A in circuit2 has no matching property in circuit1
+cap_cmim:xb0n vs. cap_cmim:$873:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:xb0n vs. cap_cmim:$873:
+Property A in circuit2 has no matching property in circuit1
+cap_cmim:xb0p vs. cap_cmim:$870:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:xb0p vs. cap_cmim:$870:
+Property A in circuit2 has no matching property in circuit1
+cap_cmim:xb2n vs. cap_cmim:$875:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:xb2n vs. cap_cmim:$875:
+Property A in circuit2 has no matching property in circuit1
+cap_cmim:xb2p vs. cap_cmim:$874:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:xb2p vs. cap_cmim:$874:
+Property A in circuit2 has no matching property in circuit1
+
+Subcircuit pins:
+Circuit 1: vco_bank                        |Circuit 2: vco_bank                        
+-------------------------------------------|-------------------------------------------
+vbp                                        |vbp                                        
+gnd                                        |gnd                                        
+g5                                         |g5                                         
+g6                                         |g6                                         
+g7                                         |g7                                         
+g8                                         |g8                                         
+g9                                         |g9                                         
+g10                                        |g10                                        
+g11                                        |g11                                        
+g4                                         |g4                                         
+g3                                         |g3                                         
+g2                                         |g2                                         
+g1                                         |g1                                         
+g0                                         |g0                                         
+bb5                                        |bb5                                        
+bb6                                        |bb6                                        
+bb7                                        |bb7                                        
+bb8                                        |bb8                                        
+bb9                                        |bb9                                        
+bb10                                       |bb10                                       
+bb11                                       |bb11                                       
+bb4                                        |bb4                                        
+bb3                                        |bb3                                        
+bb0                                        |bb0                                        
+bb1                                        |bb1                                        
+bb2                                        |bb2                                        
+tp                                         |tp                                         
+tn                                         |tn                                         
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes vco_bank and vco_bank are equivalent.
+
+Final result: Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ vco_bank

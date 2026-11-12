@@ -1,0 +1,13 @@
+# P2.7.2b D24 bank DRC/LVS — bank_cell_b0
+
+- DRC rules: ['AFil.g', 'GFil.g', 'M1.j', 'M2.j', 'M3.j', 'M4.j', 'M5.j', 'TM1.c', 'TM2.c']
+- density/fill waived: ['AFil.g', 'GFil.g', 'M1.j', 'M2.j', 'M3.j', 'M4.j', 'M5.j', 'TM1.c', 'TM2.c']
+- DRC non-density: none → PASS
+- KLayout LVS: PASS
+- netgen: PASS
+- extracted: `/foss/designs/analog/vco/layout/p272b_bank/out/lvs_bank_cell_b0/bank_cell_b0_extracted.cir`
+- render: True
+
+## Verdict
+
+PASS

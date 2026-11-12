@@ -1,0 +1,47 @@
+# P2.7.2b D24 bank build stage c
+
+bank_cell_b0: W=10.32 ng_req=4 ng_lay=4 ncols=5 kind=cmim side=2.873
+  bbox (2.53,-20.58;79.91,61.91)
+wrote /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_b0.gds (+ .gz)
+bank_cell_b1: W=19.82 ng_req=8 ng_lay=8 ncols=9 kind=cmim side=3.982
+  bbox (2.53,-20.58;81.95,61.91)
+wrote /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_b1.gds (+ .gz)
+bank_cell_b2: W=39.15 ng_req=16 ng_lay=16 ncols=17 kind=cmim side=5.596
+  bbox (2.53,-20.58;86.03,61.91)
+wrote /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_b2.gds (+ .gz)
+bank_cell_b3: W=77.5 ng_req=31 ng_lay=31 ncols=32 kind=rfcmim side=7.874
+rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
+  bbox (2.59,-20.58;93.62,61.91)
+wrote /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_b3.gds (+ .gz)
+bank_cell_b4: W=154.63 ng_req=62 ng_lay=62 ncols=63 kind=rfcmim side=11.122
+rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
+  bbox (2.59,-20.58;109.43,61.91)
+wrote /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_b4.gds (+ .gz)
+bank_cell_u0: W=308.58 ng_req=123 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
+  bbox (2.59,-20.58;128.81,61.91)
+wrote /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_u0.gds (+ .gz)
+bank_cell_u1: W=308.58 ng_req=123 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
+  bbox (2.59,-20.58;128.81,61.91)
+wrote /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_u1.gds (+ .gz)
+bank_cell_u2: W=308.58 ng_req=123 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
+  bbox (2.59,-20.58;128.81,61.91)
+wrote /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_u2.gds (+ .gz)
+bank_cell_u3: W=308.58 ng_req=123 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
+  bbox (2.59,-20.58;128.81,61.91)
+wrote /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_u3.gds (+ .gz)
+bank_cell_u4: W=308.58 ng_req=123 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
+  bbox (2.59,-20.58;128.81,61.91)
+wrote /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_u4.gds (+ .gz)
+bank_cell_u5: W=308.58 ng_req=123 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
+  bbox (2.59,-20.58;128.81,61.91)
+wrote /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_u5.gds (+ .gz)
+bank_cell_u6: W=308.58 ng_req=123 ng_lay=100 ncols=101 kind=rfcmim side=15.712
+rfcmim TIE: PCell shield extracts as gnd — no hand M1 strap
+  bbox (2.59,-20.58;128.81,61.91)
+wrote /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_u6.gds (+ .gz)

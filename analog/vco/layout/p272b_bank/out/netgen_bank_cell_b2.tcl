@@ -1,0 +1,1 @@
+lvs {/foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_b2_netgen.spice bank_cell_b2} {/foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_b2_extracted_netgen.cir bank_cell_b2} /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl /foss/designs/analog/vco/layout/p272b_bank/out/netgen_bank_cell_b2.json

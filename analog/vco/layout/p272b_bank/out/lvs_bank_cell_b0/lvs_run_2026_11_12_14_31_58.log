@@ -1,0 +1,19 @@
+12-Nov-2026 15:31:58 | INFO    | Your Klayout version is: KLayout 0.30.12 (required >= 0.30.5)
+12-Nov-2026 15:31:58 | INFO    | Running SG13G2 LVS checks on design /foss/designs/analog/vco/layout/p272b_bank/out/bank_cell_b0.gds on cell bank_cell_b0
+12-Nov-2026 15:32:01 | INFO    | ==============================================================================
+12-Nov-2026 15:32:01 | INFO    | Important Summary
+12-Nov-2026 15:32:01 | INFO    | +------------------+-----------------------------------------------------------------+
+12-Nov-2026 15:32:01 | INFO    | | Status           | FAIL                                                            |
+12-Nov-2026 15:32:01 | INFO    | | Mode             | COMPARE                                                         |
+12-Nov-2026 15:32:01 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).                  |
+12-Nov-2026 15:32:01 | INFO    | | Layout           | bank_cell_b0.gds                                                |
+12-Nov-2026 15:32:01 | INFO    | | Top Cell         | bank_cell_b0                                                    |
+12-Nov-2026 15:32:01 | INFO    | | Results Dir      | /foss/designs/analog/vco/layout/p272b_bank/out/lvs_bank_cell_b0 |
+12-Nov-2026 15:32:01 | INFO    | | Warnings         | 0                                                               |
+12-Nov-2026 15:32:01 | INFO    | | Errors           | 2                                                               |
+12-Nov-2026 15:32:01 | INFO    | | Run Time (s)     | 2.854                                                           |
+12-Nov-2026 15:32:01 | INFO    | +------------------+-----------------------------------------------------------------+
+12-Nov-2026 15:32:01 | ERROR   | Key errors:
+12-Nov-2026 15:32:01 | ERROR   |   - 2026-11-12 15:29:20 +0100: Memory Usage (486132K) : ERROR : Netlists don't match
+12-Nov-2026 15:32:01 | ERROR   |   - 2026-11-12 15:32:01 +0100: Memory Usage (487612K) : ERROR : Netlists don't match
+12-Nov-2026 15:32:01 | INFO    | ==============================================================================
