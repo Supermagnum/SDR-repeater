@@ -446,3 +446,16 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   was a margin target. All other cases ≤ −117.9 dBc; INL ≤ 3.1 ps; ΔI_cp ≤ 8.1 %; lock point UP.
 - Re-check post-layout with pump mismatch at that point (target ≤ −100 dBc).
 - VCO layout (P2.7.2) may start.
+
+## 2026-11-12 — P2.7.2 layout finding
+- Placement-only layout (d4284fc) not accepted for PEX: no partial tank PEX; P2.7.3 needs a
+  routed, DRC- and LVS-clean VCO.
+- DRC: metal-density violations waived at block level (fill at chip level, Phase 5). TV2.a on
+  the EM inductor is not waived: replace with PDK-legal via arrays and confirm L / Q change
+  < 1 % by EM. Cnt.b / M1.b / M5.b are fixed in the routed respin.
+- P2.7.2 is split into smaller runs: (a) LVS flow (netgen IHP setup, full vco_top.sch hierarchy)
+  proven on small cells, inductor via fix, area breakdown; (b) routed sub-blocks one per run
+  (core + tank, D24 bank, tail / DAC / OTA, varactor, D22 detector), each DRC / LVS clean;
+  (c) VCO top assembly, DRC / LVS clean.
+- VCO island 0.4457 mm² against the D23 budget 0.15–0.20 mm²: (a) gives an area breakdown and a
+  plan to meet the budget, or a finding for D23 and the die-size tally.

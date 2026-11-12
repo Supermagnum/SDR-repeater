@@ -1,5 +1,6 @@
-** sch_path: /work/analog/vco/sch/vco_top.sch
-**.subckt vco_top tp tn ct vt vdd gnd vbp vbp_tail cmp tail
+** sch_path: /foss/designs/analog/vco/sch/vco_top.sch
+**.subckt vco_top tp tn ct vt vdd gnd vbp vbp_tail cmp tail hold rep g0 g1 g2 g3 g4 g5 g6 g7 g8 g9 g10 g11 code0 code1 code2 code3
+*+ code4
 *.iopin tp
 *.iopin tn
 *.iopin ct
@@ -10,12 +11,37 @@
 *.iopin vbp_tail
 *.iopin cmp
 *.iopin tail
-xl tp net1 tn l2n0
+*.iopin hold
+*.iopin rep
+*.iopin g0
+*.iopin g1
+*.iopin g2
+*.iopin g3
+*.iopin g4
+*.iopin g5
+*.iopin g6
+*.iopin g7
+*.iopin g8
+*.iopin g9
+*.iopin g10
+*.iopin g11
+*.iopin code0
+*.iopin code1
+*.iopin code2
+*.iopin code3
+*.iopin code4
+xl net1 net2 net3 l2n0
+xcore net4 net5 net6 net7 net8 net9 vco_core
+xbank net10 net11 net12 net13 net14 net15 net16 net17 net18 net19 net20 net21 net22 net23 net24 net25 net26 net27 net28 net29
++ net30 net31 net32 net33 net34 net35 net36 net37 vco_bank
+xvar net38 net39 net40 net41 net42 vco_var
+xtail net43 net44 net45 net46 net47 net48 net49 net50 net51 net52 net53 vco_tail_dac
+xdet net54 net55 net56 net57 net58 net59 net60 net61 ampcal_det
 **.ends
 
 * expanding   symbol:  l2n0.sym # of pins=3
-** sym_path: /work/analog/vco/sch/l2n0.sym
-** sch_path: /work/analog/vco/sch/l2n0.sch
+** sym_path: /foss/designs/analog/vco/sch/l2n0.sym
+** sch_path: /foss/designs/analog/vco/sch/l2n0.sch
 .subckt l2n0 p n ct
 *.iopin p
 *.iopin n
@@ -29,6 +55,247 @@ l1n n1 n2 8.05663e-10
 r2n n2 ct 0.827877
 l2n n2 ct 3.196e-11
 cp p n 2.98589e-14
+.ends
+
+
+* expanding   symbol:  vco_core.sym # of pins=6
+** sym_path: /foss/designs/analog/vco/sch/vco_core.sym
+** sch_path: /foss/designs/analog/vco/sch/vco_core.sch
+.subckt vco_core tp tn tail ct vdd gnd
+*.iopin tp
+*.iopin tn
+*.iopin tail
+*.iopin ct
+*.iopin vdd
+*.iopin gnd
+Xm1 tp tn tail gnd sg13_lv_nmos w=32u l=0.13u ng=8 m=1 mm_ok=1
+Xm2 tn tp tail gnd sg13_lv_nmos w=32u l=0.13u ng=8 m=1 mm_ok=1
+Xxf1 tp fx gnd cap_rfcmim w=1.600000e-05 l=1.600000e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xxf2 tn fx gnd cap_rfcmim w=1.600000e-05 l=1.600000e-05 wfeed=5.0e-6 m=1 mm_ok=1
+rfx fx gnd 200000.0
+.ends
+
+
+* expanding   symbol:  vco_bank.sym # of pins=28
+** sym_path: /foss/designs/analog/vco/sch/vco_bank.sym
+** sch_path: /foss/designs/analog/vco/sch/vco_bank.sch
+.subckt vco_bank tp tn vbp gnd g0 bb0 g1 bb1 g2 bb2 g3 bb3 g4 bb4 g5 bb5 g6 bb6 g7 bb7 g8 bb8 g9 bb9 g10 bb10 g11 bb11
+*.iopin tp
+*.iopin tn
+*.iopin vbp
+*.iopin gnd
+*.iopin g0
+*.iopin bb0
+*.iopin g1
+*.iopin bb1
+*.iopin g2
+*.iopin bb2
+*.iopin g3
+*.iopin bb3
+*.iopin g4
+*.iopin bb4
+*.iopin g5
+*.iopin bb5
+*.iopin g6
+*.iopin bb6
+*.iopin g7
+*.iopin bb7
+*.iopin g8
+*.iopin bb8
+*.iopin g9
+*.iopin bb9
+*.iopin g10
+*.iopin bb10
+*.iopin g11
+*.iopin bb11
+Xxb0p tp a0 gnd cap_rfcmim w=2.873000e-06 l=2.873000e-06 wfeed=5.0e-6 m=1 mm_ok=1
+Xxb0n tn b0 gnd cap_rfcmim w=2.873000e-06 l=2.873000e-06 wfeed=5.0e-6 m=1 mm_ok=1
+Xms0 a0 g0 b0 gnd sg13_lv_nmos w=10.32u l=0.13u ng=4 m=1 mm_ok=1
+rba0 a0 bb0 2000000.0
+rbb0 b0 bb0 2000000.0
+Xmbp_rba0 a0 vbp bb0 gnd sg13_lv_nmos w=0.15u l=0.13u ng=1 m=1 mm_ok=1
+Xmbp_rbb0 b0 vbp bb0 gnd sg13_lv_nmos w=0.15u l=0.13u ng=1 m=1 mm_ok=1
+Xxb1p tp a1 gnd cap_rfcmim w=3.982000e-06 l=3.982000e-06 wfeed=5.0e-6 m=1 mm_ok=1
+Xxb1n tn b1 gnd cap_rfcmim w=3.982000e-06 l=3.982000e-06 wfeed=5.0e-6 m=1 mm_ok=1
+Xms1 a1 g1 b1 gnd sg13_lv_nmos w=19.82u l=0.13u ng=8 m=1 mm_ok=1
+rba1 a1 bb1 2000000.0
+rbb1 b1 bb1 2000000.0
+Xmbp_rba1 a1 vbp bb1 gnd sg13_lv_nmos w=0.15u l=0.13u ng=1 m=1 mm_ok=1
+Xmbp_rbb1 b1 vbp bb1 gnd sg13_lv_nmos w=0.15u l=0.13u ng=1 m=1 mm_ok=1
+Xxb2p tp a2 gnd cap_rfcmim w=5.596000e-06 l=5.596000e-06 wfeed=5.0e-6 m=1 mm_ok=1
+Xxb2n tn b2 gnd cap_rfcmim w=5.596000e-06 l=5.596000e-06 wfeed=5.0e-6 m=1 mm_ok=1
+Xms2 a2 g2 b2 gnd sg13_lv_nmos w=39.15u l=0.13u ng=16 m=1 mm_ok=1
+rba2 a2 bb2 2000000.0
+rbb2 b2 bb2 2000000.0
+Xmbp_rba2 a2 vbp bb2 gnd sg13_lv_nmos w=0.1562u l=0.13u ng=1 m=1 mm_ok=1
+Xmbp_rbb2 b2 vbp bb2 gnd sg13_lv_nmos w=0.1562u l=0.13u ng=1 m=1 mm_ok=1
+Xxb3p tp a3 gnd cap_rfcmim w=7.874000e-06 l=7.874000e-06 wfeed=5.0e-6 m=1 mm_ok=1
+Xxb3n tn b3 gnd cap_rfcmim w=7.874000e-06 l=7.874000e-06 wfeed=5.0e-6 m=1 mm_ok=1
+Xms3 a3 g3 b3 gnd sg13_lv_nmos w=77.50u l=0.13u ng=31 m=1 mm_ok=1
+rba3 a3 bb3 2000000.0
+rbb3 b3 bb3 2000000.0
+Xmbp_rba3 a3 vbp bb3 gnd sg13_lv_nmos w=0.3125u l=0.13u ng=2 m=1 mm_ok=1
+Xmbp_rbb3 b3 vbp bb3 gnd sg13_lv_nmos w=0.3125u l=0.13u ng=2 m=1 mm_ok=1
+Xxb4p tp a4 gnd cap_rfcmim w=1.112200e-05 l=1.112200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xxb4n tn b4 gnd cap_rfcmim w=1.112200e-05 l=1.112200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xms4 a4 g4 b4 gnd sg13_lv_nmos w=154.63u l=0.13u ng=62 m=1 mm_ok=1
+rba4 a4 bb4 2000000.0
+rbb4 b4 bb4 2000000.0
+Xmbp_rba4 a4 vbp bb4 gnd sg13_lv_nmos w=0.625u l=0.13u ng=2 m=1 mm_ok=1
+Xmbp_rbb4 b4 vbp bb4 gnd sg13_lv_nmos w=0.625u l=0.13u ng=2 m=1 mm_ok=1
+Xxb5p tp a5 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xxb5n tn b5 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xms5 a5 g5 b5 gnd sg13_lv_nmos w=308.58u l=0.13u ng=123 m=1 mm_ok=1
+rba5 a5 bb5 2000000.0
+rbb5 b5 bb5 2000000.0
+Xmbp_rba5 a5 vbp bb5 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+Xmbp_rbb5 b5 vbp bb5 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+Xxb6p tp a6 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xxb6n tn b6 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xms6 a6 g6 b6 gnd sg13_lv_nmos w=308.58u l=0.13u ng=123 m=1 mm_ok=1
+rba6 a6 bb6 2000000.0
+rbb6 b6 bb6 2000000.0
+Xmbp_rba6 a6 vbp bb6 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+Xmbp_rbb6 b6 vbp bb6 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+Xxb7p tp a7 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xxb7n tn b7 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xms7 a7 g7 b7 gnd sg13_lv_nmos w=308.58u l=0.13u ng=123 m=1 mm_ok=1
+rba7 a7 bb7 2000000.0
+rbb7 b7 bb7 2000000.0
+Xmbp_rba7 a7 vbp bb7 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+Xmbp_rbb7 b7 vbp bb7 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+Xxb8p tp a8 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xxb8n tn b8 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xms8 a8 g8 b8 gnd sg13_lv_nmos w=308.58u l=0.13u ng=123 m=1 mm_ok=1
+rba8 a8 bb8 2000000.0
+rbb8 b8 bb8 2000000.0
+Xmbp_rba8 a8 vbp bb8 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+Xmbp_rbb8 b8 vbp bb8 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+Xxb9p tp a9 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xxb9n tn b9 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xms9 a9 g9 b9 gnd sg13_lv_nmos w=308.58u l=0.13u ng=123 m=1 mm_ok=1
+rba9 a9 bb9 2000000.0
+rbb9 b9 bb9 2000000.0
+Xmbp_rba9 a9 vbp bb9 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+Xmbp_rbb9 b9 vbp bb9 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+Xxb10p tp a10 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xxb10n tn b10 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xms10 a10 g10 b10 gnd sg13_lv_nmos w=308.58u l=0.13u ng=123 m=1 mm_ok=1
+rba10 a10 bb10 2000000.0
+rbb10 b10 bb10 2000000.0
+Xmbp_rba10 a10 vbp bb10 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+Xmbp_rbb10 b10 vbp bb10 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+Xxb11p tp a11 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xxb11n tn b11 gnd cap_rfcmim w=1.571200e-05 l=1.571200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xms11 a11 g11 b11 gnd sg13_lv_nmos w=308.58u l=0.13u ng=123 m=1 mm_ok=1
+rba11 a11 bb11 2000000.0
+rbb11 b11 bb11 2000000.0
+Xmbp_rba11 a11 vbp bb11 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+Xmbp_rbb11 b11 vbp bb11 gnd sg13_lv_nmos w=1.25u l=0.13u ng=2 m=1 mm_ok=1
+.ends
+
+
+* expanding   symbol:  vco_var.sym # of pins=5
+** sym_path: /foss/designs/analog/vco/sch/vco_var.sym
+** sch_path: /foss/designs/analog/vco/sch/vco_var.sch
+.subckt vco_var tp tn vt vbp gnd
+*.iopin tp
+*.iopin tn
+*.iopin vt
+*.iopin vbp
+*.iopin gnd
+Xxcp tp vgp gnd cap_rfcmim w=2.129200e-05 l=2.129200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xxcn tn vgn gnd cap_rfcmim w=2.129200e-05 l=2.129200e-05 wfeed=5.0e-6 m=1 mm_ok=1
+rvp vgp vvb 2000000.0
+rvn vgn vvb 2000000.0
+vvb vvb gnd 0.3
+Xxv1 vgn vt vgp sub! sg13_hv_svaricap_fx w=3.74u l=0.3u Nx=10 mm_ok=1
+Xxv2 vgn vt vgp sub! sg13_hv_svaricap_fx w=3.74u l=0.3u Nx=10 mm_ok=1
+Xmbp_rvp vgp vbp vvb gnd sg13_lv_nmos w=5u l=0.13u ng=2 m=1 mm_ok=1
+Xmbp_rvn vgn vbp vvb gnd sg13_lv_nmos w=5u l=0.13u ng=2 m=1 mm_ok=1
+.ends
+
+
+* expanding   symbol:  vco_tail_dac.sym # of pins=11
+** sym_path: /foss/designs/analog/vco/sch/vco_tail_dac.sym
+** sch_path: /foss/designs/analog/vco/sch/vco_tail_dac.sch
+.subckt vco_tail_dac tail vdd gnd vbp_tail nb nbf code0 code1 code2 code3 code4
+*.iopin tail
+*.iopin vdd
+*.iopin gnd
+*.iopin vbp_tail
+*.iopin nb
+*.iopin nbf
+*.iopin code0
+*.iopin code1
+*.iopin code2
+*.iopin code3
+*.iopin code4
+imaster pbias gnd 1.05e-05
+Xmm0 pbias pbias vdd vdd sg13_lv_pmos w=2u l=2u ng=1 m=1 mm_ok=1
+Xmoff xoff pbias vdd vdd sg13_lv_pmos w=38u l=2u ng=19 m=1 mm_ok=1
+Xmsoff xraw gnd xoff vdd sg13_lv_pmos w=38u l=0.13u ng=1 m=1 mm_ok=1
+Xmdb0 xd0 pbias vdd vdd sg13_lv_pmos w=2u l=2u ng=1 m=1 mm_ok=1
+Xmsw0 xraw code0 xd0 vdd sg13_lv_pmos w=2u l=0.13u ng=1 m=1 mm_ok=1
+Xmdb1 xd1 pbias vdd vdd sg13_lv_pmos w=4u l=2u ng=2 m=1 mm_ok=1
+Xmsw1 xraw code1 xd1 vdd sg13_lv_pmos w=4u l=0.13u ng=1 m=1 mm_ok=1
+Xmdb2 xd2 pbias vdd vdd sg13_lv_pmos w=8u l=2u ng=4 m=1 mm_ok=1
+Xmsw2 xraw code2 xd2 vdd sg13_lv_pmos w=8u l=0.13u ng=1 m=1 mm_ok=1
+Xmdb3 xd3 pbias vdd vdd sg13_lv_pmos w=16u l=2u ng=8 m=1 mm_ok=1
+Xmsw3 xraw code3 xd3 vdd sg13_lv_pmos w=16u l=0.13u ng=1 m=1 mm_ok=1
+Xmdb4 xd4 pbias vdd vdd sg13_lv_pmos w=32u l=2u ng=16 m=1 mm_ok=1
+Xmsw4 xraw code4 xd4 vdd sg13_lv_pmos w=32u l=0.13u ng=1 m=1 mm_ok=1
+vsense xraw xref 0
+Xmr xref nbf gnd gnd sg13_lv_nmos w=60u l=4u ng=12 m=1 mm_ok=1
+Xmt tail nbf gnd gnd sg13_lv_nmos w=480u l=4u ng=96 m=1 mm_ok=1
+rtf tail tail_f 100000.0
+ctf tail_f gnd 1e-12
+Xmo1 d1 xref ss gnd sg13_lv_nmos w=8u l=2u ng=2 m=1 mm_ok=1
+Xmo2 d2 tail_f ss gnd sg13_lv_nmos w=8u l=2u ng=2 m=1 mm_ok=1
+iss ss gnd 2e-05
+Xmp1 d1 d1 vdd vdd sg13_lv_pmos w=4u l=2u ng=2 m=1 mm_ok=1
+Xmp2 d2 d1 vdd vdd sg13_lv_pmos w=4u l=2u ng=2 m=1 mm_ok=1
+rout d2 nb 1
+rbf nb nbf 1000000.0
+cbf nbf gnd 5e-11
+rpd nb gnd 200000.0
+ctail tail gnd 8e-12
+Xmbp_rbf nb vbp_tail nbf gnd sg13_lv_nmos w=20u l=0.13u ng=4 m=1 mm_ok=1
+.ends
+
+
+* expanding   symbol:  ampcal_det.sym # of pins=8
+** sym_path: /foss/designs/analog/vco/sch/ampcal_det.sym
+** sch_path: /foss/designs/analog/vco/sch/ampcal_det.sch
+.subckt ampcal_det tp tn ct vdd gnd cmp hold rep
+*.iopin tp
+*.iopin tn
+*.iopin ct
+*.iopin vdd
+*.iopin gnd
+*.iopin cmp
+*.iopin hold
+*.iopin rep
+Xmdtp vdd tp hold gnd sg13_lv_nmos w=0.5u l=0.13u ng=1 m=1 mm_ok=1
+Xmdtn vdd tn hold gnd sg13_lv_nmos w=0.5u l=0.13u ng=1 m=1 mm_ok=1
+idet hold gnd 4e-06
+chold hold gnd 4e-13
+Xmrtp vdd ct rep gnd sg13_lv_nmos w=0.5u l=0.13u ng=1 m=1 mm_ok=1
+Xmrtn vdd ct rep gnd sg13_lv_nmos w=0.5u l=0.13u ng=1 m=1 mm_ok=1
+irep rep gnd 4e-06
+crep rep gnd 4e-13
+vth vthn rep 0.405
+Xmc1 co hold ttail gnd sg13_lv_nmos w=4u l=0.5u ng=2 m=1 mm_ok=1
+Xmc2 co2 vthn ttail gnd sg13_lv_nmos w=4u l=0.5u ng=2 m=1 mm_ok=1
+itt ttail gnd 2e-05
+rc1 vdd co 20000.0
+rc2 vdd co2 20000.0
+Xmcs1 n1 co2 ss2 gnd sg13_lv_nmos w=4u l=0.5u ng=2 m=1 mm_ok=1
+Xmcs2 cmp co ss2 gnd sg13_lv_nmos w=4u l=0.5u ng=2 m=1 mm_ok=1
+iss2 ss2 gnd 2e-05
+Xmpl1 n1 n1 vdd vdd sg13_lv_pmos w=4u l=0.5u ng=2 m=1 mm_ok=1
+Xmpl2 cmp n1 vdd vdd sg13_lv_pmos w=4u l=0.5u ng=2 m=1 mm_ok=1
+cl_cmp cmp gnd 5e-14
 .ends
 
 .end

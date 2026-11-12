@@ -1,0 +1,50 @@
+# P2.7.2a LVS proof — dac_unit + bank_unit
+
+PDK netgen setup: `/foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl` (exists=True)
+KLayout extract: PDK `libs.tech/klayout/tech/lvs/run_lvs.py` + `sg13g2.lvs`.
+
+## IHP workarounds on these cells
+
+- **#861** (SVaricap / ThickGateOx): does **not** apply — no SVaricap in dac_unit or bank_unit.
+- **#753** (SVaricap Nx): does **not** apply.
+- **#512** (rfcmim / cmim multi-port): bank_unit uses **two separate** `cmim` PCells; do not merge.
+- **SVaricap future (#861):** VCO varactor LVS cannot prove device presence until ThickGateOx is in the deck — keep a drawn-Nx checklist (#753) and textual waiver with issue ID.
+
+## Flow lessons (apply to later blocks)
+
+- Schematic must use **M/C/R devices**, not `X` subcircuit wrappers — else netgen builds placeholder cells and pin-permute fails.
+- Metal1 pin polygons = **8/2**; labels = **8/25** (not boxes on 25).
+- Gate Cont must sit on a **poly side-extension** outside Activ; Cont on the top overhang shorts G↔S/D on L=0.13 and trips Cnt.b.
+- Gate M1 landing width ≤ 0.16 µm for L=0.13 (S/D gap ≈ 0.35 µm).
+- NW tap (nactiv∩nwell + Cont + M1) ties PMOS bulk to vdd with `--disable_tap_extraction`.
+- `cmim` PCell: pass `C` together with `w`/`l` and `Calculate=w&l` or size sticks at 6.99 µm.
+
+## dac_unit — PASS (LVS)
+
+- Devices: 2× `sg13_lv_pmos` (mdb 4/2, msw 4/0.13), NW tap to vdd.
+- Extract: `M$1 xd pbias vdd vdd`; `M$2 xraw code xd vdd` [KLayout].
+- **KLayout LVS: PASS** (netlists match).
+- **netgen: Circuits match uniquely.**
+- DRC (`--minimum_drc`): density-only rules AFil.g / GFil.g / M1–5.j / TM1.c / TM2.c — **waived** at block level (fill at chip, Phase 5 / decisions.md).
+- DRC open (not waived): **Cnt.b** (8), **M1.b** (8), **Gat.d** (2) — Cont/M1 space and gate extension; fix in next pass. Not clean for sign-off.
+
+## bank_unit — FAIL (LVS)
+
+- Intent: LSB cmim + switch W=10.32 + 2× rhigh + 2× bypass.
+- Extract still merges `bb|g|vbp|…` and drops the W=10.32 switch; MIM bottoms land on the shorted net. Hand via-stack + gate straps still wrong.
+- **KLayout LVS: FAIL. netgen: MISMATCH** (7 vs 5 devices).
+- DRC: density waived set + Cnt.b / M1.b / Gat.d / TM1.a open.
+
+## Verdict vs pass criteria
+
+| Criterion | Result |
+|-----------|--------|
+| PDK netgen setup used (not home-grown) | PASS |
+| KLayout extract from PDK LVS deck | PASS |
+| dac_unit DRC clean (excl. density fill) | FAIL (Cnt.b / M1.b / Gat.d) |
+| dac_unit LVS clean (device/net) | PASS |
+| bank_unit DRC clean (excl. density) | FAIL |
+| bank_unit LVS clean | FAIL |
+| #861 / #753 / #512 notes | recorded |
+
+**Flow proven on dac_unit.** bank_unit routing not yet LVS-clean — Found, not done for the second cell.

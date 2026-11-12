@@ -1,4 +1,4 @@
-** sch_path: /work/analog/vco/sch/ampcal_det.sch
+** sch_path: /foss/designs/analog/vco/sch/ampcal_det.sch
 **.subckt ampcal_det tp tn ct vdd gnd cmp hold rep
 *.iopin tp
 *.iopin tn

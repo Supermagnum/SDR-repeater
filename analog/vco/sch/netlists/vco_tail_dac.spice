@@ -1,4 +1,4 @@
-** sch_path: /work/analog/vco/sch/vco_tail_dac.sch
+** sch_path: /foss/designs/analog/vco/sch/vco_tail_dac.sch
 **.subckt vco_tail_dac tail vdd gnd vbp_tail nb nbf code0 code1 code2 code3 code4
 *.iopin tail
 *.iopin vdd

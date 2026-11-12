@@ -1,0 +1,8 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 12/11/2026 07:36
+
+.SUBCKT dac_unit code pbias vdd xd xraw
+M$1 xd pbias vdd vdd sg13_lv_pmos L=2u W=4u AS=1.36p AD=1.36p PS=8.68u PD=8.68u
++ rfmode=0
+M$2 xraw code xd vdd sg13_lv_pmos L=0.13u W=4u AS=1.36p AD=1.36p PS=8.68u
++ PD=8.68u rfmode=0
+.ENDS dac_unit

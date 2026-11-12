@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted. D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2 layout FINDING (2026-11-12):** GDS built; DRC/LVS not clean — see § P2.7.2. LVS #861/#753/#512 workarounds stand.
+Status: **D23 Option A accepted. D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2 layout FINDING** (placement). **P2.7.2a partial:** hierarchy + area FINDING (stop); dac_unit LVS PASS; bank_unit LVS open; inductor via fix + EM pending/see § P2.7.2a.
 
 ---
 
@@ -119,27 +119,35 @@ Dependency order. Every analogue block: **xschem `.sch` + SVG/PDF**, then layout
 - ss85 127→128 ratio 1.52 held for the P2.7.2 D20 landing gate.
 
 ### P2.7.2 — Layout: VCO (inductor + core + bank + var + bypasses + amp-cal)
-**Status: FINDING — first KLayout floorplan committed; DRC/LVS not clean. No PEX.**
+**Status: FINDING (placement d4284fc). Split a/b/c per `decisions.md` 2026-11-12. P2.7.2a in progress / area stop.**
 
-#### P2.7.2 layout (2026-11-12)
+#### P2.7.2 layout (2026-11-12) — placement FINDING
 **Outputs:** `analog/vco/layout/` — `build_vco_layout.py`, `out/vco_top.gds.gz`,
 `summary_layout_build.txt`, `summary_drc_lvs.txt`, `summary_drc_waivers.txt`,
 PNG/SVG (top/core/bank/inductor), KLayout LVS extract + logs.
-- Inductor: exact EM `L_2n0_tapped` [EM]; D23 keep-out ≥ 30 µm [HAND].
-- Bank: D24 sizes; rfcmim/cmim; bbox-driven pitch (rfcmim enclosure ≈ ±5.6 µm [DS]).
-- SVaricap Nx=10+10 recorded (#753); #861/#512 documented.
-- Outline **0.4457 mm²** [SCH layout] (D23 VCO+ind ≈ 0.15–0.20; synth island ≈ 0.45–0.55).
-  Bank 0.137 mm²; inductor 0.076 mm².
-- **DRC:** minimum deck FAIL. Density (AFil/GFil/M*.j/TM*.c) → proposed fill waiver
-  (P2.7.8). TV2.a×8 on inductor → proposed EM waiver. **Open:** Cnt.b (tail/var),
-  M1.b, M5.b (`summary_drc_waivers.txt`).
-- **LVS:** KLayout vs `vco_top_lvs.spice` — **netlists don't match** (unrouted
-  PCell floorplan). netgen run did not compare devices (setup). #861/#753/#512 apply.
-- Parasitics listed for P2.7.3 in `summary_layout_build.txt` (tank, bank plates,
-  V_tune, detector, VR_ANA1 strap, tail filter).
+- Outline **0.4457 mm²** [SCH layout]. Placement-only — **not** accepted for PEX
+  (`decisions.md`). Density fill waived at block level; TV2.a **not** waived
+  (fix via arrays in 2a). Cnt.b / M1.b / M5.b → routed respin.
 
-**Owner decision needed:** accept density + TV2.a waivers and require a routed
-DRC/LVS-clean respin before P2.7.3; or allow limited PEX on inductor/tank stubs only.
+#### P2.7.2a (2026-11-12) — LVS flow, hierarchy, inductor vias, area
+**Outputs:** `analog/vco/sch/` hierarchical `vco_top.sch` + `out/summary_hier_equiv.txt`;
+`analog/vco/layout/p272a/` proof cells + `out/summary_lvs_proof.txt`,
+`out/summary_area_plan.txt`; tapped inductor via-array GDS + net/R check.
+- **Hierarchy:** `vco_top.sch` instantiates l2n0, vco_core, vco_bank, vco_var,
+  vco_tail_dac, ampcal_det. Equivalence vs flat: bank/core/var/L match; explained
+  diffs = D22 tail vs step2 stand-in, ampcal present, no CML buffer [SCH].
+- **LVS flow:** PDK `ihp-sg13g2_setup.tcl` + KLayout PDK LVS. **dac_unit:**
+  KLayout PASS + netgen “Circuits match uniquely.” **bank_unit:** FAIL (routing
+  shorts; W=10.32 switch missing in extract). DRC density waived; Cnt.b/M1.b/Gat.d
+  open on proof cells. #861/#753/#512 notes in `summary_lvs_proof.txt`.
+- **Inductor:** TopVia2 → 0.9 µm arrays; TV2.a clear (density only)
+  (`tapped/out/drc_ind_p272a.md`). Net/R PASS. EM vs prior tapped record
+  (`tapped/review/em_summary_p272a.md`): **ΔL ≤ 0.02 % PASS; ΔQ −3.3…−3.8 % FAIL
+  (<1 % gate);** |V_CT/V_diff| ~unchanged PASS.
+- **Area:** placement 0.4457 mm² → compact estimate **0.22–0.28 mm²** [HAND] vs
+  D23 **0.15–0.20**. Inductor+keep-out alone ≈ 0.090. **Budget cannot be met** —
+  finding in `summary_area_plan.txt`; **stop** before P2.7.2b pending D23 decision.
+  Proposal: raise D23 VCO+ind to ≈ 0.25–0.30 mm² (or new EM tank).
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin

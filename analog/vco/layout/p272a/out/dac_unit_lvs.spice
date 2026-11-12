@@ -1,0 +1,5 @@
+* P2.7.2a dac_unit [SCH]
+.subckt dac_unit vdd pbias xd code xraw
+Mmdb xd pbias vdd vdd sg13_lv_pmos w=4.0u l=2.0u
+Mmsw xraw code xd vdd sg13_lv_pmos w=4.0u l=0.13u
+.ends

@@ -1,0 +1,43 @@
+# P2.7.2a hierarchical vs flat equivalence
+
+Hierarchy instantiated in `vco_top.sch`: l2n0, vco_core, vco_bank, vco_var, vco_tail_dac, ampcal_det.
+
+## Leaf device counts [SCH]
+
+| Block | nmos | pmos | mim | svaricap | res | other |
+|---|---|---|---|---|---|---|
+| l2n0 | 0 | 0 | 0 | 0 | 4 | 5 |
+| vco_core | 2 | 0 | 2 | 0 | 1 | 0 |
+| vco_tail_dac | 5 | 15 | 0 | 0 | 4 | 6 |
+| vco_bank | 36 | 0 | 24 | 0 | 24 | 0 |
+| vco_var | 2 | 0 | 2 | 2 | 2 | 1 |
+| ampcal_det | 8 | 2 | 0 | 0 | 2 | 8 |
+
+## Hierarchy total vs flat VCO path (no ampcal/tail D22)
+
+| Kind | hier (all leaves) | flat VCO path (L+core+bank+var) |
+|---|---|---|
+| capa | 7 | 1 |
+| ind | 4 | 4 |
+| isrc | 6 | 0 |
+| mim | 28 | 28 |
+| nmos | 53 | 40 |
+| pmos | 17 | 0 |
+| res | 37 | 31 |
+| svaricap | 2 | 2 |
+| vsrc | 3 | 1 |
+
+## Explained differences vs `vco_sim_flat`
+
+1. **Tail:** `vco_sim_flat` uses a **stand-alone step2 tail** (mt 160u/4u ng=32, mr 20u/4u, iref) for range TB. Hierarchical `vco_tail_dac` is the **D22 OTA DAC** (mt 480u/4u ng=96, full DAC). Different by design — flat TB ≠ chip tail.
+2. **Buffer:** flat has stand-in CML buffer (mb1/mb2 + loads); not in `vco_top` (LO buffer is P2.7.4).
+3. **Ampcal:** in hierarchy (`ampcal_det`); omitted from `vco_sim_flat` VCO-only path.
+4. **Ideal sources:** flat has vvb/iref/ib; hierarchy exposes pins (code*, g*, hold, rep) for digital / TB.
+5. **Bank / core / var / L:** same generators → same devices and sizes as flat VCO path (range.json D24).
+
+## Spot-check sizes [SCH]
+
+- core m1: w=32u l=0.13u ng=8
+- range.json: lsb=6.19 cfix=192.0 nfing=20 bank_arch=d24
+- bank cells: 12
+- svaricap instances: 2; nx=10 each

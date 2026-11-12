@@ -1,4 +1,4 @@
-set XSCHEM_LIBRARY_PATH /work/analog/vco/sch:$XSCHEM_LIBRARY_PATH
+set XSCHEM_LIBRARY_PATH /foss/designs/analog/vco/sch:$XSCHEM_LIBRARY_PATH
 #### xschemrc system configuration file
 
 #### values may be overridden by user's ~/.xschem/xschemrc configuration file

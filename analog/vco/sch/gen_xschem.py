@@ -297,25 +297,68 @@ def gen_ldo():
 
 
 def gen_vco_top(rng, blocks):
-    """Flat documentary top: all VCO devices in one sch (for netlist export)."""
+    """Hierarchical VCO top: leaf symbols wired by net name (P2.7.2a).
+
+    Instantiates l2n0, vco_core, vco_bank (D24), vco_var, vco_tail_dac,
+    ampcal_det. Fixed MIM lives in vco_core; bypasses in bank/var/tail.
+    Digital: bank gates g0..g11 and DAC code0..code4 are top ports.
+    """
+    S2.apply_range_trims(rng)
+    ncell = S2.n_bank_cells()
+    top_ports = [
+        "tp", "tn", "ct", "vt", "vdd", "gnd", "vbp", "vbp_tail",
+        "cmp", "tail", "hold", "rep",
+    ]
+    top_ports += [f"g{k}" for k in range(ncell)]
+    top_ports += [f"code{b}" for b in range(5)]
+
     sch = Sch("vco_top", os.path.join(HERE, "vco_top.sch"))
-    for p in ("tp", "tn", "ct", "vt", "vdd", "gnd", "vbp", "vbp_tail",
-              "cmp", "tail"):
+    for p in top_ports:
         sch.iopin(p)
-    sch.title("vco_top_P271")
-    # Merge device lists from leaf blocks into one flat sch for sim netlist.
-    # Rebuild flat: call generators' device emission by re-running leaf builders
-    # into this sch — simpler: concatenate leaf vacask and keep hier sch for docs.
-    # For a true single-sheet capture, place hierarchical symbols:
+    sch.title("vco_top_P272a_hier")
+
+    # Inductor (tank L)
     sch.subckt_inst("l2n0.sym", "xl",
-                    {"p": "tp", "n": "tn", "ct": "ct"}, x=0, y=-200)
-    for pin, net in (("p", "tp"), ("n", "tn"), ("ct", "ct")):
-        sch._lab((-80 if pin != "ct" else 0) + (0 if pin == "ct" else 0),
-                 -200 + ({"p": -30, "n": 30, "ct": 0}[pin]), net)
+                    {"p": "tp", "n": "tn", "ct": "ct"}, x=0, y=0)
+
+    # Core + fixed cap
+    sch.subckt_inst(
+        "vco_core.sym", "xcore",
+        {"tp": "tp", "tn": "tn", "tail": "tail", "ct": "ct",
+         "vdd": "vdd", "gnd": "gnd"},
+        x=200, y=0)
+
+    # D24 bank
+    bank_nets = {"tp": "tp", "tn": "tn", "vbp": "vbp", "gnd": "gnd"}
+    for k in range(ncell):
+        bank_nets[f"g{k}"] = f"g{k}"
+        bank_nets[f"bb{k}"] = f"bb{k}"
+    sch.subckt_inst("vco_bank.sym", "xbank", bank_nets, x=400, y=0)
+
+    # Varactor + bias / bypass
+    sch.subckt_inst(
+        "vco_var.sym", "xvar",
+        {"tp": "tp", "tn": "tn", "vt": "vt", "vbp": "vbp", "gnd": "gnd"},
+        x=600, y=0)
+
+    # Tail DAC / OTA / RC / bypass
+    sch.subckt_inst(
+        "vco_tail_dac.sym", "xtail",
+        {"tail": "tail", "vdd": "vdd", "gnd": "gnd", "vbp_tail": "vbp_tail",
+         "nb": "nb", "nbf": "nbf",
+         "code0": "code0", "code1": "code1", "code2": "code2",
+         "code3": "code3", "code4": "code4"},
+        x=200, y=200)
+
+    # D22 detector + SE comparator
+    sch.subckt_inst(
+        "ampcal_det.sym", "xdet",
+        {"tp": "tp", "tn": "tn", "ct": "ct", "vdd": "vdd", "gnd": "gnd",
+         "cmp": "cmp", "hold": "hold", "rep": "rep"},
+        x=400, y=200)
+
     sch.write()
-    write_sym(os.path.join(HERE, "vco_top.sym"), "vco_top",
-              ["tp", "tn", "ct", "vt", "vdd", "gnd", "vbp", "vbp_tail",
-               "cmp", "tail"])
+    write_sym(os.path.join(HERE, "vco_top.sym"), "vco_top", top_ports)
     return sch
 
 

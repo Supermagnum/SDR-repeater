@@ -1,0 +1,61 @@
+# P2.7.2a area plan vs D23 [HAND]
+
+Source placement outline: `analog/vco/layout/out/summary_layout_build.txt`
+(d4284fc) outline **0.4457 mm²** [SCH layout].
+D23 VCO+inductor budget: **≈ 0.15–0.20 mm²** (`spec/p27-floorplan.md` §2).
+Synth island: ≈ 0.45–0.55 mm² (includes LO/PLL/LF — not only VCO).
+
+## Breakdown of the 0.4457 mm² island [HAND from placement bboxes]
+
+| Part | Area (mm²) | Basis |
+|------|------------|--------|
+| Inductor (EM bbox 254×299 µm) | **0.0758** | measured [EM]/ |
+| Inductor + 30 µm keep-out | **≈ 0.090** | +keep-out ring [HAND] |
+| D24 bank (placement) | **0.137** | measured [SCH layout] |
+| VCO core | **0.0064** | measured |
+| Varactor block | **≈ 0.005** | ~79×56 µm [SCH layout] |
+| Tail / DAC / OTA | **≈ 0.099** | ~479×207 µm [SCH layout] |
+| Ampcal detector | **≈ 0.0004** | ~10×36 µm |
+| Guard / taps / empty in outline | **≈ 0.11** | residual of 0.4457 |
+| **Sum (placement)** | **0.4457** | outline |
+
+## Compact routed estimate [HAND]
+
+Assumptions for a routed respin (not yet drawn):
+
+| Part | Compact (mm²) | Note |
+|------|---------------|------|
+| Inductor + keep-out | **0.090** | EM geometry fixed; keep-out required |
+| Bank (12 cells, packed, no 60 µm R height) | **0.055–0.070** | fold R; share rails; still 12× MIM |
+| Core + tank wiring | **0.010–0.015** | |
+| Var + bias | **0.008–0.012** | |
+| Tail DAC / OTA / RC | **0.040–0.060** | long-L devices dominate |
+| Detector | **0.005** | |
+| Guards / straps | **0.015–0.025** | |
+| **Total compact VCO** | **≈ 0.22–0.28** | |
+
+## Verdict vs D23 0.15–0.20 mm²
+
+**Budget cannot be met** with the accepted tapped L2n0 (0.076 mm² bare;
+≈ 0.090 with keep-out). Inductor + keep-out alone consumes **45–60 %** of the
+upper D23 VCO budget before any bank or tail.
+
+Even a heroic bank fold to 0.055 leaves ≈ 0.145 for everything else → total
+still **≈ 0.24 mm²** mid-estimate.
+
+### Finding for D23 and die-size tally (`spec/p27-floorplan.md` §8)
+
+| Item | mm² | Tag |
+|------|-----|-----|
+| D23 VCO+ind (Option A memo) | 0.15–0.20 | [HAND] memo |
+| Placement island (P2.7.2) | 0.4457 | [SCH layout] |
+| Compact routed estimate | **0.22–0.28** | [HAND] |
+| Synth island memo | 0.45–0.55 | [HAND] — still OK if VCO grows |
+| Die memo 1.6×1.6 = 2.56 | short ≈ 0.9 | already flagged §8 |
+| Die typical 2.5×2.5 = 6.25 | slack | §8 |
+
+**Proposal (owner):** raise the D23 VCO+inductor line to **≈ 0.25–0.30 mm²**,
+keep synth island ≈ 0.50–0.60 mm², and keep the §8 die-size warning (≥ ~2.2×2.2 mm).
+Alternatively shrink the tank (new EM inductor) — topology change, not this run.
+
+**Stop** per prompt: area finding recorded; no P2.7.2b until D23 decision.

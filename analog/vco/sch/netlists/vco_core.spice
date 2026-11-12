@@ -1,4 +1,4 @@
-** sch_path: /work/analog/vco/sch/vco_core.sch
+** sch_path: /foss/designs/analog/vco/sch/vco_core.sch
 **.subckt vco_core tp tn tail ct vdd gnd
 *.iopin tp
 *.iopin tn
@@ -8,8 +8,8 @@
 *.iopin gnd
 Xm1 tp tn tail gnd sg13_lv_nmos w=32u l=0.13u ng=8 m=1 mm_ok=1
 Xm2 tn tp tail gnd sg13_lv_nmos w=32u l=0.13u ng=8 m=1 mm_ok=1
-Xxf1 tp fx gnd cap_rfcmim w=1.624600e-05 l=1.624600e-05 wfeed=5.0e-6 m=1 mm_ok=1
-Xxf2 tn fx gnd cap_rfcmim w=1.624600e-05 l=1.624600e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xxf1 tp fx gnd cap_rfcmim w=1.600000e-05 l=1.600000e-05 wfeed=5.0e-6 m=1 mm_ok=1
+Xxf2 tn fx gnd cap_rfcmim w=1.600000e-05 l=1.600000e-05 wfeed=5.0e-6 m=1 mm_ok=1
 rfx fx gnd 200000.0
 **.ends
 .end

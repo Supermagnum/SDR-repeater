@@ -1,0 +1,10 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 12/11/2026 07:37
+
+.SUBCKT bank_unit bb|g|vbp|vbp2 gnd tn tp
+M$1 bb|g|vbp|vbp2 bb|g|vbp|vbp2 bb|g|vbp|vbp2 gnd sg13_lv_nmos L=0.13u W=0.45u
++ AS=0.243p AD=0.1845p PS=3.295u PD=2.57u rfmode=0
+R$4 bb|g|vbp|vbp2 \$12 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$5 bb|g|vbp|vbp2 \$13 gnd rhigh w=5u l=60.8u ps=0u b=0 m=1
+C$6 tp bb|g|vbp|vbp2 cap_cmim w=2.81u l=2.81u A=7.8961p P=11.24u m=1
+C$7 tn bb|g|vbp|vbp2 cap_cmim w=2.81u l=2.81u A=7.8961p P=11.24u m=1
+.ENDS bank_unit

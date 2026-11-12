@@ -202,19 +202,33 @@ def main():
     # the winding and skews R(P–N). Subtract the stub (south |x|<6, y<100).
     say(f"\n## DC resistance L134∪TM1 minus CT stub "
         f"(unit sheet R, pitch={PITCH} µm)")
-    attach = {}
+    # Collect via centres; P/N may be via *arrays* (P2.7.2a) — use mean
+    buckets = {"CT": [], "P": [], "N": []}
+    ct_top_y = []
     for s in top.shapes(layout.layer(133, 0)).each():
         b = s.bbox()
         cx = 0.5 * (b.left + b.right) * dbu
         cy = 0.5 * (b.bottom + b.top) * dbu
         if abs(cx) < 5 and 28 < cy < 50:
-            # seed at the top edge of the via (P–N path mid sits there)
-            attach["CT"] = (cx, b.top * dbu)
+            buckets["CT"].append((cx, cy))
+            ct_top_y.append(b.top * dbu)
         elif cx < -15 and 40 < cy < 60:
-            attach["P"] = (cx, cy)
+            buckets["P"].append((cx, cy))
         elif cx > 15 and 40 < cy < 60:
-            attach["N"] = (cx, cy)
-    say(f"  via landings: {attach}")
+            buckets["N"].append((cx, cy))
+    attach = {}
+    for name, pts in buckets.items():
+        if not pts:
+            continue
+        mx = sum(p[0] for p in pts) / len(pts)
+        my = sum(p[1] for p in pts) / len(pts)
+        if name == "CT" and ct_top_y:
+            # seed at top edge of CT via (P–N path mid sits there)
+            attach["CT"] = (mx, max(ct_top_y))
+        else:
+            attach[name] = (mx, my)
+    say(f"  via landings: {attach} (P/N/CT via counts "
+        f"{len(buckets['P'])}/{len(buckets['N'])}/{len(buckets['CT'])})")
     if set(attach) != {"P", "N", "CT"}:
         say("FAIL: could not classify P/N/CT via landings")
         open(OUT, "w").write("\n".join(lines) + "\n")

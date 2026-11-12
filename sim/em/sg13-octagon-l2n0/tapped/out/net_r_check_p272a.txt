@@ -1,0 +1,28 @@
+# Tapped L2n0 net / R check
+GDS: /foss/designs/sim/em/sg13-octagon-l2n0/tapped/L_2n0_tapped.gds
+Ports µm: P=(-28.2, 2.0), N=(28.19, 2.0), CT=(0.0, 2.0)
+
+## TM1-only connectivity (pitch=0.5 µm)
+  TM1 components: 4
+  P -> component 0
+  N -> component 2
+  CT -> component 1
+PASS: P, N, CT are three distinct TM1 nets.
+CT stub (y_top=41.8) ∩ north underpass: NONE (clear)
+
+## CT via on L134
+  CT via (0.00,41.30) 0.90×0.90 µm  coverage=100.0%
+
+## DC resistance L134∪TM1 minus CT stub (unit sheet R, pitch=0.5 µm)
+  via landings: {'CT': (0.0, 41.75), 'P': (-28.205, 50.995), 'N': (28.195, 50.995)} (P/N/CT via counts 36/36/1)
+  R(P–N)  = 149.0
+  R(P–CT) = 75.0
+  R(N–CT) = 74.0
+  |R(P–CT)−R(N–CT)|/mean = 1.34% (gate ≤ 2%)
+  |R(P–CT)−R(P–N)/2|/half = 0.67%
+  |R(N–CT)−R(P–N)/2|/half = 0.67%
+PASS: R match within 2%
+
+## Verdict
+ALL CHECKS PASS
+Wrote /foss/designs/sim/em/sg13-octagon-l2n0/tapped/review/net_r_check.txt

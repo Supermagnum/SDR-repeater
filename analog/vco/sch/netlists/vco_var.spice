@@ -1,4 +1,4 @@
-** sch_path: /work/analog/vco/sch/vco_var.sch
+** sch_path: /foss/designs/analog/vco/sch/vco_var.sch
 **.subckt vco_var tp tn vt vbp gnd
 *.iopin tp
 *.iopin tn

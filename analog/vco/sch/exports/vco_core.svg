@@ -258,7 +258,7 @@ text {font-family: Sans-Serif;}
 <text fill="#00ddff"  xml:space="preserve" font-size="13.6296" transform="translate(31.7541, 233.158)" >gnd</text>
 <text fill="#cccccc"  xml:space="preserve" font-size="16.5208" transform="translate(361.499, 469.596)" >         vco_core.sch</text>
 <text fill="#cccccc"  xml:space="preserve" font-size="16.5208" transform="translate(361.499, 445.768)" >HT13G-M P2.7.1</text>
-<text fill="#cccccc"  xml:space="preserve" font-size="16.5208" transform="translate(797, 445.768)" >2026-11-11  19:11:51</text>
+<text fill="#cccccc"  xml:space="preserve" font-size="16.5208" transform="translate(797, 445.768)" >2026-11-12  02:17:07</text>
 <text fill="#cccccc"  xml:space="preserve" font-size="41.3019" transform="translate(178.818, 468.269)" >SCHEM</text>
 <text fill="#00ddff"  xml:space="preserve" font-size="13.6296" transform="translate(242.743, 456.546)" >vco_core_XC</text>
 <text fill="#cccccc"  xml:space="preserve" font-size="8.26039" transform="translate(165.818, 402.526)" >m1</text>
@@ -292,9 +292,9 @@ text {font-family: Sans-Serif;}
 <text fill="#ff0000"  xml:space="preserve" font-size="6.19529" transform="translate(528.296, 402.636)" >c0</text>
 <text fill="#ff0000"  xml:space="preserve" font-size="6.19529" transform="translate(528.296, 439.371)" >c1</text>
 <text fill="#cccccc"  xml:space="preserve" font-size="8.26039" transform="translate(536.238, 403.518)" >xf1</text>
-<text fill="#aaaa00"  xml:space="preserve" font-size="8.26039" transform="translate(536.238, 431.318)" >1.624600e-05 / 1.624600e-05</text>
+<text fill="#aaaa00"  xml:space="preserve" font-size="8.26039" transform="translate(536.238, 431.318)" >1.600000e-05 / 1.600000e-05</text>
 <text fill="#cccccc"  xml:space="preserve" font-size="8.26039" transform="translate(536.238, 417.418)" >cap_rfcmim/rfcmim</text>
-<text fill="#aaaa00"  xml:space="preserve" font-size="8.26039" transform="translate(464.367, 433.303)" >C=3.985e-13</text>
+<text fill="#aaaa00"  xml:space="preserve" font-size="8.26039" transform="translate(464.367, 433.303)" >C=3.866e-13</text>
 <text fill="#ff0000"  xml:space="preserve" font-size="6.19529" transform="translate(504.468, 418.521)" >bn</text>
 <text fill="#00ddff"  xml:space="preserve" font-size="13.6296" transform="translate(504.367, 400.947)" >tp</text>
 <text fill="#00ddff"  xml:space="preserve" font-size="13.6296" transform="translate(505.367, 448.603)" >fx</text>
@@ -302,9 +302,9 @@ text {font-family: Sans-Serif;}
 <text fill="#ff0000"  xml:space="preserve" font-size="6.19529" transform="translate(703.035, 402.636)" >c0</text>
 <text fill="#ff0000"  xml:space="preserve" font-size="6.19529" transform="translate(703.035, 439.371)" >c1</text>
 <text fill="#cccccc"  xml:space="preserve" font-size="8.26039" transform="translate(710.977, 403.518)" >xf2</text>
-<text fill="#aaaa00"  xml:space="preserve" font-size="8.26039" transform="translate(710.977, 431.318)" >1.624600e-05 / 1.624600e-05</text>
+<text fill="#aaaa00"  xml:space="preserve" font-size="8.26039" transform="translate(710.977, 431.318)" >1.600000e-05 / 1.600000e-05</text>
 <text fill="#cccccc"  xml:space="preserve" font-size="8.26039" transform="translate(710.977, 417.418)" >cap_rfcmim/rfcmim</text>
-<text fill="#aaaa00"  xml:space="preserve" font-size="8.26039" transform="translate(639.106, 433.303)" >C=3.985e-13</text>
+<text fill="#aaaa00"  xml:space="preserve" font-size="8.26039" transform="translate(639.106, 433.303)" >C=3.866e-13</text>
 <text fill="#ff0000"  xml:space="preserve" font-size="6.19529" transform="translate(679.207, 418.521)" >bn</text>
 <text fill="#00ddff"  xml:space="preserve" font-size="13.6296" transform="translate(679.106, 400.947)" >tn</text>
 <text fill="#00ddff"  xml:space="preserve" font-size="13.6296" transform="translate(680.106, 448.603)" >fx</text>

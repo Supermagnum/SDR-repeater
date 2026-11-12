@@ -1,4 +1,4 @@
-** sch_path: /work/analog/vco/sch/l2n0.sch
+** sch_path: /foss/designs/analog/vco/sch/l2n0.sch
 **.subckt l2n0 p n ct
 *.iopin p
 *.iopin n
