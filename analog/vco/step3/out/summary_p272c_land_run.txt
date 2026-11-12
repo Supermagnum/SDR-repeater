@@ -1,0 +1,13 @@
+
+## D20 landing [MODEL]
+
+| corner | hold (V) | window | V min-max | outside % | margin lo/hi (V) | PASS |
+|---|---|---|---|---|---|---|
+| tt | 0.577 | 0.265-1.150 | 0.361-0.936 | 0.00 | +0.096/+0.214 | PASS |
+  spread tt: ½ largest step=0.1762 V; counting≈0.1693 V; curvature(asym)=+0.0709 V; hold−mid_window=-0.1301 V; above/below hold=0.3585/0.2167 V
+| ss | 0.524 | 0.202-1.050 | 0.244-0.897 | 0.00 | +0.042/+0.153 | PASS |
+  spread ss: ½ largest step=0.1762 V; counting≈0.2026 V; curvature(asym)=+0.0469 V; hold−mid_window=-0.1023 V; above/below hold=0.3733/0.2794 V
+| ff | 0.636 | 0.341-1.250 | 0.457-0.970 | 0.00 | +0.116/+0.280 | PASS |
+  spread ff: ½ largest step=0.1269 V; counting≈0.1454 V; curvature(asym)=+0.0775 V; hold−mid_window=-0.1593 V; above/below hold=0.3340/0.1789 V
+
+Wrote /mnt/2e9a1e9f-2097-408c-ab9a-a01b32f11d28/github-projects/SDR-repeater/analog/vco/step3/out/summary_p272c_gate.txt

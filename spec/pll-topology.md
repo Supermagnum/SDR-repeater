@@ -424,7 +424,8 @@ The R3 / C3 pole (≈ 480 kHz) takes 36–38 dB off the offset-current ripple at
 | Item | Result | Against |
 |---|---|---|
 | Loop | 60 kHz / 55° (D19; P2.2 had a 2π sizing error, corrected) | — |
-| Band calibration | 8-bit bank with even steps (0.24–0.29 V of V_tune), finer counter, nearest code (D20): V_tune lands in 0.34–0.82 V at all corners; 38.8 µs | window 0.25–0.95 V |
+| Band calibration | 8-bit bank with even steps (0.24–0.29 V of V_tune), finer counter, nearest code (D20): V_tune lands in 0.34–0.82 V at all corners; 38.8 µs | window 0.25–0.95 V (pre-D21) |
+| Band calibration at VR_ANA1 (P2.7.2c) | D24 bank + offset-off hold; pad supplies 1.108 / 1.200 / 1.295 V [HAND]; landing tt 0.361–0.936 / ss 0.244–0.897 / ff 0.457–0.970 V [MODEL] | window edges = pump 10 % compliance [SCH]: tt 0.265–1.150, ss 0.202–1.050, ff 0.341–1.250 V (`summary_compliance_vrana1.txt`) |
 | Wake | calibration + settling to 10 Hz at RF: 83–120 µs (model); with D22 amp cal **109–130 µs** `[MODEL]` (`wake_timing.py`) | ≤ 150 µs |
 | Phase noise at the duplex offset | −138.8 … −145.3 dBc/Hz at RF, worst +2.8 dB (VHF 175 MHz) | −136 dBc/Hz (25 W) |
 | Spurs | reference −109 dBc, boundary −123 dBc | −67 / −95 dBc |
@@ -441,3 +442,15 @@ The R3 / C3 pole (≈ 480 kHz) takes 36–38 dB off the offset-current ripple at
 | (4) CP in-band noise | No action unless required |
 
 P2.7 notes / LVS workarounds: `spec/p27-layout-notes.md`.
+
+### P2.7.2c — VR_ANA1 window edges (2026-11-12)
+
+Pump compliance re-measured at pad supplies (ss 1.108 / tt 1.200 / ff 1.295 V [HAND]) with the step-2a charge pump: edges where |I_up| / |I_dn| fall by 10 % from the mid-rail value [SCH] (`analog/pll/step2/out/summary_compliance_vrana1.txt`):
+
+| Corner | V_DD (V) | Window (V) |
+|---|---|---|
+| tt | 1.200 | 0.265–1.150 |
+| ss | 1.108 | 0.202–1.050 |
+| ff | 1.295 | 0.341–1.250 |
+
+Holds with D18 offset off: tt 0.577 / ss 0.524 / ff 0.636 V [SCH]. D20 nearest landing inside those windows at every corner [MODEL] (`summary_p272c_gate.txt`). Closed-loop model corners updated in `analog/pll/p26/step1/closed_loop.py`.

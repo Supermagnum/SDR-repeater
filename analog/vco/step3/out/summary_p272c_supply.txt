@@ -1,0 +1,40 @@
+# P2.7.2c — VR_ANA1 pad supply corners for gate [HAND]
+
+Source: D21 (`decisions.md`, `analog/vco/ldo/out/summary_d21_vrana1.txt`).
+Architecture: VBAT → LDO (sense at LDO out) → R = 10 Ω → pad (VR_ANA1) → bond → 100 nF.
+VCO, LO and charge pump are fed from the pad.
+
+## Pad range
+
+V_LDO set so V_pad ≈ 1.200 V at I_typ = 9.65 mA (VHF 4.20 GHz) → V_LDO = 1.2965 V [HAND/SCH].
+
+| Corner | Role | Formula | V_pad (V) |
+|---|---|---|---|
+| ss | min-pad | V_LDO·(1−5 %) − I_max·R·(1+20 %), I_max = 10.30 mA | **1.108** |
+| tt | typical | target at I_typ | **1.200** |
+| ff | max-pad | V_LDO·(1+5 %) − I_min·R·(1−20 %), I_min = UHF typ 8.30 mA (light-load IR) | **1.295** |
+
+Temps unchanged from the prior gate: ss 85 °C, tt 27 °C, ff −40 °C (carries); hold/compliance use the same mos corners with those pad voltages (ss also checked at the hold temperature used in step 4 where noted).
+
+## Recorded results that used 1.08 / 1.32 V for VR_ANA1 blocks
+
+Listed only; **not re-run in this job.**
+
+| Result | Where | Notes |
+|---|---|---|
+| P2.5 step 1 CP compliance / MMD | `analog/pll/step1/`, `spec/pll-topology.md` §7 | ss 1.08 / ff 1.32 |
+| P2.5 step 2a PFD+CP linearity | `analog/pll/step2/`, §8 | ss 1.08 / ff 1.32; ss window top ≈ 0.85 V |
+| P2.5 step 3 Monte Carlo | `analog/pll/step3/` | tt at window edges; ss at 0.6 V |
+| P2.5 step 4 bias / hold / window delay | `analog/pll/step4/` (`summary.txt`, `summary_hold_d19.txt`, `summary_hold_d24.txt`) | BIAS_CORNERS 1.08/1.32 |
+| P2.6 step 1 landing model windows | `analog/pll/p26/step1/closed_loop.py` | ss vup=0.85 from step 2a at 1.08 V |
+| P2.6 closed-loop / spur corners | `analog/pll/p26/` | inherited 1.08/1.32 |
+| V_tune monitor margins / lo_pump | `analog/pll/vtune_mon/` | pump bottoms/tops from step 1 at 1.08/1.32 |
+| LO divider corners / current | `analog/lo/`, D7 acceptance | ff 1.32 V ≈ 10.3 mA |
+| VCO step 2/3 range & PN corners | `analog/vco/step2/`, `step3/` | VCT historically 1.1 V; ±10 % digital VDD where used |
+| P2.7.2 / P2.7.2b gate | `analog/vco/step3/out/summary_p272*_gate.txt` | holds & windows from 1.08/1.32 step-4 / step-2a |
+
+Gate re-run below uses the pad corners in the first table.
+
+
+Locked for this run: ss=1.108 V, tt=1.200 V, ff=1.295 V [HAND]
+

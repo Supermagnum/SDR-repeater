@@ -1,0 +1,21 @@
+# P2.7.2c — V_tune hold at VR_ANA1 pad supplies (D24 offset off) [SCH]
+Same hold switch + 2×1 kΩ divider as step 4; D18 offset off. Report held V_tune (final) at each pad V_DD.
+| Corner | V_DD (V) | T (°C) | V0 (V) | V_tune held (V) | mean err settle64 (mV) | Pass |
+|---|---|---|---|---|---|---|
+| tt | 1.200 | 27 | 0.000 | 0.577 | 2.5 | yes |
+| tt | 1.200 | 27 | 0.600 | 0.577 | 0.2 | yes |
+| tt | 1.200 | 27 | 1.200 | 0.577 | 4.0 | yes |
+| ss | 1.108 | 85 | 0.000 | 0.524 | 3.6 | yes |
+| ss | 1.108 | 85 | 0.554 | 0.524 | 0.5 | yes |
+| ss | 1.108 | 85 | 1.108 | 0.524 | 8.6 | yes |
+| ff | 1.295 | -40 | 0.000 | 0.636 | 2.0 | yes |
+| ff | 1.295 | -40 | 0.647 | 0.636 | 0.0 | yes |
+| ff | 1.295 | -40 | 1.295 | 0.636 | 2.5 | yes |
+
+## Hold used for landing
+
+| Corner | V_hold (V) | ≈ V_DD/2 |
+|---|---|---|
+| tt | 0.577 | 0.600 |
+| ss | 0.524 | 0.554 |
+| ff | 0.636 | 0.647 |

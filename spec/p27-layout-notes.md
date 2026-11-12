@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted. D24 segmented bank recorded.** **P2.7.2b gate FAIL (2026-11-12):** D24 + offset-off hold; tt landing PASS; ss/ff still overshoot high window — finding, **no layout**. LVS #861/#753/#512 workarounds stand.
+Status: **D23 Option A accepted. D24 segmented bank recorded.** **P2.7.2c gate PASS (2026-11-12)** at VR_ANA1 pad supplies (`summary_p272c_gate.txt`). Next: **P2.7.2 VCO layout**. LVS #861/#753/#512 workarounds stand.
 
 ---
 

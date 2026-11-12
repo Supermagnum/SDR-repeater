@@ -406,3 +406,29 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   (max 0.882 vs 0.85); **ff FAIL** (max 0.997 vs 0.95). ss85 127→128 now ratio 1.01.
 - Owner decision open: widen ss/ff high window slightly, host-exclude edge channels, or
   further bank/hold work. Layout still blocked.
+
+## 2026-11-12 — P2.7.2b results; gate corners after D21
+- D24 works: ss 85 °C 127→128 ratio 1.01 (was 1.52); RTL decoder and offset-off-in-hold pass.
+- Remaining gate misses are high-side only (ss −32 mV, ff −47 mV). The gate corners still use
+  1.08 / 1.32 V supplies; since D21 the VCO, LO and charge pump are on VR_ANA1 (≈ 1.2 V at the
+  pad, worst ≥ 1.108 V, high end from the LDO tolerance). The gate is re-run with VR_ANA1
+  corners: window edges (pump compliance) and hold voltages at those supplies.
+- If it still fails: (a) a fixed signed bias on the calibration target to centre the landing
+  in the window (varactor curvature), (b) a longer count (K = 512) for the final nearest-code
+  decision only, wake ≤ 150 µs. No window widening, no channel exclusion.
+
+## 2026-11-12 — P2.7.2c gate PASS (VR_ANA1 pad supplies)
+- Pad corners [HAND]: ss 1.108 / tt 1.200 / ff 1.295 V (`summary_vrana1_pad_corners.txt`).
+- Compliance 10 % [SCH]: tt 0.265–1.150, ss 0.202–1.050, ff 0.341–1.250 V.
+- Holds offset-off [SCH]: tt 0.577 / ss 0.524 / ff 0.636 V.
+- D20 landing [MODEL]: PASS all corners (tt 0.361–0.936, ss 0.244–0.897, ff 0.457–0.970 V).
+  No cal-target bias, no K=512. Layout unblocked → P2.7.2 VCO layout.
+
+## 2026-11-12 — P2.7.2c results; VR_ANA1 corners
+- Gate re-run on VR_ANA1 pad supplies (ss 1.108 / tt 1.200 / ff 1.295 V): landing tt 0.361–0.936,
+  ss 0.244–0.897, ff 0.457–0.970 V; 15 corners cover; D22 search passes. No target bias, no K=512.
+- Window definition for the landing gate: the charge pump at the locked V_tune must keep
+  INL ≤ 30 ps (boundary spur ≥ 10 dB inside −95 dBc), I_cp within 10 %, and the D18 lock point
+  on the UP side — not only a 10 % current drop. Checked at the landing extremes before layout.
+- Recorded results on 1.08 / 1.32 V for VR_ANA1 blocks stay valid as conservative bounds (the
+  pad range lies inside); re-run with pad corners only post-layout.

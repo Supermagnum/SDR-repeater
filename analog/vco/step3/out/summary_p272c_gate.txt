@@ -1,0 +1,37 @@
+# P2.7.2c gate — VR_ANA1 pad supplies [SCH]+[MODEL]+[HAND]
+
+V_pad: ss=1.108 V, tt=1.200 V, ff=1.295 V [HAND] (ldo/out/summary_vrana1_pad_corners.txt).
+
+## Pump compliance window (10 % fall of I_up / I_dn) [SCH]
+
+| Corner | V_DD | T | bottom | top |
+|---|---|---|---|---|
+| tt | 1.200 | 27 | 0.265 | 1.150 |
+| ss | 1.108 | 85 | 0.202 | 1.050 |
+| ff | 1.295 | -40 | 0.341 | 1.250 |
+
+## Hold (D24 offset off) [SCH]
+
+| Corner | V_hold (V) |
+|---|---|
+| tt | 0.577 |
+| ss | 0.524 |
+| ff | 0.636 |
+
+## Carries ss 85 °C / ff −40 °C [SCH]
+
+- ss: worst-ratio 223→224 ratio 1.05, dV 0.329 V; max dV 0.352 V
+- ff: worst-ratio 159→160 ratio 0.86, dV 0.195 V; max dV 0.254 V
+
+## D20 landing + spread [MODEL]
+
+| corner | hold | window | V min-max | outside % | margin lo/hi | ½step | count | curv | hold−mid | PASS |
+|---|---|---|---|---|---|---|---|---|---|---|
+| tt | 0.577 | 0.265-1.150 | 0.361-0.936 | 0.00 | +0.096/+0.214 | 0.176 | 0.169 | +0.071 | -0.130 | PASS |
+| ss | 0.524 | 0.202-1.050 | 0.244-0.897 | 0.00 | +0.042/+0.153 | 0.176 | 0.203 | +0.047 | -0.102 | PASS |
+| ff | 0.636 | 0.341-1.250 | 0.457-0.970 | 0.00 | +0.116/+0.280 | 0.127 | 0.145 | +0.078 | -0.159 | PASS |
+
+## Gate verdict
+
+PASS at tt/ss/ff. No cal-target bias, no K=512. Fixes (a)/(b) not needed.
+No window widening, no channel exclusion.

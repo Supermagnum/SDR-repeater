@@ -1,6 +1,6 @@
 # VCO topology memo (P2.3)
 
-Status: **topology accepted (D8–D11; D24 2026-11-12).** P2.3 open items closed. **D24:** 8-bit bank = 5 binary LSB + 7 thermometer units (32 LSB); D18 offset off in hold. P2.7.2b gate in progress. See §9.
+Status: **topology accepted (D8–D11; D24 2026-11-12).** P2.3 open items closed. **D24:** 8-bit bank = 5 binary LSB + 7 thermometer units (32 LSB); D18 offset off in hold. **P2.7.2c gate PASS** (VR_ANA1 pad supplies). See §9.
 
 ---
 
@@ -224,6 +224,20 @@ Slow MOS corner, 85 °C, 4 mA cap: 3.12 / 3.65 / 4.20 GHz at 1 MHz −122.8 / �
 
 **Steps tt:** max **0.298 V** (≤ 0.30) PASS; ratios 0.96–1.02 except **95→96 = 0.90** (sole miss vs 0.94–1.07). Unit nudges worsened high-code ratios — kept first trim.
 
-**Gate [MODEL]** (`summary_p272b_gate.txt`): tt PASS (0.355–0.942 V); **ss FAIL** (max 0.882 vs 0.85); **ff FAIL** (max 0.997 vs 0.95). ss85 127→128 ratio 1.01 (MSB blow-up gone). Layout blocked.
+**Gate [MODEL]** (`summary_p272b_gate.txt`): tt PASS (0.355–0.942 V); **ss FAIL** (max 0.882 vs 0.85); **ff FAIL** (max 0.997 vs 0.95). ss85 127→128 ratio 1.01 (MSB blow-up gone). Layout blocked pending pad-supply re-run.
 
-**15-corner / D22:** not re-run (gate stop). xschem bank regenerated (84 devices); inventory-vs-deck diffs class as P2.7.1.
+**15-corner / D22:** not re-run at 1.08/1.32 (gate stop). xschem bank regenerated (84 devices); inventory-vs-deck diffs class as P2.7.1.
+
+### P2.7.2c (2026-11-12) — gate at VR_ANA1 pad supplies
+
+**Supplies [HAND]** (`summary_vrana1_pad_corners.txt`): ss = 1.108 V (min pad), tt = 1.200 V, ff = 1.295 V (max pad from ±5 % LDO and light-load IR). Prior 1.08/1.32 V results for VR_ANA1 blocks listed there; not re-run.
+
+**Hold [SCH]** (`summary_hold_vrana1.txt`, D24 offset off): tt 0.577 / ss 0.524 / ff 0.636 V.
+
+**Compliance window [SCH]** (`summary_compliance_vrana1.txt`, 10 % fall of I_up/I_dn at mid-rail): tt 0.265–1.150 V; ss 0.202–1.050 V; ff 0.341–1.250 V.
+
+**Carries [SCH]** (`summary_p272c_carries.txt`): ss85 max dV 0.352 V, worst ratio 1.05; ff−40 max dV 0.254 V, worst ratio 0.86 (159→160).
+
+**D20 landing [MODEL]** (`summary_p272c_gate.txt`): **PASS** all corners — tt 0.361–0.936 V; ss 0.244–0.897 V; ff 0.457–0.970 V. No cal-target bias, no K=512. Spread parts (½ largest step / counting / curvature asym / hold−mid) in that summary.
+
+**15-corner [SCH]** (`summary_p272c_cover.txt`): all 15 cover; worst top margin **130 MHz**; worst bottom **76 MHz**; peak V_GS/V_GD ≤ 1.49 V (ss cap_bcs −40 °C). **D22** tt/27: top code 14 / bottom 31 PASS. Next: **P2.7.2 VCO layout**.

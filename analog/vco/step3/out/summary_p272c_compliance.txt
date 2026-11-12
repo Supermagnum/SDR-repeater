@@ -1,0 +1,7 @@
+# P2.7.2c — pump compliance at VR_ANA1 pad supplies [SCH]
+Step-2a transistor charge pump (replica + long-channel sources). I_cp = 100 µA. Edge = V_tune where |I| falls to 90 % of its value at V_DD/2 (10 % fall). Window = [bottom, top].
+| Corner | V_DD (V) | T (°C) | I_mid up/dn (µA) | bottom (V) | top (V) | window |
+|---|---|---|---|---|---|---|
+| tt | 1.200 | 27 | 106.2/106.1 | 0.265 | 1.150 | 0.265–1.150 |
+| ss | 1.108 | 85 | 102.2/102.2 | 0.202 | 1.050 | 0.202–1.050 |
+| ff | 1.295 | -40 | 110.7/110.5 | 0.341 | 1.250 | 0.341–1.250 |
