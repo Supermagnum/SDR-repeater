@@ -1,0 +1,11 @@
+* P2.7.2b re-spin stage d — vco_core_tank
+* Inductor: LVS GDS pin-only l2n0; fab GDS adds l2n0_em spiral.
+.subckt vco_core_tank tp tn tail ct gnd
+Mm1 tp tn tail gnd sg13_lv_nmos w=32u l=0.13u
+Mm2 tn tp tail gnd sg13_lv_nmos w=32u l=0.13u
+Mdum gnd gnd gnd gnd sg13_lv_nmos w=8u l=0.13u
+Xxf1 tp fx gnd cap_rfcmim w=16u l=16u wfeed=5u m=1
+Xxf2 tn fx gnd cap_rfcmim w=16u l=16u wfeed=5u m=1
+Xrfx fx gnd gnd rhigh w=2u l=15.2u m=1
+.ends
+.end

@@ -1,0 +1,22 @@
+inductor bbox (-127,-14.61;127,284) [EM]; LVS black-box l2n0 pin-only
+NOTE: EM TM1 pads overlap LVS pads → fab GDS still DC-shorts through spiral; LVS run uses stripped GDS (no l2n0_em)
+keep-out Activ y ≤ -44.61 µm [HAND]
+pair at y=-55.01 bbox (-24.62,-82.24;24.6,-46.61)
+pair pins {'tail': (0.0, -60.489999999999995), 'tp': (-14.38, -77.49), 'tn': (14.38, -77.49), 'gnd': (0.0, -81.99)}
+Technology SG13_dev is loaded.
+GRID : 0.01
+GRID inverse : 100.0
+EPSILON1  : 0.001
+EPSILON2  : 1e-9
+Success.
+EM dens [HAND]: tank TM1 4.0 µm → J=1.00 mA/µm (limit 5.0); CT 8.0 µm → J=0.50 (limit 5.0)
+EM source: SG13G2_os_process_spec.pdf strings — no mA/µm table [DS miss]
+MIM L (-66.64,-124.38;-39.38,-97.12); MIM R (39.38,-124.38;66.64,-97.12)
+rfcmim M1 shield = TIE; fx on M2, M1 drop outside shield [PDK]
+rhigh (3.8,-147.99;6.2,-131.57); fx M2 bus + M1 drop @ (0.0,-127.38000000000001)
+guard ptaps + gnd M2 strap (pair-only) + wide tail [stage c]
+port stubs bank/var/det/LO/tail_dac metal-only [stage d]
+vco_core_tank stage=d bbox (-127,-149.99;127,284)
+area 0.1102 mm² = 36.7% of ≤0.30 mm² [GDS]
+wrote LVS GDS /foss/designs/analog/vco/layout/p272b/out/vco_core_tank_lvs.gds (l2n0_em removed)
+wrote /foss/designs/analog/vco/layout/p272b/out/vco_core_tank.gds stage=d

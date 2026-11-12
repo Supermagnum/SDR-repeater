@@ -87,21 +87,26 @@ def main():
     lines.append(f"- density (waived): {dens or 'none'}\n")
     lines.append(f"- hard: {hard or 'none'} → {'PASS' if not hard else 'FAIL'}\n\n")
 
-    lvs_dir = os.path.join(OUT, f"lvs_{CELL}")
+    lvs_dir = os.path.join(OUT, f"lvs_{CELL}_{stage}")
     os.makedirs(lvs_dir, exist_ok=True)
     gds_lvs = GDS_LVS if os.path.exists(GDS_LVS) else GDS
     lines.append(f"## KLayout LVS\n- layout: `{os.path.basename(gds_lvs)}` "
                  f"(inductor black-box; spiral stripped if _lvs)\n")
+    lvs_log = os.path.join(OUT, f"lvs_{CELL}_{stage}.log")
     run([
         "python3", PDK_LVS, f"--layout={gds_lvs}", f"--netlist={SPICE}",
         f"--topcell={CELL}", f"--run_dir={lvs_dir}",
         "--disable_tap_extraction", "--ignore_top_ports_mismatch",
         "--combine_devices", "--top_lvl_pins",
-    ], os.path.join(OUT, f"lvs_{CELL}.log"))
-    lvs_txt = open(os.path.join(OUT, f"lvs_{CELL}.log"), errors="ignore").read()
-    lvs_ok = ("Congratulations! Netlists match" in lvs_txt) and \
-             ("Netlists don't match" not in lvs_txt) and \
-             ("KLayout run failed" not in lvs_txt)
+    ], lvs_log)
+    lvs_txt = open(lvs_log, errors="ignore").read()
+    # Prefer outcome line (run_dir logs can retain older compare strings)
+    lvs_ok = ("Comparison mode: PASS" in lvs_txt) or (
+        ("Congratulations! Netlists match" in lvs_txt) and
+        ("KLayout run failed" not in lvs_txt) and
+        (lvs_txt.rfind("Congratulations! Netlists match") >
+         lvs_txt.rfind("Netlists don't match"))
+    )
     lines.append(f"- {'PASS' if lvs_ok else 'FAIL'}\n")
     ext = None
     for root, _, fs in os.walk(lvs_dir):
@@ -115,15 +120,38 @@ def main():
 
     ng_ok = False
     if ext:
-        tcl = os.path.join(OUT, f"netgen_{CELL}.tcl")
-        json_out = os.path.join(OUT, f"netgen_{CELL}.json")
-        ng_log = os.path.join(OUT, f"netgen_{CELL}.log")
+        # KLayout extract: device "rfcmim" with C-prefix. Netgen setup lists
+        # "cap_rfcmim" and parses C as 2-terminal (TIE becomes model name).
+        # Rewrite both sides: rfcmim→cap_rfcmim, C… → X… for 3-terminal MIMs [PDK].
+        spice_ng = os.path.join(OUT, f"{CELL}_netgen.spice")
+        ext_ng = os.path.join(OUT, f"{CELL}_extracted_netgen.cir")
+
+        def for_netgen(txt: str) -> str:
+            txt = txt.replace(" rfcmim ", " cap_rfcmim ")
+            out = []
+            for ln in txt.splitlines():
+                s = ln.lstrip()
+                # 3-terminal PDK devices: netgen needs X-prefix (C/R are 2-pin)
+                if ((s.startswith("C") and " cap_rfcmim " in f" {s} ") or
+                        (s.startswith("R") and " rhigh " in f" {s} ")):
+                    i = len(ln) - len(s)
+                    ln = ln[:i] + "X" + s[1:]
+                out.append(ln)
+            return "\n".join(out) + ("\n" if txt.endswith("\n") else "")
+
+        open(spice_ng, "w").write(for_netgen(open(SPICE).read()))
+        open(ext_ng, "w").write(for_netgen(open(ext).read()))
+        tcl = os.path.join(OUT, f"netgen_{CELL}_{stage}.tcl")
+        json_out = os.path.join(OUT, f"netgen_{CELL}_{stage}.json")
+        ng_log = os.path.join(OUT, f"netgen_{CELL}_{stage}.log")
         open(tcl, "w").write(
-            f"lvs {{{SPICE} {CELL}}} {{{ext} {CELL}}} {NETGEN_SETUP} {json_out}\n")
+            f"lvs {{{spice_ng} {CELL}}} {{{ext_ng} {CELL}}} "
+            f"{NETGEN_SETUP} {json_out}\n")
         run(["netgen", "-batch", "source", tcl], ng_log, timeout=300)
         ng = open(ng_log, errors="ignore").read()
         ng_ok = ("Circuits match uniquely" in ng) or ("Final result: Circuits match" in ng)
         lines.append(f"\n## netgen\n- {'PASS' if ng_ok else 'FAIL / see log'}\n")
+        lines.append("- note: rfcmim↔cap_rfcmim rename for netgen setup [PDK]\n")
         for ln in ng.splitlines():
             if any(k in ln for k in ("Final result", "Property", "Mismatch", "match",
                                        "Circuits match", "Device")):

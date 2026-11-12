@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b re-spin STOP:** pair cell LVS **PASS**; assemble stage a (L+CT) LVS **PASS**; stage b+ MIM/fx LVS **FAIL**.
+Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b re-spin 2 PASS** (stages b–d).
 
 ---
 
@@ -171,11 +171,12 @@ PNG/SVG (top/core/bank/inductor), KLayout LVS extract + logs.
 - **P2.7.2a finished**; Q gate accepted in `decisions.md` (2026-11-12 — P2.7.2a3 result,
   inductor Q gate). Next was **P2.7.2b**.
 
-#### P2.7.2b (2026-11-12) — first routed sub-block (core + tank) STOP
+#### P2.7.2b (2026-11-12) — first routed sub-block (core + tank) **PASS** (re-spin 2)
 **Outputs:** `analog/vco/layout/p272b/` — first-attempt `build_core_tank.py` /
 `run_drc_lvs.py`; re-spin `build_pair.py`, `build_assemble.py`, runners;
-`out/vco_xc_pair.gds.gz`, `out/vco_core_tank.gds.gz`, PNG/SVG, DRC/LVS/netgen logs,
-`summary_pair_drc_lvs.txt`, `summary_assemble_*.txt`, `summary_rc_tank.txt`.
+`compare_fab_lvs_gds.py`; `out/vco_xc_pair.gds.gz`, `out/vco_core_tank{,_b,_c,_d}.gds.gz`,
+PNG/SVG, DRC/LVS/netgen logs, `summary_assemble_*_PASS.txt`, `summary_rc_tank.txt`,
+`summary_fab_lvs_gds_diff.txt`.
 - **First attempt:** DRC/LVS FAIL; `tn|tp` merge; W=64. Causes: PCell psub GR; MIM∩CT;
   gnd×drain; gate jog×drain; S/D column polarity wrong (even=D not S).
 - **Re-spin (bottom-up):**
@@ -186,16 +187,25 @@ PNG/SVG (top/core/bank/inductor), KLayout LVS extract + logs.
   - **Stage a (L2n0 + CT):** DRC PASS; KLayout LVS PASS; netgen PASS. Area 0.093 mm².
     Inductor: fab GDS keeps `l2n0_em` spiral; LVS uses pin-only `l2n0` (spiral vias on
     133/134 DC-short LA–CT–LB in the LVS stack).
-  - **Stage b (fixed MIM + rfx):** DRC PASS; LVS FAIL. Extract: pair still clean; both
-    `rfcmim` show MINUS=TIE=gnd; `rhigh` both ends gnd; right MIM PLUS floating (`$8`).
-    Cause: fx M1 repeatedly merged with TIE/gnd (filled straps / spine×drop crossings)
-    [recorded]. Right PLUS→tn open. Stages c/d DRC PASS on same fail.
-  - **Assembled area (stage d):** **0.109 mm² ≈ 36 %** of ≤ 0.30 mm² [GDS].
+  - **Stage b (fixed MIM + rfx) — re-spin 1 FAIL:** MINUS|TIE|gnd; root cause found in
+    re-spin 2: `rfcmim` PCell has a **solid M1 shield** over the full bbox (= TIE/gnd via
+    Cont/Activ). Any M5→M1 via on MINUS shorts fx to TIE [PDK geometry].
+  - **Re-spin 2 (2026-11-12):** keep schematic `rfcmim` (not cmim). Route MINUS→fx on
+    **M2** (via_stack M5→M2), drop M2→M1 only south of the shield; TIE outboard to gnd;
+    rhigh top=fx, bottom=gnd + ptap. PLUS Y = origin+8 (pin centre). Stages **b, c, d:**
+    DRC PASS (density none); KLayout LVS PASS; netgen “Circuits match uniquely”
+    (property noise: extract A/P/ps vs sch; `ct` disconnected — same as stage a) [TOOL].
+    Netgen rewrite: `rfcmim`→`cap_rfcmim`, C/R→X for 3-terminal devices [PDK].
+  - **Assembled area (stage d):** **0.1102 mm² ≈ 36.7 %** of ≤ 0.30 mm² [GDS].
+- **Inductor LVS:** PDK deck recognises inductor2/3 with IND markers; L2n0 EM has none →
+  pin-only LVS GDS. `compare_fab_lvs_gds.py` PASS: fab vs LVS differ only by `l2n0_em` [TOOL].
+- **ng:** not in extract; layout `ng=8`, W=32 matches sch; finger count checked in
+  `build_pair.py` [LAYOUT] (decision accepted).
 - **EM dens [HAND]:** `SG13G2_os_process_spec.pdf` strings — no mA/µm table [DS miss].
   HAND limits M1–M5 ≈ 1.0 mA/µm, TM1 ≈ 5; tank 4 µm → J=1.0; CT 8 µm → 0.50 at 4 mA.
-- **RC report only [HAND]:** C_add/side ≈ 15–25 fF; Rs pair→L ≈ 0.2 Ω; no spare-bank flag.
-- **Next:** finish stage-b MIM/fx isolation (or switch to `cmim` as bank_unit) until
-  assemble LVS PASS, **or** owner continues to D24 bank with pair+stage-a as FINDING.
+- **RC report (routing changed) [HAND]:** C_add/side ≈ 15–30 fF; Rs pair→L ≈ 0.2–0.4 Ω;
+  no spare-bank flag. See `out/summary_rc_tank.txt`.
+- **Next:** **D24 bank** (P2.7.2b next sub-block).
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin

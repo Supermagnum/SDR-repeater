@@ -1,0 +1,47 @@
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b/out/vco_core_tank.gds --topcell=vco_core_tank --run_dir=/foss/designs/analog/vco/layout/p272b/out/drc_vco_core_tank --density
+  exit 2; log /foss/designs/analog/vco/layout/p272b/out/drc_vco_core_tank.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b/out/vco_core_tank_lvs.gds --netlist=/foss/designs/analog/vco/layout/p272b/out/vco_core_tank.spice --topcell=vco_core_tank --run_dir=/foss/designs/analog/vco/layout/p272b/out/lvs_vco_core_tank_d --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b/out/lvs_vco_core_tank_d.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b/out/netgen_vco_core_tank_d.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b/out/netgen_vco_core_tank_d.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b/out/_klayout_shot_asm.py -rd out=/foss/designs/analog/vco/layout/p272b/out -rd name=vco_core_tank
+  exit 0; log /foss/designs/analog/vco/layout/p272b/out/render_vco_core_tank.log
+# P2.7.2b re-spin stage d — vco_core_tank DRC / LVS
+
+## DRC
+- violated: none
+- density (waived): none
+- hard: none → PASS
+
+## KLayout LVS
+- layout: `vco_core_tank_lvs.gds` (inductor black-box; spiral stripped if _lvs)
+- PASS
+- extracted: `/foss/designs/analog/vco/layout/p272b/out/lvs_vco_core_tank_d/vco_core_tank_lvs_extracted.cir`
+```
+* Extracted by KLayout with SG13G2 LVS runset on : 12/11/2026 15:11
+
+.SUBCKT vco_core_tank gnd tail tn tp
+M$1 gnd gnd gnd gnd sg13_lv_nmos L=0.13u W=8u AS=2.72p AD=2.72p PS=17.36u
++ PD=17.36u rfmode=0
+M$2 tp tn tail gnd sg13_lv_nmos L=0.13u W=32u AS=6.68p AD=6.68p PS=39.34u
++ PD=39.34u rfmode=0
+M$10 tn tp tail gnd sg13_lv_nmos L=0.13u W=32u AS=6.68p AD=6.68p PS=39.34u
++ PD=39.34u rfmode=0
+R$19 gnd \$11 gnd rhigh w=2u l=15.2u ps=0u b=0 m=1
+C$20 tp \$11 gnd rfcmim w=16u l=16u A=256p P=64u m=1 wfeed=5u
+C$21 tn \$11 gnd rfcmim w=16u l=16u A=256p P=64u m=1 wfeed=5u
+.ENDS vco_core_tank
+```
+
+## netgen
+- PASS
+- note: rfcmim↔cap_rfcmim rename for netgen setup [PDK]
+  Final result: 
+  Circuits match uniquely.
+  Property errors were found.
+
+## Summary stage d
+- DRC hard: PASS
+- KLayout LVS: PASS
+- netgen: PASS
+

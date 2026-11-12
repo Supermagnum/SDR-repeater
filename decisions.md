@@ -501,3 +501,17 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   reported.
 - Metal current limits: take them from the IHP SG13G2 process specification if it gives
   them; otherwise [HAND] with the source stated.
+
+## 2026-11-12 — P2.7.2b core + tank, re-spin
+- Pair cell and stage a (L2n0 + centre tap) accepted: DRC, KLayout LVS and netgen clean.
+- Stage b (fixed tank capacitance) and later not accepted: MINUS merged with TIE / gnd, right
+  PLUS open, rhigh tied to gnd at both ends. Re-spin stage b, then c / d, before the D24 bank.
+- MIM type follows the schematic: keep rfcmim if the design needs it; otherwise schematic and
+  layout move to cmim (as in bank_unit), with a check that tank frequency and swing do not
+  change.
+- Inductor in LVS: use the PDK inductor recognition if the deck has it; otherwise pin-only, plus
+  a scripted check that fab GDS and LVS GDS differ only in the inductor's own shapes.
+- Current density [HAND]: 5 mA/µm on TM1 (no table found in the process specification); tank
+  1.0 mA/µm, centre tap 0.50 mA/µm at 4 mA accepted.
+- ng not extracted: accepted when total W matches and the finger count is checked in the
+  layout.

@@ -1,28 +1,20 @@
-# P2.7.2b re-spin — tank RC report [HAND]
+# P2.7.2b re-spin 2 — tank RC report (routing changed) [HAND]
 
-Routing changed vs first attempt (pair M2 collect; MIM outboard; LVS stub inductor).
+Routing change vs stage a: 2× rfcmim + M2 fx bus + M1 drop outside M1 shield +
+rhigh + TIE outboard straps. Tank TM1 spurs extended south to MIM PLUS feeds.
 
-## Capacitance add / side [HAND]
-| Contribution | Estimate | Notes |
-|---|---|---|
-| Pair drain M1/M2 + via to TM1 | ≈ 8–12 fF | finger collect + riser |
-| TM1 tank strap to LA/LB | ≈ 5–10 fF | 4 µm × ~55 µm over BEOL |
-| MIM top-plate feed (stage b+) | ≈ 2–5 fF | PLUS feed only |
-| **C_add / side** | **≈ 15–25 fF** | same ballpark as first attempt [HAND] |
+## Capacitance add (order-of-magnitude) [HAND]
+- Each PLUS TM1 spur ~40 µm × 4 µm over M5/M1 field: C_add/side ≈ 15–30 fF.
+- M2 fx bus between MINUS pins ~100 µm × 0.7 µm: small vs tank C (2×387 fF MIM).
+- Pass vs prior HAND: no flag for spare-bank (ΔC << bank LSB).
 
-No spare-bank flag (budget still has headroom vs D24).
+## Series R [HAND]
+- Pair → LA/LB via M1–M5–TM1 stack: Rs ≈ 0.2–0.4 Ω/side (unchanged topology).
+- fx M2 path + via_stack: not in tank loop (filter node).
 
-## Series R, pair → inductor [HAND]
-| Path | Metal | W (µm) | L (µm) | Rs (Ω) |
-|---|---|---|---|---|
-| Drain collect → TM1 via | M1/M2/M5 | ≥0.16 / 4 | ~30 | ≈ 0.05 |
-| TM1 tank → LA/LB | TM1 | 4.0 | ~55 | ≈ 0.15 |
-| **Rs pair→L** | | | | **≈ 0.2 Ω** |
+## Area [GDS]
+- Stage d bbox (−127,−149.99;127,284): **0.1102 mm² ≈ 36.7 %** of ≤ 0.30 mm².
 
-Sheet: M1≈0.1 Ω/□, TM1≈0.01 Ω/□ [HAND, typical Al BEOL].
-
-## EM current density
-Looked in SG13G2_os_process_spec.pdf via strings (pdftotext not in container).
-No electromigration / mA/µm / A/cm table found [DS miss].
-[HAND] limits used: M1–M5 ≈ 1.0 mA/µm, TM1 ≈ 5 mA/µm.
-At I_tail=4 mA [DS D12]: tank TM1 4 µm → J=1.0 mA/µm; CT 8 µm → J=0.50 mA/µm — under HAND limits.
+## EM dens [HAND]
+- TM1 tank 4 µm → J=1.00 mA/µm at 4 mA (limit 5 [HAND]; no table in process_spec).
+- CT 8 µm → J=0.50 mA/µm.

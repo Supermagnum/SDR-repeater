@@ -198,76 +198,110 @@ class Asm:
         self.say("EM source: SG13G2_os_process_spec.pdf strings — no mA/µm table [DS miss]")
 
         if self.stage >= "b":
-            # --- fixed MIMs: rfcmim PLUS=TM1, MINUS=M5, TIE=M1(gnd) ---
+            # --- fixed MIMs: keep rfcmim (schematic Xxf1/Xxf2) ---
+            # PCell has solid M1 shield = TIE/gnd over full bbox (−5.6..21.6).
+            # Any M5→M1 via on MINUS shorts fx to TIE. Route fx on M2, drop to
+            # M1 only outside the shield [probe LVS PASS].
             mim = self.pcell("rfcmim", {"w": "16.0u", "l": "16.0u", "wfeed": "5.0u"})
             mloc = self.ly.cell(mim).bbox().to_dtype(self.ly.dbu)
-            vs5m1 = self.pcell("via_stack", {
-                "b_layer": "Metal1", "t_layer": "Metal5",
+            vs52 = self.pcell("via_stack", {
+                "b_layer": "Metal2", "t_layer": "Metal5",
                 "vn_columns": 2, "vn_rows": 2,
             })
-            y_mim = min(y_tp, y_tn) - (mloc.top - mloc.bottom) - 10.0
-            # origin so PLUS feed (local x≈-5.6) / MINUS (local x≈19.6) clear of CT
+            vs12b = self.pcell("via_stack", {
+                "b_layer": "Metal1", "t_layer": "Metal2",
+                "vn_columns": 2, "vn_rows": 2,
+            })
+            y_mim = min(y_tp, y_tn) - (mloc.top - mloc.bottom) - 14.0
+            # origin so PLUS feed (local x≈−5.6) / MINUS (local x≈19.6) clear of CT
             x_mim_l = x_tp - 25.0 - mloc.right
             x_mim_r = x_tn + 25.0 - mloc.left
-            bb_xf1, t_m1 = self.place(top, mim, x_mim_l, y_mim)
-            bb_xf2, t_m2 = self.place(top, mim, x_mim_r, y_mim)
+            bb_xf1, _ = self.place(top, mim, x_mim_l, y_mim)
+            bb_xf2, _ = self.place(top, mim, x_mim_r, y_mim)
             self.say(f"MIM L {bb_xf1}; MIM R {bb_xf2}")
-            # PLUS feeds (TM1 pin local ≈ (-5.6..-3.6, 5.5..10.5) + origin)
-            for bb, x_tank in ((bb_xf1, x_tp), (bb_xf2, x_tn)):
-                # left feed of each MIM is PLUS
-                x_plus = bb.left + 1.0
-                y_plus = bb.bottom + 8.0
-                self.box(top, self.tm1, x_plus - 1.0, y_plus - 1.0,
-                         x_plus + 1.0, y_plus + 1.0)
+            self.say("rfcmim M1 shield = TIE; fx on M2, M1 drop outside shield [PDK]")
+            # PLUS = TM1 left feed (local ≈ (−4.6, 8) from origin) → tank
+            y_plus = y_mim + 8.0
+            for bb, x_orig, x_tank in (
+                (bb_xf1, x_mim_l, x_tp),
+                (bb_xf2, x_mim_r, x_tn),
+            ):
+                x_plus = x_orig - 4.6
+                self.box(top, self.tm1, x_plus - 1.0, y_plus - 2.5,
+                         x_plus + 1.0, y_plus + 2.5)
                 self.box(top, self.tm1, min(x_plus, x_tank) - w_tank / 2, y_plus - 0.85,
                          max(x_plus, x_tank) + w_tank / 2, y_plus + 0.85)
                 self.box(top, self.tm1, x_tank - w_tank / 2, y_plus,
                          x_tank + w_tank / 2, y_via)
-            # MINUS feeds (M5 pin local ≈ (19.6..21.6, 5.5..10.5)) → fx on M1
-            y_fx = y_mim + 5.5
-            for bb in (bb_xf1, bb_xf2):
-                x_minus = bb.right - 1.0
-                self.box(top, self.m5, x_minus - 1.0, y_fx, x_minus + 1.0, y_fx + 5.0)
-                self.place(top, vs5m1, x_minus - 0.4, y_fx)
-                self.box(top, self.m1, x_minus - 0.5, y_fx - 0.2, x_minus + 0.5, y_fx + 0.5)
-            self.box(top, self.m1, bb_xf1.right - 1.5, y_fx - 0.2,
-                     bb_xf2.right - 0.5, y_fx + 0.5)
-            # TIE → gnd: per-MIM outboard drops only (no full-width spine —
-            # a spine at y_tie was crossed by the fx drop and merged fx|gnd).
-            y_tie = min(bb_xf1.bottom, bb_xf2.bottom) - 0.8
+            # MINUS = M5 right feed (local ≈ (20.6, 8)) → M2 → fx (never M1 on shield)
+            y_m2 = y_mim + 8.0
+            minus_pts = []
+            for x_orig in (x_mim_l, x_mim_r):
+                x_minus = x_orig + 20.6
+                self.box(top, self.m5, x_minus - 1.0, y_m2 - 1.0,
+                         x_minus + 1.0, y_m2 + 1.0)
+                self.place(top, vs52, x_minus - 0.05, y_m2 - 0.05)
+                self.box(top, self.m2, x_minus - 0.35, y_m2 - 0.35,
+                         x_minus + 0.35, y_m2 + 0.35)
+                minus_pts.append(x_minus)
+            self.box(top, self.m2, min(minus_pts) - 0.35, y_m2 - 0.35,
+                     max(minus_pts) + 0.35, y_m2 + 0.35)
+            x_fx = 0.0  # gap between MIM shields
+            y_m1_drop = min(bb_xf1.bottom, bb_xf2.bottom) - 3.0
+            self.box(top, self.m2, x_fx - 0.35, y_m1_drop - 0.35,
+                     x_fx + 0.35, y_m2 + 0.35)
+            self.place(top, vs12b, x_fx - 0.05, y_m1_drop - 0.05)
+            self.box(top, self.m1, x_fx - 0.35, y_m1_drop - 0.35,
+                     x_fx + 0.35, y_m1_drop + 0.35)
+            # TIE: outboard straps from shield south edge → gnd (no centre spine)
             for bb, side in ((bb_xf1, -1), (bb_xf2, +1)):
-                self.box(top, self.m1, bb.left + 1.0, y_tie,
-                         bb.right - 1.0, bb.bottom + 0.3)
                 x_drop = bb.left - 3.0 if side < 0 else bb.right + 3.0
-                self.box(top, self.m1, min(x_drop, bb.left + 1.0), y_tie,
-                         max(x_drop, bb.right - 1.0), y_tie + 0.40)
-                self.box(top, self.m1, x_drop - 0.20, y_gnd - 1.0,
-                         x_drop + 0.20, y_tie + 0.40)
-            # join outboard gnd drops south of pair (below y_gnd), clear of fx
+                self.box(top, self.m1, bb.left + 0.5, bb.bottom,
+                         bb.right - 0.5, bb.bottom + 2.0)
+                self.box(top, self.m1, min(x_drop, bb.left + 0.5), bb.bottom,
+                         max(x_drop, bb.right - 0.5), bb.bottom + 0.40)
+                self.box(top, self.m1, x_drop - 0.25, y_gnd - 2.5,
+                         x_drop + 0.25, bb.bottom + 0.40)
+            # gnd join only under the pair (north of MIMs), not across fx
             self.box(top, self.m1, bb_xf1.left - 3.2, y_gnd - 2.5,
+                     x_gnd + 0.25, y_gnd - 2.0)
+            self.box(top, self.m1, x_gnd - 0.25, y_gnd - 2.5,
                      bb_xf2.right + 3.2, y_gnd - 2.0)
             self.box(top, self.m1, x_gnd - 0.25, y_gnd - 2.5, x_gnd + 0.25, y_gnd - 0.5)
-            # rhigh + fx: south of MIMs; fx drop at x=0 (between MIMs, no TIE there)
+            # rhigh: place east of centre so gnd riser never shares X with fx drop
             rh = self.pcell("rhigh", {
                 "w": "2.0u", "l": "15.2u", "Calculate": "R", "guardRingType": "none",
             })
-            y_r = y_tie - 22.0
-            bb_r, _ = self.place(top, rh, -1.0, y_r)
-            x_fx_drop = 0.0
-            self.box(top, self.m1, x_fx_drop - 0.20, y_fx - 0.2,
-                     x_fx_drop + 0.20, y_fx + 0.5)
-            # fx bus already spans minuses; extend to x=0
-            self.box(top, self.m1, bb_xf1.right - 1.5, y_fx - 0.2,
-                     bb_xf2.left + 1.5, y_fx + 0.5)
-            self.box(top, self.m1, x_fx_drop - 0.20, bb_r.top - 0.2,
-                     x_fx_drop + 0.20, y_fx + 0.5)
-            self.box(top, self.m1, bb_r.left + 0.5, bb_r.top - 0.2,
-                     bb_r.right - 0.5, bb_r.top + 0.5)
-            self.box(top, self.m1, min(bb_r.left, x_fx_drop) - 0.05, bb_r.top - 0.2,
-                     max(bb_r.right, x_fx_drop) + 0.05, bb_r.top + 0.5)
-            # gnd end of rhigh: south, then to outboard gnd spine (y_gnd-2.5)
-            self.box(top, self.m1, bb_r.left, bb_r.bottom - 1.5, bb_r.right, bb_r.bottom + 0.2)
-            self.box(top, self.m1, bb_r.left, y_gnd - 2.5, bb_r.left + 0.40, bb_r.bottom)
+            ptap_b = self.pcell("ptap1", {"w": "0.78u", "l": "0.78u"})
+            x_r = 4.0
+            y_r = y_m1_drop - 20.0
+            bb_r, _ = self.place(top, rh, x_r, y_r)
+            # fx M1: drop → rhigh top only (stay south of shields, east to rhigh)
+            self.box(top, self.m1, x_fx - 0.35, y_m1_drop - 0.35,
+                     x_fx + 0.35, y_m1_drop + 0.35)
+            self.box(top, self.m1, x_fx - 0.35, bb_r.top - 0.2,
+                     x_fx + 0.35, y_m1_drop + 0.35)
+            self.box(top, self.m1, x_fx - 0.35, bb_r.top - 0.2,
+                     bb_r.right - 0.1, bb_r.top + 0.35)
+            self.box(top, self.m1, bb_r.left + 0.1, bb_r.top - 0.5,
+                     bb_r.right - 0.1, bb_r.top + 0.35)
+            # gnd end: bottom pin only, then SOUTH, then west to outboard gnd drop
+            self.box(top, self.m1, bb_r.left + 0.1, y_r - 0.5,
+                     bb_r.right - 0.1, y_r + 0.1)
+            y_gnd_south = min(bb_r.bottom, y_r) - 2.0
+            self.box(top, self.m1, bb_r.left + 0.1, y_gnd_south,
+                     bb_r.right - 0.1, y_r + 0.1)
+            # outboard east gnd drop already at bb_xf2.right+3; join under rhigh
+            x_gnd_east = bb_xf2.right + 3.0
+            self.box(top, self.m1, bb_r.left + 0.1, y_gnd_south,
+                     x_gnd_east + 0.25, y_gnd_south + 0.40)
+            self.box(top, self.m1, x_gnd_east - 0.25, y_gnd_south,
+                     x_gnd_east + 0.25, y_gnd - 2.0)
+            self.place(top, ptap_b, bb_r.right + 1.0, y_r - 1.5)
+            self.box(top, self.m1, bb_r.right + 1.0, y_gnd_south,
+                     bb_r.right + 1.78, y_r - 0.72)
+            # fx is internal (no top-level pin — avoids netgen pin mismatch)
+            self.say(f"rhigh {bb_r}; fx M2 bus + M1 drop @ ({x_fx},{y_m1_drop})")
 
         if self.stage >= "c":
             # reinforce guard: extra ptaps around pair, widen gnd/tail rails
@@ -280,25 +314,25 @@ class Asm:
             ):
                 self.place(top, ptap, x, y)
                 self.box(top, self.m1, x, y, x + 0.78, y + 0.78)
-            # gnd ring strap (M2) around pair, clear of tank TM1
+            # gnd ring strap (M2) around pair — keep clear of fx M2 bus (y_m2 region)
             self.box(top, self.m1, bb_p.left - 8.0, bb_p.bottom - 2.0,
                      bb_p.left - 7.2, bb_p.top + 2.8)
             self.box(top, self.m1, bb_p.right + 7.0, bb_p.bottom - 2.0,
                      bb_p.right + 7.8, bb_p.top + 2.8)
             self.place(top, vs12, bb_p.left - 8.0, bb_p.bottom - 2.0)
             self.place(top, vs12, bb_p.right + 7.0, bb_p.bottom - 2.0)
+            # M2 gnd strap only under the pair (north of MIMs), not across fx bus
             self.box(top, self.m2, bb_p.left - 8.2, bb_p.bottom - 2.2,
                      bb_p.right + 8.0, bb_p.bottom - 1.5)
-            # widen tail stub
             self.box(top, self.m1, x_tail - 1.0, y_tail - 3.0, x_tail + 1.0, y_tail + 0.3)
-            self.say("guard ptaps + gnd M2 strap + wide tail [stage c]")
+            self.say("guard ptaps + gnd M2 strap (pair-only) + wide tail [stage c]")
 
         if self.stage >= "d":
-            # port stubs for bank / var / detector / LO / DAC
+            # Landing stubs for bank / var / detector / LO / DAC — metal only.
+            # No pin/text on pin layers: labels would merge into LVS port names
+            # (tp|tp_bank|…) and break netgen pin matching. TEXT.drawing only.
+            text = self.ly.layer(63, 0)
             y_stub = min(y_tp, y_tn) - 8.0
-            for x, name in ((x_tp - 8.0, "tp_bank"), (x_tn + 8.0, "tn_bank"),
-                            (x_tp - 8.0, "tp_var"), (x_tn + 8.0, "tn_var")):
-                pass  # names unique below
             stubs = [
                 (x_tp - 10.0, y_stub, "tp_bank"),
                 (x_tn + 10.0, y_stub, "tn_bank"),
@@ -310,14 +344,13 @@ class Asm:
                 (x_tn + 10.0, y_stub - 9.0, "tn_lo"),
             ]
             for x, y, name in stubs:
-                side_tp = x < 0
-                x_tank = x_tp if side_tp else x_tn
+                x_tank = x_tp if x < 0 else x_tn
                 self.box(top, self.tm1, min(x, x_tank) - 0.85, y,
                          max(x, x_tank) + 0.85, y + 1.70)
-                self.pin_tm1(top, x, y + 0.85, name)
+                top.shapes(text).insert(pya.DText(name, pya.DTrans(x, y + 0.85)))
             self.box(top, self.m1, x_tail - 0.5, y_tail - 6.0, x_tail + 0.5, y_tail)
-            self.pin_m1(top, x_tail, y_tail - 5.5, "tail_dac")
-            self.say("port stubs bank/var/det/LO/tail_dac [stage d]")
+            top.shapes(text).insert(pya.DText("tail_dac", pya.DTrans(x_tail, y_tail - 5.5)))
+            self.say("port stubs bank/var/det/LO/tail_dac metal-only [stage d]")
 
         bb = top.bbox().to_dtype(self.ly.dbu)
         area = bb.width() * bb.height() * 1e-6
@@ -366,9 +399,10 @@ class Asm:
             "Mdum gnd gnd gnd gnd sg13_lv_nmos w=8u l=0.13u",
         ]
         if self.stage >= "b":
+            # LVS device name is rfcmim (extract); sch lvs_model=rfcmim [SCH]
             lines += [
-                "Cxf1 tp fx gnd cap_rfcmim w=16u l=16u wfeed=5u m=1",
-                "Cxf2 tn fx gnd cap_rfcmim w=16u l=16u wfeed=5u m=1",
+                "Cxf1 tp fx gnd rfcmim w=16u l=16u wfeed=5u m=1",
+                "Cxf2 tn fx gnd rfcmim w=16u l=16u wfeed=5u m=1",
                 "Rrfx fx gnd gnd rhigh w=2u l=15.2u m=1",
             ]
         lines += [".ends", ".end", ""]

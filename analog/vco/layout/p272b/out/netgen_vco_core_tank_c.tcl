@@ -1,0 +1,1 @@
+lvs {/foss/designs/analog/vco/layout/p272b/out/vco_core_tank_netgen.spice vco_core_tank} {/foss/designs/analog/vco/layout/p272b/out/vco_core_tank_extracted_netgen.cir vco_core_tank} /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl /foss/designs/analog/vco/layout/p272b/out/netgen_vco_core_tank_c.json

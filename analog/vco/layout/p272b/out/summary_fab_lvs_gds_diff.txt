@@ -1,0 +1,17 @@
+# fab GDS vs LVS GDS — inductor black-box check
+
+- fab cells: ['l2n0', 'l2n0_em', 'nmos', 'nmos$1', 'ptap1', 'ptap1$1', 'rfcmim', 'rhigh', 'vco_core_tank', 'vco_xc_pair', 'via_stack', 'via_stack$1', 'via_stack$2', 'via_stack$3', 'via_stack$4', 'via_stack$5']
+- LVS cells: ['l2n0', 'nmos', 'nmos$1', 'ptap1', 'ptap1$1', 'rfcmim', 'rhigh', 'vco_core_tank', 'vco_xc_pair', 'via_stack', 'via_stack$1', 'via_stack$2', 'via_stack$3', 'via_stack$4', 'via_stack$5']
+- only in fab: ['l2n0_em']
+- only in LVS: none
+- fab top inst: {'l2n0_em': 1, 'l2n0': 1, 'vco_xc_pair': 1, 'via_stack$1': 2, 'via_stack$2': 2, 'rfcmim': 2, 'via_stack$4': 2, 'via_stack$5': 1, 'rhigh': 1, 'ptap1$1': 5, 'via_stack$3': 2}
+- LVS top inst: {'l2n0': 1, 'vco_xc_pair': 1, 'via_stack$1': 2, 'via_stack$2': 2, 'rfcmim': 2, 'via_stack$4': 2, 'via_stack$5': 1, 'rhigh': 1, 'ptap1$1': 5, 'via_stack$3': 2}
+- top instances match after dropping l2n0_em
+- l2n0_em shapes: 157 bbox (-127,-14.61;127,284)
+- l2n0 (pin-only) fab shapes 3; LVS shapes 3
+
+## Inductor recognition [PDK]
+- Deck has inductor2 / inductor3 extraction (ind_*.lvs) requiring IND drawing + IND:pin LA/LB(/LC) + text marker.
+- L2n0 EM GDS has no IND recognition layers → pin-only LVS path.
+
+## Result: PASS

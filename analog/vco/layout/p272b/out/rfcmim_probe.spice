@@ -1,0 +1,6 @@
+* probe
+.subckt rfcmim_probe plus fx gnd
+C1 plus fx gnd rfcmim w=16u l=16u wfeed=5u m=1
+Rr fx gnd gnd rhigh w=2u l=15.2u m=1
+.ends
+.end
