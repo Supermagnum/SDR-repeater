@@ -2,6 +2,26 @@
 **/out/*
 # Keep the short text summaries of each run (owner rule 2026-10-25: all design files on GitHub)
 !**/out/summary_*.txt
+# P2.7+ layout deliverables (gds, renders, LVS spice, run logs — not raw .lyrdb)
+# Parent dir must be re-included or git will not see children.
+!**/layout/out/
+!**/layout/out/*.gds.gz
+!**/layout/out/*.png
+!**/layout/out/*.svg
+!**/layout/out/*_lvs.spice
+!**/layout/out/*_run.log
+!**/layout/out/drc_run.log
+!**/layout/out/lvs_klayout_run.log
+!**/layout/out/netgen_vco.log
+!**/layout/out/netgen_vco.json
+!**/layout/out/lvs_klayout/
+!**/layout/out/lvs_klayout/*.cir
+!**/layout/out/lvs_klayout/*.log
+# keep ignoring bulky DRC databases and intermediate cell GDS
+**/layout/out/drc/
+**/layout/out/*.gds
+**/layout/out/_*.py
+**/layout/out/_*.drc
 sim/em/**/output/
 sim/em/**/palace_model/
 sim/em/**/vendor/

@@ -1,0 +1,13 @@
+Cnt.b: 352
+TV2.a: 8
+M1.b: 3
+M5.b: 2
+AFil.g: 1
+GFil.g: 1
+M1.j: 1
+M2.j: 1
+M3.j: 1
+M4.j: 1
+M5.j: 1
+TM1.c: 1
+TM2.c: 1

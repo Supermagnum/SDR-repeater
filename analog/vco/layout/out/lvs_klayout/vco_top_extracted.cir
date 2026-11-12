@@ -1,0 +1,2634 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 12/11/2026 06:59
+
+.SUBCKT vco_top G1|G2|W
+M$1 \$73 \$97 \$74 G1|G2|W sg13_lv_nmos L=0.13u W=0.5u AS=0.17p AD=0.17p
++ PS=1.68u PD=1.68u rfmode=0
+M$2 \$81 \$106 \$82 G1|G2|W sg13_lv_nmos L=0.13u W=0.5u AS=0.17p AD=0.17p
++ PS=1.68u PD=1.68u rfmode=0
+M$3 \$72 \$95 \$75 G1|G2|W sg13_lv_nmos L=0.13u W=0.5u AS=0.17p AD=0.17p
++ PS=1.68u PD=1.68u rfmode=0
+M$4 \$80 \$107 \$83 G1|G2|W sg13_lv_nmos L=0.13u W=0.5u AS=0.17p AD=0.17p
++ PS=1.68u PD=1.68u rfmode=0
+M$5 \$71 \$96 \$76 G1|G2|W sg13_lv_nmos L=0.5u W=2u AS=0.68p AD=0.38p PS=4.68u
++ PD=2.38u rfmode=0
+M$6 \$76 \$103 \$78 G1|G2|W sg13_lv_nmos L=0.5u W=2u AS=0.38p AD=0.68p PS=2.38u
++ PD=4.68u rfmode=0
+M$7 \$85 \$111 \$86 G1|G2|W sg13_lv_nmos L=0.5u W=2u AS=0.68p AD=0.38p PS=4.68u
++ PD=2.38u rfmode=0
+M$8 \$86 \$113 \$89 G1|G2|W sg13_lv_nmos L=0.5u W=2u AS=0.38p AD=0.68p PS=2.38u
++ PD=4.68u rfmode=0
+M$9 \$70 \$94 \$77 G1|G2|W sg13_lv_nmos L=0.5u W=2u AS=0.68p AD=0.38p PS=4.68u
++ PD=2.38u rfmode=0
+M$10 \$77 \$102 \$79 G1|G2|W sg13_lv_nmos L=0.5u W=2u AS=0.38p AD=0.68p
++ PS=2.38u PD=4.68u rfmode=0
+M$11 \$84 \$110 \$87 G1|G2|W sg13_lv_nmos L=0.5u W=2u AS=0.68p AD=0.38p
++ PS=4.68u PD=2.38u rfmode=0
+M$12 \$87 \$112 \$88 G1|G2|W sg13_lv_nmos L=0.5u W=2u AS=0.38p AD=0.68p
++ PS=2.38u PD=4.68u rfmode=0
+M$13 \$267 \$310 \$268 G1|G2|W sg13_lv_nmos L=2u W=4u AS=1.36p AD=0.76p
++ PS=8.68u PD=4.38u rfmode=0
+M$14 \$268 \$311 \$269 G1|G2|W sg13_lv_nmos L=2u W=4u AS=0.76p AD=1.36p
++ PS=4.38u PD=8.68u rfmode=0
+M$15 \$270 \$313 \$271 G1|G2|W sg13_lv_nmos L=2u W=4u AS=1.36p AD=0.76p
++ PS=8.68u PD=4.38u rfmode=0
+M$16 \$271 \$312 \$272 G1|G2|W sg13_lv_nmos L=2u W=4u AS=0.76p AD=1.36p
++ PS=4.38u PD=8.68u rfmode=0
+M$17 \$314 \$442 \$315 G1|G2|W sg13_lv_nmos L=4u W=5u AS=1.7p AD=0.95p
++ PS=10.68u PD=5.38u rfmode=0
+M$18 \$315 \$444 \$316 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$19 \$316 \$455 \$317 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$20 \$317 \$456 \$318 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$21 \$318 \$461 \$319 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$22 \$319 \$465 \$320 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$23 \$320 \$470 \$321 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$24 \$321 \$474 \$322 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$25 \$322 \$477 \$323 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$26 \$323 \$482 \$324 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$27 \$324 \$486 \$325 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$28 \$325 \$490 \$326 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$29 \$326 \$495 \$327 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$30 \$327 \$499 \$328 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$31 \$328 \$502 \$329 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$32 \$329 \$507 \$330 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$33 \$330 \$510 \$331 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$34 \$331 \$515 \$332 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$35 \$332 \$518 \$333 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$36 \$333 \$523 \$334 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$37 \$334 \$526 \$335 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$38 \$335 \$531 \$336 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$39 \$336 \$535 \$337 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$40 \$337 \$543 \$338 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$41 \$338 \$541 \$339 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$42 \$339 \$545 \$340 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$43 \$340 \$544 \$341 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$44 \$341 \$547 \$342 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$45 \$342 \$546 \$343 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$46 \$343 \$549 \$344 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$47 \$344 \$548 \$345 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$48 \$345 \$551 \$346 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$49 \$346 \$550 \$347 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$50 \$347 \$553 \$348 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$51 \$348 \$552 \$349 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$52 \$349 \$542 \$350 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$53 \$350 \$554 \$351 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$54 \$351 \$539 \$352 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$55 \$352 \$540 \$353 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$56 \$353 \$537 \$354 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$57 \$354 \$538 \$355 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$58 \$355 \$534 \$356 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$59 \$356 \$536 \$357 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$60 \$357 \$532 \$358 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$61 \$358 \$533 \$359 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$62 \$359 \$530 \$360 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$63 \$360 \$528 \$361 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$64 \$361 \$529 \$362 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$65 \$362 \$525 \$363 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$66 \$363 \$527 \$364 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$67 \$364 \$522 \$365 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$68 \$365 \$524 \$366 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$69 \$366 \$520 \$367 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$70 \$367 \$521 \$368 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$71 \$368 \$517 \$369 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$72 \$369 \$519 \$370 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$73 \$370 \$514 \$371 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$74 \$371 \$516 \$372 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$75 \$372 \$512 \$373 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$76 \$373 \$513 \$374 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$77 \$374 \$509 \$375 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$78 \$375 \$511 \$376 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$79 \$376 \$506 \$377 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$80 \$377 \$508 \$378 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$81 \$378 \$504 \$379 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$82 \$379 \$505 \$380 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$83 \$380 \$501 \$381 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$84 \$381 \$503 \$382 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$85 \$382 \$500 \$383 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$86 \$383 \$498 \$384 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$87 \$384 \$497 \$385 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$88 \$385 \$494 \$386 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$89 \$386 \$496 \$387 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$90 \$387 \$492 \$388 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$91 \$388 \$493 \$389 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$92 \$389 \$489 \$390 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$93 \$390 \$491 \$391 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$94 \$391 \$487 \$392 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$95 \$392 \$488 \$393 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$96 \$393 \$484 \$394 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$97 \$394 \$485 \$395 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$98 \$395 \$481 \$396 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$99 \$396 \$483 \$397 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$100 \$397 \$479 \$398 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$101 \$398 \$480 \$399 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$102 \$399 \$476 \$400 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$103 \$400 \$478 \$401 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$104 \$401 \$473 \$402 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$105 \$402 \$475 \$403 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$106 \$403 \$471 \$404 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$107 \$404 \$472 \$405 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$108 \$405 \$469 \$406 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$109 \$406 \$467 \$407 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$110 \$407 \$468 \$408 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$111 \$408 \$464 \$409 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$112 \$409 \$466 \$410 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=1.7p
++ PS=5.38u PD=10.68u rfmode=0
+M$113 \$411 \$463 \$412 G1|G2|W sg13_lv_nmos L=4u W=5u AS=1.7p AD=0.95p
++ PS=10.68u PD=5.38u rfmode=0
+M$114 \$412 \$460 \$413 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$115 \$413 \$462 \$414 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$116 \$414 \$458 \$415 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$117 \$415 \$459 \$416 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$118 \$416 \$454 \$417 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$119 \$417 \$457 \$418 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$120 \$418 \$447 \$419 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$121 \$419 \$453 \$420 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$122 \$420 \$445 \$421 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$123 \$421 \$446 \$422 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$124 \$422 \$443 \$423 G1|G2|W sg13_lv_nmos L=4u W=5u AS=0.95p AD=1.7p
++ PS=5.38u PD=10.68u rfmode=0
+M$125 \$428 \$448 \$429 G1|G2|W sg13_lv_nmos L=0.13u W=5u AS=1.7p AD=0.95p
++ PS=10.68u PD=5.38u rfmode=0
+M$126 \$429 \$450 \$430 G1|G2|W sg13_lv_nmos L=0.13u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$127 \$430 \$452 \$431 G1|G2|W sg13_lv_nmos L=0.13u W=5u AS=0.95p AD=0.95p
++ PS=5.38u PD=5.38u rfmode=0
+M$128 \$431 \$451 \$432 G1|G2|W sg13_lv_nmos L=0.13u W=5u AS=0.95p AD=1.7p
++ PS=5.38u PD=10.68u rfmode=0
+M$129 \$720 \$1235 \$721 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=1.0489p
++ AD=0.58615p PS=6.85u PD=3.465u rfmode=0
+M$130 \$721 \$1236 \$722 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$131 \$722 \$1237 \$723 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$132 \$723 \$1238 \$724 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$133 \$724 \$1239 \$725 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$134 \$725 \$1240 \$726 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$135 \$726 \$1241 \$727 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$136 \$727 \$1242 \$728 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$137 \$728 \$1243 \$729 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$138 \$729 \$1244 \$730 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$139 \$730 \$1245 \$731 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$140 \$731 \$1246 \$732 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$141 \$732 \$1247 \$733 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$142 \$733 \$1248 \$734 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$143 \$734 \$1249 \$735 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$144 \$735 \$1250 \$736 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$145 \$736 \$1251 \$737 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$146 \$737 \$1252 \$738 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$147 \$738 \$1253 \$739 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$148 \$739 \$1254 \$740 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$149 \$740 \$1255 \$741 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$150 \$741 \$1256 \$742 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$151 \$742 \$1257 \$743 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$152 \$743 \$1258 \$744 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$153 \$744 \$1259 \$745 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$154 \$745 \$1260 \$746 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$155 \$746 \$1261 \$747 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$156 \$747 \$1262 \$748 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$157 \$748 \$1263 \$749 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$158 \$749 \$1264 \$750 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$159 \$750 \$1265 \$751 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$160 \$751 \$1266 \$752 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$161 \$752 \$1267 \$753 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$162 \$753 \$1268 \$754 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$163 \$754 \$1269 \$755 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$164 \$755 \$1270 \$756 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$165 \$756 \$1271 \$757 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$166 \$757 \$1272 \$758 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$167 \$758 \$1273 \$759 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$168 \$759 \$1274 \$760 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$169 \$760 \$1275 \$761 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$170 \$761 \$1276 \$762 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$171 \$762 \$1277 \$763 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$172 \$763 \$1278 \$764 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$173 \$764 \$1279 \$765 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$174 \$765 \$1280 \$766 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$175 \$766 \$1281 \$767 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$176 \$767 \$1282 \$768 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$177 \$768 \$1283 \$769 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$178 \$769 \$1284 \$770 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$179 \$770 \$1285 \$771 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$180 \$771 \$1286 \$772 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$181 \$772 \$1287 \$773 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$182 \$773 \$1288 \$774 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$183 \$774 \$1289 \$775 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$184 \$775 \$1290 \$776 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$185 \$776 \$1291 \$777 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$186 \$777 \$1292 \$778 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$187 \$778 \$1293 \$779 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$188 \$779 \$1294 \$780 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$189 \$780 \$1295 \$781 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$190 \$781 \$1296 \$782 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$191 \$782 \$1297 \$783 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$192 \$783 \$1298 \$784 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$193 \$784 \$1299 \$785 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$194 \$785 \$1300 \$786 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$195 \$786 \$1301 \$787 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$196 \$787 \$1302 \$788 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$197 \$788 \$1303 \$789 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$198 \$789 \$1304 \$790 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$199 \$790 \$1305 \$791 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$200 \$791 \$1306 \$792 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$201 \$792 \$1307 \$793 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$202 \$793 \$1308 \$794 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$203 \$794 \$1309 \$795 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$204 \$795 \$1310 \$796 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$205 \$796 \$1311 \$797 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$206 \$797 \$1312 \$798 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$207 \$798 \$1313 \$799 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$208 \$799 \$1314 \$800 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$209 \$800 \$1315 \$801 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$210 \$801 \$1316 \$802 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$211 \$802 \$1317 \$803 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$212 \$803 \$1318 \$804 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$213 \$804 \$1319 \$805 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$214 \$805 \$1320 \$806 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$215 \$806 \$1321 \$807 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$216 \$807 \$1322 \$808 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$217 \$808 \$1323 \$809 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$218 \$809 \$1324 \$810 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$219 \$810 \$1325 \$811 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$220 \$811 \$1326 \$812 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$221 \$812 \$1327 \$813 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$222 \$813 \$1328 \$814 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$223 \$814 \$1329 \$815 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$224 \$815 \$1330 \$816 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$225 \$816 \$1331 \$817 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$226 \$817 \$1332 \$818 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$227 \$818 \$1333 \$819 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$228 \$819 \$1334 \$820 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=1.0489p PS=3.465u PD=6.85u rfmode=0
+M$229 \$821 \$1151 \$822 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$230 \$822 \$1152 \$823 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$231 \$824 \$1338 \$825 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=1.0489p
++ AD=0.58615p PS=6.85u PD=3.465u rfmode=0
+M$232 \$825 \$1339 \$826 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$233 \$826 \$1340 \$827 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$234 \$827 \$1341 \$828 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$235 \$828 \$1342 \$829 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$236 \$829 \$1343 \$830 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$237 \$830 \$1344 \$831 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$238 \$831 \$1345 \$832 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$239 \$832 \$1346 \$833 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$240 \$833 \$1347 \$834 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$241 \$834 \$1348 \$835 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$242 \$835 \$1349 \$836 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$243 \$836 \$1350 \$837 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$244 \$837 \$1351 \$838 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$245 \$838 \$1352 \$839 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$246 \$839 \$1353 \$840 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$247 \$840 \$1354 \$841 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$248 \$841 \$1355 \$842 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$249 \$842 \$1356 \$843 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$250 \$843 \$1357 \$844 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$251 \$844 \$1358 \$845 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$252 \$845 \$1359 \$846 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$253 \$846 \$1360 \$847 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$254 \$847 \$1361 \$848 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$255 \$848 \$1362 \$849 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$256 \$849 \$1363 \$850 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$257 \$850 \$1364 \$851 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$258 \$851 \$1365 \$852 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$259 \$852 \$1366 \$853 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$260 \$853 \$1367 \$854 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$261 \$854 \$1368 \$855 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$262 \$855 \$1369 \$856 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$263 \$856 \$1370 \$857 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$264 \$857 \$1371 \$858 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$265 \$858 \$1372 \$859 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$266 \$859 \$1373 \$860 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$267 \$860 \$1374 \$861 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$268 \$861 \$1375 \$862 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$269 \$862 \$1376 \$863 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$270 \$863 \$1377 \$864 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$271 \$864 \$1378 \$865 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$272 \$865 \$1379 \$866 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$273 \$866 \$1380 \$867 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$274 \$867 \$1381 \$868 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$275 \$868 \$1382 \$869 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$276 \$869 \$1383 \$870 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$277 \$870 \$1384 \$871 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$278 \$871 \$1385 \$872 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$279 \$872 \$1386 \$873 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$280 \$873 \$1387 \$874 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$281 \$874 \$1388 \$875 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$282 \$875 \$1389 \$876 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$283 \$876 \$1390 \$877 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$284 \$877 \$1391 \$878 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$285 \$878 \$1392 \$879 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$286 \$879 \$1393 \$880 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$287 \$880 \$1394 \$881 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$288 \$881 \$1395 \$882 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$289 \$882 \$1396 \$883 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$290 \$883 \$1397 \$884 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$291 \$884 \$1398 \$885 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$292 \$885 \$1399 \$886 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$293 \$886 \$1400 \$887 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$294 \$887 \$1401 \$888 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$295 \$888 \$1402 \$889 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$296 \$889 \$1403 \$890 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$297 \$890 \$1404 \$891 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$298 \$891 \$1405 \$892 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$299 \$892 \$1406 \$893 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$300 \$893 \$1407 \$894 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$301 \$894 \$1408 \$895 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$302 \$895 \$1409 \$896 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$303 \$896 \$1410 \$897 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$304 \$897 \$1411 \$898 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$305 \$898 \$1412 \$899 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$306 \$899 \$1413 \$900 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$307 \$900 \$1414 \$901 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$308 \$901 \$1415 \$902 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$309 \$902 \$1416 \$903 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$310 \$903 \$1417 \$904 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$311 \$904 \$1418 \$905 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$312 \$905 \$1419 \$906 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$313 \$906 \$1420 \$907 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$314 \$907 \$1421 \$908 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$315 \$908 \$1422 \$909 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$316 \$909 \$1423 \$910 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$317 \$910 \$1424 \$911 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$318 \$911 \$1425 \$912 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$319 \$912 \$1426 \$913 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$320 \$913 \$1427 \$914 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$321 \$914 \$1428 \$915 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$322 \$915 \$1429 \$916 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$323 \$916 \$1430 \$917 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$324 \$917 \$1431 \$918 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$325 \$918 \$1432 \$919 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$326 \$919 \$1433 \$920 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$327 \$920 \$1434 \$921 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$328 \$921 \$1435 \$922 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$329 \$922 \$1436 \$923 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$330 \$923 \$1437 \$924 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=1.0489p PS=3.465u PD=6.85u rfmode=0
+M$331 \$925 \$1158 \$926 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$332 \$926 \$1159 \$927 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$333 \$928 \$1442 \$929 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=1.0489p
++ AD=0.58615p PS=6.85u PD=3.465u rfmode=0
+M$334 \$929 \$1443 \$930 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$335 \$930 \$1444 \$931 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$336 \$931 \$1445 \$932 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$337 \$932 \$1446 \$933 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$338 \$933 \$1447 \$934 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$339 \$934 \$1448 \$935 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$340 \$935 \$1449 \$936 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$341 \$936 \$1450 \$937 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$342 \$937 \$1451 \$938 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$343 \$938 \$1452 \$939 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$344 \$939 \$1453 \$940 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$345 \$940 \$1454 \$941 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$346 \$941 \$1455 \$942 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$347 \$942 \$1456 \$943 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$348 \$943 \$1457 \$944 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$349 \$944 \$1458 \$945 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$350 \$945 \$1459 \$946 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$351 \$946 \$1460 \$947 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$352 \$947 \$1461 \$948 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$353 \$948 \$1462 \$949 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$354 \$949 \$1463 \$950 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$355 \$950 \$1464 \$951 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$356 \$951 \$1465 \$952 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$357 \$952 \$1466 \$953 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$358 \$953 \$1467 \$954 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$359 \$954 \$1468 \$955 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$360 \$955 \$1469 \$956 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$361 \$956 \$1470 \$957 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$362 \$957 \$1471 \$958 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$363 \$958 \$1472 \$959 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$364 \$959 \$1473 \$960 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$365 \$960 \$1474 \$961 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$366 \$961 \$1475 \$962 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$367 \$962 \$1476 \$963 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$368 \$963 \$1477 \$964 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$369 \$964 \$1478 \$965 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$370 \$965 \$1479 \$966 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$371 \$966 \$1480 \$967 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$372 \$967 \$1481 \$968 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$373 \$968 \$1482 \$969 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$374 \$969 \$1483 \$970 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$375 \$970 \$1484 \$971 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$376 \$971 \$1485 \$972 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$377 \$972 \$1486 \$973 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$378 \$973 \$1487 \$974 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$379 \$974 \$1488 \$975 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$380 \$975 \$1489 \$976 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$381 \$976 \$1490 \$977 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$382 \$977 \$1491 \$978 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$383 \$978 \$1492 \$979 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$384 \$979 \$1493 \$980 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$385 \$980 \$1494 \$981 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$386 \$981 \$1495 \$982 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$387 \$982 \$1496 \$983 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$388 \$983 \$1497 \$984 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$389 \$984 \$1498 \$985 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$390 \$985 \$1499 \$986 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$391 \$986 \$1500 \$987 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$392 \$987 \$1501 \$988 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$393 \$988 \$1502 \$989 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$394 \$989 \$1503 \$990 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$395 \$990 \$1504 \$991 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$396 \$991 \$1505 \$992 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$397 \$992 \$1506 \$993 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$398 \$993 \$1507 \$994 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$399 \$994 \$1508 \$995 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$400 \$995 \$1509 \$996 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$401 \$996 \$1510 \$997 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$402 \$997 \$1511 \$998 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$403 \$998 \$1512 \$999 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$404 \$999 \$1513 \$1000 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$405 \$1000 \$1514 \$1001 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$406 \$1001 \$1515 \$1002 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$407 \$1002 \$1516 \$1003 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$408 \$1003 \$1517 \$1004 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$409 \$1004 \$1518 \$1005 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$410 \$1005 \$1519 \$1006 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$411 \$1006 \$1520 \$1007 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$412 \$1007 \$1521 \$1008 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$413 \$1008 \$1522 \$1009 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$414 \$1009 \$1523 \$1010 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$415 \$1010 \$1524 \$1011 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$416 \$1011 \$1525 \$1012 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$417 \$1012 \$1526 \$1013 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$418 \$1013 \$1527 \$1014 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$419 \$1014 \$1528 \$1015 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$420 \$1015 \$1529 \$1016 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$421 \$1016 \$1530 \$1017 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$422 \$1017 \$1531 \$1018 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$423 \$1018 \$1532 \$1019 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$424 \$1019 \$1533 \$1020 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$425 \$1020 \$1534 \$1021 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$426 \$1021 \$1535 \$1022 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$427 \$1022 \$1536 \$1023 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$428 \$1023 \$1537 \$1024 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$429 \$1024 \$1538 \$1025 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$430 \$1025 \$1539 \$1026 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$431 \$1026 \$1540 \$1027 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$432 \$1027 \$1541 \$1028 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=1.0489p PS=3.465u PD=6.85u rfmode=0
+M$433 \$1029 \$1148 \$1030 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$434 \$1030 \$1149 \$1031 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$435 \$1032 \$1546 \$1033 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=1.0489p
++ AD=0.58615p PS=6.85u PD=3.465u rfmode=0
+M$436 \$1033 \$1547 \$1034 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$437 \$1034 \$1548 \$1035 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$438 \$1035 \$1549 \$1036 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$439 \$1036 \$1550 \$1037 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$440 \$1037 \$1551 \$1038 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$441 \$1038 \$1552 \$1039 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$442 \$1039 \$1553 \$1040 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$443 \$1040 \$1554 \$1041 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$444 \$1041 \$1555 \$1042 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$445 \$1042 \$1556 \$1043 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$446 \$1043 \$1557 \$1044 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$447 \$1044 \$1558 \$1045 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$448 \$1045 \$1559 \$1046 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$449 \$1046 \$1560 \$1047 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$450 \$1047 \$1561 \$1048 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$451 \$1048 \$1562 \$1049 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$452 \$1049 \$1563 \$1050 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$453 \$1050 \$1564 \$1051 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$454 \$1051 \$1565 \$1052 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$455 \$1052 \$1566 \$1053 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$456 \$1053 \$1567 \$1054 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$457 \$1054 \$1568 \$1055 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$458 \$1055 \$1569 \$1056 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$459 \$1056 \$1570 \$1057 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$460 \$1057 \$1571 \$1058 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$461 \$1058 \$1572 \$1059 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$462 \$1059 \$1573 \$1060 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$463 \$1060 \$1574 \$1061 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$464 \$1061 \$1575 \$1062 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$465 \$1062 \$1576 \$1063 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$466 \$1063 \$1577 \$1064 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$467 \$1064 \$1578 \$1065 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$468 \$1065 \$1579 \$1066 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$469 \$1066 \$1580 \$1067 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$470 \$1067 \$1581 \$1068 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$471 \$1068 \$1582 \$1069 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$472 \$1069 \$1583 \$1070 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$473 \$1070 \$1584 \$1071 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$474 \$1071 \$1585 \$1072 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$475 \$1072 \$1586 \$1073 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$476 \$1073 \$1587 \$1074 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$477 \$1074 \$1588 \$1075 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$478 \$1075 \$1589 \$1076 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$479 \$1076 \$1590 \$1077 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$480 \$1077 \$1591 \$1078 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$481 \$1078 \$1592 \$1079 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$482 \$1079 \$1593 \$1080 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$483 \$1080 \$1545 \$1081 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$484 \$1081 \$1441 \$1082 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$485 \$1082 \$1234 \$1083 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$486 \$1083 \$1232 \$1084 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$487 \$1084 \$1230 \$1085 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$488 \$1085 \$1229 \$1086 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$489 \$1086 \$1228 \$1087 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$490 \$1087 \$1227 \$1088 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$491 \$1088 \$1226 \$1089 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$492 \$1089 \$1225 \$1090 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$493 \$1090 \$1224 \$1091 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$494 \$1091 \$1223 \$1092 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$495 \$1092 \$1222 \$1093 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$496 \$1093 \$1221 \$1094 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$497 \$1094 \$1220 \$1095 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$498 \$1095 \$1219 \$1096 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$499 \$1096 \$1218 \$1097 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$500 \$1097 \$1216 \$1098 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$501 \$1098 \$1215 \$1099 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$502 \$1099 \$1214 \$1100 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$503 \$1100 \$1213 \$1101 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$504 \$1101 \$1212 \$1102 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$505 \$1102 \$1211 \$1103 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$506 \$1103 \$1210 \$1104 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$507 \$1104 \$1209 \$1105 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$508 \$1105 \$1208 \$1106 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$509 \$1106 \$1207 \$1107 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$510 \$1107 \$1206 \$1108 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$511 \$1108 \$1205 \$1109 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$512 \$1109 \$1204 \$1110 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$513 \$1110 \$1203 \$1111 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$514 \$1111 \$1202 \$1112 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$515 \$1112 \$1201 \$1113 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$516 \$1113 \$1200 \$1114 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$517 \$1114 \$1199 \$1115 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$518 \$1115 \$1198 \$1116 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$519 \$1116 \$1197 \$1117 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$520 \$1117 \$1196 \$1118 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$521 \$1118 \$1195 \$1119 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$522 \$1119 \$1194 \$1120 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$523 \$1120 \$1193 \$1121 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$524 \$1121 \$1192 \$1122 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$525 \$1122 \$1190 \$1123 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$526 \$1123 \$1189 \$1124 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$527 \$1124 \$1188 \$1125 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$528 \$1125 \$1187 \$1126 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$529 \$1126 \$1186 \$1127 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$530 \$1127 \$1185 \$1128 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$531 \$1128 \$1184 \$1129 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$532 \$1129 \$1183 \$1130 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$533 \$1130 \$1182 \$1131 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$534 \$1131 \$1181 \$1132 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=1.0489p PS=3.465u PD=6.85u rfmode=0
+M$535 \$1133 \$1142 \$1134 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$536 \$1134 \$1143 \$1135 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$537 \$1617 \$1639 \$1618 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=1.36p AD=0.76p
++ PS=8.68u PD=4.38u rfmode=0
+M$538 \$1618 \$1640 \$1619 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=0.76p AD=0.76p
++ PS=4.38u PD=4.38u rfmode=0
+M$539 \$1619 \$1641 \$1620 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=0.76p AD=0.76p
++ PS=4.38u PD=4.38u rfmode=0
+M$540 \$1620 \$1642 \$1621 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=0.76p AD=0.76p
++ PS=4.38u PD=4.38u rfmode=0
+M$541 \$1621 \$1643 \$1622 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=0.76p AD=0.76p
++ PS=4.38u PD=4.38u rfmode=0
+M$542 \$1622 \$1644 \$1623 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=0.76p AD=0.76p
++ PS=4.38u PD=4.38u rfmode=0
+M$543 \$1623 \$1645 \$1624 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=0.76p AD=0.76p
++ PS=4.38u PD=4.38u rfmode=0
+M$544 \$1624 \$1638 \$1625 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=0.76p AD=1.36p
++ PS=4.38u PD=8.68u rfmode=0
+M$545 \$1607 \$1633 \$1608 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=1.36p AD=0.76p
++ PS=8.68u PD=4.38u rfmode=0
+M$546 \$1608 \$1634 \$1609 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=0.76p AD=0.76p
++ PS=4.38u PD=4.38u rfmode=0
+M$547 \$1609 \$1635 \$1610 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=0.76p AD=0.76p
++ PS=4.38u PD=4.38u rfmode=0
+M$548 \$1610 \$1636 \$1611 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=0.76p AD=0.76p
++ PS=4.38u PD=4.38u rfmode=0
+M$549 \$1611 \$1637 \$1612 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=0.76p AD=0.76p
++ PS=4.38u PD=4.38u rfmode=0
+M$550 \$1612 \$1630 \$1613 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=0.76p AD=0.76p
++ PS=4.38u PD=4.38u rfmode=0
+M$551 \$1613 \$1631 \$1614 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=0.76p AD=0.76p
++ PS=4.38u PD=4.38u rfmode=0
+M$552 \$1614 \$1632 \$1615 G1|G2|W sg13_lv_nmos L=0.13u W=4u AS=0.76p AD=1.36p
++ PS=4.38u PD=8.68u rfmode=0
+M$553 \$1712 \$1731 \$1713 G1|G2|W sg13_lv_nmos L=0.13u W=2.475u AS=0.8415p
++ AD=0.47025p PS=5.63u PD=2.855u rfmode=0
+M$554 \$1713 \$1732 \$1714 G1|G2|W sg13_lv_nmos L=0.13u W=2.475u AS=0.47025p
++ AD=0.47025p PS=2.855u PD=2.855u rfmode=0
+M$555 \$1714 \$1733 \$1715 G1|G2|W sg13_lv_nmos L=0.13u W=2.475u AS=0.47025p
++ AD=0.47025p PS=2.855u PD=2.855u rfmode=0
+M$556 \$1715 \$1734 \$1716 G1|G2|W sg13_lv_nmos L=0.13u W=2.475u AS=0.47025p
++ AD=0.47025p PS=2.855u PD=2.855u rfmode=0
+M$557 \$1716 \$1735 \$1717 G1|G2|W sg13_lv_nmos L=0.13u W=2.475u AS=0.47025p
++ AD=0.47025p PS=2.855u PD=2.855u rfmode=0
+M$558 \$1717 \$1736 \$1718 G1|G2|W sg13_lv_nmos L=0.13u W=2.475u AS=0.47025p
++ AD=0.47025p PS=2.855u PD=2.855u rfmode=0
+M$559 \$1718 \$1737 \$1719 G1|G2|W sg13_lv_nmos L=0.13u W=2.475u AS=0.47025p
++ AD=0.47025p PS=2.855u PD=2.855u rfmode=0
+M$560 \$1719 \$1738 \$1720 G1|G2|W sg13_lv_nmos L=0.13u W=2.475u AS=0.47025p
++ AD=0.8415p PS=2.855u PD=5.63u rfmode=0
+M$561 \$1721 \$1729 \$1722 G1|G2|W sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p
++ AD=0.1005p PS=1.34u PD=1.34u rfmode=0
+M$562 \$1739 \$1742 \$1740 G1|G2|W sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p
++ AD=0.1005p PS=1.34u PD=1.34u rfmode=0
+M$563 \$1760 \$2231 \$1761 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=1.0489p
++ AD=0.58615p PS=6.85u PD=3.465u rfmode=0
+M$564 \$1761 \$2232 \$1762 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$565 \$1762 \$2233 \$1763 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$566 \$1763 \$2234 \$1764 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$567 \$1764 \$2235 \$1765 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$568 \$1765 \$2236 \$1766 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$569 \$1766 \$2237 \$1767 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$570 \$1767 \$2238 \$1768 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$571 \$1768 \$2239 \$1769 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$572 \$1769 \$2240 \$1770 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$573 \$1770 \$2241 \$1771 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$574 \$1771 \$2242 \$1772 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$575 \$1772 \$2243 \$1773 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$576 \$1773 \$2244 \$1774 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$577 \$1774 \$2245 \$1775 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$578 \$1775 \$2246 \$1776 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$579 \$1776 \$2247 \$1777 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$580 \$1777 \$2248 \$1778 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$581 \$1778 \$2249 \$1779 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$582 \$1779 \$2250 \$1780 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$583 \$1780 \$2251 \$1781 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$584 \$1781 \$2252 \$1782 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$585 \$1782 \$2253 \$1783 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$586 \$1783 \$2254 \$1784 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$587 \$1784 \$2255 \$1785 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$588 \$1785 \$2256 \$1786 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$589 \$1786 \$2257 \$1787 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$590 \$1787 \$2258 \$1788 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$591 \$1788 \$2259 \$1789 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$592 \$1789 \$2260 \$1790 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$593 \$1790 \$2261 \$1791 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$594 \$1791 \$2262 \$1792 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$595 \$1792 \$2263 \$1793 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$596 \$1793 \$2264 \$1794 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$597 \$1794 \$2265 \$1795 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$598 \$1795 \$2266 \$1796 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$599 \$1796 \$2267 \$1797 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$600 \$1797 \$2268 \$1798 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$601 \$1798 \$2269 \$1799 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$602 \$1799 \$2270 \$1800 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$603 \$1800 \$2271 \$1801 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$604 \$1801 \$2272 \$1802 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$605 \$1802 \$2273 \$1803 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$606 \$1803 \$2274 \$1804 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$607 \$1804 \$2275 \$1805 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$608 \$1805 \$2276 \$1806 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$609 \$1806 \$2277 \$1807 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$610 \$1807 \$2278 \$1808 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$611 \$1808 \$2279 \$1809 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$612 \$1809 \$2280 \$1810 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$613 \$1810 \$2281 \$1811 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$614 \$1811 \$2282 \$1812 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$615 \$1812 \$2283 \$1813 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$616 \$1813 \$2284 \$1814 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$617 \$1814 \$2285 \$1815 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$618 \$1815 \$2286 \$1816 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$619 \$1816 \$2287 \$1817 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$620 \$1817 \$2288 \$1818 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$621 \$1818 \$2289 \$1819 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$622 \$1819 \$2290 \$1820 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$623 \$1820 \$2291 \$1821 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$624 \$1821 \$2292 \$1822 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$625 \$1822 \$2293 \$1823 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$626 \$1823 \$2294 \$1824 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$627 \$1824 \$2295 \$1825 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$628 \$1825 \$2296 \$1826 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$629 \$1826 \$2297 \$1827 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$630 \$1827 \$2298 \$1828 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$631 \$1828 \$2299 \$1829 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$632 \$1829 \$2300 \$1830 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$633 \$1830 \$2301 \$1831 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$634 \$1831 \$2302 \$1832 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$635 \$1832 \$2303 \$1833 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$636 \$1833 \$2304 \$1834 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$637 \$1834 \$2305 \$1835 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$638 \$1835 \$2306 \$1836 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$639 \$1836 \$2307 \$1837 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$640 \$1837 \$2308 \$1838 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$641 \$1838 \$2309 \$1839 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$642 \$1839 \$2310 \$1840 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$643 \$1840 \$2311 \$1841 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$644 \$1841 \$2312 \$1842 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$645 \$1842 \$2313 \$1843 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$646 \$1843 \$2315 \$1844 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$647 \$1844 \$2316 \$1845 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$648 \$1845 \$2317 \$1846 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$649 \$1846 \$2318 \$1847 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$650 \$1847 \$2319 \$1848 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$651 \$1848 \$2320 \$1849 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$652 \$1849 \$2321 \$1850 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$653 \$1850 \$2322 \$1851 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$654 \$1851 \$2323 \$1852 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$655 \$1852 \$2324 \$1853 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$656 \$1853 \$2325 \$1854 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$657 \$1854 \$2326 \$1855 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$658 \$1855 \$2327 \$1856 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$659 \$1856 \$2328 \$1857 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$660 \$1857 \$2329 \$1858 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$661 \$1858 \$2330 \$1859 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$662 \$1859 \$2331 \$1860 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=1.0489p PS=3.465u PD=6.85u rfmode=0
+M$663 \$1162 \$1336 \$1163 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$664 \$1163 \$1337 \$1164 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$665 \$1861 \$2191 \$1862 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$666 \$1862 \$2192 \$1863 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$667 \$1864 \$2335 \$1865 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=1.0489p
++ AD=0.58615p PS=6.85u PD=3.465u rfmode=0
+M$668 \$1865 \$2336 \$1866 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$669 \$1866 \$2337 \$1867 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$670 \$1867 \$2338 \$1868 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$671 \$1868 \$2339 \$1869 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$672 \$1869 \$2340 \$1870 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$673 \$1870 \$2341 \$1871 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$674 \$1871 \$2342 \$1872 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$675 \$1872 \$2343 \$1873 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$676 \$1873 \$2344 \$1874 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$677 \$1874 \$2345 \$1875 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$678 \$1875 \$2346 \$1876 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$679 \$1876 \$2347 \$1877 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$680 \$1877 \$2348 \$1878 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$681 \$1878 \$2349 \$1879 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$682 \$1879 \$2350 \$1880 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$683 \$1880 \$2351 \$1881 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$684 \$1881 \$2352 \$1882 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$685 \$1882 \$2353 \$1883 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$686 \$1883 \$2354 \$1884 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$687 \$1884 \$2355 \$1885 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$688 \$1885 \$2356 \$1886 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$689 \$1886 \$2357 \$1887 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$690 \$1887 \$2358 \$1888 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$691 \$1888 \$2359 \$1889 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$692 \$1889 \$2360 \$1890 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$693 \$1890 \$2361 \$1891 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$694 \$1891 \$2362 \$1892 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$695 \$1892 \$2363 \$1893 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$696 \$1893 \$2364 \$1894 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$697 \$1894 \$2365 \$1895 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$698 \$1895 \$2366 \$1896 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$699 \$1896 \$2367 \$1897 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$700 \$1897 \$2368 \$1898 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$701 \$1898 \$2369 \$1899 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$702 \$1899 \$2370 \$1900 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$703 \$1900 \$2371 \$1901 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$704 \$1901 \$2372 \$1902 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$705 \$1902 \$2373 \$1903 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$706 \$1903 \$2374 \$1904 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$707 \$1904 \$2375 \$1905 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$708 \$1905 \$2376 \$1906 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$709 \$1906 \$2377 \$1907 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$710 \$1907 \$2378 \$1908 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$711 \$1908 \$2379 \$1909 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$712 \$1909 \$2380 \$1910 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$713 \$1910 \$2381 \$1911 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$714 \$1911 \$2382 \$1912 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$715 \$1912 \$2383 \$1913 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$716 \$1913 \$2384 \$1914 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$717 \$1914 \$2385 \$1915 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$718 \$1915 \$2386 \$1916 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$719 \$1916 \$2387 \$1917 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$720 \$1917 \$2388 \$1918 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$721 \$1918 \$2389 \$1919 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$722 \$1919 \$2390 \$1920 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$723 \$1920 \$2391 \$1921 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$724 \$1921 \$2392 \$1922 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$725 \$1922 \$2393 \$1923 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$726 \$1923 \$2394 \$1924 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$727 \$1924 \$2395 \$1925 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$728 \$1925 \$2396 \$1926 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$729 \$1926 \$2397 \$1927 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$730 \$1927 \$2398 \$1928 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$731 \$1928 \$2399 \$1929 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$732 \$1929 \$2400 \$1930 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$733 \$1930 \$2401 \$1931 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$734 \$1931 \$2402 \$1932 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$735 \$1932 \$2403 \$1933 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$736 \$1933 \$2404 \$1934 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$737 \$1934 \$2405 \$1935 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$738 \$1935 \$2406 \$1936 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$739 \$1936 \$2407 \$1937 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$740 \$1937 \$2408 \$1938 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$741 \$1938 \$2409 \$1939 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$742 \$1939 \$2410 \$1940 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$743 \$1940 \$2411 \$1941 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$744 \$1941 \$2412 \$1942 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$745 \$1942 \$2413 \$1943 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$746 \$1943 \$2414 \$1944 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$747 \$1944 \$2415 \$1945 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$748 \$1945 \$2416 \$1946 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$749 \$1946 \$2417 \$1947 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$750 \$1947 \$2418 \$1948 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$751 \$1948 \$2419 \$1949 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$752 \$1949 \$2420 \$1950 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$753 \$1950 \$2421 \$1951 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$754 \$1951 \$2422 \$1952 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$755 \$1952 \$2423 \$1953 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$756 \$1953 \$2424 \$1954 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$757 \$1954 \$2425 \$1955 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$758 \$1955 \$2426 \$1956 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$759 \$1956 \$2427 \$1957 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$760 \$1957 \$2428 \$1958 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$761 \$1958 \$2429 \$1959 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$762 \$1959 \$2430 \$1960 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$763 \$1960 \$2431 \$1961 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$764 \$1961 \$2432 \$1962 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$765 \$1962 \$2433 \$1963 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$766 \$1963 \$2434 \$1964 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=1.0489p PS=3.465u PD=6.85u rfmode=0
+M$767 \$1965 \$2198 \$1966 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$768 \$1966 \$2199 \$1967 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$769 \$1165 \$1439 \$1166 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$770 \$1166 \$1440 \$1167 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$771 \$1968 \$2439 \$1969 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=1.0489p
++ AD=0.58615p PS=6.85u PD=3.465u rfmode=0
+M$772 \$1969 \$2440 \$1970 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$773 \$1970 \$2441 \$1971 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$774 \$1971 \$2442 \$1972 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$775 \$1972 \$2443 \$1973 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$776 \$1973 \$2444 \$1974 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$777 \$1974 \$2445 \$1975 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$778 \$1975 \$2446 \$1976 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$779 \$1976 \$2447 \$1977 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$780 \$1977 \$2448 \$1978 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$781 \$1978 \$2449 \$1979 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$782 \$1979 \$2450 \$1980 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$783 \$1980 \$2451 \$1981 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$784 \$1981 \$2452 \$1982 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$785 \$1982 \$2453 \$1983 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$786 \$1983 \$2454 \$1984 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$787 \$1984 \$2455 \$1985 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$788 \$1985 \$2456 \$1986 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$789 \$1986 \$2457 \$1987 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$790 \$1987 \$2458 \$1988 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$791 \$1988 \$2459 \$1989 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$792 \$1989 \$2460 \$1990 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$793 \$1990 \$2461 \$1991 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$794 \$1991 \$2462 \$1992 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$795 \$1992 \$2463 \$1993 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$796 \$1993 \$2464 \$1994 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$797 \$1994 \$2465 \$1995 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$798 \$1995 \$2466 \$1996 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$799 \$1996 \$2467 \$1997 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$800 \$1997 \$2468 \$1998 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$801 \$1998 \$2469 \$1999 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$802 \$1999 \$2470 \$2000 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$803 \$2000 \$2471 \$2001 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$804 \$2001 \$2472 \$2002 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$805 \$2002 \$2473 \$2003 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$806 \$2003 \$2474 \$2004 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$807 \$2004 \$2475 \$2005 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$808 \$2005 \$2476 \$2006 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$809 \$2006 \$2477 \$2007 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$810 \$2007 \$2478 \$2008 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$811 \$2008 \$2479 \$2009 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$812 \$2009 \$2480 \$2010 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$813 \$2010 \$2481 \$2011 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$814 \$2011 \$2482 \$2012 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$815 \$2012 \$2483 \$2013 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$816 \$2013 \$2484 \$2014 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$817 \$2014 \$2485 \$2015 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$818 \$2015 \$2486 \$2016 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$819 \$2016 \$2487 \$2017 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$820 \$2017 \$2488 \$2018 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$821 \$2018 \$2489 \$2019 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$822 \$2019 \$2490 \$2020 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$823 \$2020 \$2491 \$2021 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$824 \$2021 \$2492 \$2022 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$825 \$2022 \$2493 \$2023 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$826 \$2023 \$2494 \$2024 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$827 \$2024 \$2495 \$2025 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$828 \$2025 \$2496 \$2026 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$829 \$2026 \$2497 \$2027 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$830 \$2027 \$2498 \$2028 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$831 \$2028 \$2499 \$2029 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$832 \$2029 \$2500 \$2030 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$833 \$2030 \$2501 \$2031 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$834 \$2031 \$2502 \$2032 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$835 \$2032 \$2503 \$2033 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$836 \$2033 \$2504 \$2034 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$837 \$2034 \$2505 \$2035 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$838 \$2035 \$2506 \$2036 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$839 \$2036 \$2507 \$2037 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$840 \$2037 \$2508 \$2038 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$841 \$2038 \$2509 \$2039 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$842 \$2039 \$2510 \$2040 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$843 \$2040 \$2511 \$2041 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$844 \$2041 \$2512 \$2042 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$845 \$2042 \$2513 \$2043 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$846 \$2043 \$2514 \$2044 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$847 \$2044 \$2515 \$2045 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$848 \$2045 \$2516 \$2046 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$849 \$2046 \$2517 \$2047 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$850 \$2047 \$2518 \$2048 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$851 \$2048 \$2519 \$2049 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$852 \$2049 \$2520 \$2050 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$853 \$2050 \$2521 \$2051 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$854 \$2051 \$2522 \$2052 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$855 \$2052 \$2523 \$2053 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$856 \$2053 \$2524 \$2054 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$857 \$2054 \$2525 \$2055 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$858 \$2055 \$2526 \$2056 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$859 \$2056 \$2527 \$2057 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$860 \$2057 \$2528 \$2058 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$861 \$2058 \$2529 \$2059 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$862 \$2059 \$2530 \$2060 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$863 \$2060 \$2531 \$2061 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$864 \$2061 \$2532 \$2062 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$865 \$2062 \$2533 \$2063 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$866 \$2063 \$2534 \$2064 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$867 \$2064 \$2535 \$2065 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$868 \$2065 \$2536 \$2066 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$869 \$2066 \$2537 \$2067 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$870 \$2067 \$2538 \$2068 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=1.0489p PS=3.465u PD=6.85u rfmode=0
+M$871 \$2069 \$2188 \$2070 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$872 \$2070 \$2189 \$2071 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$873 \$1168 \$1543 \$1169 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$874 \$1169 \$1544 \$1170 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$875 \$2072 \$2542 \$2073 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=1.0489p
++ AD=0.58615p PS=6.85u PD=3.465u rfmode=0
+M$876 \$2073 \$2543 \$2074 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$877 \$2074 \$2544 \$2075 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$878 \$2075 \$2545 \$2076 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$879 \$2076 \$2546 \$2077 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$880 \$2077 \$2547 \$2078 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$881 \$2078 \$2548 \$2079 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$882 \$2079 \$2549 \$2080 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$883 \$2080 \$2550 \$2081 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$884 \$2081 \$2551 \$2082 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$885 \$2082 \$2552 \$2083 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$886 \$2083 \$2553 \$2084 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$887 \$2084 \$2554 \$2085 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$888 \$2085 \$2555 \$2086 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$889 \$2086 \$2556 \$2087 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$890 \$2087 \$2557 \$2088 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$891 \$2088 \$2558 \$2089 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$892 \$2089 \$2559 \$2090 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$893 \$2090 \$2560 \$2091 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$894 \$2091 \$2561 \$2092 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$895 \$2092 \$2562 \$2093 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$896 \$2093 \$2563 \$2094 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$897 \$2094 \$2564 \$2095 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$898 \$2095 \$2565 \$2096 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$899 \$2096 \$2566 \$2097 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$900 \$2097 \$2567 \$2098 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$901 \$2098 \$2568 \$2099 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$902 \$2099 \$2569 \$2100 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$903 \$2100 \$2570 \$2101 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$904 \$2101 \$2571 \$2102 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$905 \$2102 \$2572 \$2103 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$906 \$2103 \$2573 \$2104 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$907 \$2104 \$2574 \$2105 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$908 \$2105 \$2575 \$2106 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$909 \$2106 \$2576 \$2107 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$910 \$2107 \$2577 \$2108 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$911 \$2108 \$2578 \$2109 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$912 \$2109 \$2579 \$2110 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$913 \$2110 \$2580 \$2111 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$914 \$2111 \$2581 \$2112 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$915 \$2112 \$2582 \$2113 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$916 \$2113 \$2583 \$2114 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$917 \$2114 \$2584 \$2115 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$918 \$2115 \$2585 \$2116 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$919 \$2116 \$2586 \$2117 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$920 \$2117 \$2587 \$2118 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$921 \$2118 \$2588 \$2119 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$922 \$2119 \$2589 \$2120 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$923 \$2120 \$2590 \$2121 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$924 \$2121 \$2591 \$2122 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$925 \$2122 \$2592 \$2123 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$926 \$2123 \$2593 \$2124 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$927 \$2124 \$2594 \$2125 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$928 \$2125 \$2595 \$2126 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$929 \$2126 \$2596 \$2127 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$930 \$2127 \$2597 \$2128 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$931 \$2128 \$2598 \$2129 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$932 \$2129 \$2599 \$2130 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$933 \$2130 \$2600 \$2131 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$934 \$2131 \$2601 \$2132 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$935 \$2132 \$2602 \$2133 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$936 \$2133 \$2603 \$2134 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$937 \$2134 \$2604 \$2135 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$938 \$2135 \$2605 \$2136 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$939 \$2136 \$2606 \$2137 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$940 \$2137 \$2607 \$2138 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$941 \$2138 \$2608 \$2139 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$942 \$2139 \$2609 \$2140 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$943 \$2140 \$2610 \$2141 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$944 \$2141 \$2611 \$2142 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$945 \$2142 \$2612 \$2143 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$946 \$2143 \$2613 \$2144 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$947 \$2144 \$2614 \$2145 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$948 \$2145 \$2615 \$2146 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$949 \$2146 \$2616 \$2147 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$950 \$2147 \$2617 \$2148 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$951 \$2148 \$2618 \$2149 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$952 \$2149 \$2619 \$2150 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$953 \$2150 \$2620 \$2151 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$954 \$2151 \$2621 \$2152 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$955 \$2152 \$2622 \$2153 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$956 \$2153 \$2623 \$2154 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$957 \$2154 \$2624 \$2155 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$958 \$2155 \$2625 \$2156 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$959 \$2156 \$2626 \$2157 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$960 \$2157 \$2627 \$2158 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$961 \$2158 \$2628 \$2159 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$962 \$2159 \$2629 \$2160 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$963 \$2160 \$2630 \$2161 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$964 \$2161 \$2631 \$2162 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$965 \$2162 \$2632 \$2163 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$966 \$2163 \$2633 \$2164 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$967 \$2164 \$2438 \$2165 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$968 \$2165 \$2314 \$2166 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$969 \$2166 \$2228 \$2167 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$970 \$2167 \$2226 \$2168 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$971 \$2168 \$2225 \$2169 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$972 \$2169 \$2224 \$2170 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$973 \$2170 \$2222 \$2171 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$974 \$2171 \$2220 \$2172 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=1.0489p PS=3.465u PD=6.85u rfmode=0
+M$975 \$2173 \$2182 \$2174 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$976 \$2174 \$2183 \$2175 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$977 \$1171 \$1179 \$1172 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$978 \$1172 \$1178 \$1173 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$979 \$2673 \$2698 \$2674 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.8313p
++ AD=0.46455p PS=5.57u PD=2.825u rfmode=0
+M$980 \$2674 \$2699 \$2675 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.46455p
++ AD=0.46455p PS=2.825u PD=2.825u rfmode=0
+M$981 \$2675 \$2700 \$2676 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.46455p
++ AD=0.46455p PS=2.825u PD=2.825u rfmode=0
+M$982 \$2676 \$2701 \$2677 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.46455p
++ AD=0.46455p PS=2.825u PD=2.825u rfmode=0
+M$983 \$2677 \$2702 \$2678 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.46455p
++ AD=0.46455p PS=2.825u PD=2.825u rfmode=0
+M$984 \$2678 \$2703 \$2679 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.46455p
++ AD=0.46455p PS=2.825u PD=2.825u rfmode=0
+M$985 \$2679 \$2704 \$2680 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.46455p
++ AD=0.46455p PS=2.825u PD=2.825u rfmode=0
+M$986 \$2680 \$2705 \$2681 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.46455p
++ AD=0.46455p PS=2.825u PD=2.825u rfmode=0
+M$987 \$2681 \$2706 \$2682 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.46455p
++ AD=0.46455p PS=2.825u PD=2.825u rfmode=0
+M$988 \$2682 \$2707 \$2683 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.46455p
++ AD=0.46455p PS=2.825u PD=2.825u rfmode=0
+M$989 \$2683 \$2708 \$2684 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.46455p
++ AD=0.46455p PS=2.825u PD=2.825u rfmode=0
+M$990 \$2684 \$2709 \$2685 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.46455p
++ AD=0.46455p PS=2.825u PD=2.825u rfmode=0
+M$991 \$2685 \$2710 \$2686 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.46455p
++ AD=0.46455p PS=2.825u PD=2.825u rfmode=0
+M$992 \$2686 \$2711 \$2687 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.46455p
++ AD=0.46455p PS=2.825u PD=2.825u rfmode=0
+M$993 \$2687 \$2712 \$2688 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.46455p
++ AD=0.46455p PS=2.825u PD=2.825u rfmode=0
+M$994 \$2688 \$2713 \$2689 G1|G2|W sg13_lv_nmos L=0.13u W=2.445u AS=0.46455p
++ AD=0.8313p PS=2.825u PD=5.57u rfmode=0
+M$995 \$2971 \$3021 \$2972 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.85p
++ AD=0.475p PS=5.68u PD=2.88u rfmode=0
+M$996 \$2972 \$3022 \$2973 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$997 \$2973 \$3023 \$2974 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$998 \$2974 \$3024 \$2975 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$999 \$2975 \$3025 \$2976 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1000 \$2976 \$3026 \$2977 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1001 \$2977 \$3027 \$2978 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1002 \$2978 \$3028 \$2979 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1003 \$2979 \$3029 \$2980 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1004 \$2980 \$3030 \$2981 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1005 \$2981 \$3031 \$2982 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1006 \$2982 \$3032 \$2983 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1007 \$2983 \$3033 \$2984 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1008 \$2984 \$3034 \$2985 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1009 \$2985 \$3035 \$2986 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1010 \$2986 \$3036 \$2987 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1011 \$2987 \$3037 \$2988 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1012 \$2988 \$3038 \$2989 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1013 \$2989 \$3039 \$2990 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1014 \$2990 \$3040 \$2991 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1015 \$2991 \$3041 \$2992 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1016 \$2992 \$3042 \$2993 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1017 \$2993 \$3043 \$2994 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1018 \$2994 \$3044 \$2995 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1019 \$2995 \$3045 \$2996 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1020 \$2996 \$3046 \$2997 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1021 \$2997 \$3047 \$2998 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1022 \$2998 \$3048 \$2999 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1023 \$2999 \$3049 \$3000 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1024 \$3000 \$3050 \$3001 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.475p PS=2.88u PD=2.88u rfmode=0
+M$1025 \$3001 \$3051 \$3002 G1|G2|W sg13_lv_nmos L=0.13u W=2.5u AS=0.475p
++ AD=0.85p PS=2.88u PD=5.68u rfmode=0
+M$1026 \$3085 \$3171 \$3086 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.8466p
++ AD=0.4731p PS=5.66u PD=2.87u rfmode=0
+M$1027 \$3086 \$3172 \$3087 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1028 \$3087 \$3173 \$3088 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1029 \$3088 \$3174 \$3089 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1030 \$3089 \$3175 \$3090 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1031 \$3090 \$3176 \$3091 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1032 \$3091 \$3177 \$3092 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1033 \$3092 \$3178 \$3093 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1034 \$3093 \$3179 \$3094 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1035 \$3094 \$3180 \$3095 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1036 \$3095 \$3181 \$3096 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1037 \$3096 \$3182 \$3097 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1038 \$3097 \$3183 \$3098 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1039 \$3098 \$3184 \$3099 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1040 \$3099 \$3185 \$3100 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1041 \$3100 \$3186 \$3101 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1042 \$3101 \$3187 \$3102 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1043 \$3102 \$3188 \$3103 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1044 \$3103 \$3189 \$3104 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1045 \$3104 \$3190 \$3105 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1046 \$3105 \$3191 \$3106 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1047 \$3106 \$3192 \$3107 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1048 \$3107 \$3193 \$3108 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1049 \$3108 \$3194 \$3109 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1050 \$3109 \$3195 \$3110 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1051 \$3110 \$3196 \$3111 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1052 \$3111 \$3197 \$3112 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1053 \$3112 \$3198 \$3113 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1054 \$3113 \$3199 \$3114 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1055 \$3114 \$3200 \$3115 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1056 \$3115 \$3201 \$3116 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1057 \$3116 \$3204 \$3117 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1058 \$3117 \$3202 \$3118 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1059 \$3118 \$3205 \$3119 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1060 \$3119 \$3206 \$3120 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1061 \$3120 \$3207 \$3121 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1062 \$3121 \$3208 \$3122 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1063 \$3122 \$3209 \$3123 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1064 \$3123 \$3210 \$3124 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1065 \$3124 \$3211 \$3125 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1066 \$3125 \$3212 \$3126 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1067 \$3126 \$3213 \$3127 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1068 \$3127 \$3214 \$3128 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1069 \$3128 \$3215 \$3129 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1070 \$3129 \$3216 \$3130 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1071 \$3130 \$3217 \$3131 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1072 \$3131 \$3218 \$3132 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1073 \$3132 \$3219 \$3133 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1074 \$3133 \$3220 \$3134 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1075 \$3134 \$3221 \$3135 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1076 \$3135 \$3222 \$3136 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1077 \$3136 \$3223 \$3137 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1078 \$3137 \$3224 \$3138 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1079 \$3138 \$3225 \$3139 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1080 \$3139 \$3226 \$3140 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1081 \$3140 \$3227 \$3141 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1082 \$3141 \$3228 \$3142 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1083 \$3142 \$3229 \$3143 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1084 \$3143 \$3230 \$3144 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1085 \$3144 \$3231 \$3145 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1086 \$3145 \$3232 \$3146 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.4731p PS=2.87u PD=2.87u rfmode=0
+M$1087 \$3146 \$3233 \$3147 G1|G2|W sg13_lv_nmos L=0.13u W=2.49u AS=0.4731p
++ AD=0.8466p PS=2.87u PD=5.66u rfmode=0
+M$1088 \$2695 \$2718 \$2696 G1|G2|W sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p
++ AD=0.1005p PS=1.34u PD=1.34u rfmode=0
+M$1089 \$2690 \$2692 \$2691 G1|G2|W sg13_lv_nmos L=0.13u W=0.15u AS=0.1005p
++ AD=0.1005p PS=1.34u PD=1.34u rfmode=0
+M$1090 \$3010 \$3007 \$3008 G1|G2|W sg13_lv_nmos L=0.13u W=0.155u AS=0.10085p
++ AD=0.05585p PS=1.34u PD=0.74u rfmode=0
+M$1091 \$3008 \$3005 \$3004 G1|G2|W sg13_lv_nmos L=0.13u W=0.155u AS=0.05585p
++ AD=0.10085p PS=0.74u PD=1.34u rfmode=0
+M$1092 \$3053 \$3056 \$3055 G1|G2|W sg13_lv_nmos L=0.13u W=0.155u AS=0.10085p
++ AD=0.05585p PS=1.34u PD=0.74u rfmode=0
+M$1093 \$3055 \$3060 \$3061 G1|G2|W sg13_lv_nmos L=0.13u W=0.155u AS=0.05585p
++ AD=0.10085p PS=0.74u PD=1.34u rfmode=0
+M$1094 \$3154 \$3203 \$3155 G1|G2|W sg13_lv_nmos L=0.13u W=0.31u AS=0.1054p
++ AD=0.0589p PS=1.3u PD=0.69u rfmode=0
+M$1095 \$3155 \$3169 \$3156 G1|G2|W sg13_lv_nmos L=0.13u W=0.31u AS=0.0589p
++ AD=0.1054p PS=0.69u PD=1.3u rfmode=0
+M$1096 \$3148 \$3152 \$3149 G1|G2|W sg13_lv_nmos L=0.13u W=0.31u AS=0.1054p
++ AD=0.0589p PS=1.3u PD=0.69u rfmode=0
+M$1097 \$3149 \$3151 \$3150 G1|G2|W sg13_lv_nmos L=0.13u W=0.31u AS=0.0589p
++ AD=0.1054p PS=0.69u PD=1.3u rfmode=0
+M$1098 \$2200 \$2333 \$2201 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$1099 \$2201 \$2334 \$2202 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$1100 \$2203 \$2436 \$2204 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$1101 \$2204 \$2437 \$2205 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$1102 \$2206 \$2540 \$2207 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$1103 \$2207 \$2541 \$2208 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$1104 \$2725 \$2877 \$2726 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=1.0489p
++ AD=0.58615p PS=6.85u PD=3.465u rfmode=0
+M$1105 \$2726 \$2879 \$2727 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1106 \$2727 \$2878 \$2728 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1107 \$2728 \$2881 \$2729 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1108 \$2729 \$2880 \$2730 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1109 \$2730 \$2883 \$2731 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1110 \$2731 \$2882 \$2732 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1111 \$2732 \$2885 \$2733 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1112 \$2733 \$2884 \$2734 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1113 \$2734 \$2887 \$2735 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1114 \$2735 \$2886 \$2736 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1115 \$2736 \$2889 \$2737 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1116 \$2737 \$2888 \$2738 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1117 \$2738 \$2891 \$2739 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1118 \$2739 \$2890 \$2740 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1119 \$2740 \$2893 \$2741 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1120 \$2741 \$2892 \$2742 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1121 \$2742 \$2895 \$2743 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1122 \$2743 \$2894 \$2744 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1123 \$2744 \$2897 \$2745 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1124 \$2745 \$2896 \$2746 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1125 \$2746 \$2899 \$2747 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1126 \$2747 \$2898 \$2748 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1127 \$2748 \$2901 \$2749 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1128 \$2749 \$2900 \$2750 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1129 \$2750 \$2903 \$2751 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1130 \$2751 \$2902 \$2752 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1131 \$2752 \$2905 \$2753 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1132 \$2753 \$2904 \$2754 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1133 \$2754 \$2907 \$2755 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1134 \$2755 \$2906 \$2756 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1135 \$2756 \$2909 \$2757 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1136 \$2757 \$2908 \$2758 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1137 \$2758 \$2911 \$2759 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1138 \$2759 \$2910 \$2760 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1139 \$2760 \$2913 \$2761 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1140 \$2761 \$2912 \$2762 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1141 \$2762 \$2915 \$2763 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1142 \$2763 \$2914 \$2764 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1143 \$2764 \$2917 \$2765 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1144 \$2765 \$2916 \$2766 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1145 \$2766 \$2919 \$2767 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1146 \$2767 \$2918 \$2768 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1147 \$2768 \$2921 \$2769 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1148 \$2769 \$2920 \$2770 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1149 \$2770 \$2923 \$2771 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1150 \$2771 \$2922 \$2772 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1151 \$2772 \$2925 \$2773 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1152 \$2773 \$2924 \$2774 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1153 \$2774 \$2927 \$2775 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1154 \$2775 \$2926 \$2776 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1155 \$2776 \$2929 \$2777 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1156 \$2777 \$2928 \$2778 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1157 \$2778 \$2931 \$2779 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1158 \$2779 \$2930 \$2780 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1159 \$2780 \$2933 \$2781 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1160 \$2781 \$2932 \$2782 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1161 \$2782 \$2935 \$2783 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1162 \$2783 \$2934 \$2784 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1163 \$2784 \$2937 \$2785 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1164 \$2785 \$2936 \$2786 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1165 \$2786 \$2939 \$2787 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1166 \$2787 \$2938 \$2788 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1167 \$2788 \$2941 \$2789 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1168 \$2789 \$2940 \$2790 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1169 \$2790 \$2943 \$2791 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1170 \$2791 \$2942 \$2792 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1171 \$2792 \$2945 \$2793 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1172 \$2793 \$2944 \$2794 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1173 \$2794 \$2947 \$2795 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1174 \$2795 \$2946 \$2796 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1175 \$2796 \$2949 \$2797 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1176 \$2797 \$2948 \$2798 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1177 \$2798 \$2951 \$2799 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1178 \$2799 \$2950 \$2800 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1179 \$2800 \$2953 \$2801 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1180 \$2801 \$2952 \$2802 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1181 \$2802 \$2876 \$2803 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1182 \$2803 \$2954 \$2804 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1183 \$2804 \$2874 \$2805 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1184 \$2805 \$2875 \$2806 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1185 \$2806 \$2872 \$2807 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1186 \$2807 \$2873 \$2808 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1187 \$2808 \$2870 \$2809 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1188 \$2809 \$2871 \$2810 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1189 \$2810 \$2868 \$2811 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1190 \$2811 \$2869 \$2812 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1191 \$2812 \$2865 \$2813 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1192 \$2813 \$2867 \$2814 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1193 \$2814 \$2863 \$2815 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1194 \$2815 \$2864 \$2816 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1195 \$2816 \$2861 \$2817 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1196 \$2817 \$2862 \$2818 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1197 \$2818 \$2859 \$2819 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1198 \$2819 \$2860 \$2820 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1199 \$2820 \$2857 \$2821 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1200 \$2821 \$2858 \$2822 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1201 \$2822 \$2855 \$2823 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1202 \$2823 \$2856 \$2824 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=0.58615p PS=3.465u PD=3.465u rfmode=0
+M$1203 \$2824 \$2854 \$2825 G1|G2|W sg13_lv_nmos L=0.13u W=3.085u AS=0.58615p
++ AD=1.0489p PS=3.465u PD=6.85u rfmode=0
+M$1204 \$2209 \$2218 \$2210 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$1205 \$2210 \$2217 \$2211 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$1206 \$2841 \$2851 \$2842 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$1207 \$2842 \$2850 \$2843 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$1208 \$2826 \$2834 \$2827 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.2125p
++ AD=0.11875p PS=1.93u PD=1.005u rfmode=0
+M$1209 \$2827 \$2831 \$2828 G1|G2|W sg13_lv_nmos L=0.13u W=0.625u AS=0.11875p
++ AD=0.2125p PS=1.005u PD=1.93u rfmode=0
+M$1210 \$114 \$128 \$115 \$130 sg13_lv_pmos L=0.5u W=2u AS=0.68p AD=0.38p
++ PS=4.68u PD=2.38u rfmode=0
+M$1211 \$115 \$129 \$116 \$130 sg13_lv_pmos L=0.5u W=2u AS=0.38p AD=0.68p
++ PS=2.38u PD=4.68u rfmode=0
+M$1212 \$117 \$133 \$118 \$132 sg13_lv_pmos L=0.5u W=2u AS=0.68p AD=0.38p
++ PS=4.68u PD=2.38u rfmode=0
+M$1213 \$118 \$131 \$119 \$132 sg13_lv_pmos L=0.5u W=2u AS=0.38p AD=0.68p
++ PS=2.38u PD=4.68u rfmode=0
+M$1214 \$137 \$162 \$138 \$185 sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.38p
++ PS=4.68u PD=2.38u rfmode=0
+M$1215 \$138 \$165 \$139 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1216 \$139 \$167 \$140 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1217 \$140 \$172 \$141 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1218 \$141 \$171 \$142 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1219 \$142 \$173 \$143 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1220 \$143 \$174 \$144 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1221 \$144 \$175 \$145 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1222 \$145 \$176 \$146 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1223 \$146 \$177 \$147 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1224 \$147 \$178 \$148 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1225 \$148 \$179 \$149 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1226 \$149 \$180 \$150 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1227 \$150 \$181 \$151 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1228 \$151 \$182 \$152 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1229 \$152 \$183 \$153 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1230 \$153 \$184 \$154 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1231 \$154 \$186 \$155 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1232 \$155 \$187 \$156 \$185 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.68p
++ PS=2.38u PD=4.68u rfmode=0
+M$1233 \$122 \$135 \$123 \$134 sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$1234 \$158 \$163 \$159 \$166 sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$1235 \$200 \$211 \$201 \$216 sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.38p
++ PS=4.68u PD=2.38u rfmode=0
+M$1236 \$201 \$213 \$202 \$216 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1237 \$202 \$214 \$203 \$216 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1238 \$203 \$215 \$204 \$216 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.68p
++ PS=2.38u PD=4.68u rfmode=0
+M$1239 \$160 \$168 \$161 \$170 sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$1240 \$205 \$219 \$206 \$218 sg13_lv_pmos L=0.13u W=8u AS=2.72p AD=2.72p
++ PS=16.68u PD=16.68u rfmode=0
+M$1241 \$220 \$243 \$221 \$236 sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.38p
++ PS=4.68u PD=2.38u rfmode=0
+M$1242 \$221 \$241 \$222 \$236 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1243 \$222 \$242 \$223 \$236 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1244 \$223 \$240 \$224 \$236 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1245 \$224 \$239 \$225 \$236 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1246 \$225 \$238 \$226 \$236 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1247 \$226 \$237 \$227 \$236 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1248 \$227 \$235 \$228 \$236 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.68p
++ PS=2.38u PD=4.68u rfmode=0
+M$1249 \$188 \$198 \$189 \$199 sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.38p
++ PS=4.68u PD=2.38u rfmode=0
+M$1250 \$189 \$197 \$190 \$199 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.68p
++ PS=2.38u PD=4.68u rfmode=0
+M$1251 \$191 \$195 \$192 \$196 sg13_lv_pmos L=0.13u W=4u AS=1.36p AD=1.36p
++ PS=8.68u PD=8.68u rfmode=0
+M$1252 \$244 \$281 \$245 \$279 sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.38p
++ PS=4.68u PD=2.38u rfmode=0
+M$1253 \$245 \$283 \$246 \$279 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1254 \$246 \$284 \$247 \$279 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1255 \$247 \$285 \$248 \$279 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1256 \$248 \$287 \$249 \$279 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1257 \$249 \$289 \$250 \$279 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1258 \$250 \$290 \$251 \$279 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1259 \$251 \$291 \$252 \$279 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1260 \$252 \$292 \$253 \$279 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1261 \$253 \$294 \$254 \$279 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1262 \$254 \$295 \$255 \$279 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1263 \$255 \$293 \$256 \$279 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1264 \$256 \$288 \$257 \$279 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1265 \$257 \$286 \$258 \$279 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1266 \$258 \$282 \$259 \$279 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.38p
++ PS=2.38u PD=2.38u rfmode=0
+M$1267 \$259 \$280 \$260 \$279 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.68p
++ PS=2.38u PD=4.68u rfmode=0
+M$1268 \$229 \$233 \$230 \$231 sg13_lv_pmos L=0.13u W=0.15u AS=0.1005p
++ AD=0.1005p PS=1.34u PD=1.34u rfmode=0
+M$1269 \$273 \$308 \$274 \$309 sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.38p
++ PS=4.68u PD=2.38u rfmode=0
+M$1270 \$274 \$307 \$275 \$309 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.68p
++ PS=2.38u PD=4.68u rfmode=0
+M$1271 \$276 \$305 \$277 \$304 sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.38p
++ PS=4.68u PD=2.38u rfmode=0
+M$1272 \$277 \$303 \$278 \$304 sg13_lv_pmos L=2u W=2u AS=0.38p AD=0.68p
++ PS=2.38u PD=4.68u rfmode=0
+M$1273 \$261 \$263 \$262 \$264 sg13_lv_pmos L=0.13u W=0.15u AS=0.1005p
++ AD=0.1005p PS=1.34u PD=1.34u rfmode=0
+R$1274 \$427 \$426 G1|G2|W rhigh w=5u l=30.4u ps=0u b=0 m=1
+R$1275 \$593 \$1595 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1276 \$594 \$1596 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1277 \$595 \$1597 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1278 \$596 \$1598 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1279 \$597 \$1599 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1280 \$598 \$1600 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1281 \$599 \$1601 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1282 \$600 \$1602 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1283 \$620 \$1626 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1284 \$621 \$1627 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1285 \$1646 \$2637 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1286 \$1647 \$2638 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1287 \$1648 \$2639 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1288 \$1649 \$2640 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1289 \$1650 \$2641 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1290 \$1651 \$2642 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1291 \$1652 \$2643 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1292 \$1653 \$2644 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1293 \$2636 \$2646 G1|G2|W rhigh w=2u l=15.2u ps=0u b=0 m=1
+R$1294 \$1664 \$2647 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1295 \$2653 \$2837 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1296 \$2654 \$2838 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1297 \$1665 \$2648 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1298 \$2655 \$2844 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1299 \$2656 \$2845 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1300 \$2839 \$3063 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1301 \$2840 \$3065 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1302 \$3064 \$3157 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+R$1303 \$3066 \$3158 G1|G2|W rhigh w=5u l=60.8u ps=0u b=0 m=1
+C$1304 \$562 \$560 cap_cmim w=40u l=40u A=1600p P=160u m=1
+C$1305 \$630 \$619 cap_cmim w=6.99u l=6.99u A=48.8601p P=27.96u m=1
+C$1306 \$561 \$559 cap_cmim w=0u l=0u A=0p P=0u m=1
+C$1307 \$592 \$591 cap_cmim w=40u l=40u A=1600p P=160u m=1
+C$1308 \$1666 \$1662 cap_cmim w=6.99u l=6.99u A=48.8601p P=27.96u m=1
+C$1309 \$1667 \$1663 cap_cmim w=6.99u l=6.99u A=48.8601p P=27.96u m=1
+C$1310 \$2661 \$2657 cap_cmim w=6.99u l=6.99u A=48.8601p P=27.96u m=1
+C$1311 \$2662 \$2658 cap_cmim w=6.99u l=6.99u A=48.8601p P=27.96u m=1
+C$1312 \$631 \$622 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1313 \$632 \$623 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1314 \$633 \$624 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1315 \$634 \$625 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1316 \$635 \$626 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1317 \$636 \$627 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1318 \$637 \$628 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1319 \$638 \$629 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1320 \$1684 \$1676 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1321 \$1685 \$1677 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1322 \$1686 \$1678 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1323 \$1687 \$1679 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1324 \$1688 \$1680 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1325 \$1689 \$1681 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1326 \$1690 \$1682 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1327 \$1691 \$1683 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1328 \$1758 \$1756 G1|G2|W rfcmim w=16u l=16u A=256p P=64u m=1 wfeed=5u
+C$1329 \$1759 \$1757 G1|G2|W rfcmim w=16u l=16u A=256p P=64u m=1 wfeed=5u
+C$1330 \$3073 \$3071 G1|G2|W rfcmim w=11.12u l=11.12u A=123.6544p P=44.48u m=1
++ wfeed=5u
+C$1331 \$2963 \$2961 G1|G2|W rfcmim w=7.87u l=7.87u A=61.9369p P=31.48u m=1
++ wfeed=5u
+C$1332 \$2964 \$2962 G1|G2|W rfcmim w=7.87u l=7.87u A=61.9369p P=31.48u m=1
++ wfeed=5u
+C$1333 \$3074 \$3072 G1|G2|W rfcmim w=11.12u l=11.12u A=123.6544p P=44.48u m=1
++ wfeed=5u
+C$1334 \$2671 \$2669 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+C$1335 \$2672 \$2670 G1|G2|W rfcmim w=15.71u l=15.71u A=246.8041p P=62.84u m=1
++ wfeed=5u
+.ENDS vco_top

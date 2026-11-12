@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted. D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate FAIL (2026-11-12):** ss high landing spur −102.9 dBc vs ≤ −105 (`summary_p272_lin.txt`) — **no layout**. LVS #861/#753/#512 workarounds stand.
+Status: **D23 Option A accepted. D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2 layout FINDING (2026-11-12):** GDS built; DRC/LVS not clean — see § P2.7.2. LVS #861/#753/#512 workarounds stand.
 
 ---
 
@@ -119,29 +119,35 @@ Dependency order. Every analogue block: **xschem `.sch` + SVG/PDF**, then layout
 - ss85 127→128 ratio 1.52 held for the P2.7.2 D20 landing gate.
 
 ### P2.7.2 — Layout: VCO (inductor + core + bank + var + bypasses + amp-cal)
-**Status: FINDING — P2.7.2 lin gate FAIL at ss high landing extreme; no layout.**
+**Status: FINDING — first KLayout floorplan committed; DRC/LVS not clean. No PEX.**
 
-#### P2.7.2 lin (2026-11-12, VR_ANA1 pad supplies)
-Landing extremes + mid holds; Q(dt) 1–5 ns with bias generator [SCH]; spur via `pll_behav` D19 [MODEL] (`summary_p272_lin.txt`).
-- INL ≤ 18.1 ps, |ΔI_cp| ≤ 8.1 %, lock 2.71–3.10 ns UP — all PASS.
-- **FAIL:** ss 0.897 V VHF spur **−102.9 dBc** (limit ≤ −105); UHF −126.8 PASS. Other extremes ≤ −117.9.
-- Layout **not started**.
+#### P2.7.2 layout (2026-11-12)
+**Outputs:** `analog/vco/layout/` — `build_vco_layout.py`, `out/vco_top.gds.gz`,
+`summary_layout_build.txt`, `summary_drc_lvs.txt`, `summary_drc_waivers.txt`,
+PNG/SVG (top/core/bank/inductor), KLayout LVS extract + logs.
+- Inductor: exact EM `L_2n0_tapped` [EM]; D23 keep-out ≥ 30 µm [HAND].
+- Bank: D24 sizes; rfcmim/cmim; bbox-driven pitch (rfcmim enclosure ≈ ±5.6 µm [DS]).
+- SVaricap Nx=10+10 recorded (#753); #861/#512 documented.
+- Outline **0.4457 mm²** [SCH layout] (D23 VCO+ind ≈ 0.15–0.20; synth island ≈ 0.45–0.55).
+  Bank 0.137 mm²; inductor 0.076 mm².
+- **DRC:** minimum deck FAIL. Density (AFil/GFil/M*.j/TM*.c) → proposed fill waiver
+  (P2.7.8). TV2.a×8 on inductor → proposed EM waiver. **Open:** Cnt.b (tail/var),
+  M1.b, M5.b (`summary_drc_waivers.txt`).
+- **LVS:** KLayout vs `vco_top_lvs.spice` — **netlists don't match** (unrouted
+  PCell floorplan). netgen run did not compare devices (setup). #861/#753/#512 apply.
+- Parasitics listed for P2.7.3 in `summary_layout_build.txt` (tank, bank plates,
+  V_tune, detector, VR_ANA1 strap, tail filter).
 
-#### P2.7.2 gate (2026-11-11, binary bank)
-- ss85 127→128 ratio 1.52, ΔV 0.542 V; ff 0.56 / 0.117 V [SCH].
-- Landing: tt PASS; ss 0.206–0.860 FAIL; ff to 0.962 FAIL [MODEL].
+**Owner decision needed:** accept density + TV2.a waivers and require a routed
+DRC/LVS-clean respin before P2.7.3; or allow limited PEX on inductor/tank stubs only.
 
-#### P2.7.2b (2026-11-12, D24)
-**Implemented:** segmented bank in `run_step2.py` + `vco_bank.sch`; `vco_band_dec.sv`; `afe_seq.en_cp_offset`; hold offset-off (`summary_hold_d24.txt`); closed_loop holds 0.512 / 0.577 / 0.649 V.
-**tt steps:** max 0.298 V PASS; 95→96 ratio 0.90 (sole miss vs 0.94–1.07).
-**Gate [SCH]+[MODEL]** (`summary_p272b_gate.txt`):
-- ss85 127→128 ratio **1.01** (fixed); ff 127→128 ratio **0.89**.
-- Landing: **tt PASS** (0.355–0.942, +0.105/+0.008);
-  **ss FAIL** (0.256–0.882 vs 0.25–0.85, outside 0.12 %, mhi −0.032);
-  **ff FAIL** (0.463–0.997 vs 0.25–0.95, outside 0.15 %, mhi −0.047).
-- Layout **not started**. 15-corner / D22 re-run **not done** (gate stop).
-**Owner decision needed:** slight high-window widen, exclude edge channels, or further hold/bank work.  
-**When unblocked:** DRC/LVS/gds as before; then P2.7.3 PEX.
+#### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
+ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin
+target −105 retired. Post-layout re-check target ≤ −100 dBc at that point.
+
+#### Prior gates (reference)
+- P2.7.2c PASS (VR_ANA1 pads). P2.7.2b D24 landing failed before pad re-run.
+- Binary-bank P2.7.2 gate (2026-11-11) superseded by D24 + 2c.
 
 ### P2.7.3 — PEX + post-layout VCO range / steps / PN bounds
 **Inputs:** P2.7.2 PEX.  

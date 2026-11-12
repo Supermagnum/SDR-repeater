@@ -1,0 +1,42 @@
+# P2.7.2 DRC / LVS / render
+## DRC (minimum / precheck)
+
+exit 1
+log: `out/drc_run.log`; results under `out/drc/`
+
+results database: `/foss/designs/analog/vco/layout/out/drc/vco_top_vco_top_full.lyrdb`
+violated rules: ['AFil.g', 'Cnt.b', 'GFil.g', 'M1.b', 'M1.j', 'M2.j', 'M3.j', 'M4.j', 'M5.b', 'M5.j', 'TM1.c', 'TM2.c', 'TV2.a']
+density/fill rules (9): proposed waiver → `summary_drc_waivers.txt`
+hard rules (4): ['Cnt.b', 'M1.b', 'M5.b', 'TV2.a']
+RDB item counts (top): [('Cnt.b', 352), ('TV2.a', 8), ('M1.b', 3), ('M5.b', 2), ('AFil.g', 1), ('GFil.g', 1), ('M1.j', 1), ('M2.j', 1)]
+
+## KLayout LVS
+
+tool exit 0; **comparison FAIL** — `ERROR : Netlists don't match` (`out/lvs_klayout_run.log`).
+Netlist: `out/vco_top_lvs.spice` from `vco_sim_flat` (ideal L/V/I stripped; inductor black-box).
+Extracted: `out/lvs_klayout/vco_top_extracted.cir`.
+Workarounds applied: #861 (SVaricap / ThickGateOx — do not treat clean LVS as proof
+varactor present), #753 (Nx drawn 10+10, not checked by LVS), #512 (one rfcmim/cmim
+PCell per schematic MIM). Taps disabled to align with Magic+netgen style.
+Root cause of mismatch [SCH layout]: floorplan places PCells without signal routing;
+layout connectivity does not yet implement the schematic netlist. Also rhigh/rfcmim
+extraction warnings (multi-port) in `vco_top.log`.
+
+## netgen
+
+netgen exit 0 but **not a real compare**: setup treated file paths as empty circuits
+(`contains 0 device instances`). Needs IHP device setup + `readnet` of top cell
+`vco_top` vs `vco_top` from extracted.cir. See `out/netgen_vco.log`.
+
+## Renders
+
+PNG/SVG written for vco_top, vco_core, vco_bank, L_2n0_tapped under `out/` [SCH layout].
+
+## Pass criteria
+
+| Criterion | Result |
+|-----------|--------|
+| DRC zero or listed waivers | **FAIL** — density/TV2.a proposed waivers; Cnt.b/M1.b/M5.b still open |
+| LVS clean (netgen vs xschem) | **FAIL** — KLayout mismatch; netgen setup incomplete |
+| gds.gz + reports + renders | **present** |
+| area vs D23 | outline **0.4457 mm²** [SCH layout]; D23 VCO+ind ≈ 0.15–0.20, synth island ≈ 0.45–0.55 — outline at island scale, bank alone 0.137 mm² |

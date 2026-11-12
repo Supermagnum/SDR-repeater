@@ -1,0 +1,5 @@
+
+Cells have no pins;  pin matching not needed.
+Device classes /foss/designs/analog/vco/layout/out/vco_top_lvs.spice and /foss/designs/analog/vco/layout/out/lvs_klayout/vco_top_extracted.cir are equivalent.
+
+Final result: Verify:  cell /foss/designs/analog/vco/layout/out/lvs_klayout/vco_top_extracted.cir has no elements and/or nodes.  Not checked.

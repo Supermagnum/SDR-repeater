@@ -1,0 +1,43 @@
+# P2.7.2 VCO layout build [SCH layout]
+
+PDK SG13G2; container iic-osic-tools; PCells from SG13_dev.
+Inductor: exact EM cell `L_2n0_tapped` from `sim/em/sg13-octagon-l2n0/tapped/L_2n0_tapped.gds`.
+Sizes: `analog/vco/sch/netlists/*.spice` + `step2/out/range.json` (LSB 6.19 fF, cfix 192.0 fF, nfing 20, bank_arch d24).
+
+# P2.7.2 — building vco_top layout
+
+inductor bbox (-127,-14.61;127,284) [EM geometry]
+vco_core bbox (-10.63,-4.18;70,75.81)
+  bank[0] MIM 2.873u < 7u → cmim (rfcmim floor) [DS]
+  bank[1] MIM 3.982u < 7u → cmim (rfcmim floor) [DS]
+  bank[2] MIM 5.596u < 7u → cmim (rfcmim floor) [DS]
+vco_bank bbox (-5.63,-7.63;401.5,329.04) (bin height ~337 µm; thermo pitch 86.0×72.0 µm)
+vco_var bbox (-5.63,-5.63;79.27,56.39) (SVaricap Nx=10+10)
+vco_tail_dac bbox (0,0;478.64,207.2)
+ampcal_det bbox (0,0;10.36,36.06)
+
+vco_top bbox (-137.03,-234.45;659.31,325.24)
+outline area 0.4457 mm² [SCH layout] (D23 VCO+inductor budget ≈ 0.15–0.20 mm² core+bank+ind; synth island ≈ 0.45–0.55 mm²)
+inductor 0.0758 mm²; bank 0.1371 mm²; core 0.0064 mm²
+wrote /foss/designs/analog/vco/layout/out/vco_top.gds (1170040 bytes)
+wrote /foss/designs/analog/vco/layout/out/vco_top.gds.gz (203962 bytes)
+
+## Outline
+
+bbox (-137.03,-234.45;659.31,325.24)
+area 0.4457 mm²
+
+## Parasitics for P2.7.3
+
+- tank differential TopMetal / inductor leads (ΔC, imbalance)
+- bank plate routing + bypass drain C (range / steps)
+- V_tune to svaricap well (R, C; hold τ)
+- detector node (tp/tn tap) C and kick-back
+- VR_ANA1 strap IR / loop inductance to CT
+- tail filter / bypass switch C when off
+
+## IHP LVS notes
+
+- #861 ThickGateOx / SVaricap extraction — checklist Nx/count; do not treat clean LVS as proof varactor present.
+- #753 SVaricap Nx not checked — drawn Nx=10+10; record here.
+- #512 rfcmim series/parallel — one rfcmim PCell per schematic instance; avoid combined banks in one extract cell.

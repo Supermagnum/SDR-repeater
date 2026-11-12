@@ -1,0 +1,34 @@
+Netgen 1.5.324 compiled on Thu Oct 15 02:24:51 PM CEST 2026
+Warning: netgen command 'format' use fully-qualified name '::netgen::format'
+Warning: netgen command 'global' use fully-qualified name '::netgen::global'
+netgen P2.7.2 vco_top
+Reading netlist file /foss/designs/analog/vco/layout/out/vco_top_lvs.spice for /foss/designs/analog/vco/layout/out/vco_top_lvs.spice
+Call to undefined subcircuit sg13_lv_nmos
+Creating placeholder cell definition.
+Call to undefined subcircuit cap_rfcmim
+Creating placeholder cell definition.
+Call to undefined subcircuit sg13_hv_svaricap_fx
+Creating placeholder cell definition.
+Reading netlist file /foss/designs/analog/vco/layout/out/lvs_klayout/vco_top_extracted.cir for /foss/designs/analog/vco/layout/out/lvs_klayout/vco_top_extracted.cir
+
+No setup file specified.  Using trivial default setup.
+
+No property w found for device r
+No property l found for device r
+No property area found for device cap_cmim
+Comparison output logged to file /foss/designs/analog/vco/layout/out/netgen_vco.json
+Logging to file "/foss/designs/analog/vco/layout/out/netgen_vco.json" enabled
+
+Contents of circuit 1:  Circuit: '/foss/designs/analog/vco/layout/out/vco_top_lvs.spice'
+Circuit /foss/designs/analog/vco/layout/out/vco_top_lvs.spice contains 0 device instances.
+Circuit contains 0 nets.
+Contents of circuit 2:  Circuit: '/foss/designs/analog/vco/layout/out/lvs_klayout/vco_top_extracted.cir'
+Circuit /foss/designs/analog/vco/layout/out/lvs_klayout/vco_top_extracted.cir contains 0 device instances.
+Circuit contains 0 nets.
+
+Circuit /foss/designs/analog/vco/layout/out/vco_top_lvs.spice contains no devices.
+
+Final result: 
+Verify:  cell /foss/designs/analog/vco/layout/out/lvs_klayout/vco_top_extracted.cir has no elements and/or nodes.  Not checked.
+Logging to file "/foss/designs/analog/vco/layout/out/netgen_vco.json" disabled
+LVS Done.

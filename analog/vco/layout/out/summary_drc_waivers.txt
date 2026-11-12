@@ -1,0 +1,31 @@
+# P2.7.2 DRC waivers / open errors
+# Source: `out/drc_run.log` + `out/drc/vco_top_vco_top_full.lyrdb` [SCH layout]
+
+## Proposed waivers (block-level density / fill)
+
+Global density at the VCO block before chip fill. Same class appears on an
+isolated nmos PCell. Fill deferred to top-chip (P2.7.8).
+
+- AFil.g — Activ density ≥ 35 %
+- GFil.g — GatPoly density ≥ 15 %
+- M1.j … M5.j — Metal1–5 density ≥ 35 %
+- TM1.c — TopMetal1 density ≥ 25 %
+- TM2.c — TopMetal2 density ≥ 25 %
+
+## Proposed waiver (EM-locked inductor)
+
+- TV2.a (8 hits, cell `L_2n0_tapped`): TopVia2 width in the accepted tapped
+  inductor GDS (`sim/em/.../L_2n0_tapped.gds`). Geometry is EM-locked [EM];
+  do not edit without re-running openEMS. Owner waiver needed.
+
+## Hard errors still open (not waived)
+
+- Cnt.b (~352 hits): `vco_tail_dac` and `vco_var` after bank-cell enclosure fix.
+  Floorplan-only placement; fix with routing pass / denser clearance.
+- M1.b (3): `vco_var`, `vco_tail_dac`.
+- M5.b (2): `bank_cell_b0`, `vco_tail_dac` — cmim/rfcmim feed space.
+
+## Cleared vs first floorplan
+
+- Bank multi-finger Cnt.b (thousands) cleared by bbox-driven MIM/switch pitch
+  (rfcmim enclosure ≈ ±5.6 µm beyond plate [DS]).

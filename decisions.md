@@ -439,3 +439,10 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   vs ≤ −105 dBc (still 7.9 dB inside −95). Layout not started.
 - Owner decision open: accept the −102.9 figure, improve the pump at ss high V_tune, or
   pull the ss landing high extreme down before layout.
+
+## 2026-11-12 — P2.7.2 pump-linearity gate
+- Accepted: boundary spur −102.9 dBc (VHF) at ss 1.108 V / 85 °C, V_tune 0.897 V (landing top
+  extreme), INL 18.1 ps [SCH/MODEL] — 7.9 dB inside the −95 dBc limit. The 30 ps / −105 dBc gate
+  was a margin target. All other cases ≤ −117.9 dBc; INL ≤ 3.1 ps; ΔI_cp ≤ 8.1 %; lock point UP.
+- Re-check post-layout with pump mismatch at that point (target ≤ −100 dBc).
+- VCO layout (P2.7.2) may start.
