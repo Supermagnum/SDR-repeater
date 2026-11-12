@@ -1,0 +1,58 @@
+Netgen 1.5.324 compiled on Thu Oct 15 02:24:51 PM CEST 2026
+Warning: netgen command 'format' use fully-qualified name '::netgen::format'
+Warning: netgen command 'global' use fully-qualified name '::netgen::global'
+Reading netlist file /foss/designs/analog/vco/layout/p272b/out/vco_xc_pair.spice for /foss/designs/analog/vco/layout/p272b/out/vco_xc_pair.spice vco_xc_pair
+Reading netlist file /foss/designs/analog/vco/layout/p272b/out/lvs_vco_xc_pair/vco_xc_pair_extracted.cir for /foss/designs/analog/vco/layout/p272b/out/lvs_vco_xc_pair/vco_xc_pair_extracted.cir vco_xc_pair
+
+Reading setup file /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl
+
+No property as found for device sg13_lv_nmos
+No property ad found for device sg13_lv_nmos
+No property ps found for device sg13_lv_nmos
+No property pd found for device sg13_lv_nmos
+No such pin 1 in model sg13_lv_nmos
+Unable to permute model sg13_lv_nmos pins 1, 3.
+No property ng found for device sg13_lv_nmos
+No property as found for device sg13_lv_nmos
+No property ad found for device sg13_lv_nmos
+No property pd found for device sg13_lv_nmos
+No property ps found for device sg13_lv_nmos
+No property trise found for device sg13_lv_nmos
+No property z1 found for device sg13_lv_nmos
+No property z2 found for device sg13_lv_nmos
+No property wmin found for device sg13_lv_nmos
+No property rfmode found for device sg13_lv_nmos
+No property pre_layout found for device sg13_lv_nmos
+No such pin 1 in model sg13_lv_nmos
+Unable to permute model sg13_lv_nmos pins 1, 3.
+No property ng found for device sg13_lv_nmos
+No property as found for device sg13_lv_nmos
+No property ad found for device sg13_lv_nmos
+No property pd found for device sg13_lv_nmos
+No property ps found for device sg13_lv_nmos
+No property trise found for device sg13_lv_nmos
+No property z1 found for device sg13_lv_nmos
+No property z2 found for device sg13_lv_nmos
+No property wmin found for device sg13_lv_nmos
+No property pre_layout found for device sg13_lv_nmos
+Comparison output logged to file /foss/designs/analog/vco/layout/p272b/out/netgen_vco_xc_pair.json
+Logging to file "/foss/designs/analog/vco/layout/p272b/out/netgen_vco_xc_pair.json" enabled
+
+Contents of circuit 1:  Circuit: 'vco_xc_pair'
+Circuit vco_xc_pair contains 3 device instances.
+  Class: sg13_lv_nmos          instances:   3
+Circuit contains 4 nets.
+Contents of circuit 2:  Circuit: 'vco_xc_pair'
+Circuit vco_xc_pair contains 3 device instances.
+  Class: sg13_lv_nmos          instances:   3
+Circuit contains 4 nets.
+
+Circuit 1 contains 3 devices, Circuit 2 contains 3 devices.
+Circuit 1 contains 4 nets,    Circuit 2 contains 4 nets.
+
+
+Final result: 
+Circuits match uniquely.
+.
+Logging to file "/foss/designs/analog/vco/layout/p272b/out/netgen_vco_xc_pair.json" disabled
+LVS Done.

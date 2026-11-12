@@ -1,16 +1,11 @@
-* P2.7.2b LVS netlist — vco_core_tank [SCH]
-* Core from vco_core.sch; inductor black-box (EM metal); CT shorted to vdd.
-.subckt l2n0 p n ct
-* empty — layout is metal geometry only
-.ends
-.subckt vco_core_tank tp tn tail ct vdd gnd
-Xm1 tp tn tail gnd sg13_lv_nmos w=32u l=0.13u ng=8 m=1
-Xm2 tn tp tail gnd sg13_lv_nmos w=32u l=0.13u ng=8 m=1
-Xxf1 tp fx gnd cap_rfcmim w=1.600000e-05 l=1.600000e-05 wfeed=5.0e-6 m=1
-Xxf2 tn fx gnd cap_rfcmim w=1.600000e-05 l=1.600000e-05 wfeed=5.0e-6 m=1
-rfx fx gnd 200000.0
-xl tp tn ct l2n0
-* ct ≡ vdd (centre-tap supply)
-Rct_vdd ct vdd 0.001
+* P2.7.2b re-spin stage d — vco_core_tank
+* Inductor: LVS GDS pin-only l2n0; fab GDS adds l2n0_em spiral.
+.subckt vco_core_tank tp tn tail ct gnd
+Mm1 tp tn tail gnd sg13_lv_nmos w=32u l=0.13u
+Mm2 tn tp tail gnd sg13_lv_nmos w=32u l=0.13u
+Mdum gnd gnd gnd gnd sg13_lv_nmos w=8u l=0.13u
+Cxf1 tp fx gnd cap_rfcmim w=16u l=16u wfeed=5u m=1
+Cxf2 tn fx gnd cap_rfcmim w=16u l=16u wfeed=5u m=1
+Rrfx fx gnd gnd rhigh w=2u l=15.2u m=1
 .ends
 .end

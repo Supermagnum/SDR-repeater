@@ -1,0 +1,33 @@
+# P2.7.2b re-spin stage a — vco_core_tank DRC / LVS
+
+## DRC
+- violated: none
+- density (waived): none
+- hard: none → PASS
+
+## KLayout LVS
+- layout: `vco_core_tank_lvs.gds` (inductor black-box; spiral stripped if _lvs)
+- PASS
+- extracted: `/foss/designs/analog/vco/layout/p272b/out/lvs_vco_core_tank/vco_core_tank_lvs_extracted.cir`
+```
+* Extracted by KLayout with SG13G2 LVS runset on : 12/11/2026 14:45
+
+.SUBCKT vco_core_tank gnd tail tn tp
+M$1 gnd gnd gnd gnd sg13_lv_nmos L=0.13u W=8u AS=2.72p AD=2.72p PS=17.36u
++ PD=17.36u rfmode=0
+M$2 tp tn tail gnd sg13_lv_nmos L=0.13u W=32u AS=6.68p AD=6.68p PS=39.34u
++ PD=39.34u rfmode=0
+M$10 tn tp tail gnd sg13_lv_nmos L=0.13u W=32u AS=6.68p AD=6.68p PS=39.34u
++ PD=39.34u rfmode=0
+.ENDS vco_core_tank
+```
+
+## netgen
+- PASS
+  Final result: 
+  Circuits match uniquely.
+
+## Summary stage a
+- DRC hard: PASS
+- KLayout LVS: PASS
+- netgen: PASS

@@ -1,31 +1,36 @@
-# P2.7.2b DRC / LVS — vco_core_tank
+# P2.7.2b re-spin stage b — vco_core_tank DRC / LVS
 
-PDK a49358cc; container iic-osic-tools:2026.10.
+## DRC
+- violated: none
+- density (waived): none
+- hard: none → PASS
 
-- DRC rules: AFil.g GFil.g M1.b M1.j M2.b M2.j M3.j M4.j M5.j TM1.c TM2.c V1.a
-- density/fill waived: AFil.g GFil.g M1.j M2.j M3.j M4.j M5.j TM1.c TM2.c
-- DRC non-density: M1.b M2.b V1.a → FAIL
-- KLayout LVS: FAIL
-- extracted: `lvs_vco_core_tank/vco_core_tank_extracted.cir`
-- netgen: FAIL (pin / device mismatch; tn|tp merged)
-- render: `vco_core_tank.png` / `.svg`
-- area: 0.1071 mm² ≈ 35.7 % of ≤ 0.30 mm² [SCH layout]
-
-## Extract (latest)
-
+## KLayout LVS
+- layout: `vco_core_tank_lvs.gds` (inductor black-box; spiral stripped if _lvs)
+- FAIL
+- extracted: `/foss/designs/analog/vco/layout/p272b/out/lvs_vco_core_tank/vco_core_tank_lvs_extracted.cir`
 ```
-.SUBCKT vco_core_tank gnd tail tn|tp
-M$1 tail tn|tp tn|tp gnd sg13_lv_nmos L=0.13u W=64u ...
-R$17 gnd gnd gnd rhigh w=2u l=15.2u ...
-C$18 tn|tp $7 gnd rfcmim w=16u l=16u ...
-C$19 tn|tp $8 gnd rfcmim w=16u l=16u ...
+* Extracted by KLayout with SG13G2 LVS runset on : 12/11/2026 14:51
+
+.SUBCKT vco_core_tank gnd tail tn tp
+M$1 gnd gnd gnd gnd sg13_lv_nmos L=0.13u W=8u AS=2.72p AD=2.72p PS=17.36u
++ PD=17.36u rfmode=0
+M$2 tp tn tail gnd sg13_lv_nmos L=0.13u W=32u AS=6.68p AD=6.68p PS=39.34u
++ PD=39.34u rfmode=0
+M$10 tn tp tail gnd sg13_lv_nmos L=0.13u W=32u AS=6.68p AD=6.68p PS=39.34u
++ PD=39.34u rfmode=0
+R$19 gnd gnd gnd rhigh w=2u l=15.2u ps=0u b=0 m=1
+C$20 tp gnd gnd rfcmim w=16u l=16u A=256p P=64u m=1 wfeed=5u
+C$21 \$8 gnd gnd rfcmim w=16u l=16u A=256p P=64u m=1 wfeed=5u
+.ENDS vco_core_tank
 ```
 
-gnd and tail separate; **tn|tp still one net**; pair collapsed to W=64.
-S/D column sense vs PCell may also be swapped (D extracted on tail).
+## netgen
+- FAIL / see log
+  Final result: 
+  Top level cell failed pin matching.
 
-## Verdict
-
-- Pass criteria DRC (density waived): FAIL
+## Summary stage b
+- DRC hard: PASS
 - KLayout LVS: FAIL
-- netgen (+ properties): FAIL
+- netgen: FAIL

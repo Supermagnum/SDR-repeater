@@ -1,0 +1,19 @@
+12-Nov-2026 14:34:13 | INFO    | Your Klayout version is: KLayout 0.30.12 (required >= 0.30.5)
+12-Nov-2026 14:34:13 | INFO    | Running SG13G2 LVS checks on design /foss/designs/analog/vco/layout/p272b/out/vco_xc_pair.gds on cell vco_xc_pair
+12-Nov-2026 14:34:16 | INFO    | ==============================================================================
+12-Nov-2026 14:34:16 | INFO    | Important Summary
+12-Nov-2026 14:34:16 | INFO    | +------------------+--------------------------------------------------------------+
+12-Nov-2026 14:34:16 | INFO    | | Status           | FAIL                                                         |
+12-Nov-2026 14:34:16 | INFO    | | Mode             | COMPARE                                                      |
+12-Nov-2026 14:34:16 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).               |
+12-Nov-2026 14:34:16 | INFO    | | Layout           | vco_xc_pair.gds                                              |
+12-Nov-2026 14:34:16 | INFO    | | Top Cell         | vco_xc_pair                                                  |
+12-Nov-2026 14:34:16 | INFO    | | Results Dir      | /foss/designs/analog/vco/layout/p272b/out/lvs_vco_xc_pair    |
+12-Nov-2026 14:34:16 | INFO    | | Warnings         | 0                                                            |
+12-Nov-2026 14:34:16 | INFO    | | Errors           | 2                                                            |
+12-Nov-2026 14:34:16 | INFO    | | Run Time (s)     | 2.967                                                        |
+12-Nov-2026 14:34:16 | INFO    | +------------------+--------------------------------------------------------------+
+12-Nov-2026 14:34:16 | ERROR   | Key errors:
+12-Nov-2026 14:34:16 | ERROR   |   - 2026-11-12 14:31:42 +0100: Memory Usage (478860K) : ERROR : Netlists don't match
+12-Nov-2026 14:34:16 | ERROR   |   - 2026-11-12 14:34:16 +0100: Memory Usage (485524K) : ERROR : Netlists don't match
+12-Nov-2026 14:34:16 | INFO    | ==============================================================================

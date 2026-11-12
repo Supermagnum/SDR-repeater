@@ -1,0 +1,8 @@
+* P2.7.2b pair cell — XC NMOS + end dummies
+* Schematic: vco_core M1/M2; dummies G=S=D=gnd (layout-only, finger W=4×2)
+.subckt vco_xc_pair tp tn tail gnd
+Mm1 tp tn tail gnd sg13_lv_nmos w=32u l=0.13u
+Mm2 tn tp tail gnd sg13_lv_nmos w=32u l=0.13u
+Mdum gnd gnd gnd gnd sg13_lv_nmos w=8u l=0.13u
+.ends
+.end

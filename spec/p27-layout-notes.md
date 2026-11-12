@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b STOP:** core+tank GDS drawn; DRC/LVS **FAIL** (tn|tp merge; M1.b/M2.b/V1.a).
+Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b re-spin STOP:** pair cell LVS **PASS**; assemble stage a (L+CT) LVS **PASS**; stage b+ MIM/fx LVS **FAIL**.
 
 ---
 
@@ -172,23 +172,30 @@ PNG/SVG (top/core/bank/inductor), KLayout LVS extract + logs.
   inductor Q gate). Next was **P2.7.2b**.
 
 #### P2.7.2b (2026-11-12) — first routed sub-block (core + tank) STOP
-**Outputs:** `analog/vco/layout/p272b/` — `build_core_tank.py`, `run_drc_lvs.py`,
-`out/vco_core_tank.gds.gz`, PNG/SVG, DRC/LVS/netgen logs, `summary_drc_lvs.txt`,
-`summary_rc_tank.txt`, `summary_build.txt`.
-- **Cell:** via-fixed `L_2n0_tapped` + XC pair (W=32 ng=8, mirrored) + 2× rfcmim 16×16 +
-  rfx + CT≡vdd TM1 strap; ports tp/tn/tail/ct/vdd/gnd. Keep-out 30 µm [HAND]. Area
-  **0.107 mm² ≈ 36 %** of ≤ 0.30 mm² island [SCH layout].
-- **EM dens [HAND]:** TM1 tank 4 µm → J=1.0 mA/µm; CT 8 µm → 0.50 (open PDK has no EM
-  table; HAND limit TM1 ≈ 5 mA/µm).
-- **Pass criteria: FAIL.** DRC non-density M1.b / M2.b / V1.a (density waived). KLayout
-  LVS FAIL; netgen FAIL. Extract: `gnd` and `tail` separate; **`tn|tp` still merged**;
-  pair seen as one W=64 device. Root causes hit this run: PCell psub GR M1 shorting S/D;
-  MIM TM1 overlapping CT; gnd rail crossing drain M1; gate M1 jog crossing drain spur.
-  End dummies deferred (bridged gnd→tank).
-- **RC report only [HAND]:** C_add/side ≈ 15–25 fF; Rs pair→L ≈ 0.2 Ω; no spare-bank flag
-  vs §2. Formal PEX deferred to P2.7.3 after LVS-clean.
-- **Next:** re-spin core+tank routing until DRC+LVS+properties PASS, **or** owner accepts
-  partial and continues to D24 bank sub-block with this as FINDING.
+**Outputs:** `analog/vco/layout/p272b/` — first-attempt `build_core_tank.py` /
+`run_drc_lvs.py`; re-spin `build_pair.py`, `build_assemble.py`, runners;
+`out/vco_xc_pair.gds.gz`, `out/vco_core_tank.gds.gz`, PNG/SVG, DRC/LVS/netgen logs,
+`summary_pair_drc_lvs.txt`, `summary_assemble_*.txt`, `summary_rc_tank.txt`.
+- **First attempt:** DRC/LVS FAIL; `tn|tp` merge; W=64. Causes: PCell psub GR; MIM∩CT;
+  gnd×drain; gate jog×drain; S/D column polarity wrong (even=D not S).
+- **Re-spin (bottom-up):**
+  - **Pair cell `vco_xc_pair`:** DRC PASS (density none); KLayout LVS PASS; netgen PASS.
+    even M1 cols = drain, odd = source [LVS]; M2 join for S/D (no M1 across array);
+    end dummies W=4×2 → W=8 combined; gates poly-strapped (bank_unit). Two W=32 devices;
+    tn, tp, tail, gnd separate.
+  - **Stage a (L2n0 + CT):** DRC PASS; KLayout LVS PASS; netgen PASS. Area 0.093 mm².
+    Inductor: fab GDS keeps `l2n0_em` spiral; LVS uses pin-only `l2n0` (spiral vias on
+    133/134 DC-short LA–CT–LB in the LVS stack).
+  - **Stage b (fixed MIM + rfx):** DRC PASS; LVS FAIL. Extract: pair still clean; both
+    `rfcmim` show MINUS=TIE=gnd; `rhigh` both ends gnd; right MIM PLUS floating (`$8`).
+    Cause: fx M1 repeatedly merged with TIE/gnd (filled straps / spine×drop crossings)
+    [recorded]. Right PLUS→tn open. Stages c/d DRC PASS on same fail.
+  - **Assembled area (stage d):** **0.109 mm² ≈ 36 %** of ≤ 0.30 mm² [GDS].
+- **EM dens [HAND]:** `SG13G2_os_process_spec.pdf` strings — no mA/µm table [DS miss].
+  HAND limits M1–M5 ≈ 1.0 mA/µm, TM1 ≈ 5; tank 4 µm → J=1.0; CT 8 µm → 0.50 at 4 mA.
+- **RC report only [HAND]:** C_add/side ≈ 15–25 fF; Rs pair→L ≈ 0.2 Ω; no spare-bank flag.
+- **Next:** finish stage-b MIM/fx isolation (or switch to `cmim` as bank_unit) until
+  assemble LVS PASS, **or** owner continues to D24 bank with pair+stage-a as FINDING.
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin

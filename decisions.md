@@ -490,3 +490,14 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - The simulated phase-noise confirmation with the new Q moves to P2.7.3 (post-layout VCO PN).
   Wider via arrays are not pursued.
 - Next: P2.7.2b, first routed sub-block (core + tank).
+
+## 2026-11-12 — P2.7.2b core + tank, first attempt
+- Not accepted: DRC (M1.b, M2.b, V1.a) and LVS fail; tn and tp are shorted, so the pair
+  extracts as one W = 64 device. The D24 bank sub-block waits.
+- Re-spin core + tank built bottom-up: the cross-coupled pair with dummies as its own cell,
+  LVS clean first, then the inductor, tank capacitance and guard ring added one at a time
+  with LVS after each.
+- Area 0.107 mm² and the tank RC (C_add ≈ 15–25 fF / side, Rs ≈ 0.2 Ω [HAND]) accepted as
+  reported.
+- Metal current limits: take them from the IHP SG13G2 process specification if it gives
+  them; otherwise [HAND] with the source stated.

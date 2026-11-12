@@ -1,137 +1,52 @@
 
-Cell sg13_lv_nmos (1) disconnected node: drain
-Cell sg13_lv_nmos (1) disconnected node: gate
-Cell sg13_lv_nmos (1) disconnected node: source
-Cell sg13_lv_nmos (1) disconnected node: bulk
-Warning: Equate pins:  cell sg13_lv_nmos is a placeholder, treated as a black box.
-
-Subcircuit pins:
-Circuit 1: sg13_lv_nmos                    |Circuit 2: sg13_lv_nmos                    
--------------------------------------------|-------------------------------------------
-(no matching pin)                          |drain                                      
-(no matching pin)                          |drain                                      
-(no matching pin)                          |gate                                       
-(no matching pin)                          |gate                                       
-(no matching pin)                          |source                                     
-(no matching pin)                          |source                                     
-(no matching pin)                          |bulk                                       
-(no matching pin)                          |bulk                                       
-1                                          |(no matching pin)                          
-2                                          |(no matching pin)                          
-3                                          |(no matching pin)                          
-4                                          |(no matching pin)                          
----------------------------------------------------------------------------------------
-Cell pin lists are equivalent.
-Device classes sg13_lv_nmos and sg13_lv_nmos are equivalent.
-Flattening unmatched subcell l2n0 in circuit vco_core_tank (0)(1 instance)
-
+Cell vco_core_tank (0) disconnected node: ct
 Subcircuit summary:
 Circuit 1: vco_core_tank                   |Circuit 2: vco_core_tank                   
 -------------------------------------------|-------------------------------------------
-sg13_lv_nmos (2)                           |sg13_lv_nmos (1) **Mismatch**              
-cap_rfcmim (2)                             |(no matching element)                      
-r (2)                                      |(no matching element)                      
-(no matching element)                      |gnd (3)                                    
-Number of devices: 6 **Mismatch**          |Number of devices: 4 **Mismatch**          
-Number of nets: 15 **Mismatch**            |Number of nets: 9 **Mismatch**             
+sg13_lv_nmos (3)                           |sg13_lv_nmos (3)                           
+gnd (3)                                    |gnd (3)                                    
+Number of devices: 6                       |Number of devices: 6                       
+Number of nets: 5                          |Number of nets: 5                          
 ---------------------------------------------------------------------------------------
 NET mismatches: Class fragments follow (with fanout counts):
 Circuit 1: vco_core_tank                   |Circuit 2: vco_core_tank                   
 
 ---------------------------------------------------------------------------------------
+Net: tp                                    |Net: tp                                    
+  sg13_lv_nmos/(drain|source) = 1          |  sg13_lv_nmos/(drain|source) = 1          
+  sg13_lv_nmos/gate = 1                    |  sg13_lv_nmos/gate = 1                    
+  gnd/top = 1                              |  gnd/(end_a|end_b) = 1                    
+                                           |                                           
+Net: tn                                    |Net: tn                                    
+  sg13_lv_nmos/gate = 1                    |  sg13_lv_nmos/gate = 1                    
+  sg13_lv_nmos/(drain|source) = 1          |  sg13_lv_nmos/(drain|source) = 1          
+  gnd/top = 1                              |                                           
+                                           |                                           
 Net: gnd                                   |Net: gnd                                   
-  sg13_lv_nmos/4 = 2                       |  sg13_lv_nmos/bulk = 1                    
-  cap_rfcmim/3 = 2                         |  gnd/(end_a|end_b) = 2                    
-  r/(end_a|end_b) = 1                      |                                           
+  sg13_lv_nmos/bulk = 3                    |  sg13_lv_nmos/bulk = 3                    
+  sg13_lv_nmos/(drain|source) = 2          |  sg13_lv_nmos/(drain|source) = 2          
+  sg13_lv_nmos/gate = 1                    |  sg13_lv_nmos/gate = 1                    
+  gnd/bottom = 1                           |  gnd/(end_a|end_b) = 4                    
                                            |                                           
-Net: tail                                  |Net: tail                                  
-  sg13_lv_nmos/(1|3) = 2                   |  sg13_lv_nmos/(drain|source) = 1          
-                                           |                                           
-Net: fx                                    |Net: \$7                                   
-  cap_rfcmim/2 = 2                         |  gnd/(end_a|end_b) = 1                    
-  r/(end_a|end_b) = 1                      |                                           
-                                           |                                           
-Net: tn                                    |Net: \$8                                   
-  sg13_lv_nmos/2 = 1                       |  gnd/(end_a|end_b) = 1                    
-  sg13_lv_nmos/(1|3) = 1                   |                                           
-  cap_rfcmim/1 = 1                         |                                           
-                                           |                                           
-Net: tp                                    |Net: dummy_6                               
-  sg13_lv_nmos/(1|3) = 1                   |  sg13_lv_nmos/proxy1 = 1                  
-  sg13_lv_nmos/2 = 1                       |                                           
-  cap_rfcmim/1 = 1                         |                                           
-                                           |                                           
-Net: ct                                    |Net: dummy_7                               
-  r/(end_a|end_b) = 1                      |  sg13_lv_nmos/proxy2 = 1                  
-                                           |                                           
-Net: dummy_8                               |Net: dummy_8                               
-  sg13_lv_nmos/proxydrain = 1              |  sg13_lv_nmos/proxy3 = 1                  
-                                           |                                           
-Net: dummy_9                               |Net: dummy_9                               
-  sg13_lv_nmos/proxygate = 1               |  sg13_lv_nmos/proxy4 = 1                  
-                                           |                                           
-Net: dummy_12                              |Net: tn|tp                                 
-  sg13_lv_nmos/proxydrain = 1              |  sg13_lv_nmos/gate = 1                    
-                                           |  sg13_lv_nmos/(drain|source) = 1          
-                                           |  gnd/(end_a|end_b) = 2                    
-                                           |                                           
-Net: vdd                                   |(no matching net)                          
-  r/(end_a|end_b) = 1                      |                                           
-                                           |                                           
-Net: dummy_13                              |(no matching net)                          
-  sg13_lv_nmos/proxygate = 1               |                                           
-                                           |                                           
-Net: dummy_10                              |(no matching net)                          
-  sg13_lv_nmos/proxysource = 1             |                                           
-                                           |                                           
-Net: dummy_14                              |(no matching net)                          
-  sg13_lv_nmos/proxysource = 1             |                                           
-                                           |                                           
-Net: dummy_11                              |(no matching net)                          
-  sg13_lv_nmos/proxybulk = 1               |                                           
-                                           |                                           
-Net: dummy_15                              |(no matching net)                          
-  sg13_lv_nmos/proxybulk = 1               |                                           
+Net: fx                                    |Net: \$8                                   
+  gnd/bottom = 2                           |  gnd/(end_a|end_b) = 1                    
+  gnd/top = 1                              |                                           
 ---------------------------------------------------------------------------------------
 DEVICE mismatches: Class fragments follow (with node fanout counts):
 Circuit 1: vco_core_tank                   |Circuit 2: vco_core_tank                   
 
 ---------------------------------------------------------------------------------------
-Instance: sg13_lv_nmos:m1                  |Instance: sg13_lv_nmos:$1                  
-  (1,3) = (3,2)                            |  proxy1 = 1                               
-  2 = 3                                    |  proxy2 = 1                               
-  4 = 5                                    |  proxy3 = 1                               
-  proxydrain = 1                           |  proxy4 = 1                               
-  proxygate = 1                            |  (drain,source) = (4,1)                   
-  proxysource = 1                          |  gate = 4                                 
-  proxybulk = 1                            |  bulk = 3                                 
+Instance: gnd:rfx                          |Instance: gnd:$21                          
+  top = 3                                  |  (end_a,end_b) = (10,1)                   
+  bottom = 7                               |                                           
                                            |                                           
-Instance: sg13_lv_nmos:m2                  |Instance: gnd:$17                          
-  (1,3) = (3,2)                            |  (end_a,end_b) = (3,3)                    
-  2 = 3                                    |                                           
-  4 = 5                                    |                                           
-  proxydrain = 1                           |                                           
-  proxygate = 1                            |                                           
-  proxysource = 1                          |                                           
-  proxybulk = 1                            |                                           
+Instance: gnd:xf2                          |Instance: gnd:$20                          
+  top = 3                                  |  (end_a,end_b) = (10,3)                   
+  bottom = 3                               |                                           
                                            |                                           
-Instance: cap_rfcmim:xf1                   |Instance: gnd:$18                          
-  1 = 3                                    |  (end_a,end_b) = (4,1)                    
-  2 = 3                                    |                                           
-  3 = 5                                    |                                           
-                                           |                                           
-Instance: cap_rfcmim:xf2                   |Instance: gnd:$19                          
-  1 = 3                                    |  (end_a,end_b) = (4,1)                    
-  2 = 3                                    |                                           
-  3 = 5                                    |                                           
-                                           |                                           
-Instance: r:fx                             |(no matching instance)                     
-  (end_a,end_b) = (5,3)                    |                                           
-                                           |                                           
-                                           |                                           
-Instance: r:ct_vdd                         |(no matching instance)                     
-  (end_a,end_b) = (1,1)                    |                                           
-                                           |                                           
+Instance: gnd:xf1                          |Instance: gnd:$19                          
+  top = 3                                  |  (end_a,end_b) = (10,10)                  
+  bottom = 3                               |                                           
 ---------------------------------------------------------------------------------------
 Netlists do not match.
 Port matching may fail to disambiguate symmetries.
@@ -139,13 +54,12 @@ Port matching may fail to disambiguate symmetries.
 Subcircuit pins:
 Circuit 1: vco_core_tank                   |Circuit 2: vco_core_tank                   
 -------------------------------------------|-------------------------------------------
-tp                                         |gnd **Mismatch**                           
-tn                                         |tail **Mismatch**                          
-tail                                       |(no pin, node is \$8)                      
-gnd                                        |(no pin, node is dummy_6)                  
-ct                                         |(no pin, node is dummy_7)                  
-vdd                                        |(no pin, node is dummy_8)                  
-(no pin, node is dummy_15)                 |tn|tp                                      
+tp                                         |tp                                         
+tn                                         |tn                                         
+gnd                                        |(no pin, node is \$8)                      
+tail                                       |tail                                       
+(no pin, node is gnd)                      |gnd                                        
+ct                                         |(no matching pin)                          
 ---------------------------------------------------------------------------------------
 Cell pin lists for vco_core_tank and vco_core_tank altered to match.
 Device classes vco_core_tank and vco_core_tank are equivalent.

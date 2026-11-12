@@ -1,0 +1,40 @@
+# P2.7.2b re-spin — vco_xc_pair DRC / LVS
+
+## DRC
+- violated: none
+- density (waived): none
+- hard: none → PASS
+
+## KLayout LVS
+- PASS
+- extracted: `/foss/designs/analog/vco/layout/p272b/out/lvs_vco_xc_pair/vco_xc_pair_extracted.cir`
+```
+* Extracted by KLayout with SG13G2 LVS runset on : 12/11/2026 14:39
+
+.SUBCKT vco_xc_pair gnd tail tn tp
+M$1 gnd gnd gnd gnd sg13_lv_nmos L=0.13u W=8u AS=2.72p AD=2.72p PS=17.36u
++ PD=17.36u rfmode=0
+M$2 tp tn tail gnd sg13_lv_nmos L=0.13u W=32u AS=6.68p AD=6.68p PS=39.34u
++ PD=39.34u rfmode=0
+M$10 tn tp tail gnd sg13_lv_nmos L=0.13u W=32u AS=6.68p AD=6.68p PS=39.34u
++ PD=39.34u rfmode=0
+.ENDS vco_xc_pair
+```
+
+## netgen
+- PASS
+  Contents of circuit 1:  Circuit: 'vco_xc_pair'
+  Circuit vco_xc_pair contains 3 device instances.
+  Circuit contains 4 nets.
+  Contents of circuit 2:  Circuit: 'vco_xc_pair'
+  Circuit vco_xc_pair contains 3 device instances.
+  Circuit contains 4 nets.
+  Circuit 1 contains 3 devices, Circuit 2 contains 3 devices.
+  Circuit 1 contains 4 nets,    Circuit 2 contains 4 nets.
+  Final result: 
+  Circuits match uniquely.
+
+## Summary
+- DRC hard: PASS
+- KLayout LVS: PASS
+- netgen: PASS

@@ -1,48 +1,28 @@
-# P2.7.2b — tank node RC (report only, not a gate)
+# P2.7.2b re-spin — tank RC report [HAND]
 
-Tool PEX (KLayout/Magic xRC) **did not run** this session — routing is not
-LVS-clean, so a formal extract would be misleading. Numbers below are [HAND]
-from drawn geometry vs `spec/vco-topology.md` §2 / §9 assumptions.
+Routing changed vs first attempt (pair M2 collect; MIM outboard; LVS stub inductor).
 
-## Geometry used [SCH layout]
+## Capacitance add / side [HAND]
+| Contribution | Estimate | Notes |
+|---|---|---|
+| Pair drain M1/M2 + via to TM1 | ≈ 8–12 fF | finger collect + riser |
+| TM1 tank strap to LA/LB | ≈ 5–10 fF | 4 µm × ~55 µm over BEOL |
+| MIM top-plate feed (stage b+) | ≈ 2–5 fF | PLUS feed only |
+| **C_add / side** | **≈ 15–25 fF** | same ballpark as first attempt [HAND] |
 
-| Path | Metal | W (µm) | L (µm) | Note |
-|------|-------|--------|--------|------|
-| Pair drain → inductor LA/LB | TM1 | 4.0 | ≈ 55 | spur + keep-out + port |
-| CT supply stub | TM1 | 8.0 | ≈ 90 | inductor stub + south |
-| Fixed MIM plate (each side) | rfcmim 16×16 | — | — | C_fix schematic |
-
-Sheet R TM1 ≈ 0.01–0.02 Ω/□ [HAND; open PDK process_spec has no Rsheet table].
+No spare-bank flag (budget still has headroom vs D24).
 
 ## Series R, pair → inductor [HAND]
+| Path | Metal | W (µm) | L (µm) | Rs (Ω) |
+|---|---|---|---|---|
+| Drain collect → TM1 via | M1/M2/M5 | ≥0.16 / 4 | ~30 | ≈ 0.05 |
+| TM1 tank → LA/LB | TM1 | 4.0 | ~55 | ≈ 0.15 |
+| **Rs pair→L** | | | | **≈ 0.2 Ω** |
 
-R_s ≈ Rsheet × (L/W) ≈ 0.015 × (55/4) ≈ **0.2 Ω per side**.
-Band-plan / lumped L2n0 series R is ≈ 0.8 Ω per half (`l2n0_lumped.inc`) [EM/MODEL].
-Added layout R ≪ that → **no flag** on Rs this run.
+Sheet: M1≈0.1 Ω/□, TM1≈0.01 Ω/□ [HAND, typical Al BEOL].
 
-## Added C per side [HAND]
-
-| Contribution | C (fF) | Basis |
-|--------------|--------|--------|
-| TM1 strap to substrate (rough) | ≈ 8–15 | 4×55 µm over BEOL [HAND] |
-| Via stack / M5 landing | ≈ 2–4 | [HAND] |
-| Routing to MIM top | ≈ 3–6 | [HAND] |
-| **C_add / side** | **≈ 15–25** | sum |
-| Differential ≈ 2× | **≈ 30–50 fF** | |
-
-`spec/vco-topology.md` §2 routing budget ≈ **25 fF** differential [HAND].
-Drawn estimate **≈ 30–50 fF** → **at or above** the memo split; needs PEX in P2.7.3.
-
-## Bank spare / flag
-
-§2: fixed must fit in 762 fF at the high edge; rough margin after split ≈ **300 fF**.
-Bank spare for layout C: take half of that margin ≈ **150 fF** as “half the bank's spare”
-proxy for this report (owner may refine).
-
-C_add,diff ≈ 30–50 fF ≪ 150 fF → **no flag** (does not eat more than half the
-spare) [HAND]. Re-check with real PEX after LVS-clean routing.
-
-## EM density [HAND]
-
-Open PDK has no EM current table [DS miss]. Conservative HAND: TM1 ≈ 5 mA/µm.
-I_tail ≤ 4 mA → J_tank = 1.0 mA/µm, J_CT = 0.50 mA/µm — inside HAND limit.
+## EM current density
+Looked in SG13G2_os_process_spec.pdf via strings (pdftotext not in container).
+No electromigration / mA/µm / A/cm table found [DS miss].
+[HAND] limits used: M1–M5 ≈ 1.0 mA/µm, TM1 ≈ 5 mA/µm.
+At I_tail=4 mA [DS D12]: tank TM1 4 µm → J=1.0 mA/µm; CT 8 µm → J=0.50 mA/µm — under HAND limits.

@@ -1,0 +1,25 @@
+
+Subcircuit summary:
+Circuit 1: vco_xc_pair                     |Circuit 2: vco_xc_pair                     
+-------------------------------------------|-------------------------------------------
+sg13_lv_nmos (3)                           |sg13_lv_nmos (3)                           
+Number of devices: 3                       |Number of devices: 3                       
+Number of nets: 4                          |Number of nets: 4                          
+---------------------------------------------------------------------------------------
+Resolving symmetries by property value.
+Resolving symmetries by pin name.
+Netlists match uniquely.
+
+Subcircuit pins:
+Circuit 1: vco_xc_pair                     |Circuit 2: vco_xc_pair                     
+-------------------------------------------|-------------------------------------------
+gnd                                        |gnd                                        
+tn                                         |tn                                         
+tp                                         |tp                                         
+tail                                       |tail                                       
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes vco_xc_pair and vco_xc_pair are equivalent.
+
+Final result: Circuits match uniquely.
+.

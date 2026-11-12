@@ -1,0 +1,18 @@
+12-Nov-2026 14:51:14 | INFO    | Your Klayout version is: KLayout 0.30.12 (required >= 0.30.5)
+12-Nov-2026 14:51:14 | INFO    | Running SG13G2 LVS checks on design /foss/designs/analog/vco/layout/p272b/out/vco_core_tank_lvs.gds on cell vco_core_tank
+12-Nov-2026 14:51:17 | INFO    | ==============================================================================
+12-Nov-2026 14:51:17 | INFO    | Important Summary
+12-Nov-2026 14:51:17 | INFO    | +------------------+--------------------------------------------------------------+
+12-Nov-2026 14:51:17 | INFO    | | Status           | FAIL                                                         |
+12-Nov-2026 14:51:17 | INFO    | | Mode             | COMPARE                                                      |
+12-Nov-2026 14:51:17 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).               |
+12-Nov-2026 14:51:17 | INFO    | | Layout           | vco_core_tank_lvs.gds                                        |
+12-Nov-2026 14:51:17 | INFO    | | Top Cell         | vco_core_tank                                                |
+12-Nov-2026 14:51:17 | INFO    | | Results Dir      | /foss/designs/analog/vco/layout/p272b/out/lvs_vco_core_tank  |
+12-Nov-2026 14:51:17 | INFO    | | Warnings         | 0                                                            |
+12-Nov-2026 14:51:17 | INFO    | | Errors           | 1                                                            |
+12-Nov-2026 14:51:17 | INFO    | | Run Time (s)     | 3.199                                                        |
+12-Nov-2026 14:51:17 | INFO    | +------------------+--------------------------------------------------------------+
+12-Nov-2026 14:51:17 | ERROR   | Key errors:
+12-Nov-2026 14:51:17 | ERROR   |   - 2026-11-12 14:51:17 +0100: Memory Usage (483916K) : ERROR : Netlists don't match
+12-Nov-2026 14:51:17 | INFO    | ==============================================================================
