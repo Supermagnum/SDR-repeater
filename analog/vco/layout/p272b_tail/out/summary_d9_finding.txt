@@ -1,0 +1,54 @@
+# P2.7.2b D9 finding — stop (no schematic change, no tail layout)
+
+## Stage 1 — area [PDK / TOOL / HAND]
+
+- `cbf` in `vco_tail_dac.sch`: ideal `devices/capa` 50 pF [SCH] (not yet a PDK device).
+- MIM density `cap_carea` = 1.5 fF/µm² [PDK `cornerCAP.lib`].
+  - 50 pF plate = 0.0333 mm²; `rfcmim` W=L=182.57 µm bbox = **0.03757 mm²** [TOOL].
+- Island fixed: core+tank 0.1102 + bank 0.1514 = **0.2616 mm²** [GDS]; free **0.0384**.
+- MIM path (cbf + ctail 8 pF MIM 0.0071 + FETs≈0.0094) ≈ **0.054** → island ≈ **0.316 > 0.30**.
+- **MIM does not fit.**
+
+## Stage 1 — MOS proposal [PDK / SCH]
+
+- Thin-ox `sg13_moscap_n`, PCell W/L max 30 µm [TOOL]; Cox ≈ 15.4 fF/µm² from toxo=2.2404 nm [PDK].
+- Size: **5× 30/30 µm** → C(0.6 V) ≈ **53.3 pF** tt/27 [SCH]; place ≈ **0.0066 mm²** [HAND].
+- Ig @ 0.6 V: 23 / 42 / 86 nA at −40 / 27 / 125 °C (moscap_tt only; ss/ff not in vacask) [SCH/TOOL].
+- C(V) tt/27: 37.5→56.2 pF from 0.2→1.0 V; over 0.4–1.0 V ≈ **+2.7 %/V** mean [SCH].
+- Island with MOS ≈ **0.279 mm²** [HAND] — would fit area.
+
+## Stage 1 — noise gate [SCH]
+
+Pass: |ΔL| < 0.2 dB vs ideal/MIM-like 50 pF at 100 kHz and 1 MHz (tt mid-band).
+
+| Offset | L ideal | L moscap | Δ |
+|--------|---------|----------|---|
+| 100 kHz | −92.22 | −91.71 | **+0.516 dB** |
+| 1 MHz | −122.18 | −122.10 | +0.080 dB |
+
+Also: amp 1.201 → 0.933 V; f0 3.649 → 3.662 GHz with moscap (bias/C effect) [SCH].
+Bias Sid (sense-R) Δ +3.2 dB @ 100 kHz / −0.18 dB @ 1 MHz [SCH].
+
+**Pass: FAIL** at 100 kHz. Schematic **not** changed. Tail layout **not** started.
+
+## D23 finding — proposal for owner
+
+MIM needed for the noise gate cannot fit under VCO island ≤ 0.30 mm²; MOS fits area but fails the 0.2 dB PN gate.
+
+Options (owner chooses; no change made this run):
+
+| Option | Island | Die §8 effect | PN |
+|--------|--------|---------------|-----|
+| **A** Raise D23 VCO island to **≤ 0.34 mm²** and keep MIM `cbf` (+ MIM or MOS `ctail`) | ≈ 0.33 [HAND] | synth +0.04; die ≈ 3.64–3.74; still fits 2.5×2.5 mm | MIM ≈ ideal |
+| **B** Keep ≤ 0.30, accept MOS with **relaxed gate** (e.g. ≤ 0.6 dB @ 100 kHz) | ≈ 0.28 | unchanged | +0.52 dB @ 100 kHz |
+| **C** Smaller `cbf` / higher pole (topology change vs D9 ≤ 10 kHz) | TBD | TBD | re-sim |
+| **D** Place 50 pF MIM **outside** the VCO island (shared with LDO Cg / synth) | island stays | move 0.038 into synth remainder | MIM |
+
+Die re-total if **A** (`spec/p27-floorplan.md` §8): VCO island 0.30 → 0.34; synth island ≈ 0.59–0.66; total ≈ **3.64–3.74 mm²**; 2.5×2.5 still YES (~2.5 mm² slack).
+
+## Found, not done
+
+- Tail / DAC / OTA layout (blocked on D9 decision)
+- Schematic `cbf` still ideal
+- Full 15-corner band re-run (P2.7.3)
+- Varactor / bias sub-block

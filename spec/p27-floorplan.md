@@ -147,4 +147,14 @@ Rough Phase-5 squeeze check against the SX1255-compatible **MLPQ-W 5 × 5 mm** p
 
 **P2.7.2a2 check:** VCO island ≤ 0.30 mm² (D23 amended) still fits inside ≈ 2.5 × 2.5 mm with pad ring. Die-size squeeze remains RX+TX+pads, not the VCO raise. Exact die size remains a Phase 5 decision.
 
+**P2.7.2b D9 check (2026-11-12, finding — not accepted):** MIM 50 pF `cbf` needs VCO island ≈ 0.33 mm² [HAND/TOOL]. If the owner picks option A (raise D23 to ≤ 0.34 mm²):
+
+| Block | Area (mm²) | Basis |
+|---|---|---|
+| VCO island | **≤ 0.34** | D9 MIM path [HAND] |
+| Rest of synthesizer | **≈ 0.28–0.32** | unchanged |
+| Synth island total | **≈ 0.59–0.66** | +0.04 vs amended D23 |
+| Other rows (§8 table) | unchanged | |
+| **Total estimate** | **≈ 3.64–3.74** | still YES on 2.5 × 2.5 mm (~2.5 mm² slack) |
+
 **Flag:** the §1 sketch of a **1.6 × 1.6 mm** active core **does not fit** the Phase 3/4 RX+TX + synth + digital + pads tally. Before Phase 5, plan on a die closer to **≥ ~2.2 × 2.2 mm** (≈ 4.8 mm²) or tighten RX/TX area after topology.

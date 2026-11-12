@@ -1,0 +1,13 @@
+This is vacask fb8cc20.
+(c)2023-2026 EDA Lab FE Uni-Lj, Arpad Buermen
+https://codeberg.org/arpadbuermen/VACASK
+  OpenMP parallel processing
+
+OpenMP CPUs:        1
+OpenBLAS CPUs:      1
+
+Simulating: D9 bias noise ideal
+Running analysis 'op1'.
+  Elapsed time: 0.0048762
+Running analysis 'n1'.
+  Elapsed time: 0.000705891

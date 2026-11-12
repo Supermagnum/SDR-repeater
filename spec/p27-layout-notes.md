@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b re-spin 2 PASS** (core+tank). **P2.7.2b D24 bank PASS** (stages a–d). **P2.7.2b bank fix PASS** (ng=100, dummy, denser).
+Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b re-spin 2 PASS** (core+tank). **P2.7.2b D24 bank PASS** (stages a–d). **P2.7.2b bank fix PASS** (ng=100, dummy, denser). **P2.7.2b D9 finding** (tail blocked).
 
 ---
 
@@ -230,7 +230,16 @@ PNG/SVG, DRC/LVS/netgen logs, `summary_assemble_*_PASS.txt`, `summary_rc_tank.tx
     **0.1514 mm²**; with core 0.1102 → **0.2616 mm²** [GDS].
 - **RC [SCH/HAND]:** boundary step 8.58 fF ≈ 0.69 LSB (P2.7.3 flag); wiring
   ~20–40 fF/side. See `out/summary_rc_bank.txt`.
-- **Next:** P2.7.2b next sub-block — tail / DAC / OTA.
+- **Next:** was tail / DAC / OTA — blocked on D9 (below).
+
+#### P2.7.2b D9 / tail gate (2026-11-12) — **FINDING** (no layout)
+- Area: ideal `cbf` 50 pF as MIM → island ≈ 0.316 mm² > 0.30 [PDK/TOOL]. Thin-ox
+  `moscap_n` 5×30/30 µm fits (~0.279) but VCO ΔL **+0.516 dB @ 100 kHz** vs ideal
+  (pass < 0.2 dB) [SCH]. Schematic unchanged; no tail GDS.
+- Outputs: `analog/vco/layout/p272b_tail/out/summary_area_d9.txt`,
+  `summary_d9_mos_vs_mim.txt`, `summary_d9_finding.txt`; `decisions.md` finding;
+  floorplan §8 optional raise to 0.34 mm².
+- **Next:** owner decision on D9 options A–D; then resume tail / DAC / OTA.
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin

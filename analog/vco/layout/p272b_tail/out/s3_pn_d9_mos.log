@@ -1,0 +1,13 @@
+This is vacask fb8cc20.
+(c)2023-2026 EDA Lab FE Uni-Lj, Arpad Buermen
+https://codeberg.org/arpadbuermen/VACASK
+  OpenMP parallel processing
+
+OpenMP CPUs:        1
+OpenBLAS CPUs:      1
+
+Simulating: P2.3 step 2 VCO: s3_pn_d9_mos
+Running analysis 'warm'.
+  Elapsed time: 39.8556
+Running analysis 'pn'.
+  Elapsed time: 881.411

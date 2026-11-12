@@ -1,0 +1,83 @@
+# P2.7.2b D9 — MOS vs MIM for cbf=50 pF
+
+MIM density 1.5 fF/µm² → 50 pF plate 0.0333 mm², rfcmim bbox 0.03757 mm² [PDK/TOOL] — island would be ~0.316 mm² > 0.30.
+
+Proposal: thin-ox moscap_n, 5×30/30 µm, C≈69.4 pF, place ≈0.0053 mm² [HAND/PDK].
+
+## MOSCAP C(V) and leakage [SCH]
+
+Device: 5× sg13_moscap_n W=L=30 µm; Cox≈0.00 fF/µm² → C_ideal≈69.4 pF [PDK]
+
+Note: vacask cornerMOSCAP has only moscap_tt — temp sweep stands in for process corners [TOOL].
+
+| moscap_tt | -40 °C | Ig @ 0.6 V = -2.332e-08 A |
+| moscap_tt | 27 °C | Ig @ 0.6 V = -4.176e-08 A |
+| moscap_tt | 125 °C | Ig @ 0.6 V = -8.636e-08 A |
+
+| Corner | T | V (V) | C (pF) |
+|---|---|---|---|
+| moscap_tt | -40 | 0.2 | 32.27 |
+| moscap_tt | -40 | 0.4 | 50.30 |
+| moscap_tt | -40 | 0.6 | 54.15 |
+| moscap_tt | -40 | 0.8 | 55.92 |
+| moscap_tt | -40 | 1.0 | 56.93 |
+| moscap_tt | 27 | 0.2 | 37.53 |
+| moscap_tt | 27 | 0.4 | 49.57 |
+| moscap_tt | 27 | 0.6 | 53.26 |
+| moscap_tt | 27 | 0.8 | 55.13 |
+| moscap_tt | 27 | 1.0 | 56.24 |
+| moscap_tt | 125 | 0.2 | 41.51 |
+| moscap_tt | 125 | 0.4 | 49.09 |
+| moscap_tt | 125 | 0.6 | 52.36 |
+| moscap_tt | 125 | 0.8 | 54.21 |
+| moscap_tt | 125 | 1.0 | 55.38 |
+
+Voltage coefficient (tt/27, vs 0.2 V ref) ≈ 101.43 %/V [SCH]
+
+## Tail-current noise: ideal/MIM-like vs moscap [SCH]
+
+ideal: points=3
+mos: points=3
+
+| f | Sid ideal (A²/Hz) | Sid mos (A²/Hz) | Δ (dB) |
+|---|---|---|---|
+| 100 kHz | 5.366e-22 | 1.112e-21 | +3.166 |
+| 1000 kHz | 1.500e-22 | 1.439e-22 | -0.181 |
+
+## VCO pnoise contribution [SCH]
+
+tt mid-band ≈ 3.65 GHz, bank bypass omitted (known PSS issue), pass |ΔL| < 0.2 dB at 100 kHz and 1 MHz.
+
+  running pnoise kind=ideal …
+  pss failed (ideal, 16000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+  ideal: f=3.649 GHz amp=1.201 L(100k)=-92.22 L(1000k)=-122.18
+  running pnoise kind=mos …
+  pss failed (mos, 16000): ['76:1 (0x10cc) in /foss/pdks/ihp-sg13g2/libs.tech/vacask/models/cornerMOSlv.lib', '  included on line 4 of /foss/designs/analog/vco/layout/p272b_tail/out/s3_pn_d9_mos.sim']
+  pss failed (mos, 8000): ['76:1 (0x10cc) in /foss/pdks/ihp-sg13g2/libs.tech/vacask/models/cornerMOSlv.lib', '  included on line 4 of /foss/designs/analog/vco/layout/p272b_tail/out/s3_pn_d9_mos.sim']
+  mos: FAILED
+
+| Offset | L ideal/MIM-like | L moscap | Δ |
+|---|---|---|---|
+
+Pass: FAIL (pnoise did not complete)
+
+  File "<stdin>", line 14
+    print(f"  {kind}: f={r[\"f\"]/1e9:.3f} GHz amp={r[\"amp\"]:.3f} "
+                            ^
+SyntaxError: unexpected character after line continuation character
+
+## VCO pnoise re-run (fixed MOSCAP include) [SCH]
+
+  running pnoise kind=ideal …
+  pss failed (ideal, 16000): ['PSS analysis failed.', "Analysis 'pn' aborted."]
+  ideal: f=3.649 GHz amp=1.201 L(100k)=-92.22 L(1000k)=-122.18
+  running pnoise kind=mos …
+  mos: f=3.662 GHz amp=0.933 L(100k)=-91.71 L(1000k)=-122.10
+
+| Offset | L ideal/MIM-like | L moscap | Δ |
+|---|---|---|---|
+| 100 kHz | -92.22 | -91.71 | +0.516 dB |
+| 1000 kHz | -122.18 | -122.10 | +0.080 dB |
+
+Pass (|ΔL| < 0.2 dB): FAIL
+

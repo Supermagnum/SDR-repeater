@@ -1,0 +1,38 @@
+# P2.7.2b tail — D9 50 pF area check (stage 1)
+
+## Schematic finding [SCH]
+
+`vco_tail_dac.sch` / nested in `vco_top.sch`: `cbf` is `devices/capa.sym`
+value=5e-11 (ideal capacitor), not a PDK MIM or MOSCAP instance.
+`rbf` = 1 MΩ; bypass `mbp_rbf` (en_vco_tail_bp / vbp_tail) across it.
+Topology memo (`spec/vco-topology.md` §3) already says "MOS capacitor about 50 pF".
+
+## Densities [PDK]
+
+| Type | Density | Source |
+|------|---------|--------|
+| MIM (`cap_carea`) | **1.5 fF/µm²** | `cornerCAP.lib` typ [PDK] |
+| Thin-ox MOSCAP | **≈ 15.4 fF/µm²** | Cox = εox/tox, toxo=2.2404 nm, εr=3.9 [`sg13g2_moscap_parm.lib`] [PDK] |
+| Project HAND MOS (partial C) | ≈ 8 fF/µm² | prior LDO / loop-filter notes [HAND] |
+| HV thick ox | ≈ 4.65 fF/µm² | toxo=7.4256 nm [PDK] |
+
+## 50 pF area
+
+| Realization | Gate/plate | Layout bbox [TOOL] | Notes |
+|-------------|------------|--------------------|-------|
+| MIM `rfcmim` W=L=182.57 µm | 0.0333 mm² plate | **0.03757 mm²** | one PCell |
+| MIM tiles 21×40 µm | 0.0336 mm² plate | ≈ 0.055 mm² place [HAND] | enclosure |
+| `moscap_n` 5× (30×30 µm) | 0.0045 mm² gate; C≈53 pF @ 0.6 V [SCH] | **≈ 0.0066 mm²** place [HAND] | PCell W/L max 30 µm [TOOL] |
+
+Also in this sub-block: `ctail` = 8 pF ideal. MIM → 0.00710 mm² [TOOL]; MOS → ≈ 0.0010 mm² [HAND].
+
+## Island re-total vs ≤ 0.30 mm²
+
+Fixed [GDS]: core+tank 0.1102 + bank 0.1514 = **0.2616 mm²**. Free = **0.0384 mm²**.
+
+| Path | cbf | ctail | FETs+DAC+OTA+R [HAND prior] | Sub-block | Island |
+|------|-----|-------|------------------------------|-----------|--------|
+| MIM | 0.0376 | 0.0071 | ≈ 0.0094 | ≈ **0.054** | ≈ **0.316** |
+| MOS (thin) | 0.0066 | 0.0010 | ≈ 0.0094 | ≈ **0.017** | ≈ **0.279** |
+
+**Verdict:** MIM does **not** fit (island ~0.316 > 0.30). Proceed to MOS proposal + noise check (item 1). No D23 yet — MOS path has ≈ 0.021 mm² slack before other remaining blocks (var/D22/route).

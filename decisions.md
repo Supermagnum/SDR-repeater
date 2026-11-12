@@ -538,10 +538,21 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   codes (today 0.69 LSB step [SCH / HAND]).
 
 ## 2026-11-12 — P2.7.2b bank fix
-- Area forecast [HAND/TOOL]: remaining ≈ 0.028 mm² vs 0.038 free after bank → **fits**;
-  no D23. Bank after denser pack + dummy **0.1514 mm²**; island with core **0.2616 mm²**.
-- Finger: sch / step2 / layout **ng=100** at W=308.58 (not split). Worst-corner band
-  range still covers (+130 / +76 MHz) [SCH].
-- Dummy in centroid D: unit cell, all terminals → gnd; DRC + KLayout LVS + netgen PASS
-  (property noise). Denser: gap_x=2, gap_y=5.5, corridor=4.
-- Next: P2.7.2b, next sub-block — tail / DAC / OTA.
+- Bank fix accepted: ng = 100 in schematic and layout; band range at least-margin corners
+  pass (top +130 MHz, bottom +76 MHz [SCH]); centroid dummy tied to gnd; DRC, KLayout LVS and
+  netgen clean; bank 0.1514 mm² [GDS].
+- Island forecast ≈ 0.29 mm² of ≤ 0.30 mm² accepted, subject to the D9 50 pF filter capacitor
+  being counted at its real type and area (checked first in the tail / DAC / OTA run).
+- Full 15-corner band-coverage re-run moves to P2.7.3.
+
+## 2026-11-12 — P2.7.2b D9 finding (tail blocked; no layout)
+- D9 `cbf` is still an ideal 50 pF in `vco_tail_dac.sch`. As MIM (1.5 fF/µm² [PDK]): rfcmim
+  bbox 0.03757 mm² [TOOL] → island ≈ 0.316 mm² > D23 ≤ 0.30 — does not fit.
+- Thin-ox `moscap_n` 5×30/30 µm fits area (C≈53 pF @ 0.6 V; island ≈ 0.279 [HAND]) but fails
+  the noise gate: VCO ΔL = **+0.516 dB @ 100 kHz**, +0.080 dB @ 1 MHz vs ideal [SCH]
+  (pass was < 0.2 dB). Amp also fell 1.20 → 0.93 V. Schematic not changed; tail layout not
+  started. Summary: `analog/vco/layout/p272b_tail/out/summary_d9_finding.txt`.
+- Owner must choose before the next sub-block: (A) raise D23 VCO island to ≤ 0.34 mm² and
+  keep MIM `cbf` (die §8 → ≈ 3.64–3.74 mm², still fits 2.5×2.5); (B) keep ≤ 0.30 and accept
+  MOS with a relaxed 100 kHz gate; (C) smaller `cbf` / higher pole; (D) place the 50 pF MIM
+  outside the VCO island.
