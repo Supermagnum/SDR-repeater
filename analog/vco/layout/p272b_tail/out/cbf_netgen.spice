@@ -1,0 +1,4 @@
+* P2.7.2b cbf: 16× cap_rfcmim [SCH cbf0..15]; LVS m=16 @ 45.64u [GDS]
+.subckt cbf nbf gnd
+Xcbf nbf gnd gnd cap_rfcmim w=45.64u l=45.64u wfeed=5u m=16
+.ends

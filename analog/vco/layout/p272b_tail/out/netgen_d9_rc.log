@@ -44,16 +44,20 @@ Circuit d9_rc contains 2 device instances.
 Circuit contains 4 nets.
 Contents of circuit 2:  Circuit: 'd9_rc'
 Circuit d9_rc contains 2 device instances.
-  Class: nb                    instances:   1
   Class: sg13_lv_nmos          instances:   1
-Circuit contains 3 nets.
+  Class: gnd                   instances:   1
+Circuit contains 4 nets.
 
 Circuit 1 contains 2 devices, Circuit 2 contains 2 devices.
-Circuit 1 contains 4 nets,    Circuit 2 contains 3 nets. *** MISMATCH ***
+Circuit 1 contains 4 nets,    Circuit 2 contains 4 nets.
 
 
 Final result: 
-Netlists do not match.
-Port matching may fail to disambiguate symmetries.
+Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ d9_rc
+
 Logging to file "/foss/designs/analog/vco/layout/p272b_tail/out/netgen_d9_rc.json" disabled
 LVS Done.

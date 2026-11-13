@@ -1,0 +1,18 @@
+13-Nov-2026 12:18:08 | INFO    | Your Klayout version is: KLayout 0.30.12 (required >= 0.30.5)
+13-Nov-2026 12:18:08 | INFO    | Running SG13G2 LVS checks on design /foss/designs/analog/vco/layout/p272b_tail/out/cbf.gds on cell cbf
+13-Nov-2026 12:18:12 | INFO    | ==============================================================================
+13-Nov-2026 12:18:12 | INFO    | Important Summary
+13-Nov-2026 12:18:12 | INFO    | +------------------+--------------------------------------------------------------+
+13-Nov-2026 12:18:12 | INFO    | | Status           | FAIL                                                         |
+13-Nov-2026 12:18:12 | INFO    | | Mode             | COMPARE                                                      |
+13-Nov-2026 12:18:12 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).               |
+13-Nov-2026 12:18:12 | INFO    | | Layout           | cbf.gds                                                      |
+13-Nov-2026 12:18:12 | INFO    | | Top Cell         | cbf                                                          |
+13-Nov-2026 12:18:12 | INFO    | | Results Dir      | /foss/designs/analog/vco/layout/p272b_tail/out/lvs_cbf       |
+13-Nov-2026 12:18:12 | INFO    | | Warnings         | 0                                                            |
+13-Nov-2026 12:18:12 | INFO    | | Errors           | 1                                                            |
+13-Nov-2026 12:18:12 | INFO    | | Run Time (s)     | 3.692                                                        |
+13-Nov-2026 12:18:12 | INFO    | +------------------+--------------------------------------------------------------+
+13-Nov-2026 12:18:12 | ERROR   | Key errors:
+13-Nov-2026 12:18:12 | ERROR   |   - 2026-11-13 12:18:12 +0100: Memory Usage (515208K) : ERROR : Netlists don't match
+13-Nov-2026 12:18:12 | INFO    | ==============================================================================

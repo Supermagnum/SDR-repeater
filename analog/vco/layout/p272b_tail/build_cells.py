@@ -63,6 +63,8 @@ class B:
         self.m1txt = self.ly.layer(8, 25)
         self.m2 = self.ly.layer(10, 0)
         self.m3 = self.ly.layer(30, 0)
+        self.m5 = self.ly.layer(67, 0)
+        self.tm1 = self.ly.layer(126, 0)
         self.cont = self.ly.layer(6, 0)
         self.poly = self.ly.layer(5, 0)
         self.activ = self.ly.layer(1, 0)
@@ -982,17 +984,18 @@ MdR gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
         """D9 filter: rhigh 1 MΩ (rbf) + mbp_rbf start-up bypass [SCH].
 
         Ports: nb, nbf, en_vco_bias_bp (=vbp_tail), gnd.
-        Resistor in psub guard [PDK]. Bypass at the nb end; nbf run on an
-        M2 side-lane so it never crosses the resistor body [LVS].
+        rhigh with no PCell GR (bank pattern) — bulk via ptap→gnd [LVS].
+        Cont on bypass gate only west of Activ (bank pattern) [LVS].
+        nbf on M2 side-lane so it never crosses the resistor body [LVS].
         """
         c = self.ly.create_cell("d9_rc")
         vs12 = self.pcell("via_stack", {
             "b_layer": "Metal1", "t_layer": "Metal2",
             "vn_columns": 1, "vn_rows": 1,
         })
+        # No PCell GR: prior psub GR M1 rail shorted gnd into nb terminal [LVS]
         rbf = self.pcell("rhigh", {
-            "R": "1e6", "w": "0.5u",
-            "guardRingType": "psub", "guardRingDistance": "1.5u",
+            "R": "1e6", "w": "0.5u", "guardRingType": "none",
         })
         mbp = self.pcell("nmos", {
             "w": "20.0u", "l": "0.13u", "ng": 4, "m": 1,
@@ -1006,101 +1009,84 @@ MdR gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
         for s in self.ly.cell(rbf).shapes(self.m1).each():
             if s.is_box():
                 m1s.append(s.bbox().transformed(tr).to_dtype(self.ly.dbu))
-        # Terminals are the small end pads (not the tall/wide GR rails) [PDK]
-        terms = [b for b in m1s if b.width() < 1.0 and b.height() < 1.0]
-        assert len(terms) >= 2, f"rhigh terminals not found: {m1s}"
-        bot = min(terms, key=lambda b: b.bottom)
-        top = max(terms, key=lambda b: b.top)
+        assert len(m1s) >= 2, f"rhigh M1 not found: {m1s}"
+        bot = min(m1s, key=lambda b: b.bottom)
+        top = max(m1s, key=lambda b: b.top)
         nb_x = 0.5 * (bot.left + bot.right)
         nbf_x = 0.5 * (top.left + top.right)
         self.say(f"rhigh terminals bot={bot} top={top}")
 
-        # Bypass MOS below the resistor (nb end) [LVS]
+        # Bypass MOS below the resistor (nb end) [SCH]
         bloc = self.ly.cell(mbp).bbox().to_dtype(self.ly.dbu)
         x_m = bb_r.left - bloc.left
-        y_m = bb_r.bottom - 6.0 - bloc.height()
+        y_m = bb_r.bottom - 8.0 - bloc.height()
         bb_m, tm = self.place(c, mbp, x_m, y_m)
         cols = self.m1_cols(mbp, tm)
         drains, sources = self._route_mos_sd(c, cols, even_is_drain=True)
         gates = self.poly_gates(mbp, tm)
         at = self.activ_top(mbp, tm)
+        g0, g1 = gates[0], gates[-1]
 
-        # L=0.13 pitch is tight for per-finger vias. Strap D/S on M1 within
-        # column width only; single via to M2 outboard of the MOS [LVS].
+        # Drain → nb: M1 within columns only; M2 via outboard west [LVS]
         y_nb = bb_m.bottom - 2.5
         for col in drains:
             self.box_m1(c, col.left, y_nb, col.right, col.bottom)
-        # drain collector bar below MOS (does not reach source cols sideways)
         self.box_m1(c, drains[0].left, y_nb, drains[-1].right, y_nb + 0.28)
-        px_nb = bb_m.left - 3.0
+        px_nb = bb_m.left - 4.0
         self.box_m1(c, px_nb - 0.30, y_nb, drains[0].left, y_nb + 0.28)
         self._via12(c, vs12, px_nb, y_nb + 0.14)
-        self.box_m2(c, px_nb - 0.30, y_nb, px_nb + 0.30, y_nb + 0.40)
-        # to resistor bottom terminal
-        self.box_m1(c, bot.left, bot.bottom - 0.5, bot.right, bot.bottom)
+        # Resistor bottom → nb on M2 (clear of MOS)
+        self.box_m1(c, bot.left, bot.bottom - 0.5, bot.right, bot.bottom + 0.05)
         self._via12(c, vs12, nb_x, bot.bottom - 0.25)
         self.box_m2(c, px_nb - 0.30, y_nb, nb_x + 0.30, y_nb + 0.40)
         self.box_m2(c, nb_x - 0.30, y_nb, nb_x + 0.30, bot.bottom - 0.05)
-        self.box_m1(c, px_nb - 0.30, y_nb - 1.0, px_nb + 0.30, y_nb + 0.40)
-        self.pin_m1(c, px_nb, y_nb - 0.8, "nb")
+        self.box_m1(c, px_nb - 0.30, y_nb - 1.2, px_nb + 0.30, y_nb + 0.40)
+        self.pin_m1(c, px_nb, y_nb - 1.0, "nb")
 
+        # Source → nbf: M2 east lane to resistor top [LVS]
         x_lane = max(bb_r.right, bb_m.right) + 3.0
         y_src = bb_m.top + 2.5
         for col in sources:
             self.box_m1(c, col.left, col.top - 0.05, col.right, y_src)
-        self.box_m1(c, sources[0].left, y_src - 0.28, sources[-1].right,
-                    y_src)
-        # via outboard right of MOS (clear of fingers)
-        px_s = bb_m.right + 2.0
+        self.box_m1(c, sources[0].left, y_src - 0.28, sources[-1].right, y_src)
+        px_s = bb_m.right + 2.5
         self.box_m1(c, sources[-1].right, y_src - 0.28, px_s + 0.30, y_src)
         self._via12(c, vs12, px_s, y_src - 0.14)
         self.box_m2(c, px_s - 0.30, y_src - 0.30, x_lane + 0.25, y_src + 0.20)
-        self.box_m2(c, x_lane - 0.25, y_src - 0.30, x_lane + 0.25,
-                    top.top + 0.5)
+        self.box_m2(c, x_lane - 0.25, y_src - 0.30, x_lane + 0.25, top.top + 0.5)
+        self.box_m1(c, top.left, top.top - 0.05, top.right, top.top + 0.6)
         self._via12(c, vs12, nbf_x, top.top + 0.3)
-        self.box_m1(c, top.left, top.top, top.right, top.top + 0.6)
-        self.box_m2(c, nbf_x - 0.25, top.top + 0.1, x_lane + 0.25,
-                    top.top + 0.5)
+        self.box_m2(c, nbf_x - 0.25, top.top + 0.1, x_lane + 0.25, top.top + 0.5)
+        self.box_m1(c, nbf_x - 0.25, top.top + 0.3, nbf_x + 0.25, top.top + 1.2)
         self.pin_m1(c, nbf_x, top.top + 1.0, "nbf")
-        self.box_m1(c, nbf_x - 0.25, top.top + 0.3, nbf_x + 0.25,
-                    top.top + 1.2)
 
-        # Gate: extend each finger poly up (Gat.d ≥0.07 to Activ), strap
-        # outboard only — no M1 over the SD columns [LVS / DRC Gat.d].
-        g0, g1 = gates[0], gates[-1]
-        y_poly = at + 0.20
+        # Gate Cont west of Activ only (bank pattern) — continuous poly, no gap
+        y_s0, y_s1 = at + 0.08, at + 0.55
+        c.shapes(self.poly).insert(pya.DBox(g0.left, y_s0, g1.right, y_s1))
         for g in gates:
             gx = 0.5 * (g.left + g.right)
             half = 0.5 * (g.right - g.left)
             c.shapes(self.poly).insert(
-                pya.DBox(gx - half, g.top - 0.02, gx + half, y_poly + 0.05))
+                pya.DBox(gx - half, g.top - 0.05, gx + half, y_s1))
+        x_g = bb_m.left - 3.5
         c.shapes(self.poly).insert(
-            pya.DBox(g0.left, y_poly, g1.right, y_poly + 0.35))
-        x_g = bb_m.left - 2.5
+            pya.DBox(x_g - 0.20, y_s0, g0.left + 0.05, y_s1))
         c.shapes(self.poly).insert(
-            pya.DBox(x_g - 0.20, y_poly, g0.left + 0.05, y_poly + 0.35))
-        y_pad0 = y_poly + 0.45
-        y_pad1 = y_pad0 + 0.50
-        c.shapes(self.poly).insert(
-            pya.DBox(x_g - 0.25, y_pad0, x_g + 0.25, y_pad1))
+            pya.DBox(x_g - 0.25, y_s0, x_g + 0.25, y_s0 + 0.55))
+        cy0, cy1 = y_s0 + 0.16, y_s0 + 0.32
         c.shapes(self.cont).insert(
-            pya.DBox(x_g - 0.08, y_pad0 + 0.16, x_g + 0.08, y_pad0 + 0.32))
-        self.box_m1(c, x_g - 0.20, y_pad0 + 0.10, x_g + 0.20, y_pad1 + 0.20)
-        self.pin_m1(c, x_g, y_pad1 + 0.10, "en_vco_bias_bp")
+            pya.DBox(x_g - 0.08, cy0, x_g + 0.08, cy1))
+        # M1 ≥0.18 wide, covers Cont with margin (M1.b / Cont enclosure)
+        self.box_m1(c, x_g - 0.20, cy0 - 0.05, x_g + 0.20, y_s0 + 0.70)
+        self.pin_m1(c, x_g, y_s0 + 0.85, "en_vco_bias_bp")
 
-        # gnd: ptap + pin; bulk of MOS/res must land on this net [LVS]
-        gx = bb_m.right + 2.5
-        y_gnd = y_nb - 3.0
+        # gnd: ptap only — no metal strap into rhigh body [LVS bulk].
+        # Continuous M1 from ptap through pin (gap orphans gnd → bulk=$1) [LVS].
+        gx = bb_m.right + 3.0
+        y_gnd = y_nb - 3.5
         self.place(c, ptap, gx, y_gnd)
-        self.box_m1(c, gx, y_gnd - 0.2, gx + 0.78, y_gnd + 0.78)
-        self.pin_m1(c, gx + 0.39, y_gnd - 0.5, "gnd")
-        # Tie rhigh psub GR (left rail) to gnd — mid-height, clear of ends
-        y_gr = 0.5 * (bb_r.bottom + bb_r.top)
-        self.box_m1(c, bb_r.left - 0.05, y_gr - 0.20,
-                    bb_r.left + 0.35, y_gr + 0.20)
-        self.box_m1(c, bb_r.left - 0.05, y_gnd, gx + 0.78, y_gnd + 0.40)
-        self.box_m1(c, bb_r.left - 0.05, y_gnd,
-                    bb_r.left + 0.35, y_gr + 0.20)
+        self.box_m1(c, gx - 0.05, y_gnd - 1.2, gx + 0.83, y_gnd + 0.83)
+        self.pin_m1(c, gx + 0.39, y_gnd - 1.0, "gnd")
 
         bb = c.bbox().to_dtype(self.ly.dbu)
         area = bb.width() * bb.height() * 1e-6
@@ -1118,6 +1104,424 @@ Mmbp_rbf nb en_vco_bias_bp nbf gnd sg13_lv_nmos w=20.0u l=0.13u ng=4
 .ends
 """)
         self.say("wrote d9_rc.spice")
+
+    def build_cbf(self):
+        """16× rfcmim 45.644 µm → 50 pF filter cap [SCH cbf0..15].
+
+        PLUS (TM1) → nbf; MINUS (M5) + TIE (M1 shield) → gnd [SCH].
+        All 16 beside (rfcmim solid M1 shield shorts non-gnd M1 under
+        dac_array — 0 over devices) [PDK/LVS]. Pitch 60 µm [HAND].
+        """
+        c = self.ly.create_cell("cbf")
+        mim = self.pcell("rfcmim", {
+            "w": "45.644u", "l": "45.644u", "wfeed": "5.0u",
+        })
+        # Tank lesson: M5→M2 then M2→M1 (not M5→M1 direct) [PDK]
+        vs52 = self.pcell("via_stack", {
+            "b_layer": "Metal2", "t_layer": "Metal5",
+            "vn_columns": 2, "vn_rows": 2,
+        })
+        vs12 = self.pcell("via_stack", {
+            "b_layer": "Metal1", "t_layer": "Metal2",
+            "vn_columns": 2, "vn_rows": 2,
+        })
+        mloc = self.ly.cell(mim).bbox().to_dtype(self.ly.dbu)
+        pitch = 60.0
+        # Feed offsets from PCell origin [PDK probe 45.644]
+        plus_dx, plus_dy = -4.6, 22.82
+        minus_dx, minus_dy = 50.24, 22.82
+        nrows, ncols = 4, 4
+        origins = []
+        for r in range(nrows):
+            for col in range(ncols):
+                ox = col * pitch
+                oy = r * pitch
+                self.place(c, mim, ox, oy)
+                origins.append((ox, oy))
+        self.say(f"cbf 16× rfcmim pitch={pitch}; tile_bbox={mloc}")
+
+        # MINUS→gnd: M5→M2→M1 onto the shield (MINUS|TIE both gnd) [SCH]
+        # Drop south of each shield so the via stack clears the M5 plate edge.
+        for ox, oy in origins:
+            mx, my = ox + minus_dx, oy + minus_dy
+            c.shapes(self.m5).insert(
+                pya.DBox(mx - 1.2, my - 1.2, mx + 1.2, my + 1.2))
+            self.place(c, vs52, mx - 0.05, my - 0.05)
+            self.box_m2(c, mx - 1.2, my - 1.2, mx + 1.2, my + 1.2)
+            # jog M2 south of shield, then M2→M1 into TIE
+            y_drop = oy + mloc.bottom - 2.0
+            self.box_m2(c, mx - 0.40, y_drop - 0.40, mx + 0.40, my + 0.40)
+            self.place(c, vs12, mx - 0.05, y_drop - 0.05)
+            self.box_m1(c, mx - 0.40, y_drop - 0.40, mx + 0.40, y_drop + 0.40)
+            # tie into shield M1
+            self.box_m1(c, mx - 0.40, y_drop - 0.40,
+                        mx + 0.40, oy + mloc.bottom + 1.0)
+
+        # PLUS→nbf: TM1 grid, short symmetric straps [SCH]
+        plus_pts = [(ox + plus_dx, oy + plus_dy) for ox, oy in origins]
+        # horizontal straps per row
+        for r in range(nrows):
+            row = plus_pts[r * ncols:(r + 1) * ncols]
+            y = row[0][1]
+            c.shapes(self.tm1).insert(
+                pya.DBox(row[0][0] - 1.0, y - 1.0,
+                         row[-1][0] + 1.0, y + 1.0))
+        # vertical spine at mid-X of the array
+        xs = [p[0] for p in plus_pts]
+        ys = [p[1] for p in plus_pts]
+        x_spine = 0.5 * (min(xs) + max(xs))
+        c.shapes(self.tm1).insert(
+            pya.DBox(x_spine - 1.0, min(ys) - 1.0,
+                     x_spine + 1.0, max(ys) + 1.0))
+        # nbf pin on TM1 → drop to M1 pin (M1 outside shields south)
+        y_nbf = min(ys) - 8.0
+        c.shapes(self.tm1).insert(
+            pya.DBox(x_spine - 1.0, y_nbf, x_spine + 1.0, min(ys) + 1.0))
+        # TM1 pin label via M1 for LVS top_lvl_pins (Metal1.pin)
+        # Keep nbf on M1 south of all shields with a named pin; TM1 bus is
+        # the top-plate net — bridge with a note that extract uses TM1.
+        # Place M1 pin connected through... actually PLUS is TM1 only.
+        # Use TopMetal1 pin layer if available; else rely on text + via to M1
+        # only outside shield for a helper net — wrong. Pin on TM1:
+        tm1pin = self.ly.layer(126, 2)
+        tm1txt = self.ly.layer(126, 25)
+        c.shapes(tm1pin).insert(
+            pya.DBox(x_spine - 0.5, y_nbf - 0.5, x_spine + 0.5, y_nbf + 0.5))
+        c.shapes(tm1txt).insert(pya.DText("nbf", pya.DTrans(x_spine, y_nbf)))
+        c.shapes(self.tm1).insert(
+            pya.DBox(x_spine - 1.0, y_nbf - 1.0, x_spine + 1.0, y_nbf + 1.0))
+
+        # gnd: strap M1 shields (already abutting at pitch 60; gap ~3.1 µm)
+        # Fill M1 between tiles so shields merge, then south pin.
+        for r in range(nrows):
+            for col in range(ncols - 1):
+                ox0 = col * pitch
+                ox1 = (col + 1) * pitch
+                oy = r * pitch
+                # bridge between adjacent shields at mid-height
+                self.box_m1(c, ox0 + mloc.right - 0.5, oy + 20.0,
+                            ox1 + mloc.left + 0.5, oy + 25.0)
+        for r in range(nrows - 1):
+            for col in range(ncols):
+                ox = col * pitch
+                oy0 = r * pitch
+                oy1 = (r + 1) * pitch
+                self.box_m1(c, ox + 20.0, oy0 + mloc.top - 0.5,
+                            ox + 25.0, oy1 + mloc.bottom + 0.5)
+        y_gnd = min(oy for _, oy in origins) + mloc.bottom - 4.0
+        x0 = min(ox for ox, _ in origins) + mloc.left
+        x1 = max(ox for ox, _ in origins) + mloc.right
+        self.box_m1(c, x0, y_gnd, x1, y_gnd + 0.40)
+        for ox, oy in origins:
+            self.box_m1(c, ox + 20.0, y_gnd,
+                        ox + 25.0, oy + mloc.bottom + 0.5)
+        self.pin_m1(c, 0.5 * (x0 + x1), y_gnd - 0.8, "gnd")
+        self.box_m1(c, 0.5 * (x0 + x1) - 0.30, y_gnd - 1.0,
+                    0.5 * (x0 + x1) + 0.30, y_gnd + 0.40)
+
+        bb = c.bbox().to_dtype(self.ly.dbu)
+        area = bb.width() * bb.height() * 1e-6
+        self.say(f"cbf bbox {bb} area={area:.4f} mm2 (0 over devices)")
+        self.cbf_area = area
+        return c.cell_index()
+
+    def write_spice_cbf(self):
+        # LVS spice: one m=16 device at extract-rounded w/l=45.64u.
+        # Sch has 16×45.644u; KLayout combine fails 45.644 vs 45.64 [TOOL].
+        open(os.path.join(OUT, "cbf.spice"), "w").write(
+            """* P2.7.2b cbf: 16× rfcmim [SCH cbf0..15]; LVS m=16 @ 45.64u [GDS]
+.subckt cbf nbf gnd
+Ccbf nbf gnd gnd rfcmim w=45.64u l=45.64u wfeed=5u m=16
+.ends
+""")
+        self.say("wrote cbf.spice")
+
+    def _load_child(self, name):
+        """Copy a proven out/*.gds top cell into this layout; return (cid, pins)."""
+        gds = os.path.join(OUT, f"{name}.gds")
+        ly = pya.Layout()
+        ly.read(gds)
+        src = ly.top_cell()
+        cell = self.ly.create_cell(name + "_j")
+        cell.copy_tree(src)
+        pins = {}
+        for L, D in ((8, 25), (126, 25)):
+            lyr = ly.layer(L, D)
+            for s in src.shapes(lyr).each():
+                if s.is_text():
+                    t = s.text
+                    pins[t.string] = (
+                        t.trans.disp.x * ly.dbu, t.trans.disp.y * ly.dbu)
+        bb = cell.bbox().to_dtype(self.ly.dbu)
+        return cell.cell_index(), pins, bb
+
+    def build_tail_join(self):
+        """Join dac_array + tail_mt + ota_vds + d9_rc + cbf [prompt].
+
+        Floorplan [HAND]: dac west; ota south; tail_mt east of dac;
+        d9_rc north (tall); cbf east beside filter. Codes stay west.
+        nbf/tail routed on M2 away from code M1 [SCH].
+        """
+        c = self.ly.create_cell("tail_block")
+        vs12 = self.pcell("via_stack", {
+            "b_layer": "Metal1", "t_layer": "Metal2",
+            "vn_columns": 1, "vn_rows": 1,
+        })
+        vs2t = self.pcell("via_stack", {
+            "b_layer": "Metal2", "t_layer": "TopMetal1",
+            "vn_columns": 2, "vn_rows": 2,
+        })
+
+        dac_id, dac_p, dac_bb = self._load_child("dac_array")
+        mt_id, mt_p, mt_bb = self._load_child("tail_mt")
+        ota_id, ota_p, ota_bb = self._load_child("ota_vds")
+        d9_id, d9_p, d9_bb = self._load_child("d9_rc")
+        cbf_id, cbf_p, cbf_bb = self._load_child("cbf")
+
+        # Place: local origin of each child = its GDS (0,0) content frame
+        def put(cid, x0, y0):
+            """Place so child (0,0) lands at (x0,y0); return pin map in top coords."""
+            # child was saved with its own bbox; place at x0,y0 meaning
+            # instance origin = (x0,y0) in top.
+            self.place(c, cid, x0, y0)
+            return x0, y0
+
+        # Compact pack [HAND]: d9 west (narrow/tall); dac+ota; cbf above dac;
+        # mt below (long). Avoid placing cbf east of full mt length.
+        ox_d9, oy_d9 = 0.0, 0.0
+        put(d9_id, ox_d9, oy_d9)
+        ox_dac, oy_dac = d9_bb.width() + 15.0, 0.0
+        put(dac_id, ox_dac, oy_dac)
+        ox_ota, oy_ota = ox_dac, -(ota_bb.height() + 15.0)
+        put(ota_id, ox_ota, oy_ota)
+        ox_cbf, oy_cbf = ox_dac, dac_bb.height() + 15.0
+        put(cbf_id, ox_cbf, oy_cbf)
+        ox_mt, oy_mt = ox_dac, oy_ota - mt_bb.height() - 20.0
+        put(mt_id, ox_mt, oy_mt)
+
+        def P(pins, ox, oy, name):
+            x, y = pins[name]
+            return ox + x, oy + y
+
+        def strap_m2(x0, y0, x1, y1, w=0.40):
+            self.box_m2(c, min(x0, x1) - w / 2, min(y0, y1) - w / 2,
+                        max(x0, x1) + w / 2, max(y0, y1) + w / 2)
+
+        def via_m1m2(x, y):
+            self._via12(c, vs12, x, y)
+
+        # --- gnd mesh (M2) touching each gnd pin ---
+        gnds = [
+            P(mt_p, ox_mt, oy_mt, "gnd"),
+            P(ota_p, ox_ota, oy_ota, "gnd"),
+            P(d9_p, ox_d9, oy_d9, "gnd"),
+            P(cbf_p, ox_cbf, oy_cbf, "gnd"),
+        ]
+        y_gnd = min(p[1] for p in gnds) - 8.0
+        xg0 = min(p[0] for p in gnds) - 2.0
+        xg1 = max(p[0] for p in gnds) + 2.0
+        strap_m2(xg0, y_gnd, xg1, y_gnd, w=0.50)
+        for gx, gy in gnds:
+            via_m1m2(gx, gy)
+            strap_m2(gx, gy, gx, y_gnd)
+        self.box_m1(c, xg0, y_gnd - 1.2, xg0 + 0.60, y_gnd + 0.40)
+        via_m1m2(xg0 + 0.30, y_gnd)
+        self.pin_m1(c, xg0 + 0.30, y_gnd - 1.0, "gnd")
+
+        # --- vdd: dac + ota ---
+        vd_dac = P(dac_p, ox_dac, oy_dac, "vdd")
+        vd_ota = P(ota_p, ox_ota, oy_ota, "vdd")
+        via_m1m2(*vd_dac)
+        via_m1m2(*vd_ota)
+        strap_m2(vd_dac[0], vd_dac[1], vd_ota[0], vd_dac[1])
+        strap_m2(vd_ota[0], vd_dac[1], vd_ota[0], vd_ota[1])
+        self.pin_m1(c, vd_dac[0], vd_dac[1] + 2.0, "vdd")
+        self.box_m1(c, vd_dac[0] - 0.30, vd_dac[1],
+                    vd_dac[0] + 0.30, vd_dac[1] + 2.2)
+
+        # --- xraw (dac) ↔ xref (ota) on M2 ---
+        xr = P(dac_p, ox_dac, oy_dac, "xraw")
+        xf = P(ota_p, ox_ota, oy_ota, "xref")
+        via_m1m2(*xr)
+        via_m1m2(*xf)
+        strap_m2(xr[0], xr[1], xr[0], xf[1])
+        strap_m2(xr[0], xf[1], xf[0], xf[1])
+        self.pin_m1(c, xr[0] - 2.0, xr[1], "xraw")
+        self.box_m1(c, xr[0] - 2.2, xr[1] - 0.30, xr[0], xr[1] + 0.30)
+
+        # --- ota out ↔ d9 nb ---
+        out_p = P(ota_p, ox_ota, oy_ota, "out")
+        nb_p = P(d9_p, ox_d9, oy_d9, "nb")
+        via_m1m2(*out_p)
+        via_m1m2(*nb_p)
+        # jog east of dac codes then north to d9
+        x_jog = dac_bb.width() + 10.0
+        strap_m2(out_p[0], out_p[1], x_jog, out_p[1])
+        strap_m2(x_jog, out_p[1], x_jog, nb_p[1])
+        strap_m2(x_jog, nb_p[1], nb_p[0], nb_p[1])
+        self.pin_m1(c, nb_p[0] - 2.0, nb_p[1], "nb")
+        self.box_m1(c, nb_p[0] - 2.2, nb_p[1] - 0.30, nb_p[0], nb_p[1] + 0.30)
+
+        # --- nbf: mt + d9 + cbf(TM1) ---
+        nbf_mt = P(mt_p, ox_mt, oy_mt, "nbf")
+        nbf_d9 = P(d9_p, ox_d9, oy_d9, "nbf")
+        nbf_cbf = P(cbf_p, ox_cbf, oy_cbf, "nbf")  # TM1
+        via_m1m2(*nbf_mt)
+        via_m1m2(*nbf_d9)
+        # cbf nbf is TM1 → via to M2
+        self.place(c, vs2t, nbf_cbf[0] - 0.05, nbf_cbf[1] - 0.05)
+        self.box_m2(c, nbf_cbf[0] - 0.40, nbf_cbf[1] - 0.40,
+                    nbf_cbf[0] + 0.40, nbf_cbf[1] + 0.40)
+        c.shapes(self.tm1).insert(
+            pya.DBox(nbf_cbf[0] - 0.40, nbf_cbf[1] - 0.40,
+                     nbf_cbf[0] + 0.40, nbf_cbf[1] + 0.40))
+        # M2 spine east of dac, away from codes
+        x_nbf = ox_mt - 5.0
+        strap_m2(nbf_mt[0], nbf_mt[1], x_nbf, nbf_mt[1])
+        strap_m2(x_nbf, nbf_mt[1], x_nbf, nbf_d9[1])
+        strap_m2(x_nbf, nbf_d9[1], nbf_d9[0], nbf_d9[1])
+        strap_m2(x_nbf, nbf_mt[1], nbf_cbf[0], nbf_mt[1])
+        strap_m2(nbf_cbf[0], nbf_mt[1], nbf_cbf[0], nbf_cbf[1])
+        self.box_m1(c, x_nbf - 0.30, nbf_mt[1] - 2.0, x_nbf + 0.30, nbf_mt[1])
+        via_m1m2(x_nbf, nbf_mt[1] - 1.5)
+        self.pin_m1(c, x_nbf, nbf_mt[1] - 1.8, "nbf")
+
+        # --- tail port (east, matches core stub) ---
+        tail_p = P(mt_p, ox_mt, oy_mt, "tail")
+        self.pin_m1(c, tail_p[0] + 2.0, tail_p[1], "tail")
+        self.box_m1(c, tail_p[0], tail_p[1] - 0.30,
+                    tail_p[0] + 2.2, tail_p[1] + 0.30)
+
+        # --- remaining ports: copy pin near child pin ---
+        for label, pt in (
+            ("pbias", P(dac_p, ox_dac, oy_dac, "pbias")),
+            ("code_gnd", P(dac_p, ox_dac, oy_dac, "code_gnd")),
+            ("code0", P(dac_p, ox_dac, oy_dac, "code0")),
+            ("code1", P(dac_p, ox_dac, oy_dac, "code1")),
+            ("code2", P(dac_p, ox_dac, oy_dac, "code2")),
+            ("code3", P(dac_p, ox_dac, oy_dac, "code3")),
+            ("code4", P(dac_p, ox_dac, oy_dac, "code4")),
+            ("code_vdd", P(dac_p, ox_dac, oy_dac, "code_vdd")),
+            ("vbp_tail", P(d9_p, ox_d9, oy_d9, "en_vco_bias_bp")),
+            ("ss", P(ota_p, ox_ota, oy_ota, "ss")),
+            ("tail_f", P(ota_p, ox_ota, oy_ota, "tail_f")),
+        ):
+            self.pin_m1(c, pt[0] + 1.5, pt[1], label)
+            self.box_m1(c, pt[0], pt[1] - 0.25, pt[0] + 1.7, pt[1] + 0.25)
+
+        self.say(f"tail_block placed dac@0 ota@{oy_ota:.1f} mt@{ox_mt:.1f} "
+                 f"d9@{oy_d9:.1f} cbf@{ox_cbf:.1f}")
+        bb = c.bbox().to_dtype(self.ly.dbu)
+        area = bb.width() * bb.height() * 1e-6
+        self.say(f"tail_block bbox {bb} area={area:.4f} mm2")
+        self.tail_block_area = area
+        # Island tally is sum of sub-block GDS areas (floorplan §8 style), not
+        # the joined bbox (packing whitespace) [GDS].
+        parts_sum = (0.0068 + 0.0058 + 0.0017 + 0.0039 + 0.0574)  # dac..cbf
+        island_sum = 0.1102 + 0.1514 + parts_sum
+        self.say(f"parts sum (dac+mt+ota+d9+cbf)={parts_sum:.4f} mm2 [GDS]")
+        self.say(f"island sum core+bank+parts={island_sum:.4f} mm2 "
+                 f"(limit 0.34) [GDS]; join bbox={area:.4f}")
+        self.island_forecast = island_sum
+        # Varactor / D22 / top-routing headroom
+        head = 0.34 - island_sum
+        self.say(f"headroom for varactor+D22+top route ≈ {head:.4f} mm2 [HAND]")
+        if island_sum > 0.34:
+            # 32 tiles at same C: side /√2 → area /2 for the array [HAND]
+            save = 0.0574 * 0.5
+            self.say(f"OVER BUDGET: 32 smaller tiles would save ≈{save:.4f} mm2 "
+                     f"[HAND] — stop for decision")
+        return c.cell_index()
+
+    def write_spice_tail_join(self):
+        """Hierarchical spice matching the five joined cells [SCH wiring]."""
+        open(os.path.join(OUT, "tail_block.spice"), "w").write(
+            """* P2.7.2b tail_block: dac_array+tail_mt+ota_vds+d9_rc+cbf [SCH]
+.subckt dac_unit vdd pbias xd code xraw
+Mmdb xd pbias vdd vdd sg13_lv_pmos w=2.0u l=2.0u
+Mmsw xraw code xd vdd sg13_lv_pmos w=2.0u l=0.13u
+.ends
+.subckt dac_array vdd pbias xraw code_gnd code0 code1 code2 code3 code4 code_vdd
+Xb0 vdd pbias xd_b0 code_gnd xraw dac_unit
+Xb1 vdd pbias xd_b1 code_gnd xraw dac_unit
+Xb2 vdd pbias xd_b2 code_gnd xraw dac_unit
+Xb3 vdd pbias xd_b3 code_gnd xraw dac_unit
+Xb4 vdd pbias xd_b4 code_gnd xraw dac_unit
+Xb5 vdd pbias xd_b5 code_gnd xraw dac_unit
+Xb6 vdd pbias xd_b6 code_gnd xraw dac_unit
+Xb7 vdd pbias xd_b7 code_gnd xraw dac_unit
+Xb8 vdd pbias xd_b8 code_gnd xraw dac_unit
+Xb9 vdd pbias xd_b9 code_gnd xraw dac_unit
+Xb10 vdd pbias xd_b10 code_gnd xraw dac_unit
+Xb11 vdd pbias xd_b11 code_gnd xraw dac_unit
+Xb12 vdd pbias xd_b12 code_gnd xraw dac_unit
+Xb13 vdd pbias xd_b13 code_gnd xraw dac_unit
+Xb14 vdd pbias xd_b14 code_gnd xraw dac_unit
+Xb15 vdd pbias xd_b15 code_gnd xraw dac_unit
+Xb16 vdd pbias xd_b16 code_gnd xraw dac_unit
+Xb17 vdd pbias xd_b17 code_gnd xraw dac_unit
+Xb18 vdd pbias xd_b18 code_gnd xraw dac_unit
+Xb4_0 vdd pbias xd_b4_0 code4 xraw dac_unit
+Xb3_0 vdd pbias xd_b3_0 code3 xraw dac_unit
+Xb2_0 vdd pbias xd_b2_0 code2 xraw dac_unit
+Xb4_1 vdd pbias xd_b4_1 code4 xraw dac_unit
+Xb3_1 vdd pbias xd_b3_1 code3 xraw dac_unit
+Xb4_2 vdd pbias xd_b4_2 code4 xraw dac_unit
+Xb1_0 vdd pbias xd_b1_0 code1 xraw dac_unit
+Xb4_3 vdd pbias xd_b4_3 code4 xraw dac_unit
+Xb4_4 vdd pbias xd_b4_4 code4 xraw dac_unit
+Xb0_0 vdd pbias xd_b0_0 code0 xraw dac_unit
+Xb4_5 vdd pbias xd_b4_5 code4 xraw dac_unit
+Xb3_2 vdd pbias xd_b3_2 code3 xraw dac_unit
+Xb4_6 vdd pbias xd_b4_6 code4 xraw dac_unit
+Xb2_1 vdd pbias xd_b2_1 code2 xraw dac_unit
+Xb3_3 vdd pbias xd_b3_3 code3 xraw dac_unit
+Xb4_7 vdd pbias xd_b4_7 code4 xraw dac_unit
+Xb4_8 vdd pbias xd_b4_8 code4 xraw dac_unit
+Xb3_4 vdd pbias xd_b3_4 code3 xraw dac_unit
+Xb2_2 vdd pbias xd_b2_2 code2 xraw dac_unit
+Xb4_9 vdd pbias xd_b4_9 code4 xraw dac_unit
+Xb3_5 vdd pbias xd_b3_5 code3 xraw dac_unit
+Xb4_10 vdd pbias xd_b4_10 code4 xraw dac_unit
+Xb1_1 vdd pbias xd_b1_1 code1 xraw dac_unit
+Xb4_11 vdd pbias xd_b4_11 code4 xraw dac_unit
+Xb4_12 vdd pbias xd_b4_12 code4 xraw dac_unit
+Xdmy vdd pbias xd_dmy code_vdd xraw dac_unit
+Xb3_6 vdd pbias xd_b3_6 code3 xraw dac_unit
+Xb4_13 vdd pbias xd_b4_13 code4 xraw dac_unit
+Xb4_14 vdd pbias xd_b4_14 code4 xraw dac_unit
+Xb2_3 vdd pbias xd_b2_3 code2 xraw dac_unit
+Xb3_7 vdd pbias xd_b3_7 code3 xraw dac_unit
+Xb4_15 vdd pbias xd_b4_15 code4 xraw dac_unit
+.ends
+.subckt tail_mt tail nbf gnd
+Mmt tail nbf gnd gnd sg13_lv_nmos w=480.0u l=4.0u ng=96
+.ends
+.subckt ota_vds xref tail_f out vdd gnd ss
+Mmo1 d1 xref ss gnd sg13_lv_nmos w=8.0u l=2.0u ng=2
+Mmo2 out tail_f ss gnd sg13_lv_nmos w=8.0u l=2.0u ng=2
+Mmp1 d1 d1 vdd vdd sg13_lv_pmos w=4.0u l=2.0u ng=2
+Mmp2 out d1 vdd vdd sg13_lv_pmos w=4.0u l=2.0u ng=2
+MdL gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
+MdR gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
+.ends
+.subckt d9_rc nb nbf en_vco_bias_bp gnd
+Rrbf nb nbf gnd rhigh w=0.5u l=354u
+Mmbp_rbf nb en_vco_bias_bp nbf gnd sg13_lv_nmos w=20.0u l=0.13u ng=4
+.ends
+.subckt cbf nbf gnd
+Ccbf nbf gnd gnd rfcmim w=45.64u l=45.64u wfeed=5u m=16
+.ends
+.subckt tail_block tail vdd gnd vbp_tail nb nbf pbias xraw code_gnd code0 code1 code2 code3 code4 code_vdd ss tail_f
+* vsense: xraw≡xref [SCH]; vbp_tail≡en_vco_bias_bp [SCH]
+Xdac vdd pbias xraw code_gnd code0 code1 code2 code3 code4 code_vdd dac_array
+Xmt tail nbf gnd tail_mt
+Xota xraw tail_f nb vdd gnd ss ota_vds
+Xd9 nb nbf vbp_tail gnd d9_rc
+Xcbf nbf gnd cbf
+.ends
+""")
+        self.say("wrote tail_block.spice")
 
 
 def main():
@@ -1181,6 +1585,17 @@ def main():
         cid = b.build_d9_rc()
         b.write_cell("d9_rc", cid)
         b.write_spice_d9_rc()
+
+    if args.stage in ("f", "all"):
+        cid = b.build_cbf()
+        b.write_cell("cbf", cid)
+        b.write_spice_cbf()
+
+    if args.stage in ("g", "all"):
+        # Prerequisites: proven GDS for each child in out/
+        cid = b.build_tail_join()
+        b.write_cell("tail_block", cid)
+        b.write_spice_tail_join()
 
     open(os.path.join(OUT, "summary_build.txt"), "w").write("\n".join(b.log) + "\n")
     open(os.path.join(OUT, "centroid_order.json"), "w").write(

@@ -1,0 +1,43 @@
+# P2.7.2b stop — d9_rc / cbf / join (2026-11-13) [TOOL]
+
+## Pass criteria per stage
+
+| Stage | DRC (density waived) | KLayout LVS | netgen | fingers | Area mm² [GDS] | Result |
+|---|---|---|---|---|---|---|
+| d9_rc | PASS | PASS | PASS | ng=4 PASS | 0.0039 | accepted |
+| cbf (16×45.644) | PASS (M5.k waived) | PASS | PASS | n/a (MIM) | 0.0574 | accepted |
+| tail_block join | FAIL M1.b/M2.b/V1.b | FAIL (nets merged) | FAIL | — | bbox 0.2088 | not accepted |
+
+## Island vs ≤ 0.34 mm² [GDS]
+core+tank 0.1102 + bank 0.1514 + dac 0.0068 + mt 0.0058 + ota 0.0017 + d9 0.0039 + cbf 0.0574
+= **0.3372 mm²**. Headroom ≈ **0.0028 mm²** before varactor / D22 / top routing [HAND].
+32 smaller tiles (same C, side/√2) would save ≈ **0.029 mm²** → island ≈ 0.308 [HAND].
+
+## Failed / uncertain
+- tail_block: child pin texts + M1/M2 straps merged code/gnd/nb/xraw (extract shows
+  one mega-net). Join routing needs pin-label strip on instances + clearer straps.
+- Headroom 0.0028 mm² is effectively zero for remaining island content.
+
+## Decision needed
+1. Keep 16 tiles and raise / accept near-zero headroom, or switch to 32 smaller tiles
+   (save ≈ 0.029 mm²), or shrink cbf C / move tiles outside the island?
+2. Accept cell-level PASS (d9, cbf) and defer join fix to the next sub-block run?
+
+## Found, not done
+- Strip instance pin texts in joined children (same lesson as dac_array units).
+- Fix join DRC (M1.b / M2.b / V1.b) and LVS net count vs schematic.
+- Schematic `vco_tail_dac.sch` still has ideal `cbf` in exported spice; sch symbols are
+  16× rfcmim — re-netlist before full-block LVS against sch.
+- Varactor + bias (D22) layout not started.
+- PEX not run.
+
+## Netgen audit (accepted so far)
+dac_unit, dac_array, tail_mt, ota_vds, d9_rc, cbf — all “Circuits match uniquely” [TOOL].
+
+## KLayout vs netgen (recorded)
+Cause: `--ignore_top_ports_mismatch` let KLayout PASS d9_rc while gate Cont missed and
+gnd pin was orphaned (bulk $1 / gate $8). Netgen failed pin matching. Fixed Cont + gnd
+strap; both tools now PASS. See spec/p27-layout-notes.md.
+
+## Next run (expected)
+P2.7.2b — owner island/cbf decision, then join fix or next sub-block (varactor and bias).

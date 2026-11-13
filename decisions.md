@@ -589,3 +589,23 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - tail_mt (480 µm / 4 µm, ng = 96) accepted: DRC / LVS / netgen clean; 0.0058 mm² [GDS].
 - Island placed ≈ 0.274 mm² [GDS]; forecast with cbf beside ≈ 0.33 of ≤ 0.34 mm². cbf tiles go
   over the DAC / tail / OTA where M5 is free, to keep slack.
+
+## 2026-11-13 — P2.7.2b OTA and D9 RC
+- ota_vds accepted: DRC (density waived), KLayout LVS, netgen and finger counts clean;
+  0.0017 mm² [GDS].
+- d9_rc not accepted: bypass gate not contacted (en_vco_bias_bp not extracted), bulk on nb, not
+  gnd; Gat.b / M1.b. Finish it before cbf and the join.
+- Where KLayout LVS and netgen disagree, the cell fails until the cause is found and recorded.
+- cbf: 16 tiles kept, mostly beside the devices (only ≈ 1 fits over dac_array). Smaller tiles
+  only if the joined island exceeds ≤ 0.34 mm².
+
+## 2026-11-13 — P2.7.2b d9_rc / cbf done; join + island gate
+- d9_rc accepted after fix: Cont on bypass gate west of Activ (bank pattern); no PCell GR
+  (prior GR M1 shorted gnd→nb); continuous M1 ptap→gnd pin. DRC (density waived), KLayout
+  LVS, netgen, fingers (ng=4) clean; 0.0039 mm² [GDS].
+- cbf accepted: 16× rfcmim 45.644 µm, all beside (0 over dac — rfcmim M1 shield shorts
+  non-gnd M1) [PDK/LVS]. DRC (density waived incl. M5.k), KLayout LVS, netgen clean;
+  0.0574 mm² [GDS]. LVS spice m=16 @ w/l=45.64u (extract rounding) [TOOL].
+- tail_block join not accepted: DRC M1.b/M2.b/V1.b; LVS nets merged (child pin texts +
+  straps). Island sum 0.3372 ≤ 0.34 [GDS] but headroom ≈ 0.0028 mm² before varactor/D22/top
+  route — stop for decision (32 tiles would save ≈ 0.029 mm² [HAND]).

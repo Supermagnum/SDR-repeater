@@ -1,0 +1,84 @@
+* P2.7.2b tail_block: dac_array+tail_mt+ota_vds+d9_rc+cbf [SCH]
+.subckt dac_unit vdd pbias xd code xraw
+Mmdb xd pbias vdd vdd sg13_lv_pmos w=2.0u l=2.0u
+Mmsw xraw code xd vdd sg13_lv_pmos w=2.0u l=0.13u
+.ends
+.subckt dac_array vdd pbias xraw code_gnd code0 code1 code2 code3 code4 code_vdd
+Xb0 vdd pbias xd_b0 code_gnd xraw dac_unit
+Xb1 vdd pbias xd_b1 code_gnd xraw dac_unit
+Xb2 vdd pbias xd_b2 code_gnd xraw dac_unit
+Xb3 vdd pbias xd_b3 code_gnd xraw dac_unit
+Xb4 vdd pbias xd_b4 code_gnd xraw dac_unit
+Xb5 vdd pbias xd_b5 code_gnd xraw dac_unit
+Xb6 vdd pbias xd_b6 code_gnd xraw dac_unit
+Xb7 vdd pbias xd_b7 code_gnd xraw dac_unit
+Xb8 vdd pbias xd_b8 code_gnd xraw dac_unit
+Xb9 vdd pbias xd_b9 code_gnd xraw dac_unit
+Xb10 vdd pbias xd_b10 code_gnd xraw dac_unit
+Xb11 vdd pbias xd_b11 code_gnd xraw dac_unit
+Xb12 vdd pbias xd_b12 code_gnd xraw dac_unit
+Xb13 vdd pbias xd_b13 code_gnd xraw dac_unit
+Xb14 vdd pbias xd_b14 code_gnd xraw dac_unit
+Xb15 vdd pbias xd_b15 code_gnd xraw dac_unit
+Xb16 vdd pbias xd_b16 code_gnd xraw dac_unit
+Xb17 vdd pbias xd_b17 code_gnd xraw dac_unit
+Xb18 vdd pbias xd_b18 code_gnd xraw dac_unit
+Xb4_0 vdd pbias xd_b4_0 code4 xraw dac_unit
+Xb3_0 vdd pbias xd_b3_0 code3 xraw dac_unit
+Xb2_0 vdd pbias xd_b2_0 code2 xraw dac_unit
+Xb4_1 vdd pbias xd_b4_1 code4 xraw dac_unit
+Xb3_1 vdd pbias xd_b3_1 code3 xraw dac_unit
+Xb4_2 vdd pbias xd_b4_2 code4 xraw dac_unit
+Xb1_0 vdd pbias xd_b1_0 code1 xraw dac_unit
+Xb4_3 vdd pbias xd_b4_3 code4 xraw dac_unit
+Xb4_4 vdd pbias xd_b4_4 code4 xraw dac_unit
+Xb0_0 vdd pbias xd_b0_0 code0 xraw dac_unit
+Xb4_5 vdd pbias xd_b4_5 code4 xraw dac_unit
+Xb3_2 vdd pbias xd_b3_2 code3 xraw dac_unit
+Xb4_6 vdd pbias xd_b4_6 code4 xraw dac_unit
+Xb2_1 vdd pbias xd_b2_1 code2 xraw dac_unit
+Xb3_3 vdd pbias xd_b3_3 code3 xraw dac_unit
+Xb4_7 vdd pbias xd_b4_7 code4 xraw dac_unit
+Xb4_8 vdd pbias xd_b4_8 code4 xraw dac_unit
+Xb3_4 vdd pbias xd_b3_4 code3 xraw dac_unit
+Xb2_2 vdd pbias xd_b2_2 code2 xraw dac_unit
+Xb4_9 vdd pbias xd_b4_9 code4 xraw dac_unit
+Xb3_5 vdd pbias xd_b3_5 code3 xraw dac_unit
+Xb4_10 vdd pbias xd_b4_10 code4 xraw dac_unit
+Xb1_1 vdd pbias xd_b1_1 code1 xraw dac_unit
+Xb4_11 vdd pbias xd_b4_11 code4 xraw dac_unit
+Xb4_12 vdd pbias xd_b4_12 code4 xraw dac_unit
+Xdmy vdd pbias xd_dmy code_vdd xraw dac_unit
+Xb3_6 vdd pbias xd_b3_6 code3 xraw dac_unit
+Xb4_13 vdd pbias xd_b4_13 code4 xraw dac_unit
+Xb4_14 vdd pbias xd_b4_14 code4 xraw dac_unit
+Xb2_3 vdd pbias xd_b2_3 code2 xraw dac_unit
+Xb3_7 vdd pbias xd_b3_7 code3 xraw dac_unit
+Xb4_15 vdd pbias xd_b4_15 code4 xraw dac_unit
+.ends
+.subckt tail_mt tail nbf gnd
+Mmt tail nbf gnd gnd sg13_lv_nmos w=480.0u l=4.0u ng=96
+.ends
+.subckt ota_vds xref tail_f out vdd gnd ss
+Mmo1 d1 xref ss gnd sg13_lv_nmos w=8.0u l=2.0u ng=2
+Mmo2 out tail_f ss gnd sg13_lv_nmos w=8.0u l=2.0u ng=2
+Mmp1 d1 d1 vdd vdd sg13_lv_pmos w=4.0u l=2.0u ng=2
+Mmp2 out d1 vdd vdd sg13_lv_pmos w=4.0u l=2.0u ng=2
+MdL gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
+MdR gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
+.ends
+.subckt d9_rc nb nbf en_vco_bias_bp gnd
+Rrbf nb nbf gnd rhigh w=0.5u l=354u
+Mmbp_rbf nb en_vco_bias_bp nbf gnd sg13_lv_nmos w=20.0u l=0.13u ng=4
+.ends
+.subckt cbf nbf gnd
+Ccbf nbf gnd gnd rfcmim w=45.64u l=45.64u wfeed=5u m=16
+.ends
+.subckt tail_block tail vdd gnd vbp_tail nb nbf pbias xraw code_gnd code0 code1 code2 code3 code4 code_vdd ss tail_f
+* vsense: xraw≡xref [SCH]; vbp_tail≡en_vco_bias_bp [SCH]
+Xdac vdd pbias xraw code_gnd code0 code1 code2 code3 code4 code_vdd dac_array
+Xmt tail nbf gnd tail_mt
+Xota xraw tail_f nb vdd gnd ss ota_vds
+Xd9 nb nbf vbp_tail gnd d9_rc
+Xcbf nbf gnd cbf
+.ends

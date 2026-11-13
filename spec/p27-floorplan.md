@@ -157,6 +157,6 @@ Rough Phase-5 squeeze check against the SX1255-compatible **MLPQ-W 5 × 5 mm** p
 | Other rows (§8 table) | unchanged | |
 | **Total estimate** | **≈ 3.64–3.74** | still YES on 2.5 × 2.5 mm (~2.5 mm² slack) |
 
-**P2.7.2b running island tally (2026-11-13) [GDS]:** core+tank 0.1102 + bank 0.1514 + `dac_array` 0.0068 + `tail_mt` 0.0058 ≈ **0.274 mm²** placed. Headroom to 0.34 before OTA / rhigh / 16× cbf tiles ≈ 0.066 mm².
+**P2.7.2b running island tally (2026-11-13) [GDS]:** core+tank 0.1102 + bank 0.1514 + `dac_array` 0.0068 + `tail_mt` 0.0058 + `ota_vds` 0.0017 + `d9_rc` 0.0039 + `cbf` 0.0574 ≈ **0.3372 mm²**. Headroom to 0.34 ≈ **0.0028 mm²** before varactor / D22 / top route — stop for owner decision (32-tile cbf would save ≈ 0.029 mm² [HAND]). Join bbox 0.2088 mm² not used for the sum tally.
 
 **Flag:** the §1 sketch of a **1.6 × 1.6 mm** active core **does not fit** the Phase 3/4 RX+TX + synth + digital + pads tally. Before Phase 5, plan on a die closer to **≥ ~2.2 × 2.2 mm** (≈ 4.8 mm²) or tighten RX/TX area after topology.

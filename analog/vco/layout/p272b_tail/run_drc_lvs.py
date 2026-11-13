@@ -13,7 +13,7 @@ OUT = os.path.join(HERE, "out")
 PDK_DRC = "/foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py"
 PDK_LVS = "/foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py"
 NETGEN_SETUP = "/foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl"
-DENSITY = {"AFil.g", "GFil.g", "M1.j", "M2.j", "M3.j", "M4.j", "M5.j",
+DENSITY = {"AFil.g", "GFil.g", "M1.j", "M2.j", "M3.j", "M4.j", "M5.j", "M5.k",
            "TM1.c", "TM2.c", "TM1.d", "TM2.d"}
 
 
@@ -98,10 +98,29 @@ def prove(cell: str) -> dict:
     res["netgen_pass"] = False
     res["netgen"] = None
     if ext and os.path.exists(NETGEN_SETUP):
+        # rfcmim extract uses C-prefix + name "rfcmim"; netgen setup wants
+        # cap_rfcmim and X-prefix for 3-terminal devices [PDK / assemble].
+        def for_netgen(txt: str) -> str:
+            txt = txt.replace(" rfcmim ", " cap_rfcmim ")
+            out = []
+            for ln in txt.splitlines():
+                s = ln.lstrip()
+                if ((s.startswith("C") and " cap_rfcmim " in f" {s} ") or
+                        (s.startswith("R") and " rhigh " in f" {s} ")):
+                    i = len(ln) - len(s)
+                    ln = ln[:i] + "X" + s[1:]
+                out.append(ln)
+            return "\n".join(out) + ("\n" if txt.endswith("\n") else "")
+
+        spice_ng = os.path.join(OUT, f"{cell}_netgen.spice")
+        ext_ng = os.path.join(OUT, f"{cell}_extracted_netgen.cir")
+        open(spice_ng, "w").write(for_netgen(open(spice).read()))
+        open(ext_ng, "w").write(for_netgen(open(ext).read()))
         tcl = os.path.join(OUT, f"netgen_{cell}.tcl")
         json_out = os.path.join(OUT, f"netgen_{cell}.json")
         open(tcl, "w").write(
-            f'lvs {{{spice} {cell}}} {{{ext} {cell}}} {NETGEN_SETUP} {json_out}\n')
+            f'lvs {{{spice_ng} {cell}}} {{{ext_ng} {cell}}} '
+            f'{NETGEN_SETUP} {json_out}\n')
         res["netgen"] = run(
             ["netgen", "-batch", "source", tcl],
             os.path.join(OUT, f"netgen_{cell}.log"), timeout=600)

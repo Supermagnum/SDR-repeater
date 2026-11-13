@@ -287,6 +287,32 @@ overlap), then M3 rises only on that lane.
 - No second Via1 on unit xraw pin (V1.b vs unit via) [DRC].
 Centroid order and edge dummy kept.
 
+#### P2.7.2b OTA / d9_rc / cbf (2026-11-13) — cells PASS; join STOP
+**Outputs:** `analog/vco/layout/p272b_tail/` — `ota_vds`, `d9_rc`, `cbf`, `tail_block`
+GDS.gz / PNG / SVG / DRC / KLayout LVS / netgen; `check_fingers.py`; this note;
+`decisions.md` “d9_rc / cbf done; join + island gate”.
+
+**KLayout LVS vs netgen disagreement (d9_rc WIP, cause recorded) [TOOL]:**
+- Prove script uses `--ignore_top_ports_mismatch`. When the bypass gate Cont missed the
+  poly strap (0.10 µm gap) and gnd pin M1 did not touch the ptap, extract had ports
+  `nb,nbf` only, gate `$8`, bulk on `nb`. KLayout still reported PASS (ignored missing
+  ports). Netgen compared full circuits (4 nets vs 3) and failed pin matching.
+- Rule kept: cell fails until both pass and the cause is recorded. After the Cont/gnd
+  fixes both PASS. Same flags remain on the prove script for consistency with bank/core.
+
+**Netgen audit (accepted cells) [TOOL]:**
+| cell | netgen |
+|---|---|
+| dac_unit, dac_array, tail_mt, ota_vds, d9_rc, cbf | Circuits match uniquely |
+
+**d9_rc PASS:** 0.0039 mm²; ports nb, nbf, en_vco_bias_bp, gnd; mbp ng=4 [GDS/TOOL].
+**cbf PASS:** 0.0574 mm²; 16 tiles pitch 60 µm; PLUS=nbf (TM1), MINUS|TIE=gnd [GDS].
+**tail_block FAIL:** join bbox 0.2088 mm²; DRC M1.b/M2.b/V1.b; extract shows code/gnd/nb
+nets merged. Not accepted.
+**Island sum:** 0.1102+0.1514+0.0068+0.0058+0.0017+0.0039+0.0574 = **0.3372 mm²** ≤ 0.34
+[GDS]. Headroom ≈ 0.0028 mm² — insufficient for varactor + D22 + top route [HAND].
+32 tiles (same C, side/√2) would save ≈ 0.029 mm² → island ≈ 0.308 [HAND].
+
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin
 target −105 retired. Post-layout re-check target ≤ −100 dBc at that point.

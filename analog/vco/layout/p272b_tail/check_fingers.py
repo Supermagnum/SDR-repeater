@@ -140,9 +140,25 @@ def check_ota_vds(gds):
     return ok, f"nmos_ngs={nmos_ngs} pmos_ngs={pmos_ngs} expect n[1,1,2,2] p[2,2]"
 
 
+def check_d9_rc(gds):
+    ly = pya.Layout()
+    ly.read(gds)
+    top = ly.top_cell()
+    ngs = []
+    for inst in top.each_inst():
+        cell = ly.cell(inst.cell_index)
+        if "nmos" not in cell.name:
+            continue
+        ng = poly_gate_count(cell)
+        if ng > 0:
+            ngs.append(ng)
+    ok = ngs == [4]
+    return ok, f"mbp_rbf ngs={ngs} expect [4]"
+
+
 def main():
     lines = [
-        "# Finger-count check — P2.7.2b dac / tail / ota [TOOL]\n\n",
+        "# Finger-count check — P2.7.2b dac / tail / ota / d9 [TOOL]\n\n",
         "Method: tall/thin poly boxes in each MOS PCell child "
         "(excludes straps). Catches ng clamp vs total-W LVS pass.\n\n",
         "| cell | check | PASS |\n",
@@ -154,6 +170,7 @@ def main():
         ("dac_array", check_dac_array),
         ("tail_mt", check_tail_mt),
         ("ota_vds", check_ota_vds),
+        ("d9_rc", check_d9_rc),
     ]
     for name, fn in checks:
         gds = os.path.join(OUT, f"{name}.gds")

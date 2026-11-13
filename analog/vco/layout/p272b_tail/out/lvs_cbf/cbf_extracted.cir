@@ -1,0 +1,5 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 13/11/2026 12:21
+
+.SUBCKT cbf gnd nbf
+C$1 nbf gnd gnd rfcmim w=45.64u l=45.64u A=2083.0096p P=182.56u m=16 wfeed=5u
+.ENDS cbf

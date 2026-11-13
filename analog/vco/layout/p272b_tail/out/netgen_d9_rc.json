@@ -2,45 +2,32 @@
 Subcircuit summary:
 Circuit 1: d9_rc                           |Circuit 2: d9_rc                           
 -------------------------------------------|-------------------------------------------
-gnd (1)                                    |(no matching element)                      
+gnd (1)                                    |gnd (1)                                    
 sg13_lv_nmos (1)                           |sg13_lv_nmos (1)                           
-(no matching element)                      |nb (1)                                     
 Number of devices: 2                       |Number of devices: 2                       
-Number of nets: 4 **Mismatch**             |Number of nets: 3 **Mismatch**             
+Number of nets: 4                          |Number of nets: 4                          
 ---------------------------------------------------------------------------------------
-NET mismatches: Class fragments follow (with fanout counts):
-Circuit 1: d9_rc                           |Circuit 2: d9_rc                           
-
----------------------------------------------------------------------------------------
-Net: nbf                                   |Net: nbf                                   
-  gnd/(end_a|end_b) = 1                    |  nb/(end_a|end_b) = 1                     
-  sg13_lv_nmos/(drain|source) = 1          |  sg13_lv_nmos/(drain|source) = 1          
-                                           |                                           
-Net: nb                                    |Net: nb                                    
-  gnd/(end_a|end_b) = 1                    |  sg13_lv_nmos/bulk = 1                    
-  sg13_lv_nmos/(drain|source) = 1          |  sg13_lv_nmos/(drain|source) = 1          
-                                           |  nb/(end_a|end_b) = 1                     
-                                           |                                           
-Net: gnd                                   |(no matching net)                          
-  sg13_lv_nmos/bulk = 1                    |                                           
----------------------------------------------------------------------------------------
-DEVICE mismatches: Class fragments follow (with node fanout counts):
-Circuit 1: d9_rc                           |Circuit 2: d9_rc                           
-
----------------------------------------------------------------------------------------
-Instance: gnd:rbf                          |Instance: nb:$5                            
-  (end_a,end_b) = (2,2)                    |  (end_a,end_b) = (3,2)                    
----------------------------------------------------------------------------------------
-Netlists do not match.
-Port matching may fail to disambiguate symmetries.
+Resolving symmetries by property value.
+Resolving symmetries by pin name.
+Netlists match uniquely with property errors.
+gnd:rbf vs. gnd:$5:
+Property b in circuit2 has no matching property in circuit1
+gnd:rbf vs. gnd:$5:
+Property ps in circuit2 has no matching property in circuit1
 
 Subcircuit pins:
 Circuit 1: d9_rc                           |Circuit 2: d9_rc                           
 -------------------------------------------|-------------------------------------------
-nb                                         |nbf **Mismatch**                           
-nbf                                        |nb **Mismatch**                            
+en_vco_bias_bp                             |en_vco_bias_bp                             
+gnd                                        |gnd                                        
+nbf                                        |nbf                                        
+nb                                         |nb                                         
+---------------------------------------------------------------------------------------
 Cell pin lists are equivalent.
 Device classes d9_rc and d9_rc are equivalent.
 
-Final result: Netlists do not match.
-Port matching may fail to disambiguate symmetries.
+Final result: Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ d9_rc

@@ -1,0 +1,900 @@
+Flattening unmatched subcell dac_array in circuit tail_block (0)(1 instance)
+Flattening unmatched subcell dac_unit in circuit tail_block (0)(51 instances)
+Flattening unmatched subcell tail_mt in circuit tail_block (0)(1 instance)
+Flattening unmatched subcell ota_vds in circuit tail_block (0)(1 instance)
+Flattening unmatched subcell d9_rc in circuit tail_block (0)(1 instance)
+Flattening unmatched subcell cbf in circuit tail_block (0)(1 instance)
+
+Class tail_block (0):  Merged 1 parallel devices.
+Class tail_block (1):  Merged 102 parallel devices.
+Subcircuit summary:
+Circuit 1: tail_block                      |Circuit 2: tail_block                      
+-------------------------------------------|-------------------------------------------
+sg13_lv_pmos (104)                         |sg13_lv_pmos (103->2) **Mismatch**         
+sg13_lv_nmos (6->5)                        |sg13_lv_nmos (5->4) **Mismatch**           
+rhigh (1)                                  |(no matching element)                      
+cap_rfcmim (16->1)                         |(no matching element)                      
+(no matching element)                      |code0|code1|code2|code3|code4|code_gnd|cod 
+Number of devices: 111 **Mismatch**        |Number of devices: 8 **Mismatch**          
+Number of nets: 69 **Mismatch**            |Number of nets: 6 **Mismatch**             
+---------------------------------------------------------------------------------------
+NET mismatches: Class fragments follow (with fanout counts):
+Circuit 1: tail_block                      |Circuit 2: tail_block                      
+
+---------------------------------------------------------------------------------------
+Net: vdd                                   |Net: \$20                                  
+  sg13_lv_pmos/(drain|source) = 53         |  sg13_lv_pmos/(drain|source) = 1          
+  sg13_lv_pmos/bulk = 104                  |                                           
+                                           |                                           
+Net: nbf                                   |Net: nbf                                   
+  sg13_lv_nmos/gate = 1                    |  code0|code1|code2|code3|code4|code_gnd|c 
+  rhigh/(1|2) = 1                          |                                           
+  sg13_lv_nmos/(drain|source) = 1          |                                           
+  cap_rfcmim/1 = 1                         |                                           
+                                           |                                           
+Net: xraw                                  |Net: code0|code1|code2|code3|code4|code_gn 
+  sg13_lv_pmos/(drain|source) = 51         |  sg13_lv_nmos/(drain|source) = 6          
+  sg13_lv_nmos/gate = 1                    |  sg13_lv_nmos/gate = 2                    
+                                           |  sg13_lv_nmos/bulk = 4                    
+                                           |  sg13_lv_pmos/(drain|source) = 3          
+                                           |  sg13_lv_pmos/gate = 2                    
+                                           |  sg13_lv_pmos/bulk = 2                    
+                                           |  code0|code1|code2|code3|code4|code_gnd|c 
+                                           |                                           
+Net: code_gnd                              |(no matching net)                          
+  sg13_lv_pmos/gate = 19                   |                                           
+                                           |                                           
+Net: code0                                 |(no matching net)                          
+  sg13_lv_pmos/gate = 1                    |                                           
+                                           |                                           
+Net: code_vdd                              |(no matching net)                          
+  sg13_lv_pmos/gate = 1                    |                                           
+                                           |                                           
+Net: tail                                  |(no matching net)                          
+  sg13_lv_nmos/(drain|source) = 1          |                                           
+                                           |                                           
+Net: code1                                 |(no matching net)                          
+  sg13_lv_pmos/gate = 2                    |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b0                   |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b1                   |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b2                   |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b3                   |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4                   |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b5                   |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b6                   |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b7                   |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b8                   |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b9                   |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b10                  |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b11                  |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b12                  |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b13                  |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b14                  |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b15                  |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b16                  |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b17                  |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b18                  |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_0                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b3_0                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b2_0                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_1                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b3_1                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_2                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b1_0                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_3                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_4                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b0_0                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_5                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b3_2                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_6                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b2_1                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b3_3                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_7                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_8                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b3_4                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b2_2                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_9                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b3_5                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_10                |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b1_1                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_11                |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_12                |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_dmy                  |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b3_6                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_13                |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_14                |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b2_3                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b3_7                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_15                |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: code2                                 |(no matching net)                          
+  sg13_lv_pmos/gate = 4                    |                                           
+                                           |                                           
+Net: pbias                                 |(no matching net)                          
+  sg13_lv_pmos/gate = 51                   |                                           
+                                           |                                           
+Net: nb                                    |(no matching net)                          
+  sg13_lv_nmos/(drain|source) = 2          |                                           
+  sg13_lv_pmos/(drain|source) = 1          |                                           
+  rhigh/(1|2) = 1                          |                                           
+                                           |                                           
+Net: ota_vds:ota/d1                        |(no matching net)                          
+  sg13_lv_nmos/(drain|source) = 1          |                                           
+  sg13_lv_pmos/(drain|source) = 1          |                                           
+  sg13_lv_pmos/gate = 2                    |                                           
+                                           |                                           
+Net: code3                                 |(no matching net)                          
+  sg13_lv_pmos/gate = 8                    |                                           
+                                           |                                           
+Net: code4                                 |(no matching net)                          
+  sg13_lv_pmos/gate = 16                   |                                           
+                                           |                                           
+Net: gnd                                   |(no matching net)                          
+  sg13_lv_nmos/(drain|source) = 3          |                                           
+  sg13_lv_nmos/bulk = 5                    |                                           
+  sg13_lv_nmos/gate = 1                    |                                           
+  rhigh/3 = 1                              |                                           
+  cap_rfcmim/2 = 1                         |                                           
+  cap_rfcmim/3 = 1                         |                                           
+---------------------------------------------------------------------------------------
+DEVICE mismatches: Class fragments follow (with node fanout counts):
+Circuit 1: tail_block                      |Circuit 2: tail_block                      
+
+---------------------------------------------------------------------------------------
+Instance: dac_array:dac/dac_unit:b0/sg13_l |Instance: sg13_lv_pmos:$107                
+  (drain,source) = (157,2)                 |  (drain,source) = (22,22)                 
+  gate = 51                                |  gate = 22                                
+  bulk = 157                               |  bulk = 22                                
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b0/sg13_l |Instance: sg13_lv_pmos:$111                
+  (drain,source) = (52,2)                  |  (drain,source) = (22,1)                  
+  gate = 19                                |  gate = 22                                
+  bulk = 157                               |  bulk = 22                                
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b1/sg13_l |Instance: sg13_lv_nmos:$1                  
+  (drain,source) = (157,2)                 |  (drain,source) = (22,22)                 
+  gate = 51                                |  gate = 22                                
+  bulk = 157                               |  bulk = 22                                
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b1/sg13_l |Instance: code0|code1|code2|code3|code4|co 
+  (drain,source) = (52,2)                  |  (end_a,end_b) = (22,22)                  
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b2/sg13_l |Instance: code0|code1|code2|code3|code4|co 
+  (drain,source) = (157,2)                 |  (end_a,end_b) = (22,1)                   
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b2/sg13_l |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3/sg13_l |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3/sg13_l |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4/sg13_l |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4/sg13_l |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b5/sg13_l |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b5/sg13_l |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b6/sg13_l |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b6/sg13_l |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b7/sg13_l |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b7/sg13_l |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b8/sg13_l |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b8/sg13_l |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b9/sg13_l |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b9/sg13_l |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b10/sg13_ |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b10/sg13_ |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b11/sg13_ |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b11/sg13_ |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b12/sg13_ |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b12/sg13_ |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b13/sg13_ |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b13/sg13_ |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b14/sg13_ |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b14/sg13_ |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b15/sg13_ |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b15/sg13_ |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b16/sg13_ |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b16/sg13_ |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b17/sg13_ |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b17/sg13_ |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b18/sg13_ |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b18/sg13_ |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 19                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_0/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_0/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_0/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_0/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 8                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b2_0/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b2_0/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 4                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_1/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_1/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_1/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_1/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 8                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_2/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_2/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b1_0/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b1_0/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 2                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_3/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_3/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_4/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_4/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b0_0/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b0_0/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 1                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_5/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_5/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_2/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_2/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 8                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_6/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_6/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b2_1/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b2_1/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 4                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_3/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_3/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 8                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_7/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_7/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_8/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_8/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_4/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_4/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 8                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b2_2/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b2_2/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 4                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_9/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_9/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_5/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_5/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 8                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_10/sg1 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_10/sg1 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b1_1/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b1_1/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 2                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_11/sg1 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_11/sg1 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_12/sg1 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_12/sg1 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:dmy/sg13_ |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:dmy/sg13_ |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 1                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_6/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_6/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 8                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_13/sg1 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_13/sg1 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_14/sg1 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_14/sg1 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b2_3/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b2_3/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 4                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_7/sg13 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_7/sg13 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 8                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_15/sg1 |(no matching instance)                     
+  (drain,source) = (157,2)                 |                                           
+  gate = 51                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_15/sg1 |(no matching instance)                     
+  (drain,source) = (52,2)                  |                                           
+  gate = 16                                |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: ota_vds:ota/sg13_lv_pmos:mp1     |(no matching instance)                     
+  (drain,source) = (157,4)                 |                                           
+  gate = 4                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: ota_vds:ota/sg13_lv_pmos:mp2     |(no matching instance)                     
+  (drain,source) = (157,4)                 |                                           
+  gate = 4                                 |                                           
+  bulk = 157                               |                                           
+                                           |                                           
+                                           |                                           
+Instance: tail_mt:mt/sg13_lv_nmos:mt       |(no matching instance)                     
+  (drain,source) = (12,1)                  |                                           
+  gate = 4                                 |                                           
+  bulk = 12                                |                                           
+                                           |                                           
+                                           |                                           
+Instance: ota_vds:ota/sg13_lv_nmos:dL      |(no matching instance)                     
+  (drain,source) = (12,12)                 |                                           
+  gate = 12                                |                                           
+  bulk = 12                                |                                           
+                                           |                                           
+                                           |                                           
+Instance: d9_rc:d9/rhigh:rbf               |(no matching instance)                     
+  (1,2) = (4,4)                            |                                           
+  3 = 12                                   |                                           
+                                           |                                           
+                                           |                                           
+Instance: cbf/cap_rfcmim:cbf               |(no matching instance)                     
+  1 = 4                                    |                                           
+  2 = 12                                   |                                           
+  3 = 12                                   |                                           
+---------------------------------------------------------------------------------------
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
+
+Subcircuit pins:
+Circuit 1: tail_block                      |Circuit 2: tail_block                      
+-------------------------------------------|-------------------------------------------
+vdd                                        |(no pin, node is \$20)                     
+pbias                                      |nbf **Mismatch**                           
+xraw                                       |code0|code1|code2|code3|code4|code_gnd|cod 
+Cell pin lists are equivalent.
+Device classes tail_block and tail_block are equivalent.
+
+Final result: Netlists do not match.
+Port matching may fail to disambiguate symmetries.

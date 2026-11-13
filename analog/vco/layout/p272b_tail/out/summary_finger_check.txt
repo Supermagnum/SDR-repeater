@@ -1,4 +1,4 @@
-# Finger-count check — P2.7.2b dac / tail / ota [TOOL]
+# Finger-count check — P2.7.2b dac / tail / ota / d9 [TOOL]
 
 Method: tall/thin poly boxes in each MOS PCell child (excludes straps). Catches ng clamp vs total-W LVS pass.
 
@@ -8,5 +8,6 @@ Method: tall/thin poly boxes in each MOS PCell child (excludes straps). Catches 
 | dac_array | n_units=51 expect 51; bad_units=0 sample=[[1, 1], [1, 1]] | yes |
 | tail_mt | mos_children=[('nmos', 96)] expect mt ng=96 | yes |
 | ota_vds | nmos_ngs=[1, 1, 2, 2] pmos_ngs=[2, 2] expect n[1,1,2,2] p[2,2] | yes |
+| d9_rc | mbp_rbf ngs=[4] expect [4] | yes |
 
 All match: yes

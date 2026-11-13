@@ -1,0 +1,611 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 13/11/2026 12:24
+
+.SUBCKT tail_block
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ en_vco_bias_bp|vbp_tail nbf ss tail_f
+M$1
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_nmos L=4u W=480u AS=91.95p AD=91.95p PS=521.78u PD=521.78u rfmode=0
+M$97
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ en_vco_bias_bp|vbp_tail
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_nmos L=0.13u W=20u AS=4.55p AD=4.55p PS=26.82u PD=26.82u rfmode=0
+M$101
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_nmos L=2u W=8u AS=2.72p AD=2.72p PS=17.36u PD=17.36u rfmode=0
+M$102
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ ss
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_nmos L=2u W=8u AS=2.12p AD=2.12p PS=13.06u PD=13.06u rfmode=0
+M$104
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ tail_f ss
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_nmos L=2u W=8u AS=2.12p AD=2.12p PS=13.06u PD=13.06u rfmode=0
+M$107
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=8u AS=2.12p AD=2.12p PS=14.12u PD=14.12u rfmode=0
+M$111 \$20
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$112
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$20
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$113 \$21
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$114
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$21
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$115 \$22
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$116
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$22
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$117 \$23
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$118
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$23
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$119 \$24
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$120
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$24
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$121 \$25
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$122
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$25
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$123 \$26
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$124
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$26
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$125 \$41
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$126
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$41
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$127 \$42
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$128
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$42
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$129 \$43
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$130
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$43
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$131 \$44
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$132
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$44
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$133 \$45
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$134
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$45
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$135 \$46
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$136
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$46
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$137 \$47
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$138
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$47
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$139 \$77
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$140 \$62
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$141
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$77
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$142
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$62
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$143 \$63
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$144 \$78
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$145
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$63
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$146
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$78
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$147 \$79
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$148 \$64
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$149
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$64
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$150
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$79
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$151 \$65
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$152 \$80
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$153
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$80
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$154
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$65
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$155 \$66
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$156 \$81
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$157
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$81
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$158
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$66
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$159 \$82
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$160
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$82
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$161 \$83
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$162
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$83
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$163 \$84
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$164
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$84
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$165 \$101
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$166
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$101
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$167 \$102
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$168
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$102
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$169 \$103
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$170
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$103
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$171 \$104
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$172
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$104
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$173 \$105
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$174
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$105
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$175 \$106
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$176
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$106
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$177 \$107
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$178
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$107
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$179 \$108
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$180
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$108
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$181 \$125
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$182
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$125
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$183 \$126
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$184
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$126
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$185 \$127
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$186
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$127
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$187 \$128
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$188
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$128
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$189 \$129
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$190
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$129
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$191 \$130
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$192
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$130
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$193 \$131
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$194
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$131
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$195 \$132
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$196
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$132
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$197 \$149
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$198
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$149
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$199 \$150
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$200
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$150
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$201 \$151
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$202
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$151
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$203 \$152
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$204
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$152
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$205 \$153
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$206
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$153
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$207 \$154
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$208
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$154
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$209 \$155
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$210
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$155
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$211 \$156
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+M$212
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ \$156
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
+R$213
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ rhigh w=0.5u l=354u ps=0u b=0 m=1
+C$214 nbf
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref
++ rfcmim w=45.64u l=45.64u A=2083.0096p P=182.56u m=16 wfeed=5u
+.ENDS tail_block
