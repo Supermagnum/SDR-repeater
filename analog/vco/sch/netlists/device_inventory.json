@@ -556,14 +556,17 @@
       }
     },
     {
-      "kind": "capa",
+      "kind": "mim",
       "name": "cbf",
       "nodes": [
         "nbf",
+        "gnd",
         "gnd"
       ],
       "params": {
-        "c": "5e-11"
+        "w": "182.574u",
+        "l": "182.574u",
+        "model": "cap_rfcmim"
       }
     },
     {
@@ -4072,14 +4075,17 @@
       }
     },
     {
-      "kind": "capa",
+      "kind": "mim",
       "name": "cbf",
       "nodes": [
         "nbf",
+        "gnd",
         "gnd"
       ],
       "params": {
-        "c": "5e-11"
+        "w": "182.574u",
+        "l": "182.574u",
+        "model": "cap_rfcmim"
       }
     },
     {

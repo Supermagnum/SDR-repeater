@@ -1,0 +1,36 @@
+# MOSCAP swing-drop cause (finding only) [SCH]
+
+Prior VCO: amp 1.201 → 0.933 V (−22.5 %), ΔL +0.516 dB @ 100 kHz
+[SCH summary_d9_finding]. Bias Sid (sense-R) Δ +3.2 dB @ 100 kHz [SCH].
+Ig @ 0.6 V (5× moscap): ~42 nA tt/27 → Ig×1 MΩ ~42 mV [SCH].
+
+## 1) Bias OP with forced V(tail)=0.35 V [SCH]
+
+| kind | nbf (V) | nb (V) | dV(rbf) (V) | Itail (mA) |
+|------|---------|--------|-------------|------------|
+| ideal | 0.5755 | 0.5830 | 0.0074 | 2.799 |
+| mos | 0.5754 | 0.6172 | 0.0418 | 2.797 |
+
+- dnbf = −0.1 mV; dItail = −0.1 % [SCH].
+- OTA raises nb by ≈ Ig×rbf (~42 mV) and holds nbf / Itail.
+
+## 2) Short VCO PSS re-measure
+
+Tool: vacask PSS with pss_minpts=8000 / maxharm=16 aborted (timestep too small)
+for both ideal and mos [TOOL]. Full pnoise settle (16000) was the prior amp
+source; not re-run here (CPU left to mim-vs-ideal).
+
+## Cause [SCH/HAND]
+
+- **Rejected:** pure DC Ig×1 MΩ → lower Vgs → lower Itail. OP shows Itail
+  change −0.1 %, not −22 %. The OTA loop holds nbf against the ~42 nA Ig.
+- **Retained:** thin-ox moscap adds gate leakage *and* C(V) / channel
+  conductance under the large-signal bias filter. Evidence: bias Sid +3.2 dB
+  @ 100 kHz, VCO ΔL +0.516 dB, amp 1.20 → 0.93 V, f0 3.649 → 3.662 GHz with
+  moscap vs ideal [SCH summary_d9_finding]. Mechanism is large-signal /
+  noise up-conversion through the nonlinear leaky moscap, not a static
+  Itail shift.
+- Ideal / MIM have negligible Ig and flat C; rfcmim keeps the D9 filter
+  (accepted path).
+
+Design unchanged: MOS rejected (decisions 2026-11-13 D9).

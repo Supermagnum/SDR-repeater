@@ -163,7 +163,9 @@ def gen_vco_tail_dac():
     sch.pmos("mp2", "d2", "d1", "vdd", "vdd", "4u", "2u", 2)
     sch.res("rout", "d2", "nb", 1)
     sch.res("rbf", "nb", "nbf", 1e6)
-    sch.capa("cbf", "nbf", "gnd", 50e-12)
+    # D9 cbf: PDK rfcmim (cmim PCell clamps ≪ 50 pF; side≥7 µm → rfcmim) [PDK]
+    s_cbf = side_um(50e3)  # 50 pF at 1.5 fF/µm²
+    sch.mim("cbf", "nbf", "gnd", "gnd", f"{s_cbf:.3f}u", f"{s_cbf:.3f}u")
     sch.res("rpd", "nb", "gnd", 200e3)
     sch.capa("ctail", "tail", "gnd", 8e-12)
     # start-up bypass across rbf
@@ -417,7 +419,8 @@ def build_flat_inventory(rng):
     sim.capa("ctail", "tail", "gnd", 8e-12)
     sim.nmos("mt", "tail", "nbf", "gnd", "gnd", "160u", "4u", 32)
     sim.res("rbf", "nb", "nbf", 1e6)
-    sim.capa("cbf", "nbf", "gnd", 50e-12)
+    s_cbf = side_um(50e3)
+    sim.mim("cbf", "nbf", "gnd", "gnd", f"{s_cbf:.3f}u", f"{s_cbf:.3f}u")
     sim.nmos("mr", "nb", "nb", "gnd", "gnd", "20u", "4u", 4)
     sim.isrc("iref", "vdd", "nb", 4e-3 / 8)
     sim.nmos("mbp_rbf", "nb", "vbp_tail", "nbf", "gnd", "20u", "0.13u", 4)

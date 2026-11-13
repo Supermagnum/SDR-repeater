@@ -38,7 +38,7 @@ mp1 (d1 d1 vdd vdd) sg13_lv_pmos w=4u l=2u ng=2
 mp2 (d2 d1 vdd vdd) sg13_lv_pmos w=4u l=2u ng=2
 rout (d2 nb) resistor r=1
 rbf (nb nbf) resistor r=1000000.0
-cbf (nbf 0) capacitor c=5e-11
+cbf (nbf 0 0) cap_rfcmim w=182.574u l=182.574u
 rpd (nb 0) resistor r=200000.0
 ctail (tail 0) capacitor c=8e-12
 mbp_rbf (nb vbp_tail nbf 0) sg13_lv_nmos w=20u l=0.13u ng=4

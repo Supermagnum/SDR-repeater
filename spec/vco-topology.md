@@ -241,3 +241,13 @@ Slow MOS corner, 85 °C, 4 mA cap: 3.12 / 3.65 / 4.20 GHz at 1 MHz −122.8 / �
 **D20 landing [MODEL]** (`summary_p272c_gate.txt`): **PASS** all corners — tt 0.361–0.936 V; ss 0.244–0.897 V; ff 0.457–0.970 V. No cal-target bias, no K=512. Spread parts (½ largest step / counting / curvature asym / hold−mid) in that summary.
 
 **15-corner [SCH]** (`summary_p272c_cover.txt`): all 15 cover; worst top margin **130 MHz**; worst bottom **76 MHz**; peak V_GS/V_GD ≤ 1.49 V (ss cap_bcs −40 °C). **D22** tt/27: top code 14 / bottom 31 PASS. Next: **P2.7.2 VCO layout**.
+
+### D9 filter capacitor notes (2026-11-13) — MIM kept; MOS swing cause
+
+**Device:** `cbf` = 50 pF **rfcmim** W=L=182.574 µm (cmim PCell clamps; side ≥ 7 µm → rfcmim) [PDK]. MOS rejected (`decisions.md` 2026-11-13); D23 island ≤ 0.34 mm².
+
+**MOS swing 1.20 → 0.93 V — cause [SCH/HAND]** (`layout/p272b_tail/out/summary_mos_swing_cause.txt`):
+
+- Ig @ 0.6 V ≈ 42 nA → Ig×1 MΩ ≈ 42 mV [SCH]. OTA raises `nb` by that order and **holds `nbf` / Itail** (OP ΔItail −0.1 % with forced V(tail)=0.35 V) [SCH].
+- Therefore DC Ig×1 MΩ alone does **not** explain the −22.5 % swing drop.
+- Retained mechanism: thin-ox moscap C(V) + channel conductance under the large-signal bias filter, with bias Sid +3.2 dB @ 100 kHz and VCO ΔL +0.516 dB @ 100 kHz vs ideal [SCH `summary_d9_finding`]. MIM restores the filter; no design change for MOS.

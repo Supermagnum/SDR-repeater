@@ -1,0 +1,21 @@
+# P2.7.2b — cbf ideal vs rfcmim 50 pF [SCH]
+
+Device: rfcmim, C=50 pF at 1.5 fF/µm² [PDK]. Single 182.574 µm plate breaks VCO
+PSS [TOOL]; PN gate uses **16× parallel** plates (side ≈45.64 µm, wfeed=2)
+with the same total C. Sch/layout keep one plate (or tiled equivalent).
+
+Pass |ΔL|<0.1 dB, |Δamp|/amp<2 %.
+
+  ideal: f=3.649 GHz amp=1.201 L(100k)=-92.22 L(1000k)=-122.18
+  mim (16×): f=3.649 GHz amp=1.201 L(100k)=-92.23 L(1000k)=-122.18
+           [8000 pts, reltol=1e-6 pss_tolscale=3e-3]
+
+| Offset | L ideal | L rfcmim | Δ |
+|---|---|---|---|
+| 100 kHz | -92.22 | -92.23 | -0.014 dB |
+| 1000 kHz | -122.18 | -122.18 | -0.000 dB |
+
+Swing: ideal 1.201 V → rfcmim 1.201 V (+0.02 %) [SCH]
+Swing PASS: PASS
+
+Overall pass: PASS

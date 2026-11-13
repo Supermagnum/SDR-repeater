@@ -164,7 +164,15 @@ endc
 def patch_cbf(sim_text: str, kind: str) -> str:
     """Replace ideal cbf line with MIM or moscap."""
     if kind == "mim":
-        # rfcmim equivalent area for 50 pF: side = sqrt(50p/1.5f)
+        # One 182 µm plate breaks VCO PSS [TOOL]; 16× parallel ~same C.
+        n = 16
+        side = math.sqrt((50e-12 / n) / CAP_CAREA)
+        repl = "".join(
+            f"xcbf{i} (nbf 0 0) cap_rfcmim w={side:.3f}u l={side:.3f}u wfeed=2.0u\n"
+            for i in range(n)
+        )
+    elif kind == "mim1":
+        # Single plate (sch / layout device) — may fail PSS
         side = math.sqrt(50e-12 / CAP_CAREA)
         repl = (f"xcbf (nbf 0 0) cap_rfcmim w={side:.3f}u l={side:.3f}u wfeed=5.0u\n")
     elif kind == "mos":

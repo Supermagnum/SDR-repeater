@@ -556,3 +556,21 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   keep MIM `cbf` (die §8 → ≈ 3.64–3.74 mm², still fits 2.5×2.5); (B) keep ≤ 0.30 and accept
   MOS with a relaxed 100 kHz gate; (C) smaller `cbf` / higher pole; (D) place the 50 pF MIM
   outside the VCO island.
+
+## 2026-11-13 — D9 filter capacitor (D23 amended)
+- cbf (50 pF) stays MIM (cmim / rfcmim as the PDK model suits). MOS capacitor rejected: PN
+  +0.52 dB at 100 kHz and swing 1.20 → 0.93 V [SCH]. Smaller cbf and placing it outside the
+  island are not taken.
+- D23 amended: VCO island ≤ 0.34 mm² (die re-total ≈ 3.64–3.74 mm², fits ≈ 2.5 × 2.5 mm).
+  Placing the MIM over the DAC / OTA devices is tried to save area; 0.34 mm² is the ceiling.
+- Schematic: cbf becomes a real PDK MIM device before layout.
+
+## 2026-11-13 — P2.7.2b tail / DAC, first attempt
+- cbf: 16 parallel rfcmim tiles (50 pF), in schematic and layout. Gate passed against ideal:
+  ΔL −0.014 / 0.000 dB, swing +0.02 % [SCH]. Single 182 µm plate not used (breaks PSS).
+- MOS swing-drop finding accepted (moscap C(V) / conductance under large signal, not gate
+  leakage) [SCH].
+- DAC array (0.112 mm² [GDS]) not accepted: island would exceed ≤ 0.34 mm² before OTA, cbf,
+  varactor and detector. Re-spin compact (abutted cells, shared rails, one guard ring around
+  the array), with the vdd / code-bus LVS fix in the same re-spin. Target ≤ 0.015 mm², set by
+  unit-current matching.

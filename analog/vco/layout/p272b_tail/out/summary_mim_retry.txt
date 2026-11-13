@@ -1,0 +1,14 @@
+# rfcmim PN retry — 16× parallel plates [SCH]
+
+  try npts=8000 reltol=1e-6 pss_tolscale=3e-3 maxharm=32 …
+  mim: f=3.649 GHz amp=1.201 L(100k)=-92.23 L(1000k)=-122.18
+
+| Offset | L ideal | L rfcmim | Δ |
+|---|---|---|---|
+| 100 kHz | -92.22 | -92.23 | -0.014 dB |
+| 1000 kHz | -122.18 | -122.18 | -0.000 dB |
+
+Swing: ideal 1.201 V → rfcmim 1.201 V (+0.02 %) [SCH]
+Swing PASS: PASS
+
+Overall pass: PASS

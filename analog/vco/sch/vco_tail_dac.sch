@@ -380,17 +380,22 @@ N 220 450 220 450 {lab=nb}
 C {devices/lab_pin.sym} 220 450 0 0 {name=p89 sig_type=std_logic lab=nb}
 N 220 510 220 510 {lab=nbf}
 C {devices/lab_pin.sym} 220 510 0 0 {name=p90 sig_type=std_logic lab=nbf}
-C {devices/capa.sym} 440 480 0 0 {name=cbf
-value=5e-11
+C {sg13g2_pr/cap_rfcmim.sym} 440 480 0 0 {name=cbf
+model=cap_rfcmim
+lvs_model=rfcmim
+w=1.825740e-04
+l=1.825740e-04
+wfeed=5.0e-6
 m=1
-footprint=1206
-device=capacitor
-sim_device=capacitor
+mm_ok=1
+spiceprefix=X
 }
 N 440 450 440 450 {lab=nbf}
 C {devices/lab_pin.sym} 440 450 0 0 {name=p91 sig_type=std_logic lab=nbf}
 N 440 510 440 510 {lab=gnd}
 C {devices/lab_pin.sym} 440 510 0 0 {name=p92 sig_type=std_logic lab=gnd}
+N 410 480 410 480 {lab=gnd}
+C {devices/lab_pin.sym} 410 480 0 0 {name=p93 sig_type=std_logic lab=gnd}
 C {devices/res.sym} 660 480 0 0 {name=rpd
 value=200000.0
 m=1
@@ -399,9 +404,9 @@ device=resistor
 sim_device=resistor
 }
 N 660 450 660 450 {lab=nb}
-C {devices/lab_pin.sym} 660 450 0 0 {name=p93 sig_type=std_logic lab=nb}
+C {devices/lab_pin.sym} 660 450 0 0 {name=p94 sig_type=std_logic lab=nb}
 N 660 510 660 510 {lab=gnd}
-C {devices/lab_pin.sym} 660 510 0 0 {name=p94 sig_type=std_logic lab=gnd}
+C {devices/lab_pin.sym} 660 510 0 0 {name=p95 sig_type=std_logic lab=gnd}
 C {devices/capa.sym} 880 480 0 0 {name=ctail
 value=8e-12
 m=1
@@ -410,9 +415,9 @@ device=capacitor
 sim_device=capacitor
 }
 N 880 450 880 450 {lab=tail}
-C {devices/lab_pin.sym} 880 450 0 0 {name=p95 sig_type=std_logic lab=tail}
+C {devices/lab_pin.sym} 880 450 0 0 {name=p96 sig_type=std_logic lab=tail}
 N 880 510 880 510 {lab=gnd}
-C {devices/lab_pin.sym} 880 510 0 0 {name=p96 sig_type=std_logic lab=gnd}
+C {devices/lab_pin.sym} 880 510 0 0 {name=p97 sig_type=std_logic lab=gnd}
 C {sg13g2_pr/sg13_lv_nmos.sym} 1100 480 0 0 {name=mbp_rbf
 w=20u
 l=0.13u
@@ -422,10 +427,10 @@ model=sg13_lv_nmos
 spiceprefix=X
 }
 N 1120 450 1120 450 {lab=nb}
-C {devices/lab_pin.sym} 1120 450 0 0 {name=p97 sig_type=std_logic lab=nb}
+C {devices/lab_pin.sym} 1120 450 0 0 {name=p98 sig_type=std_logic lab=nb}
 N 1080 480 1080 480 {lab=vbp_tail}
-C {devices/lab_pin.sym} 1080 480 0 1 {name=p98 sig_type=std_logic lab=vbp_tail}
+C {devices/lab_pin.sym} 1080 480 0 1 {name=p99 sig_type=std_logic lab=vbp_tail}
 N 1120 510 1120 510 {lab=nbf}
-C {devices/lab_pin.sym} 1120 510 0 0 {name=p99 sig_type=std_logic lab=nbf}
+C {devices/lab_pin.sym} 1120 510 0 0 {name=p100 sig_type=std_logic lab=nbf}
 N 1120 480 1120 480 {lab=gnd}
-C {devices/lab_pin.sym} 1120 480 0 0 {name=p100 sig_type=std_logic lab=gnd}
+C {devices/lab_pin.sym} 1120 480 0 0 {name=p101 sig_type=std_logic lab=gnd}
