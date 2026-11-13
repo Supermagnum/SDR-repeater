@@ -1,0 +1,38 @@
+# P2.7.2b DAC array LVS fix — stop report (2026-11-13)
+
+## Pass criteria per stage
+
+| Stage | Criterion | Result |
+|-------|-----------|--------|
+| Routing plan in `p27-layout-notes.md` | before redraw | PASS [HAND/PDK]. M2-H / M3-V; track 0.40/0.90; pitch 12.50×8.17 µm. |
+| 3b-a devices + vdd/gnd (codes on code_gnd) | DRC + KLayout LVS + netgen | PASS [TOOL]. area 0.0067 mm². |
+| 3b-b code bits b0…b4, then D | DRC + LVS each step | PASS [TOOL]. each incremental prove clean. |
+| 3b-c full array (`--nets all`) | DRC clean (density waived); LVS+netgen; 55 nets | PASS [TOOL]. area **0.0068 mm²** ≤ 0.015. Centroid kept. |
+| 4a tail_mt (480u/4u ng=96) | DRC + LVS | PASS [TOOL]. area 0.0058 mm². |
+| 4b OTA (centroid pair) | DRC + LVS | NOT STARTED. |
+| 4c D9 rhigh 1 MΩ + en_vco_bias_bp / mbp_rbf | DRC + LVS | NOT STARTED. |
+| 4d D22 tail-only bypass (en_vco_tail_bp) | DRC + LVS | NOT STARTED (same device as mbp_rbf in sch). |
+| 4e 16 cbf rfcmim tiles | DRC + LVS | NOT STARTED. |
+| 5 Island ≤ 0.34 mm² | forecast | PARTIAL [GDS]. placed ≈ 0.274 (core+tank+bank+dac+tail). |
+| 6 Specs + commit | | Specs touched; **commit not made** (ask first). |
+
+## What failed or is uncertain
+- Finger-count script on array: not re-run this session (LVS net count 55 matches; W/L from extract OK).
+- OTA / RC / cbf layout not started — stop after first open stage-4 cell that passed (tail_mt).
+- Island total with 16× 45.644 µm MIM still needs option A (≤ 0.34); final assemble not drawn.
+- Property noise: none material on dac_array / tail_mt proves this run.
+
+## Decision needed
+1. Commit this job’s files (`build_cells.py`, array+tail gds.gz/spice/reports/renders, layout-notes, floorplan §8, phase2-plan §3)? Say yes/no.
+2. Continue next run with OTA (centroid), then D9 rhigh+bypasses, then cbf tiles?
+
+## Found, not done
+- OTA cell + prove
+- D9 rhigh + mbp_rbf (+ any separate tail bypass if distinct from sch)
+- 16 cbf tiles over DAC/OTA/tail where M5 free
+- Full island assemble vs ≤ 0.34 mm²
+- Finger-count script formal run on array
+- git commit / push (await owner)
+
+## Next run
+**P2.7.2b OTA + D9 RC/bypass + cbf tiles** (varactor and bias only after this tail block finishes).

@@ -1,0 +1,4 @@
+* P2.7.2b tail_mt W=480u L=4u ng=96 [SCH amp_common]
+.subckt tail_mt tail nbf gnd
+Mmt tail nbf gnd gnd sg13_lv_nmos w=480.0u l=4.0u ng=96
+.ends

@@ -1,0 +1,18 @@
+13-Nov-2026 01:22:36 | INFO    | Your Klayout version is: KLayout 0.30.12 (required >= 0.30.5)
+13-Nov-2026 01:22:36 | INFO    | Running SG13G2 LVS checks on design /foss/designs/analog/vco/layout/p272b_tail/out/dac_array.gds on cell dac_array
+13-Nov-2026 01:22:39 | INFO    | ==============================================================================
+13-Nov-2026 01:22:39 | INFO    | Important Summary
+13-Nov-2026 01:22:39 | INFO    | +------------------+--------------------------------------------------------------+
+13-Nov-2026 01:22:39 | INFO    | | Status           | FAIL                                                         |
+13-Nov-2026 01:22:39 | INFO    | | Mode             | COMPARE                                                      |
+13-Nov-2026 01:22:39 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).               |
+13-Nov-2026 01:22:39 | INFO    | | Layout           | dac_array.gds                                                |
+13-Nov-2026 01:22:39 | INFO    | | Top Cell         | dac_array                                                    |
+13-Nov-2026 01:22:39 | INFO    | | Results Dir      | /foss/designs/analog/vco/layout/p272b_tail/out/lvs_dac_array |
+13-Nov-2026 01:22:39 | INFO    | | Warnings         | 0                                                            |
+13-Nov-2026 01:22:39 | INFO    | | Errors           | 1                                                            |
+13-Nov-2026 01:22:39 | INFO    | | Run Time (s)     | 3.082                                                        |
+13-Nov-2026 01:22:39 | INFO    | +------------------+--------------------------------------------------------------+
+13-Nov-2026 01:22:39 | ERROR   | Key errors:
+13-Nov-2026 01:22:39 | ERROR   |   - 2026-11-13 01:22:38 +0100: Memory Usage (486460K) : ERROR : Netlists don't match
+13-Nov-2026 01:22:39 | INFO    | ==============================================================================

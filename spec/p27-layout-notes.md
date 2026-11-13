@@ -241,6 +241,52 @@ PNG/SVG, DRC/LVS/netgen logs, `summary_assemble_*_PASS.txt`, `summary_rc_tank.tx
   floorplan §8 optional raise to 0.34 mm².
 - **Next:** owner decision on D9 options A–D; then resume tail / DAC / OTA.
 
+#### P2.7.2b DAC array — routing plan (2026-11-13) [PDK / HAND]
+
+Recorded before redraw (`decisions.md` “P2.7.2b DAC array”). Compact 0.0064 mm² kept as
+area target class; LVS shorts fixed by opening pitch within ≤ 0.015 mm² and one direction
+per metal.
+
+**PDK channel (SG13G2 tech defaults) [PDK]:**
+| Rule | Value |
+|---|---|
+| M1 width / space | 0.16 / 0.18 µm |
+| Mn (M2/M3) width / space | 0.20 / 0.21 µm |
+| Via1 width / space | 0.19 / 0.22 µm |
+| Track used | width 0.40 µm, pitch 0.90 µm (0.40 + 0.50 margin) |
+
+**Layer directions (strict):**
+| Layer | Direction | Nets |
+|---|---|---|
+| M1 | local only | unit straps, pins, NW tap |
+| M2 | horizontal only | vdd spine; xraw spine; pbias track; one track per code (`base`, b0..b4, `D`) above the array |
+| M3 | vertical only | drops from each pin’s **lane X** up/down to its M2 track |
+
+**Why lane X:** unit `code` pins share the same X in a column. A raw M3 riser at pin X
+merges every bit in that column. Each cell jogs on M2 inside a right-hand **lane
+channel** to a per-bit lane X (lanes stay inside the cell pitch so neighbours do not
+overlap), then M3 rises only on that lane.
+
+**Pitch / area forecast [HAND] → measured [GDS]:**
+- Unit bbox 5.20 × 6.17 µm (no per-cell GR) [GDS].
+- Lane channel = 7 × 0.90 = 6.30 µm.
+- `pitch_x` = 12.50 µm; `pitch_y` = 8.17 µm [GDS].
+- Full array (all codes) bbox area **0.0068 mm²** ≤ 0.015 [GDS].
+
+**Build order (LVS after each) — DONE 2026-11-13 [TOOL]:**
+(a) vdd + pbias + xraw, all codes on `code_gnd` — DRC/LVS/netgen PASS;
+(b) b0 → b4 → D one bit at a time — each step PASS;
+(c) full `all` — DRC clean (density waived), KLayout LVS PASS, netgen PASS;
+    55 nets match schematic (51× xd + vdd/pbias/xraw/code_*).
+
+**Fixes recorded during prove:**
+- Via centre = via_stack origin (not −0.2 offset) so bus vias land on M2 tracks.
+- xraw M2 spine below outer GR (abb.bottom−4); pin M1 on GR shorted xraw→vdd [LVS].
+- NW fill under array so PMOS bulks merge to GR→vdd (else 51 floating bulks) [LVS].
+- Array unit instances: no m1pin/m1txt (unit pin texts became top ports) [LVS].
+- No second Via1 on unit xraw pin (V1.b vs unit via) [DRC].
+Centroid order and edge dummy kept.
+
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin
 target −105 retired. Post-layout re-check target ≤ −100 dBc at that point.

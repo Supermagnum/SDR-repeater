@@ -1,0 +1,1 @@
+lvs {/foss/designs/analog/vco/layout/p272b_tail/out/tail_mt.spice tail_mt} {/foss/designs/analog/vco/layout/p272b_tail/out/lvs_tail_mt/tail_mt_extracted.cir tail_mt} /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl /foss/designs/analog/vco/layout/p272b_tail/out/netgen_tail_mt.json

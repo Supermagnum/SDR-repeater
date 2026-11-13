@@ -1,0 +1,18 @@
+13-Nov-2026 01:12:07 | INFO    | Your Klayout version is: KLayout 0.30.12 (required >= 0.30.5)
+13-Nov-2026 01:12:07 | ERROR   | The input GDS file path /foss/designs/analog/vco/layout/p272b_tail/out/dac_unit.gds doesn't exist, please recheck.
+13-Nov-2026 01:12:07 | INFO    | ==============================================================================
+13-Nov-2026 01:12:07 | INFO    | Important Summary
+13-Nov-2026 01:12:07 | INFO    | +------------------+--------------------------------------------------------------+
+13-Nov-2026 01:12:07 | INFO    | | Status           | UNKNOWN                                                      |
+13-Nov-2026 01:12:07 | INFO    | | Mode             | COMPARE                                                      |
+13-Nov-2026 01:12:07 | INFO    | | Outcome          | Comparison mode: outcome unknown (layout log not found).     |
+13-Nov-2026 01:12:07 | INFO    | | Layout           | dac_unit.gds                                                 |
+13-Nov-2026 01:12:07 | INFO    | | Top Cell         | dac_unit                                                     |
+13-Nov-2026 01:12:07 | INFO    | | Results Dir      | /foss/designs/analog/vco/layout/p272b_tail/out/lvs_dac_unit  |
+13-Nov-2026 01:12:07 | INFO    | | Warnings         | 0                                                            |
+13-Nov-2026 01:12:07 | INFO    | | Errors           | 1                                                            |
+13-Nov-2026 01:12:07 | INFO    | | Run Time (s)     | 0.5                                                          |
+13-Nov-2026 01:12:07 | INFO    | +------------------+--------------------------------------------------------------+
+13-Nov-2026 01:12:07 | ERROR   | Key errors:
+13-Nov-2026 01:12:07 | ERROR   |   - The input GDS file path /foss/designs/analog/vco/layout/p272b_tail/out/dac_unit.gds doesn't exist, please recheck.
+13-Nov-2026 01:12:07 | INFO    | ==============================================================================

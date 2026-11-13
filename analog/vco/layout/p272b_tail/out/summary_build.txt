@@ -1,0 +1,7 @@
+# P2.7.2b DAC build stage=c nets=all
+
+CENTROID_31 counts: {'b4': 16, 'b3': 8, 'b2': 4, 'b1': 2, 'b0': 1, 'D': 1}
+tail_mt cols=97 drains=49 sources=48
+tail_mt bbox (-3.53,-6.23;422.96,7.39) area=0.0058 mm2
+wrote /foss/designs/analog/vco/layout/p272b_tail/out/tail_mt.gds (+.gz)
+wrote tail_mt.spice

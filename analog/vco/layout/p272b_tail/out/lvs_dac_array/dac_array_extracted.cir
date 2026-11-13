@@ -1,0 +1,208 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 13/11/2026 06:59
+
+.SUBCKT dac_array code0 code1 code2 code3 code4 code_gnd code_vdd pbias vdd xraw
+M$1 \$4 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$2 xraw code_gnd \$4 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$3 \$5 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$4 xraw code_gnd \$5 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$5 \$6 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$6 xraw code_gnd \$6 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$7 \$7 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$8 xraw code_gnd \$7 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$9 \$8 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$10 xraw code_gnd \$8 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$11 \$9 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$12 xraw code_gnd \$9 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$13 \$10 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$14 xraw code_gnd \$10 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$15 \$26 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$16 xraw code_gnd \$26 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$17 \$28 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$18 xraw code_gnd \$28 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$19 \$29 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$20 xraw code_gnd \$29 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$21 \$30 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$22 xraw code_gnd \$30 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$23 \$31 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$24 xraw code_gnd \$31 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$25 \$32 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$26 xraw code_gnd \$32 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$27 \$33 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$28 xraw code_gnd \$33 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$29 \$63 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$30 \$48 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$31 xraw code_gnd \$48 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$32 xraw code4 \$63 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$33 \$49 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$34 \$64 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$35 xraw code3 \$64 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$36 xraw code_gnd \$49 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$37 \$50 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$38 \$65 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$39 xraw code_gnd \$50 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$40 xraw code2 \$65 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$41 \$51 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$42 \$66 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$43 xraw code4 \$66 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$44 xraw code_gnd \$51 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$45 \$67 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$46 \$52 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$47 xraw code3 \$67 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$48 xraw code_gnd \$52 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$49 \$68 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$50 xraw code4 \$68 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$51 \$69 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$52 xraw code1 \$69 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$53 \$70 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$54 xraw code4 \$70 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$55 \$87 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$56 xraw code4 \$87 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$57 \$89 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$58 xraw code0 \$89 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$59 \$91 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$60 xraw code4 \$91 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$61 \$93 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$62 xraw code3 \$93 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$63 \$94 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$64 xraw code4 \$94 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$65 \$95 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$66 xraw code2 \$95 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$67 \$96 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$68 xraw code3 \$96 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$69 \$98 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$70 xraw code4 \$98 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$71 \$115 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$72 xraw code4 \$115 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$73 \$116 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$74 xraw code3 \$116 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$75 \$118 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$76 xraw code2 \$118 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$77 \$119 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$78 xraw code4 \$119 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$79 \$120 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$80 xraw code3 \$120 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$81 \$121 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$82 xraw code4 \$121 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$83 \$122 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$84 xraw code1 \$122 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$85 \$123 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$86 xraw code4 \$123 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$87 \$140 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$88 xraw code4 \$140 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$89 \$141 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$90 xraw code_vdd \$141 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p
++ PS=4.68u PD=4.68u rfmode=0
+M$91 \$142 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$92 xraw code3 \$142 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$93 \$143 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$94 xraw code4 \$143 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$95 \$144 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$96 xraw code4 \$144 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$97 \$145 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$98 xraw code2 \$145 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$99 \$146 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$100 xraw code3 \$146 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$101 \$147 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$102 xraw code4 \$147 vdd sg13_lv_pmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+.ENDS dac_array

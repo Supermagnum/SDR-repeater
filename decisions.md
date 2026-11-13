@@ -574,3 +574,18 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   varactor and detector. Re-spin compact (abutted cells, shared rails, one guard ring around
   the array), with the vdd / code-bus LVS fix in the same re-spin. Target ≤ 0.015 mm², set by
   unit-current matching.
+
+## 2026-11-13 — P2.7.2b DAC array
+- dac_unit W = L = 2 µm kept (Pelgrom minimum ≈ 0.36 µm² [PDK / HAND]). cbf as 16 rfcmim tiles
+  of 45.644 µm in the schematic.
+- Compact array area 0.0064 mm² accepted; its DRC / LVS (shorted code buses, split vdd,
+  pbias / xraw merge) not. Fix by opening the pitch within ≤ 0.015 mm² and a planned routing
+  scheme (one direction per layer, fixed track per code bit, vdd mesh), built incrementally
+  with LVS after each net group.
+
+## 2026-11-13 — P2.7.2b DAC array and tail transistor
+- dac_array accepted: built incrementally (vdd → b0…b4 → dummies → all), DRC / KLayout LVS /
+  netgen clean at each step, 55 nets, centroid kept; 0.0068 mm² [GDS].
+- tail_mt (480 µm / 4 µm, ng = 96) accepted: DRC / LVS / netgen clean; 0.0058 mm² [GDS].
+- Island placed ≈ 0.274 mm² [GDS]; forecast with cbf beside ≈ 0.33 of ≤ 0.34 mm². cbf tiles go
+  over the DAC / tail / OTA where M5 is free, to keep slack.

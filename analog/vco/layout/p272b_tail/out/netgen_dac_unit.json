@@ -1,0 +1,24 @@
+
+Subcircuit summary:
+Circuit 1: dac_unit                        |Circuit 2: dac_unit                        
+-------------------------------------------|-------------------------------------------
+sg13_lv_pmos (2)                           |sg13_lv_pmos (2)                           
+Number of devices: 2                       |Number of devices: 2                       
+Number of nets: 5                          |Number of nets: 5                          
+---------------------------------------------------------------------------------------
+Netlists match uniquely.
+
+Subcircuit pins:
+Circuit 1: dac_unit                        |Circuit 2: dac_unit                        
+-------------------------------------------|-------------------------------------------
+vdd                                        |vdd                                        
+pbias                                      |pbias                                      
+xraw                                       |xraw                                       
+code                                       |code                                       
+xd                                         |xd                                         
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes dac_unit and dac_unit are equivalent.
+
+Final result: Circuits match uniquely.
+.

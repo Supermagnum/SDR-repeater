@@ -1,0 +1,2 @@
+drc_clean=True non_density=[]
+klayout=True netgen=True

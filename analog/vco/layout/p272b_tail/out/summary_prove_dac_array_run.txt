@@ -1,0 +1,14 @@
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_tail/out/dac_array.gds --topcell=dac_array --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_tail/out/drc_dac_array --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_tail/out/drc_dac_array.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_tail/out/dac_array.gds --netlist=/foss/designs/analog/vco/layout/p272b_tail/out/dac_array.spice --topcell=dac_array --run_dir=/foss/designs/analog/vco/layout/p272b_tail/out/lvs_dac_array --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_tail/out/lvs_klayout_dac_array.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_tail/out/netgen_dac_array.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_tail/out/netgen_dac_array.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_tail/out/_klayout_shot_dac_array.py -rd out=/foss/designs/analog/vco/layout/p272b_tail/out -rd name=dac_array
+  exit 0; log /foss/designs/analog/vco/layout/p272b_tail/out/render_dac_array.log
+
+# Summary
+cell=dac_array
+DRC clean (density waived): False  non-density=['M2.b', 'M3.b']
+KLayout LVS: FAIL
+netgen: FAIL

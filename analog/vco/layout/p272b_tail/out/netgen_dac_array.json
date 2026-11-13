@@ -1,0 +1,33 @@
+Flattening unmatched subcell dac_unit in circuit dac_array (0)(51 instances)
+
+Subcircuit summary:
+Circuit 1: dac_array                       |Circuit 2: dac_array                       
+-------------------------------------------|-------------------------------------------
+sg13_lv_pmos (102)                         |sg13_lv_pmos (102)                         
+Number of devices: 102                     |Number of devices: 102                     
+Number of nets: 61                         |Number of nets: 61                         
+---------------------------------------------------------------------------------------
+Resolving symmetries by property value.
+Resolving symmetries by pin name.
+Resolving symmetries by net name.
+Netlists match with 15 symmetries.
+
+Subcircuit pins:
+Circuit 1: dac_array                       |Circuit 2: dac_array                       
+-------------------------------------------|-------------------------------------------
+code0                                      |code0                                      
+code_vdd                                   |code_vdd                                   
+code2                                      |code2                                      
+code3                                      |code3                                      
+code4                                      |code4                                      
+code_gnd                                   |code_gnd                                   
+code1                                      |code1                                      
+pbias                                      |pbias                                      
+xraw                                       |xraw                                       
+vdd                                        |vdd                                        
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes dac_array and dac_array are equivalent.
+
+Final result: Circuits match uniquely.
+.

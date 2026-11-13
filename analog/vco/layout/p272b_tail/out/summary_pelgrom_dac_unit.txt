@@ -1,0 +1,11 @@
+# P2.7.2b DAC unit Pelgrom sizing [PDK / HAND]
+A_Vt(pmos)=0.0022 V·µm  A_β=0.0033  [PDK sg13g2_moslv_mismatch.lib]
+Target σ(ΔI/I)_unit ≤ 0.0299 (3σ·√31 DNL < 0.5 LSB, 5-bit binary) [HAND]
+gm/Id from OP: UNAVAILABLE — using fallback 8.0 1/V [HAND]
+Minimum W·L = 0.358 µm² [HAND]
+Current unit W·L = 4.000 µm² [SCH]
+σ(ΔI/I) at current size = 0.90 %  (3σ·√31 = 15.0 % LSB) [HAND]
+KEEP W=2u L=2u — already above Pelgrom floor; no sch resize. [HAND]
+
+D22 search accuracy: unit finger law unchanged (I_tail=1.52+code×0.08 mA) if size kept; no re-search needed when KEEP. [SCH]
+RESULT resized=False W=2.0 L=2.0

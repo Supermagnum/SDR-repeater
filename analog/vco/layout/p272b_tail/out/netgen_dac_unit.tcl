@@ -1,0 +1,1 @@
+lvs {/foss/designs/analog/vco/layout/p272b_tail/out/dac_unit.spice dac_unit} {/foss/designs/analog/vco/layout/p272b_tail/out/lvs_dac_unit/dac_unit_extracted.cir dac_unit} /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl /foss/designs/analog/vco/layout/p272b_tail/out/netgen_dac_unit.json
