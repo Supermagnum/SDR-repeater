@@ -1,0 +1,2 @@
+drc_clean=False non_density=['Gat.b', 'M1.b']
+klayout=True netgen=False

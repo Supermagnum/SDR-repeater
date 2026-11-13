@@ -1,0 +1,10 @@
+* P2.7.2b ota_vds [SCH amp_common] iss off-cell at ss
+.subckt ota_vds xref tail_f out vdd gnd ss
+Mmo1 d1 xref ss gnd sg13_lv_nmos w=8.0u l=2.0u ng=2
+Mmo2 out tail_f ss gnd sg13_lv_nmos w=8.0u l=2.0u ng=2
+Mmp1 d1 d1 vdd vdd sg13_lv_pmos w=4.0u l=2.0u ng=2
+Mmp2 out d1 vdd vdd sg13_lv_pmos w=4.0u l=2.0u ng=2
+* edge dummies (gates/SD to gnd)
+MdL gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
+MdR gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
+.ends

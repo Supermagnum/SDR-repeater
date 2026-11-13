@@ -1,0 +1,22 @@
+13-Nov-2026 11:32:12 | INFO    | Your Klayout version is: KLayout 0.30.12 (required >= 0.30.5)
+13-Nov-2026 11:32:12 | INFO    | Running SG13G2 LVS checks on design /foss/designs/analog/vco/layout/p272b_tail/out/ota_vds.gds on cell ota_vds
+13-Nov-2026 11:32:15 | INFO    | ==============================================================================
+13-Nov-2026 11:32:15 | INFO    | Important Summary
+13-Nov-2026 11:32:15 | INFO    | +------------------+--------------------------------------------------------------+
+13-Nov-2026 11:32:15 | INFO    | | Status           | FAIL                                                         |
+13-Nov-2026 11:32:15 | INFO    | | Mode             | COMPARE                                                      |
+13-Nov-2026 11:32:15 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).               |
+13-Nov-2026 11:32:15 | INFO    | | Layout           | ota_vds.gds                                                  |
+13-Nov-2026 11:32:15 | INFO    | | Top Cell         | ota_vds                                                      |
+13-Nov-2026 11:32:15 | INFO    | | Results Dir      | /foss/designs/analog/vco/layout/p272b_tail/out/lvs_ota_vds   |
+13-Nov-2026 11:32:15 | INFO    | | Warnings         | 0                                                            |
+13-Nov-2026 11:32:15 | INFO    | | Errors           | 5                                                            |
+13-Nov-2026 11:32:15 | INFO    | | Run Time (s)     | 2.934                                                        |
+13-Nov-2026 11:32:15 | INFO    | +------------------+--------------------------------------------------------------+
+13-Nov-2026 11:32:15 | ERROR   | Key errors:
+13-Nov-2026 11:32:15 | ERROR   |   - 2026-11-13 11:09:57 +0100: Memory Usage (483544K) : ERROR : Netlists don't match
+13-Nov-2026 11:32:15 | ERROR   |   - 2026-11-13 11:15:58 +0100: Memory Usage (485624K) : ERROR : Netlists don't match
+13-Nov-2026 11:32:15 | ERROR   |   - 2026-11-13 11:19:27 +0100: Memory Usage (483604K) : ERROR : Netlists don't match
+13-Nov-2026 11:32:15 | ERROR   |   - 2026-11-13 11:21:09 +0100: Memory Usage (486316K) : ERROR : Netlists don't match
+13-Nov-2026 11:32:15 | ERROR   |   - 2026-11-13 11:23:00 +0100: Memory Usage (484716K) : ERROR : Netlists don't match
+13-Nov-2026 11:32:15 | INFO    | ==============================================================================

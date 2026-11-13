@@ -1,0 +1,27 @@
+
+Class ota_vds (0):  Merged 1 parallel devices.
+Subcircuit summary:
+Circuit 1: ota_vds                         |Circuit 2: ota_vds                         
+-------------------------------------------|-------------------------------------------
+sg13_lv_nmos (4->3)                        |sg13_lv_nmos (3)                           
+sg13_lv_pmos (2)                           |sg13_lv_pmos (2)                           
+Number of devices: 5                       |Number of devices: 5                       
+Number of nets: 7                          |Number of nets: 7                          
+---------------------------------------------------------------------------------------
+Netlists match uniquely.
+
+Subcircuit pins:
+Circuit 1: ota_vds                         |Circuit 2: ota_vds                         
+-------------------------------------------|-------------------------------------------
+gnd                                        |gnd                                        
+ss                                         |ss                                         
+out                                        |out                                        
+xref                                       |xref                                       
+tail_f                                     |tail_f                                     
+vdd                                        |vdd                                        
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes ota_vds and ota_vds are equivalent.
+
+Final result: Circuits match uniquely.
+.

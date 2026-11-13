@@ -1,0 +1,61 @@
+# P2.7.2b Prompt 06 stop — OTA / D9 / cbf / join
+Date: 2026-11-13 [TOOL]
+
+## Stage results vs pass criteria
+
+### Finger-count (dac_array, tail_mt, ota_vds) [TOOL]
+- dac_unit / dac_array / tail_mt / ota_vds: all PASS
+  (ota: nmos_ngs=[1,1,2,2] pmos_ngs=[2,2])
+- summary: out/summary_finger_check.txt
+
+### 1. ota_vds
+- DRC clean (density waived): PASS [TOOL]
+- KLayout LVS: PASS [TOOL]
+- netgen: PASS [TOOL]
+- Finger counts: PASS [TOOL]
+- Area: 0.0017 mm2 [GDS]
+- Notes: M2 mid buses for d1/d2; no M1 through gate-pad Y; p+ GR to gnd;
+  ntap1 inside NW fill left of mp1 to vdd.
+
+### 2. d9_rc (rhigh 1 M + mbp_rbf)
+- DRC clean (density waived): FAIL — Gat.b, M1.b remain [TOOL]
+- KLayout LVS: PASS (with --ignore_top_ports_mismatch) [TOOL]
+- netgen: FAIL — pin matching (extracted ports only nb,nbf; gate Cont /
+  en_vco_bias_bp and gnd pin not on extracted ports; bulk tied to nb) [TOOL]
+- Area: 0.0040 mm2 [GDS]
+- Uncertain: Gat.b poly strap spacing; gnd↔GR strap vs nb; netgen rhigh model
+
+### 3. cbf tiles (plan + place)
+- Found, not done
+
+### 4. Join tail sub-block
+- Found, not done
+
+### 5. Island area vs ≤ 0.34 mm2
+- Found, not done (no update beyond prior 0.274 + ota 0.0017)
+
+### 6. Spec updates
+- Found, not done
+
+## What failed or is uncertain
+- d9_rc: DRC Gat.b / M1.b; netgen pin match; gate pin and gnd not in
+  extracted port list; MOS/res bulk extracted on nb.
+- cbf over-device plan, join, island forecast, specs: not started this run.
+
+## Decision needed
+1. Accept ota_vds (DRC+LVS+netgen+fingers PASS, 0.0017 mm2) and continue
+   d9_rc fixes next, or
+2. Pause for a d9_rc routing review (tight L=0.13 bypass + rhigh GR) before
+   cbf / join.
+
+## Found, not done
+- d9_rc DRC + netgen clean (gate Cont, gnd bulk)
+- cbf 16-tile plan (over DAC/tail/OTA where M5 free) + place
+- join tail sub-block LVS / net count
+- island ≤ 0.34 mm2 with updated forecast
+- spec/p27-layout-notes.md, p27-floorplan.md §8, phase2-plan.md §3
+- commit of full job artifacts (partial work present under out/)
+
+## Next run (expected)
+P2.7.2b — finish d9_rc, then cbf tiles, then join; after that:
+P2.7.2b, next sub-block — varactor and bias.

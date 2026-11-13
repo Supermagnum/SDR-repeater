@@ -1,0 +1,18 @@
+13-Nov-2026 11:09:54 | INFO    | Your Klayout version is: KLayout 0.30.12 (required >= 0.30.5)
+13-Nov-2026 11:09:54 | INFO    | Running SG13G2 LVS checks on design /foss/designs/analog/vco/layout/p272b_tail/out/ota_vds.gds on cell ota_vds
+13-Nov-2026 11:09:57 | INFO    | ==============================================================================
+13-Nov-2026 11:09:57 | INFO    | Important Summary
+13-Nov-2026 11:09:57 | INFO    | +------------------+--------------------------------------------------------------+
+13-Nov-2026 11:09:57 | INFO    | | Status           | FAIL                                                         |
+13-Nov-2026 11:09:57 | INFO    | | Mode             | COMPARE                                                      |
+13-Nov-2026 11:09:57 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).               |
+13-Nov-2026 11:09:57 | INFO    | | Layout           | ota_vds.gds                                                  |
+13-Nov-2026 11:09:57 | INFO    | | Top Cell         | ota_vds                                                      |
+13-Nov-2026 11:09:57 | INFO    | | Results Dir      | /foss/designs/analog/vco/layout/p272b_tail/out/lvs_ota_vds   |
+13-Nov-2026 11:09:57 | INFO    | | Warnings         | 0                                                            |
+13-Nov-2026 11:09:57 | INFO    | | Errors           | 1                                                            |
+13-Nov-2026 11:09:57 | INFO    | | Run Time (s)     | 3.208                                                        |
+13-Nov-2026 11:09:57 | INFO    | +------------------+--------------------------------------------------------------+
+13-Nov-2026 11:09:57 | ERROR   | Key errors:
+13-Nov-2026 11:09:57 | ERROR   |   - 2026-11-13 11:09:57 +0100: Memory Usage (483544K) : ERROR : Netlists don't match
+13-Nov-2026 11:09:57 | INFO    | ==============================================================================

@@ -1,0 +1,59 @@
+Netgen 1.5.324 compiled on Thu Oct 15 02:24:51 PM CEST 2026
+Warning: netgen command 'format' use fully-qualified name '::netgen::format'
+Warning: netgen command 'global' use fully-qualified name '::netgen::global'
+Reading netlist file /foss/designs/analog/vco/layout/p272b_tail/out/d9_rc.spice for /foss/designs/analog/vco/layout/p272b_tail/out/d9_rc.spice d9_rc
+Reading netlist file /foss/designs/analog/vco/layout/p272b_tail/out/lvs_d9_rc/d9_rc_extracted.cir for /foss/designs/analog/vco/layout/p272b_tail/out/lvs_d9_rc/d9_rc_extracted.cir d9_rc
+
+Reading setup file /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl
+
+No property as found for device sg13_lv_nmos
+No property ad found for device sg13_lv_nmos
+No property ps found for device sg13_lv_nmos
+No property pd found for device sg13_lv_nmos
+No such pin 1 in model sg13_lv_nmos
+Unable to permute model sg13_lv_nmos pins 1, 3.
+No property as found for device sg13_lv_nmos
+No property ad found for device sg13_lv_nmos
+No property pd found for device sg13_lv_nmos
+No property ps found for device sg13_lv_nmos
+No property trise found for device sg13_lv_nmos
+No property z1 found for device sg13_lv_nmos
+No property z2 found for device sg13_lv_nmos
+No property wmin found for device sg13_lv_nmos
+No property rfmode found for device sg13_lv_nmos
+No property pre_layout found for device sg13_lv_nmos
+No such pin 1 in model sg13_lv_nmos
+Unable to permute model sg13_lv_nmos pins 1, 3.
+No property ng found for device sg13_lv_nmos
+No property as found for device sg13_lv_nmos
+No property ad found for device sg13_lv_nmos
+No property pd found for device sg13_lv_nmos
+No property ps found for device sg13_lv_nmos
+No property trise found for device sg13_lv_nmos
+No property z1 found for device sg13_lv_nmos
+No property z2 found for device sg13_lv_nmos
+No property wmin found for device sg13_lv_nmos
+No property pre_layout found for device sg13_lv_nmos
+Comparison output logged to file /foss/designs/analog/vco/layout/p272b_tail/out/netgen_d9_rc.json
+Logging to file "/foss/designs/analog/vco/layout/p272b_tail/out/netgen_d9_rc.json" enabled
+
+Contents of circuit 1:  Circuit: 'd9_rc'
+Circuit d9_rc contains 2 device instances.
+  Class: sg13_lv_nmos          instances:   1
+  Class: gnd                   instances:   1
+Circuit contains 4 nets.
+Contents of circuit 2:  Circuit: 'd9_rc'
+Circuit d9_rc contains 2 device instances.
+  Class: nb                    instances:   1
+  Class: sg13_lv_nmos          instances:   1
+Circuit contains 3 nets.
+
+Circuit 1 contains 2 devices, Circuit 2 contains 2 devices.
+Circuit 1 contains 4 nets,    Circuit 2 contains 3 nets. *** MISMATCH ***
+
+
+Final result: 
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
+Logging to file "/foss/designs/analog/vco/layout/p272b_tail/out/netgen_d9_rc.json" disabled
+LVS Done.

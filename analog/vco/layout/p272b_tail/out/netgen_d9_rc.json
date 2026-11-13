@@ -1,0 +1,46 @@
+
+Subcircuit summary:
+Circuit 1: d9_rc                           |Circuit 2: d9_rc                           
+-------------------------------------------|-------------------------------------------
+gnd (1)                                    |(no matching element)                      
+sg13_lv_nmos (1)                           |sg13_lv_nmos (1)                           
+(no matching element)                      |nb (1)                                     
+Number of devices: 2                       |Number of devices: 2                       
+Number of nets: 4 **Mismatch**             |Number of nets: 3 **Mismatch**             
+---------------------------------------------------------------------------------------
+NET mismatches: Class fragments follow (with fanout counts):
+Circuit 1: d9_rc                           |Circuit 2: d9_rc                           
+
+---------------------------------------------------------------------------------------
+Net: nbf                                   |Net: nbf                                   
+  gnd/(end_a|end_b) = 1                    |  nb/(end_a|end_b) = 1                     
+  sg13_lv_nmos/(drain|source) = 1          |  sg13_lv_nmos/(drain|source) = 1          
+                                           |                                           
+Net: nb                                    |Net: nb                                    
+  gnd/(end_a|end_b) = 1                    |  sg13_lv_nmos/bulk = 1                    
+  sg13_lv_nmos/(drain|source) = 1          |  sg13_lv_nmos/(drain|source) = 1          
+                                           |  nb/(end_a|end_b) = 1                     
+                                           |                                           
+Net: gnd                                   |(no matching net)                          
+  sg13_lv_nmos/bulk = 1                    |                                           
+---------------------------------------------------------------------------------------
+DEVICE mismatches: Class fragments follow (with node fanout counts):
+Circuit 1: d9_rc                           |Circuit 2: d9_rc                           
+
+---------------------------------------------------------------------------------------
+Instance: gnd:rbf                          |Instance: nb:$5                            
+  (end_a,end_b) = (2,2)                    |  (end_a,end_b) = (3,2)                    
+---------------------------------------------------------------------------------------
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
+
+Subcircuit pins:
+Circuit 1: d9_rc                           |Circuit 2: d9_rc                           
+-------------------------------------------|-------------------------------------------
+nb                                         |nbf **Mismatch**                           
+nbf                                        |nb **Mismatch**                            
+Cell pin lists are equivalent.
+Device classes d9_rc and d9_rc are equivalent.
+
+Final result: Netlists do not match.
+Port matching may fail to disambiguate symmetries.

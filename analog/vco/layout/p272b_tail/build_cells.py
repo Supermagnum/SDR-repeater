@@ -621,11 +621,509 @@ Mmt tail nbf gnd gnd sg13_lv_nmos w=480.0u l=4.0u ng=96
 """)
         self.say("wrote tail_mt.spice")
 
+    def _route_mos_sd(self, c, cols, even_is_drain=True):
+        """Split M1 SD columns into drain/source lists [pair lesson]."""
+        drains, sources = [], []
+        for i, col in enumerate(cols):
+            if (i % 2 == 0) == even_is_drain:
+                drains.append(col)
+            else:
+                sources.append(col)
+        return drains, sources
+
+    def _via12(self, c, vs12, x, y):
+        """Place M1–M2 via with explicit M1/M2 landing (avoids V1.b / M1.b)."""
+        self.box_m1(c, x - 0.30, y - 0.30, x + 0.30, y + 0.30)
+        self.box_m2(c, x - 0.30, y - 0.30, x + 0.30, y + 0.30)
+        self.place(c, vs12, x, y)
+
+    def _gate_bus(self, c, gates, at, x_pin, y_pin, name, label=True):
+        """Poly strap + Cont + M1 exit to pin (outboard, no bar over SD)."""
+        g0, g1 = gates[0], gates[-1]
+        c.shapes(self.poly).insert(
+            pya.DBox(g0.left, at + 0.08, g1.right, at + 0.55))
+        y_pad0 = max(at + 0.50, max(g.top for g in gates) + 0.30)
+        y_pad1 = y_pad0 + 0.50
+        for g in gates:
+            gx = 0.5 * (g.left + g.right)
+            half = 0.5 * (g.right - g.left)
+            c.shapes(self.poly).insert(
+                pya.DBox(gx - half, g.top - 0.05, gx + half, y_pad0 + 0.05))
+            c.shapes(self.cont).insert(
+                pya.DBox(gx - 0.08, y_pad0 + 0.16, gx + 0.08, y_pad0 + 0.32))
+        c.shapes(self.poly).insert(
+            pya.DBox(g0.left - 0.05, y_pad0, g1.right + 0.05, y_pad1))
+        self.box_m1(c, g0.left - 0.08, y_pad0 + 0.16,
+                    g1.right + 0.08, y_pad1 + 0.16)
+        # Horizontal only at pad Y, then vertical at x_pin (outboard)
+        self.box_m1(c, min(x_pin, g0.left) - 0.14, y_pad0 + 0.16,
+                    max(x_pin, g1.right) + 0.14, y_pad1 + 0.16)
+        self.box_m1(c, x_pin - 0.14, min(y_pad1, y_pin),
+                    x_pin + 0.14, max(y_pad1 + 0.28, y_pin + 0.28))
+        self.pin_m1(c, x_pin, y_pin, name, label=label)
+        return y_pad1
+
+    def _outer_ptap_gr(self, cell, x0, y0, x1, y1, ring=1.0, gap=1.2):
+        """P+ substrate guard ring to gnd (for NMOS / mixed cells) [PDK]."""
+        ox0, oy0 = x0 - gap - ring, y0 - gap - ring
+        ox1, oy1 = x1 + gap + ring, y1 + gap + ring
+        ix0, iy0 = x0 - gap, y0 - gap
+        ix1, iy1 = x1 + gap, y1 + gap
+        parts = [
+            (ox0, oy0, ox1, iy0),
+            (ox0, iy1, ox1, oy1),
+            (ox0, iy0, ix0, iy1),
+            (ix1, iy0, ox1, iy1),
+        ]
+        for a, b, c_, d in parts:
+            cell.shapes(self.activ).insert(pya.DBox(a, b, c_, d))
+            cell.shapes(self.psd).insert(
+                pya.DBox(a - 0.05, b - 0.05, c_ + 0.05, d + 0.05))
+            self.box_m1(cell, a, b, c_, d)
+        x = ox0 + 0.2
+        while x < ox1 - 0.3:
+            cell.shapes(self.cont).insert(
+                pya.DBox(x, iy1 + 0.2, x + 0.16, iy1 + 0.36))
+            x += 1.0
+        return ox0, oy0, ox1, oy1
+
+    def build_ota_vds(self):
+        """V_DS-matched OTA: mo1/mo2 centroid pair + mp1/mp2 loads [SCH].
+
+        Ports: xref, tail_f, out (d2), vdd, gnd, ss. Ideal iss is off-cell.
+        Routing: local M1 at devices only; d1/d2/ss/gnd join on M2 so PMOS
+        drain straps never cross the NMOS SD columns [LVS pair lesson].
+        """
+        c = self.ly.create_cell("ota_vds")
+        vs12 = self.pcell("via_stack", {
+            "b_layer": "Metal1", "t_layer": "Metal2",
+            "vn_columns": 1, "vn_rows": 1,
+        })
+        # Input pair 8u/2u ng=2; dummy fingers 4u/2u ng=1
+        mo = self.pcell("nmos", {
+            "w": "8.0u", "l": "2.0u", "ng": 2, "m": 1,
+            "guardRingType": "none",
+        })
+        dum = self.pcell("nmos", {
+            "w": "4.0u", "l": "2.0u", "ng": 1, "m": 1,
+            "guardRingType": "none",
+        })
+        mp = self.pcell("pmos", {
+            "w": "4.0u", "l": "2.0u", "ng": 2, "m": 1,
+            "guardRingType": "none",
+        })
+        mloc = self.ly.cell(mo).bbox().to_dtype(self.ly.dbu)
+        dloc = self.ly.cell(dum).bbox().to_dtype(self.ly.dbu)
+        ploc = self.ly.cell(mp).bbox().to_dtype(self.ly.dbu)
+
+        # Centroid row: D | mo1 | mo2 | D [HAND]
+        gap = 4.0
+        x = 0.0
+        bb_dL, t_dL = self.place(c, dum, x - dloc.left, 0)
+        x = bb_dL.right + gap
+        bb1, t1 = self.place(c, mo, x - mloc.left, 0)
+        x = bb1.right + gap
+        bb2, t2 = self.place(c, mo, x - mloc.left, 0)
+        x = bb2.right + gap
+        bb_dR, t_dR = self.place(c, dum, x - dloc.left, 0)
+        self.say(f"OTA pair dummies+mo1+mo2: {[bb_dL, bb1, bb2, bb_dR]}")
+
+        # PMOS loads above, aligned to mo1/mo2 (extra gap for M2 drain vias)
+        y_p = max(bb1.top, bb2.top) + 10.0
+        bb_p1, tp1 = self.place(c, mp, bb1.left - ploc.left, y_p - ploc.bottom)
+        bb_p2, tp2 = self.place(c, mp, bb2.left - ploc.left, y_p - ploc.bottom)
+
+        def sd_of(cid, trans):
+            cols = self.m1_cols(cid, trans)
+            return self._route_mos_sd(c, cols, even_is_drain=True)
+
+        dr1, sr1 = sd_of(mo, t1)
+        dr2, sr2 = sd_of(mo, t2)
+        drdL, srdL = sd_of(dum, t_dL)
+        drdR, srdR = sd_of(dum, t_dR)
+        pdr1, psr1 = sd_of(mp, tp1)
+        pdr2, psr2 = sd_of(mp, tp2)
+        self.say(f"mo1 SD nD={len(dr1)} nS={len(sr1)}; "
+                 f"mp1 nD={len(pdr1)} nS={len(psr1)}")
+
+        # Buses: ss/gnd BELOW nmos; d1/d2 BETWEEN nmos and pmos so PMOS
+        # drain M2 never crosses the ss bus [LVS].
+        y_ss = min(bb1.bottom, bb2.bottom) - 2.5
+        y_gnd = y_ss - 3.0
+        y_d1 = max(bb1.top, bb2.top) + 3.0
+        y_d2 = y_d1 + 3.0
+        # keep vdd rail clear of PMOS gate-pad / diode strap Y [LVS]
+        y_vdd = max(bb_p1.top, bb_p2.top) + 4.0
+
+        def m1_down_to_m2(cols, y_bus):
+            """Extend SD M1 down to y_bus + via (below device; no gate cross)."""
+            # via_stack is 0.29 wide; SD col is 0.16 — need M1 enclosure [DRC M1.b]
+            land = 0.28  # half-width → 0.56 pad; via 0.29 needs M2.b [DRC]
+            for col in cols:
+                cx = 0.5 * (col.left + col.right)
+                self.box_m1(c, col.left, y_bus, col.right, col.bottom)
+                self.box_m1(c, cx - land, y_bus, cx + land, y_bus + 0.40)
+                self.box_m2(c, cx - land, y_bus, cx + land, y_bus + 0.40)
+                self.place(c, vs12, cx, y_bus + 0.20)
+            self.box_m2(c, cols[0].left - 0.25, y_bus,
+                        cols[-1].right + 0.25, y_bus + 0.40)
+
+        def m1_up_via_m2(cols, y_bus):
+            """Via on existing SD M1 near top; join on M2 above (gate stays M1).
+
+            Do not extend M1 through the gate-pad Y — that shorts G↔D [LVS].
+            """
+            land = 0.28
+            for col in cols:
+                cx = 0.5 * (col.left + col.right)
+                yv = col.top - 0.20
+                self.box_m1(c, cx - land, yv - 0.20, cx + land, yv + 0.20)
+                self.box_m2(c, cx - land, yv - 0.20, cx + land, y_bus + 0.40)
+                self.place(c, vs12, cx, yv)
+            self.box_m2(c, cols[0].left - 0.25, y_bus,
+                        cols[-1].right + 0.25, y_bus + 0.40)
+
+        # mo1/mo2 sources → ss (M2 below)
+        m1_down_to_m2(sr1 + sr2, y_ss)
+        self.box_m2(c, sr1[0].left - 0.25, y_ss,
+                    sr2[-1].right + 0.25, y_ss + 0.40)
+        sx = sr1[0].left - 2.5
+        self._via12(c, vs12, sx, y_ss + 0.20)
+        self.box_m2(c, sx - 0.30, y_ss, sr1[0].left, y_ss + 0.40)
+        self.box_m1(c, sx - 0.30, y_ss - 1.2, sx + 0.30, y_ss + 0.40)
+        self.pin_m1(c, sx, y_ss - 1.0, "ss")
+
+        # mo1 drains UP to y_d1 (direct). mo2 drains jog RIGHT on M2 first so
+        # the d2 riser does not cross the d1 bus X/Y [LVS].
+        m1_up_via_m2(dr1, y_d1)
+        x_d2_lane = bb2.right + 1.5
+        for col in dr2:
+            cx = 0.5 * (col.left + col.right)
+            yv = col.top - 0.20
+            land = 0.22
+            self.box_m1(c, cx - land, yv - 0.20, cx + land, yv + 0.20)
+            self.place(c, vs12, cx, yv)
+            # horizontal to outboard lane at just above SD
+            self.box_m2(c, cx - land, yv - 0.15, x_d2_lane + 0.25, yv + 0.25)
+        self.box_m2(c, x_d2_lane - 0.25, yv - 0.15,
+                    x_d2_lane + 0.25, y_d2 + 0.40)
+        self.box_m2(c, x_d2_lane - 0.25, y_d2,
+                    x_d2_lane + 0.25, y_d2 + 0.40)
+
+        # Dummy SD → gnd (M2 below). Separate L/R buses — a full-width gnd
+        # bar would short any signal vertical that crosses this Y [LVS].
+        dum_cols = drdL + srdL + drdR + srdR
+        m1_down_to_m2(drdL + srdL, y_gnd)
+        m1_down_to_m2(drdR + srdR, y_gnd)
+        self.box_m2(c, min(dc.left for dc in drdL + srdL) - 0.25, y_gnd,
+                    max(dc.right for dc in drdL + srdL) + 0.25, y_gnd + 0.40)
+        self.box_m2(c, min(dc.left for dc in drdR + srdR) - 0.25, y_gnd,
+                    max(dc.right for dc in drdR + srdR) + 0.25, y_gnd + 0.40)
+
+        # Gates: mo1→xref, mo2→tail_f; pin Y above mid drain buses
+        at1 = self.activ_top(mo, t1)
+        at2 = self.activ_top(mo, t2)
+        g1 = self.poly_gates(mo, t1)
+        g2 = self.poly_gates(mo, t2)
+        # Gate pad sits on poly above activ; exit outboard clear of d1/d2 M1
+        y_xref = y_d2 + 2.5
+        self._gate_bus(c, g1, at1, bb1.left - 2.5, y_xref, "xref")
+        self._gate_bus(c, g2, at2, bb2.right + 2.5, y_xref, "tail_f")
+        # Dummy gates: local M1 short G to SD (all-gnd device) — no long via
+        # run that can miss and leave a floating gate net [LVS].
+        for gates, at, sd_cols in (
+            (self.poly_gates(dum, t_dL), self.activ_top(dum, t_dL), drdL + srdL),
+            (self.poly_gates(dum, t_dR), self.activ_top(dum, t_dR), drdR + srdR),
+        ):
+            g0, g1 = gates[0], gates[-1]
+            y_pad0 = max(at + 0.50, max(g.top for g in gates) + 0.30)
+            y_pad1 = y_pad0 + 0.50
+            for g in gates:
+                gx = 0.5 * (g.left + g.right)
+                half = 0.5 * (g.right - g.left)
+                c.shapes(self.poly).insert(
+                    pya.DBox(gx - half, g.top - 0.05, gx + half, y_pad0 + 0.05))
+                c.shapes(self.cont).insert(
+                    pya.DBox(gx - 0.08, y_pad0 + 0.16, gx + 0.08, y_pad0 + 0.32))
+            c.shapes(self.poly).insert(
+                pya.DBox(g0.left - 0.05, y_pad0, g1.right + 0.05, y_pad1))
+            self.box_m1(c, g0.left - 0.08, y_pad0 + 0.16,
+                        g1.right + 0.08, y_pad1 + 0.16)
+            # strap gate M1 to first SD column M1 (G=D=S for dummy)
+            sx = 0.5 * (sd_cols[0].left + sd_cols[0].right)
+            self.box_m1(c, min(g0.left, sx) - 0.14, y_pad0 + 0.16,
+                        max(g1.right, sx) + 0.14, y_pad1 + 0.16)
+            self.box_m1(c, sx - 0.14, sd_cols[0].top - 0.05,
+                        sx + 0.14, y_pad1 + 0.16)
+
+        # PMOS sources → vdd on M2 (via at SD top). Do NOT extend M1 through
+        # the gate-pad Y — that shorts G↔S=vdd and pulls d1 to vdd [LVS].
+        m1_up_via_m2(psr1 + psr2, y_vdd)
+        self.box_m2(c, psr1[0].left - 0.25, y_vdd,
+                    psr2[-1].right + 0.25, y_vdd + 0.40)
+        vx = 0.5 * (psr1[0].left + psr2[-1].right)
+        self._via12(c, vs12, vx, y_vdd + 0.20)
+        self.box_m1(c, vx - 0.30, y_vdd - 0.2, vx + 0.30, y_vdd + 0.60)
+        self.pin_m1(c, vx, y_vdd + 0.40, "vdd")
+
+        # PMOS drains: mp1 down to y_d1; mp2 jog to x_d2_lane then to y_d2
+        m1_down_to_m2(pdr1, y_d1)
+        self.box_m2(c, min(dr1[0].left, pdr1[0].left) - 0.25, y_d1,
+                    max(dr1[-1].right, pdr1[-1].right) + 0.25, y_d1 + 0.40)
+        for col in pdr2:
+            cx = 0.5 * (col.left + col.right)
+            land = 0.22
+            self.box_m1(c, col.left, y_d2, col.right, col.bottom)
+            self.box_m1(c, cx - land, y_d2, cx + land, y_d2 + 0.40)
+            # jog: from under PMOS go right on M2 at a Y between y_d2 and PMOS
+            y_jog = min(bb_p2.bottom - 1.0, (y_d2 + bb_p2.bottom) * 0.5)
+            self.place(c, vs12, cx, y_jog)
+            self.box_m1(c, cx - land, y_jog - 0.20, cx + land, col.bottom)
+            self.box_m2(c, cx - land, y_jog - 0.15, x_d2_lane + 0.25,
+                        y_jog + 0.25)
+        self.box_m2(c, x_d2_lane - 0.25, y_d2,
+                    x_d2_lane + 0.25, y_jog + 0.25)
+        self.box_m2(c, x_d2_lane - 0.30, y_d2, x_d2_lane + 0.30, y_d2 + 0.40)
+
+        # PMOS gates → d1 (diode). Outboard only — no cross-device strap at
+        # gate Y (source M2 risers would short G to vdd) [LVS].
+        gp1 = self.poly_gates(mp, tp1)
+        gp2 = self.poly_gates(mp, tp2)
+        atp1 = self.activ_top(mp, tp1)
+        atp2 = self.activ_top(mp, tp2)
+        x_pg = min(bb_p1.left, bb1.left) - 3.0
+        # right gate lane must clear the right-dummy gnd island [LVS]
+        x_pg2 = bb_dR.right + 4.0
+        y_pad_p = self._gate_bus(c, gp1, atp1, x_pg, atp1 + 1.8,
+                                 "d1_gate", label=False)
+        self._gate_bus(c, gp2, atp2, x_pg2, atp2 + 1.8, "d2_gate",
+                       label=False)
+        self._via12(c, vs12, x_pg, y_pad_p)
+        self._via12(c, vs12, x_pg2, y_pad_p)
+        # left gate → d1 direct. right gate → top-over (above vdd) then left
+        # to x_pg — never drops through the dummy gnd Y [LVS].
+        self.box_m2(c, x_pg - 0.25, y_d1, x_pg + 0.25, y_pad_p + 0.40)
+        self.box_m2(c, x_pg - 0.30, y_d1, max(dr1[-1].right, pdr1[-1].right),
+                    y_d1 + 0.40)
+        y_over = y_vdd + 2.5
+        self.box_m2(c, x_pg2 - 0.25, y_pad_p - 0.10, x_pg2 + 0.25,
+                    y_over + 0.40)
+        self.box_m2(c, x_pg - 0.25, y_over, x_pg2 + 0.25, y_over + 0.40)
+        self.box_m2(c, x_pg - 0.25, y_d1, x_pg + 0.25, y_over + 0.40)
+
+        # out = d2 pin on the d2 lane
+        ox = x_d2_lane + 2.0
+        self._via12(c, vs12, ox, y_d2 + 0.20)
+        self.box_m2(c, x_d2_lane - 0.30, y_d2, ox + 0.30, y_d2 + 0.40)
+        self.box_m1(c, ox - 0.30, y_d2 - 0.5, ox + 0.30, y_d2 + 0.40)
+        self.pin_m1(c, ox, y_d2 - 0.3, "out")
+
+        # gnd pin far left → left dummy island; right island via bottom skirt
+        # below the diode skirt so the mid-gap stays clear for d1 [LVS]
+        gx = bb_dL.left - 4.0
+        self._via12(c, vs12, gx, y_gnd + 0.20)
+        self.box_m2(c, gx - 0.30, y_gnd,
+                    min(dc.left for dc in drdL + srdL), y_gnd + 0.40)
+        self.box_m1(c, gx - 0.30, y_gnd - 1.2, gx + 0.30, y_gnd + 0.40)
+        self.pin_m1(c, gx, y_gnd - 1.0, "gnd")
+        y_gnd_tie = y_gnd - 5.0
+        x_r = max(dc.right for dc in drdR + srdR)
+        self.box_m2(c, x_r - 0.25, y_gnd_tie, x_r + 0.25, y_gnd + 0.40)
+        self.box_m2(c, gx - 0.25, y_gnd_tie, x_r + 0.25, y_gnd_tie + 0.40)
+        self.box_m2(c, gx - 0.25, y_gnd_tie, gx + 0.25, y_gnd + 0.40)
+
+        # NW fill + ntap LEFT of mp1 (right side is crossed by mp2 gate M1) [LVS]
+        nw_y0 = min(bb_p1.bottom, bb_p2.bottom) - 1.0
+        nw_y1 = max(bb_p1.top, bb_p2.top) + 1.5
+        self.box_nw_fill(c, min(bb_p1.left, bb_p2.left) - 2.5, nw_y0,
+                         max(bb_p1.right, bb_p2.right) + 1.5, nw_y1)
+        ntap = self.pcell("ntap1", {"w": "0.78u", "l": "0.78u"})
+        ntx = bb_p1.left - 2.0
+        nty = 0.5 * (bb_p1.bottom + bb_p1.top) - 0.39
+        self.place(c, ntap, ntx, nty)
+        self.box_m1(c, ntx, nty, ntx + 0.78, nty + 0.78)
+        # M2 up to y_vdd (M1 vertical would hit left gate exit at x_pg) [LVS]
+        self._via12(c, vs12, ntx + 0.39, nty + 0.39)
+        self.box_m2(c, ntx + 0.10, nty + 0.10, ntx + 0.68, y_vdd + 0.40)
+        self.box_m2(c, min(vx, ntx) - 0.30, y_vdd,
+                    max(vx, ntx + 0.78) + 0.30, y_vdd + 0.40)
+
+        # Outer p+ GR → gnd
+        abb = c.bbox().to_dtype(self.ly.dbu)
+        ox0, oy0, ox1, oy1 = self._outer_ptap_gr(
+            c, abb.left, abb.bottom, abb.right, abb.top, ring=1.0, gap=2.0)
+        strap_x = gx - 1.5
+        self._via12(c, vs12, strap_x, y_gnd + 0.20)
+        self.box_m2(c, strap_x - 0.30, y_gnd, gx + 0.30, y_gnd + 0.40)
+        self.box_m1(c, strap_x - 0.30, oy0, strap_x + 0.30, y_gnd + 0.40)
+
+        bb = c.bbox().to_dtype(self.ly.dbu)
+        area = bb.width() * bb.height() * 1e-6
+        self.say(f"ota_vds bbox {bb} area={area:.4f} mm2")
+        self.ota_area = area
+        return c.cell_index()
+
+    def write_spice_ota_vds(self):
+        open(os.path.join(OUT, "ota_vds.spice"), "w").write(
+            """* P2.7.2b ota_vds [SCH amp_common] iss off-cell at ss
+.subckt ota_vds xref tail_f out vdd gnd ss
+Mmo1 d1 xref ss gnd sg13_lv_nmos w=8.0u l=2.0u ng=2
+Mmo2 out tail_f ss gnd sg13_lv_nmos w=8.0u l=2.0u ng=2
+Mmp1 d1 d1 vdd vdd sg13_lv_pmos w=4.0u l=2.0u ng=2
+Mmp2 out d1 vdd vdd sg13_lv_pmos w=4.0u l=2.0u ng=2
+* edge dummies (gates/SD to gnd)
+MdL gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
+MdR gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
+.ends
+""")
+        self.say("wrote ota_vds.spice")
+
+    def build_d9_rc(self):
+        """D9 filter: rhigh 1 MΩ (rbf) + mbp_rbf start-up bypass [SCH].
+
+        Ports: nb, nbf, en_vco_bias_bp (=vbp_tail), gnd.
+        Resistor in psub guard [PDK]. Bypass at the nb end; nbf run on an
+        M2 side-lane so it never crosses the resistor body [LVS].
+        """
+        c = self.ly.create_cell("d9_rc")
+        vs12 = self.pcell("via_stack", {
+            "b_layer": "Metal1", "t_layer": "Metal2",
+            "vn_columns": 1, "vn_rows": 1,
+        })
+        rbf = self.pcell("rhigh", {
+            "R": "1e6", "w": "0.5u",
+            "guardRingType": "psub", "guardRingDistance": "1.5u",
+        })
+        mbp = self.pcell("nmos", {
+            "w": "20.0u", "l": "0.13u", "ng": 4, "m": 1,
+            "guardRingType": "none",
+        })
+        ptap = self.pcell("ptap1", {"w": "0.78u", "l": "0.78u"})
+
+        bb_r, tr = self.place(c, rbf, 0, 0)
+        self.say(f"rhigh 1M bbox {bb_r}")
+        m1s = []
+        for s in self.ly.cell(rbf).shapes(self.m1).each():
+            if s.is_box():
+                m1s.append(s.bbox().transformed(tr).to_dtype(self.ly.dbu))
+        # Terminals are the small end pads (not the tall/wide GR rails) [PDK]
+        terms = [b for b in m1s if b.width() < 1.0 and b.height() < 1.0]
+        assert len(terms) >= 2, f"rhigh terminals not found: {m1s}"
+        bot = min(terms, key=lambda b: b.bottom)
+        top = max(terms, key=lambda b: b.top)
+        nb_x = 0.5 * (bot.left + bot.right)
+        nbf_x = 0.5 * (top.left + top.right)
+        self.say(f"rhigh terminals bot={bot} top={top}")
+
+        # Bypass MOS below the resistor (nb end) [LVS]
+        bloc = self.ly.cell(mbp).bbox().to_dtype(self.ly.dbu)
+        x_m = bb_r.left - bloc.left
+        y_m = bb_r.bottom - 6.0 - bloc.height()
+        bb_m, tm = self.place(c, mbp, x_m, y_m)
+        cols = self.m1_cols(mbp, tm)
+        drains, sources = self._route_mos_sd(c, cols, even_is_drain=True)
+        gates = self.poly_gates(mbp, tm)
+        at = self.activ_top(mbp, tm)
+
+        # L=0.13 pitch is tight for per-finger vias. Strap D/S on M1 within
+        # column width only; single via to M2 outboard of the MOS [LVS].
+        y_nb = bb_m.bottom - 2.5
+        for col in drains:
+            self.box_m1(c, col.left, y_nb, col.right, col.bottom)
+        # drain collector bar below MOS (does not reach source cols sideways)
+        self.box_m1(c, drains[0].left, y_nb, drains[-1].right, y_nb + 0.28)
+        px_nb = bb_m.left - 3.0
+        self.box_m1(c, px_nb - 0.30, y_nb, drains[0].left, y_nb + 0.28)
+        self._via12(c, vs12, px_nb, y_nb + 0.14)
+        self.box_m2(c, px_nb - 0.30, y_nb, px_nb + 0.30, y_nb + 0.40)
+        # to resistor bottom terminal
+        self.box_m1(c, bot.left, bot.bottom - 0.5, bot.right, bot.bottom)
+        self._via12(c, vs12, nb_x, bot.bottom - 0.25)
+        self.box_m2(c, px_nb - 0.30, y_nb, nb_x + 0.30, y_nb + 0.40)
+        self.box_m2(c, nb_x - 0.30, y_nb, nb_x + 0.30, bot.bottom - 0.05)
+        self.box_m1(c, px_nb - 0.30, y_nb - 1.0, px_nb + 0.30, y_nb + 0.40)
+        self.pin_m1(c, px_nb, y_nb - 0.8, "nb")
+
+        x_lane = max(bb_r.right, bb_m.right) + 3.0
+        y_src = bb_m.top + 2.5
+        for col in sources:
+            self.box_m1(c, col.left, col.top - 0.05, col.right, y_src)
+        self.box_m1(c, sources[0].left, y_src - 0.28, sources[-1].right,
+                    y_src)
+        # via outboard right of MOS (clear of fingers)
+        px_s = bb_m.right + 2.0
+        self.box_m1(c, sources[-1].right, y_src - 0.28, px_s + 0.30, y_src)
+        self._via12(c, vs12, px_s, y_src - 0.14)
+        self.box_m2(c, px_s - 0.30, y_src - 0.30, x_lane + 0.25, y_src + 0.20)
+        self.box_m2(c, x_lane - 0.25, y_src - 0.30, x_lane + 0.25,
+                    top.top + 0.5)
+        self._via12(c, vs12, nbf_x, top.top + 0.3)
+        self.box_m1(c, top.left, top.top, top.right, top.top + 0.6)
+        self.box_m2(c, nbf_x - 0.25, top.top + 0.1, x_lane + 0.25,
+                    top.top + 0.5)
+        self.pin_m1(c, nbf_x, top.top + 1.0, "nbf")
+        self.box_m1(c, nbf_x - 0.25, top.top + 0.3, nbf_x + 0.25,
+                    top.top + 1.2)
+
+        # Gate: extend each finger poly up (Gat.d ≥0.07 to Activ), strap
+        # outboard only — no M1 over the SD columns [LVS / DRC Gat.d].
+        g0, g1 = gates[0], gates[-1]
+        y_poly = at + 0.20
+        for g in gates:
+            gx = 0.5 * (g.left + g.right)
+            half = 0.5 * (g.right - g.left)
+            c.shapes(self.poly).insert(
+                pya.DBox(gx - half, g.top - 0.02, gx + half, y_poly + 0.05))
+        c.shapes(self.poly).insert(
+            pya.DBox(g0.left, y_poly, g1.right, y_poly + 0.35))
+        x_g = bb_m.left - 2.5
+        c.shapes(self.poly).insert(
+            pya.DBox(x_g - 0.20, y_poly, g0.left + 0.05, y_poly + 0.35))
+        y_pad0 = y_poly + 0.45
+        y_pad1 = y_pad0 + 0.50
+        c.shapes(self.poly).insert(
+            pya.DBox(x_g - 0.25, y_pad0, x_g + 0.25, y_pad1))
+        c.shapes(self.cont).insert(
+            pya.DBox(x_g - 0.08, y_pad0 + 0.16, x_g + 0.08, y_pad0 + 0.32))
+        self.box_m1(c, x_g - 0.20, y_pad0 + 0.10, x_g + 0.20, y_pad1 + 0.20)
+        self.pin_m1(c, x_g, y_pad1 + 0.10, "en_vco_bias_bp")
+
+        # gnd: ptap + pin; bulk of MOS/res must land on this net [LVS]
+        gx = bb_m.right + 2.5
+        y_gnd = y_nb - 3.0
+        self.place(c, ptap, gx, y_gnd)
+        self.box_m1(c, gx, y_gnd - 0.2, gx + 0.78, y_gnd + 0.78)
+        self.pin_m1(c, gx + 0.39, y_gnd - 0.5, "gnd")
+        # Tie rhigh psub GR (left rail) to gnd — mid-height, clear of ends
+        y_gr = 0.5 * (bb_r.bottom + bb_r.top)
+        self.box_m1(c, bb_r.left - 0.05, y_gr - 0.20,
+                    bb_r.left + 0.35, y_gr + 0.20)
+        self.box_m1(c, bb_r.left - 0.05, y_gnd, gx + 0.78, y_gnd + 0.40)
+        self.box_m1(c, bb_r.left - 0.05, y_gnd,
+                    bb_r.left + 0.35, y_gr + 0.20)
+
+        bb = c.bbox().to_dtype(self.ly.dbu)
+        area = bb.width() * bb.height() * 1e-6
+        self.say(f"d9_rc bbox {bb} area={area:.4f} mm2")
+        self.d9_area = area
+        return c.cell_index()
+
+    def write_spice_d9_rc(self):
+        open(os.path.join(OUT, "d9_rc.spice"), "w").write(
+            """* P2.7.2b d9_rc: rbf 1M + mbp_rbf [SCH vco_tail_dac]
+* en_vco_bias_bp == vbp_tail (D22 start-up / tail-only bypass gate)
+.subckt d9_rc nb nbf en_vco_bias_bp gnd
+Rrbf nb nbf gnd rhigh w=0.5u l=354u
+Mmbp_rbf nb en_vco_bias_bp nbf gnd sg13_lv_nmos w=20.0u l=0.13u ng=4
+.ends
+""")
+        self.say("wrote d9_rc.spice")
+
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--stage", default="a",
-                    choices=list("abcde") + ["all"])
+                    choices=list("abcde") + ["all"] + ["f", "g"])
     ap.add_argument("--nets", default="all",
                     help="array incremental: vdd | vdd,b0 | … | all")
     args = ap.parse_args()
@@ -674,9 +1172,15 @@ def main():
         b.write_cell("tail_mt", cid)
         b.write_spice_tail_mt()
 
-    if args.stage in ("d", "e") and args.stage != "all":
-        b.say(f"stage {args.stage}: not yet implemented")
-        return 1
+    if args.stage in ("d", "all"):
+        cid = b.build_ota_vds()
+        b.write_cell("ota_vds", cid)
+        b.write_spice_ota_vds()
+
+    if args.stage in ("e", "all"):
+        cid = b.build_d9_rc()
+        b.write_cell("d9_rc", cid)
+        b.write_spice_d9_rc()
 
     open(os.path.join(OUT, "summary_build.txt"), "w").write("\n".join(b.log) + "\n")
     open(os.path.join(OUT, "centroid_order.json"), "w").write(

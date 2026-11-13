@@ -1,0 +1,1 @@
+lvs {/foss/designs/analog/vco/layout/p272b_tail/out/ota_vds.spice ota_vds} {/foss/designs/analog/vco/layout/p272b_tail/out/lvs_ota_vds/ota_vds_extracted.cir ota_vds} /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl /foss/designs/analog/vco/layout/p272b_tail/out/netgen_ota_vds.json

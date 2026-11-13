@@ -1,0 +1,14 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 13/11/2026 11:38
+
+.SUBCKT ota_vds gnd out ss tail_f vdd xref
+M$1 gnd gnd gnd gnd sg13_lv_nmos L=2u W=8u AS=2.72p AD=2.72p PS=17.36u
++ PD=17.36u rfmode=0
+M$2 \$3 xref ss gnd sg13_lv_nmos L=2u W=8u AS=2.12p AD=2.12p PS=13.06u
++ PD=13.06u rfmode=0
+M$4 out tail_f ss gnd sg13_lv_nmos L=2u W=8u AS=2.12p AD=2.12p PS=13.06u
++ PD=13.06u rfmode=0
+M$7 \$3 \$3 vdd vdd sg13_lv_pmos L=2u W=4u AS=1.06p AD=1.06p PS=7.06u PD=7.06u
++ rfmode=0
+M$9 out \$3 vdd vdd sg13_lv_pmos L=2u W=4u AS=1.06p AD=1.06p PS=7.06u PD=7.06u
++ rfmode=0
+.ENDS ota_vds

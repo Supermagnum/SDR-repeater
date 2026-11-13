@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Finger-count check for P2.7.2b dac_unit / dac_array / tail_mt [TOOL].
+"""Finger-count check for P2.7.2b dac / tail / ota [TOOL].
 
 Counts poly gate boxes in each MOS PCell child (same method as bank
 check_fingers). Catches ng clamps that still pass LVS on total W.
@@ -23,6 +23,8 @@ EXPECT = {
     "dac_unit": [("pmos mdb", 1), ("pmos msw", 1)],
     "dac_array": [("pmos per unit", 1)],  # each unit child ng=1; 102 devices
     "tail_mt": [("nmos mt", 96)],
+    # ota: mo1/mo2 ng=2, mp1/mp2 ng=2, dummies ng=1 [SCH]
+    "ota_vds": [("nmos mo", 2), ("pmos mp", 2), ("nmos dum", 1)],
 }
 
 
@@ -114,9 +116,33 @@ def check_tail_mt(gds):
     return ok, f"mos_children={ngs} expect mt ng=96"
 
 
+def check_ota_vds(gds):
+    ly = pya.Layout()
+    ly.read(gds)
+    top = ly.top_cell()
+    ngs = []
+    for inst in top.each_inst():
+        cell = ly.cell(inst.cell_index)
+        ng = poly_gate_count(cell)
+        if ng > 0 and ("nmos" in cell.name or "pmos" in cell.name):
+            ngs.append((cell.name, ng))
+    # Expect: 2× nmos ng=2 (mo), 2× pmos ng=2 (mp), 2× nmos ng=1 (dum)
+    from collections import Counter
+    cnt = Counter(ngs)
+    ok = (cnt[("nmos", 2)] >= 2 and cnt[("pmos", 2)] >= 2
+          and cnt[("nmos", 1)] >= 2)
+    # name may be nmos$1 etc — match by ng counts only
+    by_ng = Counter(ng for _, ng in ngs)
+    # Also count by cell name prefix
+    nmos_ngs = sorted(ng for name, ng in ngs if "nmos" in name)
+    pmos_ngs = sorted(ng for name, ng in ngs if "pmos" in name)
+    ok = (sorted(nmos_ngs) == [1, 1, 2, 2] and sorted(pmos_ngs) == [2, 2])
+    return ok, f"nmos_ngs={nmos_ngs} pmos_ngs={pmos_ngs} expect n[1,1,2,2] p[2,2]"
+
+
 def main():
     lines = [
-        "# Finger-count check — P2.7.2b dac / tail [TOOL]\n\n",
+        "# Finger-count check — P2.7.2b dac / tail / ota [TOOL]\n\n",
         "Method: tall/thin poly boxes in each MOS PCell child "
         "(excludes straps). Catches ng clamp vs total-W LVS pass.\n\n",
         "| cell | check | PASS |\n",
@@ -127,6 +153,7 @@ def main():
         ("dac_unit", check_dac_unit),
         ("dac_array", check_dac_array),
         ("tail_mt", check_tail_mt),
+        ("ota_vds", check_ota_vds),
     ]
     for name, fn in checks:
         gds = os.path.join(OUT, f"{name}.gds")
