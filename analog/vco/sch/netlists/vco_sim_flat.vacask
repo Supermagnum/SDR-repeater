@@ -129,7 +129,13 @@ mbp_rvn (vgn vbp vvb 0) sg13_lv_nmos w=5u l=0.13u ng=2
 ctail (tail 0) capacitor c=8e-12
 mt (tail nbf 0 0) sg13_lv_nmos w=160u l=4u ng=32
 rbf (nb nbf) resistor r=1000000.0
-cbf (nbf 0 0) cap_rfcmim w=182.574u l=182.574u
+cbf0 (nbf 0) cap_cmim w=69.007u l=69.007u
+cbf1 (nbf 0) cap_cmim w=69.007u l=69.007u
+cbf2 (nbf 0) cap_cmim w=69.007u l=69.007u
+cbf3 (nbf 0) cap_cmim w=69.007u l=69.007u
+cbf4 (nbf 0) cap_cmim w=69.007u l=69.007u
+cbf5 (nbf 0) cap_cmim w=69.007u l=69.007u
+cbf6 (nbf 0) cap_cmim w=69.007u l=69.007u
 mr (nb nb 0 0) sg13_lv_nmos w=20u l=4u ng=4
 iref (vdd nb) isource dc=0.0005
 mbp_rbf (nb vbp_tail nbf 0) sg13_lv_nmos w=20u l=0.13u ng=4

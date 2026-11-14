@@ -1,0 +1,11 @@
+# rfcmim cbf 16-tile area breakdown [GDS]
+cell_bbox_mm2=0.057359
+MIM_plate_sum_mm2=0.033328
+per_tile_MIM_um2=2083.01
+per_tile_bbox_um2=3237.61
+per_tile_ring_shield_feed_um2=1154.60
+sixteen_tile_bbox_mm2=0.051802
+sixteen_ring_mm2=0.018474
+merged_tile_bboxes_mm2=0.051802
+empty_spacing_mm2=0.005557
+overhead_vs_MIM_pct=72.1

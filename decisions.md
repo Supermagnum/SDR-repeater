@@ -609,3 +609,24 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - tail_block join not accepted: DRC M1.b/M2.b/V1.b; LVS nets merged (child pin texts +
   straps). Island sum 0.3372 ≤ 0.34 [GDS] but headroom ≈ 0.0028 mm² before varactor/D22/top
   route — stop for decision (32 tiles would save ≈ 0.029 mm² [HAND]).
+
+## 2026-11-14 — P2.7.2b tail block, cbf area
+- d9_rc accepted (DRC, KLayout LVS, netgen, ng = 4; 0.0039 mm² [GDS]).
+- cbf as 16 rfcmim tiles (0.0574 mm² [GDS], ≈ 70 % overhead over the MIM area) not accepted
+  for area. cbf becomes compact cmim tiles (largest pcell size, tight array, one ring around
+  the group), schematic and layout, after the PN / swing gate against ideal (ΔL < 0.1 dB,
+  swing < 2 %). If cmim fails the gate, keep rfcmim in the tightest legal array.
+- D23 island stays ≤ 0.34 mm²; ≤ 0.36 mm² allowed only if the compact cbf and the forecast for
+  varactor, D22 and top routing still exceed 0.34 (die re-total in spec/p27-floorplan.md §8).
+- Next: cbf re-spin and the tail_block join fix, before varactor and bias.
+
+## 2026-11-14 — P2.7.2b cbf as cmim
+- cbf accepted as 7 cmim tiles of 69.007 µm (50 pF): ΔL −0.011 / 0.000 dB, swing +0.02 % against
+  ideal [SCH]; layout 0.0431 mm², DRC / KLayout LVS / netgen clean [GDS / TOOL]; schematic
+  re-netlisted with the real tiles.
+- Island laid-out cells 0.3234 mm² [GDS]; that figure excludes the ≈ 0.017 mm² [HAND]
+  forecast for varactor, D22 and top routing → with forecast ≈ 0.340 mm², at the ≤ 0.34
+  limit. ≤ 0.36 mm² not needed unless the forecast or join packing grows.
+- tail_block join not accepted (filter / tail merged with gnd, nb with vdd / xraw). Finish it
+  before varactor and bias, with a per-cell layer-usage map and routing only on free layers or
+  around cells, LVS after each net group.

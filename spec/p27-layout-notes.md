@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b re-spin 2 PASS** (core+tank). **P2.7.2b D24 bank PASS** (stages a–d). **P2.7.2b bank fix PASS** (ng=100, dummy, denser). **P2.7.2b D9 finding** (tail blocked).
+Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12); D9 path ≤ 0.34.** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b re-spin 2 PASS** (core+tank). **P2.7.2b D24 bank PASS.** **cmim cbf PASS** (0.0431); island 0.3234/0.34. **tail join FAIL.**
 
 ---
 
@@ -306,12 +306,24 @@ GDS.gz / PNG / SVG / DRC / KLayout LVS / netgen; `check_fingers.py`; this note;
 | dac_unit, dac_array, tail_mt, ota_vds, d9_rc, cbf | Circuits match uniquely |
 
 **d9_rc PASS:** 0.0039 mm²; ports nb, nbf, en_vco_bias_bp, gnd; mbp ng=4 [GDS/TOOL].
-**cbf PASS:** 0.0574 mm²; 16 tiles pitch 60 µm; PLUS=nbf (TM1), MINUS|TIE=gnd [GDS].
-**tail_block FAIL:** join bbox 0.2088 mm²; DRC M1.b/M2.b/V1.b; extract shows code/gnd/nb
-nets merged. Not accepted.
-**Island sum:** 0.1102+0.1514+0.0068+0.0058+0.0017+0.0039+0.0574 = **0.3372 mm²** ≤ 0.34
-[GDS]. Headroom ≈ 0.0028 mm² — insufficient for varactor + D22 + top route [HAND].
-32 tiles (same C, side/√2) would save ≈ 0.029 mm² → island ≈ 0.308 [HAND].
+**cbf (rfcmim 16×) rejected for area** (`decisions.md` 2026-11-14): 0.0574 mm²;
+breakdown MIM 0.0333 + ring/shield 0.0185 + empty 0.0056 ≈ +72 % over MIM [GDS].
+
+#### P2.7.2b compact cmim cbf + join (2026-11-14)
+**cmim PN/swing gate PASS [SCH]:** 7× side 69.007 µm (Cmax 8 pF → side_max 73.03 µm
+[PDK]); ΔL −0.011 / 0.000 dB @ 100 kHz / 1 MHz; swing +0.02 % vs ideal
+(`out/summary_cmim_vs_ideal.txt`). Parallel 7× tiles (PSS on single size not required).
+**cbf layout PASS [TOOL/GDS]:** 7× cmim, pitch 70.14 µm (M5 abut, same-net gnd), one
+ptap GR; PLUS=nbf (TM1), MINUS=gnd (M5); area **0.0431 mm²**; DRC clean (density
+waived); KLayout LVS PASS; netgen PASS (`w=l=68.94u m=7` extract-rounded). Sch /
+vacask re-netlisted to 7× `cap_cmim` [SCH].
+**tail_block join FAIL [TOOL]:** child pin texts stripped; power-only extract has
+separate `gnd` and `vdd` [GDS]. Full route still merges `gnd|nbf|tail` and
+`nb|vdd|xraw`; DRC non-density M1.b/M2.b; KLayout LVS and netgen FAIL. Join bbox
+0.2288 mm². Not accepted.
+**Island sum [GDS]:** 0.1102+0.1514+0.0073+0.0058+0.0017+0.0039+0.0431 = **0.3234 mm²**
+(laid-out cells only). Forecast varactor+D22+top ≈ **0.017 mm²** [HAND] → **≈ 0.340 mm²**,
+at the ≤ 0.34 limit (not 0.0166 headroom). ≤ 0.36 not opened yet.
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin

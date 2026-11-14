@@ -122,25 +122,42 @@ class Sch:
             "pmos", name, [d, g, s, b],
             {"w": w, "l": l, "ng": str(ng), "model": model}))
 
-    def mim(self, name, c0, c1, bn, w_um, l_um):
+    def mim(self, name, c0, c1, bn, w_um, l_um, kind="rfcmim"):
+        """Place MIM. kind=rfcmim (3-term + TIE) or cmim (2-term) [PDK]."""
         x, y = self._slot()
         # xschem template uses metres; VACASK decks use um suffix on numbers.
         wu = float(str(w_um).rstrip("u")) * 1e-6
         lu = float(str(l_um).rstrip("u")) * 1e-6
-        self.lines.append(
-            f"C {{sg13g2_pr/cap_rfcmim.sym}} {x:g} {y:g} 0 0 {{name={name}\n"
-            f"model=cap_rfcmim\nlvs_model=rfcmim\n"
-            f"w={wu:.6e}\nl={lu:.6e}\nwfeed=5.0e-6\nm=1\nmm_ok=1\n"
-            f"spiceprefix=X\n}}\n"
-        )
-        for pin, net in (("c0", c0), ("c1", c1), ("bn", bn)):
-            ox, oy = PINS["mim"][pin]
-            self._lab(x + ox, y + oy, net)
-        self.devices.append(DeviceRec(
-            "mim", name, [c0, c1, bn],
-            {"w": f"{float(str(w_um).rstrip('u')):.3f}u",
-             "l": f"{float(str(l_um).rstrip('u')):.3f}u",
-             "model": "cap_rfcmim"}))
+        if kind == "cmim":
+            self.lines.append(
+                f"C {{sg13g2_pr/cap_cmim.sym}} {x:g} {y:g} 0 0 {{name={name}\n"
+                f"model=cap_cmim\nlvs_model=cmim\n"
+                f"w={wu:.6e}\nl={lu:.6e}\nm=1\nmm_ok=1\n"
+                f"spiceprefix=X\n}}\n"
+            )
+            for pin, net in (("c0", c0), ("c1", c1)):
+                ox, oy = PINS["mim"][pin]
+                self._lab(x + ox, y + oy, net)
+            self.devices.append(DeviceRec(
+                "cmim", name, [c0, c1],
+                {"w": f"{float(str(w_um).rstrip('u')):.3f}u",
+                 "l": f"{float(str(l_um).rstrip('u')):.3f}u",
+                 "model": "cap_cmim"}))
+        else:
+            self.lines.append(
+                f"C {{sg13g2_pr/cap_rfcmim.sym}} {x:g} {y:g} 0 0 {{name={name}\n"
+                f"model=cap_rfcmim\nlvs_model=rfcmim\n"
+                f"w={wu:.6e}\nl={lu:.6e}\nwfeed=5.0e-6\nm=1\nmm_ok=1\n"
+                f"spiceprefix=X\n}}\n"
+            )
+            for pin, net in (("c0", c0), ("c1", c1), ("bn", bn)):
+                ox, oy = PINS["mim"][pin]
+                self._lab(x + ox, y + oy, net)
+            self.devices.append(DeviceRec(
+                "mim", name, [c0, c1, bn],
+                {"w": f"{float(str(w_um).rstrip('u')):.3f}u",
+                 "l": f"{float(str(l_um).rstrip('u')):.3f}u",
+                 "model": "cap_rfcmim"}))
 
     def svaricap_fx(self, name, g1, w, g2, bn, wu="3.74u", lu="0.3u", nx=10):
         """Place PDK svaricap symbol with model override to local _fx."""

@@ -47,6 +47,10 @@ def vacask_line(d):
     if d.kind == "mim":
         return (f"{d.name} ({n}) cap_rfcmim "
                 f"w={d.params['w']} l={d.params['l']}\n")
+    if d.kind == "cmim":
+        # 2-terminal [PDK vacask cap_cmim]
+        return (f"{d.name} ({n}) cap_cmim "
+                f"w={d.params['w']} l={d.params['l']}\n")
     if d.kind == "svaricap":
         return (f"{d.name} ({n}) {d.params['model']} "
                 f"w={d.params['w']} l={d.params['l']} nx={d.params['nx']}\n")
@@ -163,9 +167,13 @@ def gen_vco_tail_dac():
     sch.pmos("mp2", "d2", "d1", "vdd", "vdd", "4u", "2u", 2)
     sch.res("rout", "d2", "nb", 1)
     sch.res("rbf", "nb", "nbf", 1e6)
-    # D9 cbf: PDK rfcmim (cmim PCell clamps ≪ 50 pF; side≥7 µm → rfcmim) [PDK]
-    s_cbf = side_um(50e3)  # 50 pF at 1.5 fF/µm²
-    sch.mim("cbf", "nbf", "gnd", "gnd", f"{s_cbf:.3f}u", f"{s_cbf:.3f}u")
+    # D9 cbf: 7× cmim near Cmax (8 pF / 73 µm) → 50 pF. PN/swing vs ideal PASS
+    # 2026-11-14 [SCH]; rfcmim 16-tile area rejected [decisions].
+    n_cbf = 7
+    s_tile = side_um(50e3 / n_cbf)
+    for i in range(n_cbf):
+        sch.mim(f"cbf{i}", "nbf", "gnd", "gnd", f"{s_tile:.3f}u", f"{s_tile:.3f}u",
+                kind="cmim")
     sch.res("rpd", "nb", "gnd", 200e3)
     sch.capa("ctail", "tail", "gnd", 8e-12)
     # start-up bypass across rbf
@@ -419,8 +427,11 @@ def build_flat_inventory(rng):
     sim.capa("ctail", "tail", "gnd", 8e-12)
     sim.nmos("mt", "tail", "nbf", "gnd", "gnd", "160u", "4u", 32)
     sim.res("rbf", "nb", "nbf", 1e6)
-    s_cbf = side_um(50e3)
-    sim.mim("cbf", "nbf", "gnd", "gnd", f"{s_cbf:.3f}u", f"{s_cbf:.3f}u")
+    n_cbf = 7
+    s_tile = side_um(50e3 / n_cbf)
+    for i in range(n_cbf):
+        sim.mim(f"cbf{i}", "nbf", "gnd", "gnd", f"{s_tile:.3f}u", f"{s_tile:.3f}u",
+                kind="cmim")
     sim.nmos("mr", "nb", "nb", "gnd", "gnd", "20u", "4u", 4)
     sim.isrc("iref", "vdd", "nb", 4e-3 / 8)
     sim.nmos("mbp_rbf", "nb", "vbp_tail", "nbf", "gnd", "20u", "0.13u", 4)
@@ -472,6 +483,9 @@ def _emit(sch: Sch, d):
         sch.pmos(d.name, *d.nodes, p["w"], p["l"], int(p["ng"]), p["model"])
     elif d.kind == "mim":
         sch.mim(d.name, *d.nodes, p["w"], p["l"])
+    elif d.kind == "cmim":
+        sch.mim(d.name, d.nodes[0], d.nodes[1], "gnd", p["w"], p["l"],
+                kind="cmim")
     elif d.kind == "svaricap":
         sch.svaricap_fx(d.name, *d.nodes, p["w"], p["l"], int(p["nx"]))
     elif d.kind == "res":

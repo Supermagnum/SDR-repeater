@@ -1,0 +1,13 @@
+# P2.7.2b DAC build stage=f nets=all
+
+CENTROID_31 counts: {'b4': 16, 'b3': 8, 'b2': 4, 'b1': 2, 'b0': 1, 'D': 1}
+Technology SG13_dev is loaded.
+GRID : 0.01
+GRID inverse : 100.0
+EPSILON1  : 0.001
+EPSILON2  : 1e-9
+Success.
+cbf 7× cmim side=69.007 pitch=70.14; tile_bbox=(-0.6,-0.6;69.54,69.54)
+cbf bbox (-3.15,-8.6;282.51,142.23) area=0.0431 mm2 (GR outer -3.1,-8.6→282.5,142.2)
+wrote /foss/designs/analog/vco/layout/p272b_tail/out/cbf.gds (+.gz)
+wrote cbf.spice

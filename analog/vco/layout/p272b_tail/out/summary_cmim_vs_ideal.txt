@@ -1,0 +1,22 @@
+# P2.7.2b — cbf ideal vs cmim 50 pF [SCH]
+
+PDK: cmim Cmax=8 pF → side_max=73.03 µm; caspec=1.5 fF/µm² [PDK].
+Tiles for 50 pF: n=7, each C=7.143 pF, side=69.007 µm (near max) [HAND].
+Ideal baseline: summary_mim_vs_ideal.txt (reused) [SCH].
+Pass |ΔL|<0.1 dB, |Δamp|/amp<2 %. Parallel 7× tiles [TOOL].
+
+  ideal (saved): f=3.649 GHz amp=1.201 L(100k)=-92.22 L(1000k)=-122.18
+  running pnoise kind=cmim …
+  try npts=8000 reltol=1e-6 pss_tolscale=3e-3 maxharm=32 …
+  cmim (7×): f=3.649 GHz amp=1.201 L(100k)=-92.23 L(1000k)=-122.18  [8000, reltol=1e-6 pss_tolscale=3e-3]
+
+| Offset | L ideal | L cmim | Δ |
+|---|---|---|---|
+| 100 kHz | -92.22 | -92.23 | -0.011 dB |
+| 1000 kHz | -122.18 | -122.18 | -0.000 dB |
+
+Swing: ideal 1.201 V → cmim 1.201 V (+0.02 %) [SCH]
+Swing PASS: PASS
+
+Overall pass: PASS
+

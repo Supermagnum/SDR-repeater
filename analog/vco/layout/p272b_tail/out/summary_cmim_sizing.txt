@@ -1,0 +1,6 @@
+n_tile=7
+side_um=69.0066
+c_each_pF=7.1429
+side_max_um=73.0297
+cmax_pF=8.0
+pass=yes

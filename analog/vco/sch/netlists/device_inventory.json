@@ -556,17 +556,94 @@
       }
     },
     {
-      "kind": "mim",
-      "name": "cbf",
+      "kind": "cmim",
+      "name": "cbf0",
       "nodes": [
         "nbf",
-        "gnd",
         "gnd"
       ],
       "params": {
-        "w": "182.574u",
-        "l": "182.574u",
-        "model": "cap_rfcmim"
+        "w": "69.007u",
+        "l": "69.007u",
+        "model": "cap_cmim"
+      }
+    },
+    {
+      "kind": "cmim",
+      "name": "cbf1",
+      "nodes": [
+        "nbf",
+        "gnd"
+      ],
+      "params": {
+        "w": "69.007u",
+        "l": "69.007u",
+        "model": "cap_cmim"
+      }
+    },
+    {
+      "kind": "cmim",
+      "name": "cbf2",
+      "nodes": [
+        "nbf",
+        "gnd"
+      ],
+      "params": {
+        "w": "69.007u",
+        "l": "69.007u",
+        "model": "cap_cmim"
+      }
+    },
+    {
+      "kind": "cmim",
+      "name": "cbf3",
+      "nodes": [
+        "nbf",
+        "gnd"
+      ],
+      "params": {
+        "w": "69.007u",
+        "l": "69.007u",
+        "model": "cap_cmim"
+      }
+    },
+    {
+      "kind": "cmim",
+      "name": "cbf4",
+      "nodes": [
+        "nbf",
+        "gnd"
+      ],
+      "params": {
+        "w": "69.007u",
+        "l": "69.007u",
+        "model": "cap_cmim"
+      }
+    },
+    {
+      "kind": "cmim",
+      "name": "cbf5",
+      "nodes": [
+        "nbf",
+        "gnd"
+      ],
+      "params": {
+        "w": "69.007u",
+        "l": "69.007u",
+        "model": "cap_cmim"
+      }
+    },
+    {
+      "kind": "cmim",
+      "name": "cbf6",
+      "nodes": [
+        "nbf",
+        "gnd"
+      ],
+      "params": {
+        "w": "69.007u",
+        "l": "69.007u",
+        "model": "cap_cmim"
       }
     },
     {
@@ -4075,17 +4152,94 @@
       }
     },
     {
-      "kind": "mim",
-      "name": "cbf",
+      "kind": "cmim",
+      "name": "cbf0",
       "nodes": [
         "nbf",
-        "gnd",
         "gnd"
       ],
       "params": {
-        "w": "182.574u",
-        "l": "182.574u",
-        "model": "cap_rfcmim"
+        "w": "69.007u",
+        "l": "69.007u",
+        "model": "cap_cmim"
+      }
+    },
+    {
+      "kind": "cmim",
+      "name": "cbf1",
+      "nodes": [
+        "nbf",
+        "gnd"
+      ],
+      "params": {
+        "w": "69.007u",
+        "l": "69.007u",
+        "model": "cap_cmim"
+      }
+    },
+    {
+      "kind": "cmim",
+      "name": "cbf2",
+      "nodes": [
+        "nbf",
+        "gnd"
+      ],
+      "params": {
+        "w": "69.007u",
+        "l": "69.007u",
+        "model": "cap_cmim"
+      }
+    },
+    {
+      "kind": "cmim",
+      "name": "cbf3",
+      "nodes": [
+        "nbf",
+        "gnd"
+      ],
+      "params": {
+        "w": "69.007u",
+        "l": "69.007u",
+        "model": "cap_cmim"
+      }
+    },
+    {
+      "kind": "cmim",
+      "name": "cbf4",
+      "nodes": [
+        "nbf",
+        "gnd"
+      ],
+      "params": {
+        "w": "69.007u",
+        "l": "69.007u",
+        "model": "cap_cmim"
+      }
+    },
+    {
+      "kind": "cmim",
+      "name": "cbf5",
+      "nodes": [
+        "nbf",
+        "gnd"
+      ],
+      "params": {
+        "w": "69.007u",
+        "l": "69.007u",
+        "model": "cap_cmim"
+      }
+    },
+    {
+      "kind": "cmim",
+      "name": "cbf6",
+      "nodes": [
+        "nbf",
+        "gnd"
+      ],
+      "params": {
+        "w": "69.007u",
+        "l": "69.007u",
+        "model": "cap_cmim"
       }
     },
     {

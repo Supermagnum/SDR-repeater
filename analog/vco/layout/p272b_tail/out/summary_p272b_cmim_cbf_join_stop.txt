@@ -1,0 +1,43 @@
+# P2.7.2b stop — compact cmim cbf + join (2026-11-14) [TOOL/SCH/GDS]
+
+## Pass criteria per stage
+
+| Stage | Criterion | Result |
+|---|---|---|
+| 1 rfcmim area breakdown | Split 0.0574 into MIM / ring / empty [GDS] | PASS — MIM 0.0333, ring/shield 0.0185, empty 0.0056 (+72 %) |
+| 2 cmim sizing + PN/swing | 7× ~69.007 µm; ΔL < 0.1 dB; swing < 2 % [SCH] | PASS — ΔL −0.011/0.000 dB; swing +0.02 % |
+| 2 cmim layout | DRC clean (density waived); KLayout+netgen; area [GDS] | PASS — 0.0431 mm²; DRC clean; both LVS PASS |
+| 3 Re-netlist vco_tail_dac | Real 7× cmim tiles, no ideal C [SCH] | PASS — sch + vacask updated |
+| 4 tail_block join | DRC; KLayout+netgen; net count; tail port | FAIL — see below |
+| 5 Island vs ≤ 0.34 | Compact cbf + forecast [GDS/HAND] | PASS sum 0.3234; headroom 0.0166 — ≤ 0.36 not needed |
+
+## Join detail [TOOL]
+- Child pin texts stripped; incremental `--nets place|power|…|all`.
+- Power-only: extract ports `gnd` and `vdd` separate [GDS].
+- Full route: extract `gnd|nbf|tail` and `nb|vdd|xraw`; DRC M1.b/M2.b;
+  KLayout LVS FAIL; netgen FAIL (111 vs 83 devices after merge).
+- Join bbox 0.2288 mm² (not used for island sum).
+
+## Failed / uncertain
+- Inter-cell M2 still shorts filter/tail into gnd and nb into vdd/xraw when
+  all net groups are routed together.
+- V1.b cleared with offset vias on power; M1.b/M2.b remain on full join.
+- Property noise on netgen (as/ad/pd, cmim ic) — same class as other cells; not
+  the match failure cause.
+
+## Decision needed
+1. Keep iterating the join (perimeter/sky channels) until LVS clean before
+   varactor/bias, or
+2. Accept cell-level PASS (cmim cbf) and park join for a dedicated run while
+   starting varactor/bias floorplan only (no top join yet)?
+
+Recommend (1): join is on the critical path for a proveable tail_block.
+
+## Found, not done
+- tail_block DRC + LVS clean (full net list).
+- Varactor + bias (D22) layout.
+- PEX.
+- Commit of this job's files (ask owner first).
+
+## Next run (expected)
+P2.7.2b — next sub-block: finish tail_block join, then varactor and bias.
