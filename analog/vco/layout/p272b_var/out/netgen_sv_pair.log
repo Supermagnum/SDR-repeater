@@ -1,0 +1,70 @@
+Netgen 1.5.324 compiled on Thu Oct 15 02:24:51 PM CEST 2026
+Warning: netgen command 'format' use fully-qualified name '::netgen::format'
+Warning: netgen command 'global' use fully-qualified name '::netgen::global'
+Reading netlist file /foss/designs/analog/vco/layout/p272b_var/out/sv_pair_netgen.spice for /foss/designs/analog/vco/layout/p272b_var/out/sv_pair_netgen.spice sv_pair
+Call to undefined subcircuit sg13_hv_svaricap
+Creating placeholder cell definition.
+Reading netlist file /foss/designs/analog/vco/layout/p272b_var/out/sv_pair_extracted_netgen.cir for /foss/designs/analog/vco/layout/p272b_var/out/sv_pair_extracted_netgen.cir sv_pair
+Call to undefined subcircuit sg13_hv_svaricap
+Creating placeholder cell definition.
+
+Reading setup file /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl
+
+Model sg13_hv_svaricap pin 1 == 3
+No property ng found for device sg13_hv_svaricap
+No property as found for device sg13_hv_svaricap
+No property ad found for device sg13_hv_svaricap
+No property pd found for device sg13_hv_svaricap
+No property ps found for device sg13_hv_svaricap
+No property trise found for device sg13_hv_svaricap
+No property z1 found for device sg13_hv_svaricap
+No property z2 found for device sg13_hv_svaricap
+No property wmin found for device sg13_hv_svaricap
+No property rfmode found for device sg13_hv_svaricap
+No property pre_layout found for device sg13_hv_svaricap
+Model sg13_hv_svaricap pin 1 == 3
+No property ng found for device sg13_hv_svaricap
+No property as found for device sg13_hv_svaricap
+No property ad found for device sg13_hv_svaricap
+No property pd found for device sg13_hv_svaricap
+No property ps found for device sg13_hv_svaricap
+No property trise found for device sg13_hv_svaricap
+No property z1 found for device sg13_hv_svaricap
+No property z2 found for device sg13_hv_svaricap
+No property wmin found for device sg13_hv_svaricap
+No property rfmode found for device sg13_hv_svaricap
+No property pre_layout found for device sg13_hv_svaricap
+Comparison output logged to file /foss/designs/analog/vco/layout/p272b_var/out/netgen_sv_pair.json
+Logging to file "/foss/designs/analog/vco/layout/p272b_var/out/netgen_sv_pair.json" enabled
+Circuit sg13_hv_svaricap contains no devices.
+
+Contents of circuit 1:  Circuit: 'sv_pair'
+Circuit sv_pair contains 2 device instances.
+  Class: sg13_hv_svaricap      instances:   2
+Circuit contains 4 nets.
+Contents of circuit 2:  Circuit: 'sv_pair'
+Circuit sv_pair contains 2 device instances.
+  Class: sg13_hv_svaricap      instances:   2
+Circuit contains 4 nets.
+
+Circuit was modified by parallel/series device merging.
+New circuit summary:
+
+Contents of circuit 1:  Circuit: 'sv_pair'
+Circuit sv_pair contains 1 device instances.
+  Class: sg13_hv_svaricap      instances:   1
+Circuit contains 4 nets.
+Contents of circuit 2:  Circuit: 'sv_pair'
+Circuit sv_pair contains 1 device instances.
+  Class: sg13_hv_svaricap      instances:   1
+Circuit contains 4 nets.
+
+Circuit 1 contains 1 devices, Circuit 2 contains 1 devices.
+Circuit 1 contains 4 nets,    Circuit 2 contains 4 nets.
+
+
+Final result: 
+Circuits match uniquely.
+.
+Logging to file "/foss/designs/analog/vco/layout/p272b_var/out/netgen_sv_pair.json" disabled
+LVS Done.

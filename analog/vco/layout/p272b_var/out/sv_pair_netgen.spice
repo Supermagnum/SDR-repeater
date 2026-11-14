@@ -1,0 +1,5 @@
+* P2.7.2b sv_pair [SCH xv1/xv2]; ports G1=vgp G2=vgn W=vt
+.subckt sv_pair G1 G2 W
+Xxv1 G1 W G2 sub! sg13_hv_svaricap w=3.74u l=0.3u Nx=10
+Xxv2 G1 W G2 sub! sg13_hv_svaricap w=3.74u l=0.3u Nx=10
+.ends

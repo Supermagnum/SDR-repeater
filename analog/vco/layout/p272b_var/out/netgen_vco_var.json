@@ -1,0 +1,126 @@
+
+Circuit 1 cell cap_rfcmim and Circuit 2 cell cap_rfcmim are black boxes.
+Warning: Equate pins:  cell cap_rfcmim is a placeholder, treated as a black box.
+Warning: Equate pins:  cell cap_rfcmim is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: cap_rfcmim                      |Circuit 2: cap_rfcmim                      
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes cap_rfcmim and cap_rfcmim are equivalent.
+
+Circuit 1 cell rhigh and Circuit 2 cell rhigh are black boxes.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: rhigh                           |Circuit 2: rhigh                           
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes rhigh and rhigh are equivalent.
+
+Class vco_var (0):  Merged 1 parallel devices.
+Subcircuit summary:
+Circuit 1: vco_var                         |Circuit 2: vco_var                         
+-------------------------------------------|-------------------------------------------
+cap_rfcmim (2)                             |cap_rfcmim (2)                             
+rhigh (2)                                  |rhigh (2->1) **Mismatch**                  
+sg13_hv_svaricap (2->1)                    |(no matching element)                      
+sg13_lv_nmos (2)                           |sg13_lv_nmos (1) **Mismatch**              
+(no matching element)                      |G1|G2|W|gnd|vbp (2)                        
+Number of devices: 7 **Mismatch**          |Number of devices: 6 **Mismatch**          
+Number of nets: 9 **Mismatch**             |Number of nets: 3 **Mismatch**             
+---------------------------------------------------------------------------------------
+NET mismatches: Class fragments follow (with fanout counts):
+Circuit 1: vco_var                         |Circuit 2: vco_var                         
+
+---------------------------------------------------------------------------------------
+Net: vt                                    |Net: G1|G2|W|gnd|vbp                       
+  sg13_hv_svaricap/2 = 1                   |  sg13_lv_nmos/(drain|source) = 2          
+                                           |  sg13_lv_nmos/gate = 1                    
+                                           |  sg13_lv_nmos/bulk = 1                    
+                                           |  rhigh/(1|2) = 2                          
+                                           |  rhigh/3 = 1                              
+                                           |  cap_rfcmim/2 = 2                         
+                                           |  cap_rfcmim/3 = 2                         
+                                           |  G1|G2|W|gnd|vbp/top = 2                  
+                                           |  G1|G2|W|gnd|vbp/bottom = 2               
+                                           |                                           
+Net: sub!                                  |(no matching net)                          
+  sg13_hv_svaricap/4 = 1                   |                                           
+                                           |                                           
+Net: vgp                                   |(no matching net)                          
+  cap_rfcmim/2 = 1                         |                                           
+  rhigh/(1|2) = 1                          |                                           
+  sg13_hv_svaricap/(1|3) = 1               |                                           
+  sg13_lv_nmos/(drain|source) = 1          |                                           
+                                           |                                           
+Net: vgn                                   |(no matching net)                          
+  cap_rfcmim/2 = 1                         |                                           
+  rhigh/(1|2) = 1                          |                                           
+  sg13_hv_svaricap/(1|3) = 1               |                                           
+  sg13_lv_nmos/(drain|source) = 1          |                                           
+                                           |                                           
+Net: vvb                                   |(no matching net)                          
+  rhigh/(1|2) = 2                          |                                           
+  sg13_lv_nmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: gnd                                   |(no matching net)                          
+  cap_rfcmim/3 = 2                         |                                           
+  rhigh/3 = 2                              |                                           
+  sg13_lv_nmos/bulk = 2                    |                                           
+                                           |                                           
+Net: vbp                                   |(no matching net)                          
+  sg13_lv_nmos/gate = 2                    |                                           
+---------------------------------------------------------------------------------------
+DEVICE mismatches: Class fragments follow (with node fanout counts):
+Circuit 1: vco_var                         |Circuit 2: vco_var                         
+
+---------------------------------------------------------------------------------------
+Instance: rhigh:rvp                        |Instance: rhigh:$5                         
+  (1,2) = (4,4)                            |  (1,2) = (15,15)                          
+  3 = 6                                    |  3 = 15                                   
+                                           |                                           
+Instance: rhigh:rvn                        |Instance: sg13_lv_nmos:$1                  
+  (1,2) = (4,4)                            |  (drain,source) = (15,15)                 
+  3 = 6                                    |  gate = 15                                
+                                           |  bulk = 15                                
+                                           |                                           
+Instance: sg13_hv_svaricap:xv1             |Instance: G1|G2|W|gnd|vbp:$9               
+  (1,3) = (4,4)                            |  top = 15                                 
+  2 = 1                                    |  bottom = 15                              
+  4 = 1                                    |                                           
+                                           |                                           
+                                           |                                           
+Instance: sg13_lv_nmos:mbp_rvp             |Instance: G1|G2|W|gnd|vbp:$10              
+  (drain,source) = (4,4)                   |  top = 15                                 
+  gate = 2                                 |  bottom = 15                              
+  bulk = 6                                 |                                           
+                                           |                                           
+                                           |                                           
+Instance: sg13_lv_nmos:mbp_rvn             |(no matching instance)                     
+  (drain,source) = (4,4)                   |                                           
+  gate = 2                                 |                                           
+  bulk = 6                                 |                                           
+                                           |                                           
+---------------------------------------------------------------------------------------
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
+
+Subcircuit pins:
+Circuit 1: vco_var                         |Circuit 2: vco_var                         
+-------------------------------------------|-------------------------------------------
+vt                                         |G1|G2|W|gnd|vbp **Mismatch**               
+Cell pin lists are equivalent.
+Device classes vco_var and vco_var are equivalent.
+
+Final result: Netlists do not match.
+Port matching may fail to disambiguate symmetries.

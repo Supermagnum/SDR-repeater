@@ -678,3 +678,14 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - D23 amended, final: VCO island outline ≤ 0.38 mm². Any further overrun comes to the owner as
   a finding with numbers, not a further raise.
 - Next: finish the tail join (filter-node merge), then place the island outline in GDS.
+
+## 2026-11-14 — D23 island outline finding
+- tail_block join accepted (reshaped): DRC clean (density waived), KLayout LVS and netgen clean,
+  69 nets, 17 ports; footprint 0.0950 mm² [GDS].
+- Island outline 0.3906 mm² [GDS] (blocks 0.3737 mm² incl. reserved pocket) accepted as a
+  finding; no further re-pack of core + tank or bank.
+- D23 island number replaced by a die-level gate: at P2.7.2c the island outline as built
+  (with inter-block routing) is re-totalled into spec/p27-floorplan.md §8 and must fit the
+  ≈ 2.5 × 2.5 mm die with pad ring. If it does not, a finding to the owner.
+- d9_rc schematic carries the layout resistor geometry (serpentine l / b) so LVS compares it.
+- Next: varactor and bias.

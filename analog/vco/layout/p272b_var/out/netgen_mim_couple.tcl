@@ -1,0 +1,1 @@
+lvs {/foss/designs/analog/vco/layout/p272b_var/out/mim_couple_netgen.spice mim_couple} {/foss/designs/analog/vco/layout/p272b_var/out/mim_couple_extracted_netgen.cir mim_couple} /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl /foss/designs/analog/vco/layout/p272b_var/out/netgen_mim_couple.json

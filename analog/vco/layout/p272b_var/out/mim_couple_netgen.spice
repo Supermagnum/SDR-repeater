@@ -1,0 +1,5 @@
+* P2.7.2b mim_couple [SCH xcp/xcn]
+.subckt mim_couple tp tn vgp vgn gnd
+Xxcp tp vgp gnd cap_rfcmim w=21.29u l=21.29u wfeed=5u m=1
+Xxcn tn vgn gnd cap_rfcmim w=21.29u l=21.29u wfeed=5u m=1
+.ends

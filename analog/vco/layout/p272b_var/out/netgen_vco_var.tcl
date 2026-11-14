@@ -1,0 +1,1 @@
+lvs {/foss/designs/analog/vco/layout/p272b_var/out/vco_var_netgen.spice vco_var} {/foss/designs/analog/vco/layout/p272b_var/out/vco_var_extracted_netgen.cir vco_var} /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl /foss/designs/analog/vco/layout/p272b_var/out/netgen_vco_var.json

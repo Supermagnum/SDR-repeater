@@ -1,0 +1,5 @@
+* P2.7.2b bias_r 2M folded b=16 [SCH rvp/rvn]
+.subckt bias_r vgp vgn vvb gnd
+Xrvp vgp vvb gnd rhigh w=0.5u l=42.095u ps=0.18u b=16 m=1
+Xrvn vgn vvb gnd rhigh w=0.5u l=42.095u ps=0.18u b=16 m=1
+.ends

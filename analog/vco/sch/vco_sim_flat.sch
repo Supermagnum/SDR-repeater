@@ -1658,12 +1658,15 @@ N 240 2310 240 2310 {lab=gnd}
 C {devices/lab_pin.sym} 240 2310 0 0 {name=p351 sig_type=std_logic lab=gnd}
 N 240 2280 240 2280 {lab=gnd}
 C {devices/lab_pin.sym} 240 2280 0 0 {name=p352 sig_type=std_logic lab=gnd}
-C {devices/res.sym} 440 2280 0 0 {name=rbf
-value=1000000.0
+C {sg13g2_pr/rhigh.sym} 440 2280 0 0 {name=rbf
+w=0.5u
+l=21.285u
+b=16
 m=1
-footprint=1206
-device=resistor
-sim_device=resistor
+model=rhigh
+body=gnd
+spiceprefix=X
+mm_ok=1
 }
 N 440 2250 440 2250 {lab=nb}
 C {devices/lab_pin.sym} 440 2250 0 0 {name=p353 sig_type=std_logic lab=nb}

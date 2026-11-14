@@ -1,0 +1,36 @@
+Netgen 1.5.324 compiled on Thu Oct 15 02:24:51 PM CEST 2026
+Warning: netgen command 'format' use fully-qualified name '::netgen::format'
+Warning: netgen command 'global' use fully-qualified name '::netgen::global'
+Reading netlist file /foss/designs/analog/vco/layout/p272b_var/out/bias_r_netgen.spice for /foss/designs/analog/vco/layout/p272b_var/out/bias_r_netgen.spice bias_r
+Call to undefined subcircuit rhigh
+Creating placeholder cell definition.
+Reading netlist file /foss/designs/analog/vco/layout/p272b_var/out/bias_r_extracted_netgen.cir for /foss/designs/analog/vco/layout/p272b_var/out/bias_r_extracted_netgen.cir bias_r
+Call to undefined subcircuit rhigh
+Creating placeholder cell definition.
+
+Reading setup file /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl
+
+Model rhigh pin 1 == 2
+Model rhigh pin 1 == 2
+Comparison output logged to file /foss/designs/analog/vco/layout/p272b_var/out/netgen_bias_r.json
+Logging to file "/foss/designs/analog/vco/layout/p272b_var/out/netgen_bias_r.json" enabled
+Circuit rhigh contains no devices.
+
+Contents of circuit 1:  Circuit: 'bias_r'
+Circuit bias_r contains 2 device instances.
+  Class: rhigh                 instances:   2
+Circuit contains 4 nets.
+Contents of circuit 2:  Circuit: 'bias_r'
+Circuit bias_r contains 2 device instances.
+  Class: rhigh                 instances:   2
+Circuit contains 4 nets.
+
+Circuit 1 contains 2 devices, Circuit 2 contains 2 devices.
+Circuit 1 contains 4 nets,    Circuit 2 contains 4 nets.
+
+
+Final result: 
+Circuits match uniquely.
+.
+Logging to file "/foss/designs/analog/vco/layout/p272b_var/out/netgen_bias_r.json" disabled
+LVS Done.

@@ -1,0 +1,5 @@
+* P2.7.2b bypass_pair [SCH mbp_rvp/rvn]
+.subckt bypass_pair vgp vgn vbp vvb gnd
+Mmbp_rvp vgp vbp vvb gnd sg13_lv_nmos w=5.0u l=0.13u ng=2
+Mmbp_rvn vgn vbp vvb gnd sg13_lv_nmos w=5.0u l=0.13u ng=2
+.ends

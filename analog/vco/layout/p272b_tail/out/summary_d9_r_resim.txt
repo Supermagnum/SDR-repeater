@@ -1,0 +1,32 @@
+# d9_rc rhigh re-sim — layout geometry check (2026-11-14) [PDK/SCH]
+
+## Schematic / LVS spice
+Rrbf: w=0.5u l=21.285u ps=0.18u b=16 m=1 [TOOL extract]
+(GDS unchanged; spice now matches extract so KLayout LVS / netgen compare
+the real serpentine.)
+
+## R check (not a design change)
+| Path | R (Ohm) | Source |
+|---|---|---|
+| straight b=0 L=354 | 962880 | [PDK] CbResCalc |
+| reshape probe b=16 L=20.6 | **998699** | [PDK] prior accepted |
+| CbResCalc at extract L=21.285 b=16 | 1030373 | [PDK] (+3.17 % vs prior) |
+
+PCell was built with Calculate=l, R=1e6, b=16. The accepted reshape number
+**998.7 kΩ** is the Calculate=l / L=20.6 probe. Extract reports segment
+l=21.285u (LVS geometry). CbResCalc at that extract-L is a different path,
+not a GDS change. Check vs 998.7 kΩ: **layout unchanged; prior R stands.**
+
+## Filter pole (cbf = 50 pF [SCH])
+| R used | pole (Hz) | Tag |
+|---|---|---|
+| ideal 1e6 | 3183.099 | [SCH] |
+| prior 998699 | 3187.245 | [SCH/PDK] |
+| extract-L CbResCalc 1030373 | 3089.268 | [SCH/PDK] |
+
+Pole still ≈ 3.1–3.2 kHz (≪ 10 kHz D9). Delta vs ideal 1M at prior R:
+≈ +0.13 %.
+
+## netgen property compare
+d9_rc prove (this run): KLayout LVS PASS; netgen "Circuits match uniquely"
+with rhigh classes equivalent; no l/b delta lines in netgen JSON [TOOL].

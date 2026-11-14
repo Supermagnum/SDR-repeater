@@ -1,0 +1,39 @@
+
+Circuit 1 cell rhigh and Circuit 2 cell rhigh are black boxes.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: rhigh                           |Circuit 2: rhigh                           
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes rhigh and rhigh are equivalent.
+
+Subcircuit summary:
+Circuit 1: bias_r                          |Circuit 2: bias_r                          
+-------------------------------------------|-------------------------------------------
+rhigh (2)                                  |rhigh (2)                                  
+Number of devices: 2                       |Number of devices: 2                       
+Number of nets: 4                          |Number of nets: 4                          
+---------------------------------------------------------------------------------------
+Resolving symmetries by property value.
+Resolving symmetries by pin name.
+Netlists match uniquely.
+
+Subcircuit pins:
+Circuit 1: bias_r                          |Circuit 2: bias_r                          
+-------------------------------------------|-------------------------------------------
+vvb                                        |vvb                                        
+gnd                                        |gnd                                        
+vgn                                        |vgn                                        
+vgp                                        |vgp                                        
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes bias_r and bias_r are equivalent.
+
+Final result: Circuits match uniquely.
+.

@@ -36,7 +36,7 @@ iss ss gnd 2e-05
 Xmp1 d1 d1 vdd vdd sg13_lv_pmos w=4u l=2u ng=2 m=1 mm_ok=1
 Xmp2 d2 d1 vdd vdd sg13_lv_pmos w=4u l=2u ng=2 m=1 mm_ok=1
 rout d2 nb 1
-rbf nb nbf 1000000.0
+Xrbf nb nbf gnd rhigh w=0.5u l=21.285u b=16 m=1 mm_ok=1
 cbf nbf gnd 5e-11
 rpd nb gnd 200000.0
 ctail tail gnd 8e-12

@@ -1,0 +1,40 @@
+Netgen 1.5.324 compiled on Thu Oct 15 02:24:51 PM CEST 2026
+Warning: netgen command 'format' use fully-qualified name '::netgen::format'
+Warning: netgen command 'global' use fully-qualified name '::netgen::global'
+Reading netlist file /foss/designs/analog/vco/layout/p272b_var/out/mim_couple_netgen.spice for /foss/designs/analog/vco/layout/p272b_var/out/mim_couple_netgen.spice mim_couple
+Call to undefined subcircuit cap_rfcmim
+Creating placeholder cell definition.
+Reading netlist file /foss/designs/analog/vco/layout/p272b_var/out/mim_couple_extracted_netgen.cir for /foss/designs/analog/vco/layout/p272b_var/out/mim_couple_extracted_netgen.cir mim_couple
+Call to undefined subcircuit cap_rfcmim
+Creating placeholder cell definition.
+
+Reading setup file /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl
+
+No property ic found for device cap_rfcmim
+No property ic found for device cap_rfcmim
+Comparison output logged to file /foss/designs/analog/vco/layout/p272b_var/out/netgen_mim_couple.json
+Logging to file "/foss/designs/analog/vco/layout/p272b_var/out/netgen_mim_couple.json" enabled
+Circuit cap_rfcmim contains no devices.
+
+Contents of circuit 1:  Circuit: 'mim_couple'
+Circuit mim_couple contains 2 device instances.
+  Class: cap_rfcmim            instances:   2
+Circuit contains 5 nets.
+Contents of circuit 2:  Circuit: 'mim_couple'
+Circuit mim_couple contains 2 device instances.
+  Class: cap_rfcmim            instances:   2
+Circuit contains 5 nets.
+
+Circuit 1 contains 2 devices, Circuit 2 contains 2 devices.
+Circuit 1 contains 5 nets,    Circuit 2 contains 5 nets.
+
+
+Final result: 
+Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ mim_couple
+
+Logging to file "/foss/designs/analog/vco/layout/p272b_var/out/netgen_mim_couple.json" disabled
+LVS Done.

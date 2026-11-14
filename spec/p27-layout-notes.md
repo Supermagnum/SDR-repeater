@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 ≤ 0.38 mm² final.** **tail_block join PASS** (0.0950 mm² [GDS]; DRC density waived; KLayout LVS; netgen 69 nets / 17 ports). **Island outline GDS 0.3906 > 0.38** — finding; varactor blocked.
+Status: **D23 ≤ 0.38 mm² final.** **tail_block join PASS** (0.0950 mm² [GDS]). **Island outline 0.3906 > 0.38** — finding (die-level gate at P2.7.2c). **P2.7.2b varactor:** sub-cells mim/bias/bypass PASS; sv_pair LVS PASS (M1.b = SVaricap PCell); **vco_var join FAIL** (M1 strap shorts); pocket strip fit NO.
 
 ---
 
@@ -415,8 +415,35 @@ corridors. Compact pack: bank south; core|tail north (gap=0).
 | **island outline bbox** | **0.3906** | **> 0.38** [GDS] |
 
 **Stop:** outline overrun **+0.0106 mm²** vs D23 final ≤ 0.38. Per decisions: finding
-with numbers, not a further raise. Varactor / bias not started.
+with numbers, not a further raise. Die-level gate at P2.7.2c (`decisions.md`
+2026-11-14 island outline finding).
 Artifacts: `out/vco_island_outline.gds.gz`, `summary_island_outline.txt`.
+
+#### P2.7.2b varactor + bias (2026-11-14) [GDS/TOOL/SCH]
+**d9_rc geometry [SCH/TOOL]:** xschem / netlists carry rhigh `w=0.5u l=21.285u b=16`
+(extract). R check: prior reshape **998.7 kΩ** [PDK] stands (GDS unchanged);
+extract-L CbResCalc 1.030 MΩ is a different path. Filter pole ≈ 3.19 kHz at prior R
+[SCH/PDK]. KLayout LVS + netgen uniquely; no l/b delta. Summary:
+`p272b_tail/out/summary_d9_r_resim.txt`.
+
+**SVaricap LVS [TOOL]:** this PDK pin extracts `sg13_hv_svaricap` (ThickGateOx present);
+netgen lists the device. #861 workaround not needed for recognition; #753 Nx still
+unchecked by LVS — scripted Nx=10+10.
+
+**Sub-cells** (`analog/vco/layout/p272b_var/`):
+
+| cell | DRC (dens. waived) | KLayout | netgen | note |
+|---|---|---|---|---|
+| sv_pair | M1.b (bare PCell too) | PASS | PASS | ports G1/G2/W |
+| mim_couple | PASS | PASS | PASS | stacked for strip width |
+| bias_r | PASS | PASS | PASS | 2M folded; l=42.095u |
+| bypass_pair | PASS | PASS | PASS | ng=2 |
+| vco_var join | M1.b | FAIL | FAIL | M1 straps short nets |
+
+**Footprint [GDS]:** hierarchical join **0.0076 mm²**, width **46.7 µm** — over the
+1/3 pocket strip (0.0062 mm² / 43.2 µm); under the full pocket 0.0187 mm².
+**C per side [PDK]:** rfcmim ≈ **684 fF**; SVaricap C(V) not PEX’d.
+Artifacts: `p272b_var/out/*.gds.gz`, `summary_cap_footprint.txt`, `summary_build.txt`.
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin

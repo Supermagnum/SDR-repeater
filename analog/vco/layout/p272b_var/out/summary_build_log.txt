@@ -1,0 +1,18 @@
+sv_pair bbox (-3.9,-6.04;28.4,8.41)
+wrote /foss/designs/analog/vco/layout/p272b_var/out/sv_pair.gds bbox=(-3.9,-6.04;28.4,8.41) area=0.0005 mm2
+prove sv_pair: FAIL
+mim_couple bbox (-10.63,-5.63;30.67,63.47)
+wrote /foss/designs/analog/vco/layout/p272b_var/out/mim_couple.gds bbox=(-10.63,-5.63;30.67,63.47) area=0.0029 mm2
+prove mim_couple: PASS
+bias_r bbox (-0.2,-5.96;30.69,44)
+wrote /foss/designs/analog/vco/layout/p272b_var/out/bias_r.gds bbox=(-0.2,-5.96;30.69,44) area=0.0015 mm2
+bias_r: spice l←extract 42.095u; re-prove
+prove bias_r: PASS
+bypass_pair bbox (-5.25,-4.93;11.97,5.88)
+wrote /foss/designs/analog/vco/layout/p272b_var/out/bypass_pair.gds bbox=(-5.25,-4.93;11.97,5.88) area=0.0002 mm2
+prove bypass_pair: PASS
+pins mim=['gnd', 'tp', 'vgp', 'tn', 'vgn'] sv=['G1', 'G2', 'W'] bias=['vgp', 'vgn', 'vvb', 'gnd'] byp=['vgp', 'vgn', 'vvb', 'vbp', 'gnd']
+vco_var bbox (-16.03,-9.08;30.67,153.69) area=0.0076 mm2 (share 0.0062; strip_w=43.16)
+pocket fit area=NO; width=NO
+wrote /foss/designs/analog/vco/layout/p272b_var/out/vco_var.gds bbox=(-16.03,-9.08;30.67,153.69) area=0.0076 mm2
+prove vco_var: FAIL

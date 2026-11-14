@@ -1,0 +1,16 @@
+14-Nov-2026 19:27:04 | INFO    | Your Klayout version is: KLayout 0.30.12 (required >= 0.30.5)
+14-Nov-2026 19:27:04 | INFO    | Running SG13G2 LVS checks on design /foss/designs/analog/vco/layout/p272b_var/out/mim_couple.gds on cell mim_couple
+14-Nov-2026 19:27:07 | INFO    | ==============================================================================
+14-Nov-2026 19:27:07 | INFO    | Important Summary
+14-Nov-2026 19:27:07 | INFO    | +------------------+--------------------------------------------------------------+
+14-Nov-2026 19:27:07 | INFO    | | Status           | PASS                                                         |
+14-Nov-2026 19:27:07 | INFO    | | Mode             | COMPARE                                                      |
+14-Nov-2026 19:27:07 | INFO    | | Outcome          | Comparison mode: PASS (netlists match).                      |
+14-Nov-2026 19:27:07 | INFO    | | Layout           | mim_couple.gds                                               |
+14-Nov-2026 19:27:07 | INFO    | | Top Cell         | mim_couple                                                   |
+14-Nov-2026 19:27:07 | INFO    | | Results Dir      | /foss/designs/analog/vco/layout/p272b_var/out/lvs_mim_couple |
+14-Nov-2026 19:27:07 | INFO    | | Warnings         | 0                                                            |
+14-Nov-2026 19:27:07 | INFO    | | Errors           | 0                                                            |
+14-Nov-2026 19:27:07 | INFO    | | Run Time (s)     | 2.84                                                         |
+14-Nov-2026 19:27:07 | INFO    | +------------------+--------------------------------------------------------------+
+14-Nov-2026 19:27:07 | INFO    | ==============================================================================

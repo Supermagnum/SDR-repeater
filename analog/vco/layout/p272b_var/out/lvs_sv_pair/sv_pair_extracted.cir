@@ -1,0 +1,6 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 14/11/2026 19:26
+
+.SUBCKT sv_pair G1 G2 W
+C$1 G1 W G2 \$1 sg13_hv_svaricap w=3.74u l=0.3u Nx=10
+C$2 G1 W G2 \$1 sg13_hv_svaricap w=3.74u l=0.3u Nx=10
+.ENDS sv_pair

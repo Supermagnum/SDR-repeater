@@ -1,0 +1,55 @@
+# P2.7.2b varactor + bias — stop report (2026-11-14)
+
+## Pass criteria vs results
+
+### 1. d9_rc schematic geometry + R re-sim
+| Criterion | Result |
+|---|---|
+| Sch / LVS spice l=21.285u b=16 | PASS [SCH/TOOL] |
+| Re-sim R vs 998.7 kΩ | Check: GDS unchanged; prior **998.7 kΩ** stands [PDK] |
+| Filter pole | ≈ 3.19 kHz at prior R [SCH/PDK] |
+| netgen property compare | PASS uniquely; no l/b delta [TOOL] |
+
+### 2. Varactor + bias bottom-up
+| Step | DRC (dens. waived) | KLayout LVS | netgen | Finger/Nx |
+|---|---|---|---|---|
+| sv_pair | M1.b (PCell-native) | PASS | PASS | Nx=10+10 PASS |
+| mim_couple | PASS | PASS | PASS | — |
+| bias_r | PASS | PASS | PASS | l=42.095u |
+| bypass_pair | PASS | PASS | PASS | ng=2 PASS |
+| vco_var join | M1.b | FAIL | FAIL | join shorts |
+
+SVaricap: recognised by KLayout LVS and netgen on this pin [TOOL].
+
+Pocket: join **0.0076 mm²** / **46.7 µm** vs strip share **0.0062 / 43.2** — NO;
+vs full pocket **0.0187** — area YES.
+
+### 3. Report C / footprint
+See `summary_cap_footprint.txt`. Coupling ≈ **684 fF**/side [PDK]. PEX not run.
+
+### 4. Specs
+`p27-layout-notes.md`, `p27-floorplan.md` §8, `phase2-plan.md` §3 updated.
+
+## Failed / uncertain
+- **vco_var join:** M1 Manhattan straps short gnd↔vgp↔G1/G2/W/vbp [TOOL extract].
+  Need M2 (or layered) routing for crossings; then re-prove.
+- **sv_pair / vco_var M1.b:** also on bare SVaricap PCell alone [TOOL]; not our
+  strap geometry. Treat as PCell DRC debt (#639-class) until PDK fix.
+- **Strip fit:** join over 1/3 reserve; may need wider pocket strip or tighter pack.
+- Hierarchical finger script misses nested `SVaricap$1` name form.
+
+## Decision needed
+1. Accept M1.b on SVaricap cells as PCell waiver until upstream fix?
+2. Allow varactor to use >1/3 of the 0.0187 mm² pocket (re-split strips)?
+3. Continue join fix in this run series before D22?
+
+## Found, not done
+- vco_var LVS-clean join + strip fit (this job, incomplete).
+- xschem SVG/PDF re-export of updated `vco_tail_dac.sch` (geometry text only).
+- D22 detector + comparator (next expected run).
+- P2.7.2c die-level island re-total with inter-block routing.
+- PEX / extracted C(V) on varactor node.
+
+## Next run
+**P2.7.2b (continue) — finish vco_var join** (M2 crossings, strip fit), then
+**P2.7.2b next sub-block — D22 detector + comparator**.

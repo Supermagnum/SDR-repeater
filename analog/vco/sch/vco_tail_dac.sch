@@ -369,17 +369,22 @@ N 0 450 0 450 {lab=d2}
 C {devices/lab_pin.sym} 0 450 0 0 {name=p87 sig_type=std_logic lab=d2}
 N 0 510 0 510 {lab=nb}
 C {devices/lab_pin.sym} 0 510 0 0 {name=p88 sig_type=std_logic lab=nb}
-C {devices/res.sym} 220 480 0 0 {name=rbf
-value=1000000.0
+C {sg13g2_pr/rhigh.sym} 220 480 0 0 {name=rbf
+w=0.5u
+l=21.285u
+b=16
 m=1
-footprint=1206
-device=resistor
-sim_device=resistor
+model=rhigh
+body=gnd
+spiceprefix=X
+mm_ok=1
 }
 N 220 450 220 450 {lab=nb}
 C {devices/lab_pin.sym} 220 450 0 0 {name=p89 sig_type=std_logic lab=nb}
 N 220 510 220 510 {lab=nbf}
 C {devices/lab_pin.sym} 220 510 0 0 {name=p90 sig_type=std_logic lab=nbf}
+N 190 480 190 480 {lab=gnd}
+C {devices/lab_pin.sym} 190 480 0 1 {name=p90b sig_type=std_logic lab=gnd}
 C {sg13g2_pr/cap_cmim.sym} 440 480 0 0 {name=cbf0
 model=cap_cmim
 lvs_model=cmim

@@ -1,0 +1,11 @@
+* P2.7.2b vco_var [SCH vco_var D11]
+.subckt vco_var tp tn vt vbp gnd
+Xxcp tp vgp gnd cap_rfcmim w=21.29u l=21.29u wfeed=5u m=1
+Xxcn tn vgn gnd cap_rfcmim w=21.29u l=21.29u wfeed=5u m=1
+Xrvp vgp vvb gnd rhigh w=0.5u l=42.095u ps=0.18u b=16 m=1
+Xrvn vgn vvb gnd rhigh w=0.5u l=42.095u ps=0.18u b=16 m=1
+Xxv1 vgp vt vgn sub! sg13_hv_svaricap w=3.74u l=0.3u Nx=10
+Xxv2 vgp vt vgn sub! sg13_hv_svaricap w=3.74u l=0.3u Nx=10
+Mmbp_rvp vgp vbp vvb gnd sg13_lv_nmos w=5.0u l=0.13u ng=2
+Mmbp_rvn vgn vbp vvb gnd sg13_lv_nmos w=5.0u l=0.13u ng=2
+.ends

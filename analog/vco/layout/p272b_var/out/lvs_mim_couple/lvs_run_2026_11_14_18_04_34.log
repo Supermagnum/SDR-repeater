@@ -1,0 +1,18 @@
+14-Nov-2026 19:04:34 | INFO    | Your Klayout version is: KLayout 0.30.12 (required >= 0.30.5)
+14-Nov-2026 19:04:34 | INFO    | Running SG13G2 LVS checks on design /foss/designs/analog/vco/layout/p272b_var/out/mim_couple.gds on cell mim_couple
+14-Nov-2026 19:04:37 | INFO    | ==============================================================================
+14-Nov-2026 19:04:37 | INFO    | Important Summary
+14-Nov-2026 19:04:37 | INFO    | +------------------+--------------------------------------------------------------+
+14-Nov-2026 19:04:37 | INFO    | | Status           | FAIL                                                         |
+14-Nov-2026 19:04:37 | INFO    | | Mode             | COMPARE                                                      |
+14-Nov-2026 19:04:37 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).               |
+14-Nov-2026 19:04:37 | INFO    | | Layout           | mim_couple.gds                                               |
+14-Nov-2026 19:04:37 | INFO    | | Top Cell         | mim_couple                                                   |
+14-Nov-2026 19:04:37 | INFO    | | Results Dir      | /foss/designs/analog/vco/layout/p272b_var/out/lvs_mim_couple |
+14-Nov-2026 19:04:37 | INFO    | | Warnings         | 0                                                            |
+14-Nov-2026 19:04:37 | INFO    | | Errors           | 1                                                            |
+14-Nov-2026 19:04:37 | INFO    | | Run Time (s)     | 2.948                                                        |
+14-Nov-2026 19:04:37 | INFO    | +------------------+--------------------------------------------------------------+
+14-Nov-2026 19:04:37 | ERROR   | Key errors:
+14-Nov-2026 19:04:37 | ERROR   |   - 2026-11-14 19:04:37 +0100: Memory Usage (485676K) : ERROR : Netlists don't match
+14-Nov-2026 19:04:37 | INFO    | ==============================================================================

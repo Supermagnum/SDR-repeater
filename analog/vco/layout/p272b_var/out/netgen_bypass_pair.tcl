@@ -1,0 +1,1 @@
+lvs {/foss/designs/analog/vco/layout/p272b_var/out/bypass_pair_netgen.spice bypass_pair} {/foss/designs/analog/vco/layout/p272b_var/out/bypass_pair_extracted_netgen.cir bypass_pair} /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl /foss/designs/analog/vco/layout/p272b_var/out/netgen_bypass_pair.json

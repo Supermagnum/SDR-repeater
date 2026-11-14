@@ -1,0 +1,41 @@
+
+Circuit 1 cell sg13_hv_svaricap and Circuit 2 cell sg13_hv_svaricap are black boxes.
+Warning: Equate pins:  cell sg13_hv_svaricap is a placeholder, treated as a black box.
+Warning: Equate pins:  cell sg13_hv_svaricap is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: sg13_hv_svaricap                |Circuit 2: sg13_hv_svaricap                
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+4                                          |4                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes sg13_hv_svaricap and sg13_hv_svaricap are equivalent.
+
+Class sv_pair (0):  Merged 1 parallel devices.
+Class sv_pair (1):  Merged 1 parallel devices.
+Subcircuit summary:
+Circuit 1: sv_pair                         |Circuit 2: sv_pair                         
+-------------------------------------------|-------------------------------------------
+sg13_hv_svaricap (2->1)                    |sg13_hv_svaricap (2->1)                    
+Number of devices: 1                       |Number of devices: 1                       
+Number of nets: 4                          |Number of nets: 4                          
+---------------------------------------------------------------------------------------
+Resolving symmetries by property value.
+Resolving symmetries by pin name.
+Netlists match uniquely.
+
+Subcircuit pins:
+Circuit 1: sv_pair                         |Circuit 2: sv_pair                         
+-------------------------------------------|-------------------------------------------
+W                                          |W                                          
+G2                                         |G2                                         
+G1                                         |G1                                         
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes sv_pair and sv_pair are equivalent.
+
+Final result: Circuits match uniquely.
+.

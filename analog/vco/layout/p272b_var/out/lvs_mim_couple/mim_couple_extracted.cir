@@ -1,0 +1,6 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 14/11/2026 19:27
+
+.SUBCKT mim_couple gnd tn tp vgn vgp
+C$1 tp vgp gnd rfcmim w=21.29u l=21.29u A=453.2641p P=85.16u m=1 wfeed=5u
+C$2 tn vgn gnd rfcmim w=21.29u l=21.29u A=453.2641p P=85.16u m=1 wfeed=5u
+.ENDS mim_couple
