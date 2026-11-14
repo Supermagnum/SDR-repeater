@@ -1,0 +1,37 @@
+[INFO] Final PATH variable: /headless/.local/bin:/foss/tools/bin:/foss/tools/sak:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/foss/tools/kactus2:/foss/tools/klayout:/foss/tools/osic-multitool
+[INFO] Final PYTHONPATH variable: /headless/.local/lib/python3.12/site-packages:/usr/lib/python312.zip:/usr/lib/python3.12:/usr/lib/python3.12/lib-dynload:/usr/local/lib/python3.12/dist-packages:/usr/lib/python3/dist-packages:/foss/tools/ngspyce/local/lib/python3.12/dist-packages:/foss/tools/openems/local/lib/python3.12/dist-packages:/foss/tools/pyopus/local/lib/python3.12/dist-packages:/foss/tools/yosys/share/yosys/python3:/foss/tools/klayout/pymod:/foss/tools/vacask/lib/vacask/python
+core_tank: 254.00 x 433.99 um = 0.1102 mm2  bb=(-127,-149.99;127,284)
+bank: 551.08 x 274.77 um = 0.1514 mm2  bb=(-4.85,-3;546.23,271.77)
+tail_block: 497.76 x 472.54 um = 0.2352 mm2  bb=(-18.3,-116.83;479.46,355.71)
+
+tail instances (non-via):
+  dac_array_j: 104.30x69.79=0.0073 mm2  (27.86,-5.42;132.16,64.37)
+  tail_mt_j: 426.49x13.62=0.0058 mm2  (26.94,-100.33;453.43,-86.71)
+  ota_vds_j: 42.18x40.48=0.0017 mm2  (23.12,-74.21;65.3,-33.73)
+  d9_rc_j: 10.47x377.06=0.0039 mm2  (-4.5,-21.4;5.97,355.66)
+  cbf_j: 285.66x150.83=0.0431 mm2  (27.32,81.19;312.98,232.02)
+children union bbox: 457.93x455.99=0.2088 mm2
+sum child instance bboxes: 0.0618 mm2
+join bbox: 0.2352 mm2
+empty join-union: 0.0264 mm2
+empty join-sum: 0.1734 mm2
+
+standalone children:
+  dac_array: 0.0073 mm2 (104.3x69.8)
+  tail_mt: 0.0058 mm2 (426.5x13.6)
+  ota_vds: 0.0017 mm2 (42.2x40.5)
+  d9_rc: 0.0039 mm2 (10.5x377.1)
+  cbf: 0.0431 mm2 (285.7x150.8)
+cell sum: 0.0618 mm2
+
+=== island footprint method ===
+core+bank+tail+fc = 0.1102+0.1514+0.2352+0.017 = 0.5139 mm2
+limit 0.34; over by 0.1739
+tail budget for <=0.34: 0.0613 mm2
+tail budget for <=0.36: 0.0813 mm2
+
+=== compaction / packing floor [HAND from GDS child sizes] ===
+corridor empty join-union 0.0264 only; cannot go below children union 0.2088
+optimistic AABB d9 beside mt gap=8 um: >= 0.1678 mm2 (d9_h * mt_w alone 0.1608)
+floor 0.1678 >> budgets 0.0613 / 0.0813 -> compact cannot pass island gate
+D23 finding: out/summary_d23_finding_footprint.txt; varactor not started

@@ -1,0 +1,71 @@
+P2.7.2b D23 finding — island footprint method (2026-11-14) [GDS/HAND]
+=====================================================================
+Source: out/summary_area_reconcile.txt; child bboxes from tail_block.gds.gz [GDS].
+Varactor / bias not started (prompt: stop on area gate fail).
+
+1. What the 0.2352 mm² join bbox contains [GDS]
+   join bbox: 497.76 × 472.54 µm = 0.2352 mm²  bb=(-18.3,-116.83;479.46,355.71)
+   children as placed:
+     d9_rc_j:   10.47 × 377.06 = 0.0039   (-4.5,-21.4;5.97,355.66)
+     dac_array: 104.30 × 69.79 = 0.0073
+     ota_vds:    42.18 × 40.48 = 0.0017
+     cbf_j:     285.66 × 150.83 = 0.0431
+     tail_mt_j: 426.49 × 13.62 = 0.0058   (26.94,-100.33;453.43,-86.71)
+   children union bbox: 457.93 × 455.99 = 0.2088 mm²
+   sum of child instance areas: 0.0618 mm²
+   empty join − union (corridors / pin stubs): 0.0264 mm²
+   empty join − cell sum (AABB waste vs area sum): 0.1734 mm²
+
+2. Compaction check [HAND]
+   Corridor empty (0.0264) is only ~11 % of the join. Compacting straps cannot
+   get below the children-union AABB 0.2088 mm² with the present place.
+   Absolute packing floor for accepted child cells (d9 beside mt, gap=8 µm):
+     width ≥ 10.47 + 8 + 426.49 = 444.96 µm
+     height ≥ max(377.06, stack) = 377.06 µm
+     floor ≥ 0.1678 mm² [HAND from GDS child sizes]
+   d9 height × mt width alone = 0.1608 mm² [GDS].
+   Tail budget to keep island ≤ 0.34: 0.34 − 0.1102 − 0.1514 − 0.017 = 0.0613 mm²
+   Tail budget at ≤ 0.36: 0.0813 mm²
+   Floor 0.1678 ≫ 0.0813 — no corridor/place compact of current cells meets the
+   gate. Re-running net groups a–g after cosmetic gap trim would not change the
+   island number enough to pass; LVS re-prove of a compact was not run [TOOL not
+   needed for gate]. Known-good join remains 0.2352 mm² (PASS DRC/LVS/netgen).
+
+3. Island footprint table [GDS/HAND]
+
+   Block              Footprint (mm²)   Source
+   -----------------  ---------------   ------
+   core + tank        0.1102            vco_core_tank.gds.gz [GDS]
+   bank               0.1514            vco_bank.gds.gz [GDS]
+   tail_block join    0.2352            tail_block.gds.gz [GDS]
+   forecast var+D22+top 0.017           prior [HAND]
+   -----------------  ---------------
+   Island total       0.5139            sum
+   Limit ≤ 0.34                         D9 path [decisions]
+   Over by            0.1739
+   Optimistic (union) 0.4874            if corridors→0; still over by 0.1474
+
+4. Die re-total (spec/p27-floorplan.md §8 method) [HAND]
+   Raise VCO island budget to cover footprint total ≈ 0.52 mm² (round up from
+   0.5139; leave a little join/forecast slack).
+
+   Block                         Area (mm²)     Basis
+   VCO island                    ≤ 0.52         this finding [GDS/HAND]
+   Rest of synthesizer           ≈ 0.28–0.32    unchanged
+   Synth island total            ≈ 0.80–0.84    was ≈ 0.59–0.66 at 0.34
+   Other rows (§8)               unchanged
+   Total estimate                ≈ 3.81–3.91    was ≈ 3.64–3.74 at 0.34
+   vs typical die 2.5 × 2.5 mm   6.25           YES — ~2.3–2.4 mm² slack [HAND]
+   vs memo 1.6 × 1.6 mm          2.56           still NO
+
+5. Proposal (owner choice; do not reverse D23 without acceptance)
+   (A) Raise D23 VCO island to ≤ 0.52 mm²; die re-total as above; then continue
+       varactor and bias under the new ceiling.
+   (B) Redesign d9_rc and/or tail_mt to shrink orthogonal extents (fold rppd,
+       multi-row mt) so the AABB floor ≤ 0.061–0.081; re-layout + DRC/LVS; keep
+       ≤ 0.34.
+   (C) Keep ≤ 0.34 / cell-sum accounting — rejects the footprint rule recorded
+       in decisions.md 2026-11-14 join; not recommended.
+
+6. Stop
+   Varactor and bias not done. Next run after owner picks A/B/C.

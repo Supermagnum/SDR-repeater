@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted; VCO island ≤ 0.30 mm² (amended 2026-11-12); D9 path ≤ 0.34.** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b re-spin 2 PASS** (core+tank). **P2.7.2b D24 bank PASS.** **cmim cbf PASS** (0.0431); island 0.3234/0.34. **tail join FAIL.**
+Status: **D23 Option A accepted; D9 path ≤ 0.34 (amended).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b re-spin 2 PASS** (core+tank). **P2.7.2b D24 bank PASS.** **cmim cbf PASS** (0.0431). **tail_block join PASS** (0.2352). **Footprint island finding** 0.5139 vs ≤ 0.34 — owner A/B/C; varactor blocked.
 
 ---
 
@@ -361,9 +361,29 @@ Incremental join with layer-map corridors (`build_cells.py` `--nets`).
 uniquely” (69 nets); ports 17 top-level only (no child pin texts); property noise =
 missing as/ad/ps/pd/area/b (same class as child proves). Tail port present.
 **Area:** join bbox **0.2352 mm²** [GDS]; island cells **0.3234** + forecast **0.017**
-→ **≈ 0.340 / 0.34** [GDS/HAND].
+→ **≈ 0.340 / 0.34** [GDS/HAND] under **cell-sum** accounting (superseded for the
+island gate by the footprint method below).
 Artifacts: `analog/vco/layout/p272b_tail/out/tail_block.gds.gz`,
 `summary_join_step_full.txt`, `summary_join_layer_map.*`.
+
+#### P2.7.2b island footprint reconciliation + D23 finding (2026-11-14) [GDS/HAND]
+**Method:** island = sum of placed block footprints + forecast (not cell area sums).
+`out/summary_area_reconcile.txt`, `out/summary_d23_finding_footprint.txt`.
+
+| Block | Footprint (mm²) | Source |
+|---|---|---|
+| core + tank | **0.1102** | [GDS] |
+| bank | **0.1514** | [GDS] |
+| tail_block join | **0.2352** | [GDS] |
+| forecast varactor + D22 + top | **≈ 0.017** | [HAND] |
+| **Island total** | **0.5139** | |
+| Limit | **≤ 0.34** (≤ 0.36 allowed) | D9 path |
+
+Join empty vs children union: **0.0264 mm²** [GDS]. Children union **0.2088**; packing
+floor d9×mt extents ≥ **0.168 mm²** [HAND] vs tail budget **0.0613 / 0.0813**. Compact
+of corridors cannot pass; no compact LVS re-prove [TOOL not run for gate]. **Finding
+(not accepted):** raise D23 to ≤ **0.52** (die ≈ 3.81–3.91, still fits 2.5×2.5) **or**
+redesign d9/mt. **Varactor / bias not started.**
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin

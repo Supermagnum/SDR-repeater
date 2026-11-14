@@ -630,3 +630,25 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - tail_block join not accepted (filter / tail merged with gnd, nb with vdd / xraw). Finish it
   before varactor and bias, with a per-cell layer-usage map and routing only on free layers or
   around cells, LVS after each net group.
+
+## 2026-11-14 — P2.7.2b tail_block join
+- tail_block join accepted: built power → tail → filter → nb → xraw → bypass → codes, DRC clean
+  (density waived), KLayout LVS and netgen clean (69 nets), 17 top ports, no child pin texts
+  [TOOL].
+- Island area is counted from placed block footprints, not cell sums. The join bbox
+  0.2352 mm² [GDS] against ≈ 0.061 mm² of cells is reconciled first; if the tail block is
+  that large, it is compacted before varactor and bias.
+- Varactor in LVS: PDK recognition if the deck has it; otherwise pin-only plus a scripted
+  fab / LVS GDS diff, as for the inductor.
+
+## 2026-11-14 — P2.7.2b D23 finding (footprint island; not accepted)
+- Area reconciliation [GDS]: join 0.2352 mm²; children union 0.2088; cell sum 0.0618;
+  corridor empty join−union 0.0264. Packing floor of accepted cells (d9 beside mt) ≥ 0.168 mm²
+  [HAND from GDS sizes] vs tail budget 0.0613 @ ≤ 0.34 / 0.0813 @ ≤ 0.36. Corridor compact
+  cannot meet the gate; known-good join left at 0.2352 (no compact LVS re-prove).
+- Island footprints: core+tank 0.1102 + bank 0.1514 + tail 0.2352 + forecast 0.017 = 0.5139 mm²
+  [GDS/HAND] vs ≤ 0.34 — over by 0.1739. Details: `analog/vco/layout/p272b_tail/out/summary_d23_finding_footprint.txt`.
+- Die re-total if VCO island ≤ 0.52: synth ≈ 0.80–0.84; total ≈ 3.81–3.91 mm²; still fits
+  ≈ 2.5 × 2.5 mm (~2.3–2.4 mm² slack) [HAND].
+- Owner must choose before varactor/bias: (A) raise D23 to ≤ 0.52 mm²; (B) redesign d9/mt
+  extents to fit ≤ 0.34; (C) reject footprint accounting. Varactor not started.

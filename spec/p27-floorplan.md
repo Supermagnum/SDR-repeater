@@ -159,4 +159,14 @@ Rough Phase-5 squeeze check against the SX1255-compatible **MLPQ-W 5 × 5 mm** p
 
 **P2.7.2b running island tally (2026-11-14) [GDS]:** core+tank 0.1102 + bank 0.1514 + `dac_array` 0.0073 + `tail_mt` 0.0058 + `ota_vds` 0.0017 + `d9_rc` 0.0039 + `cbf` (7× cmim) **0.0431** ≈ **0.3234 mm²**. That sum is **laid-out cells only** — it does **not** include the hand forecast for varactor + D22 + top routing (≈ **0.017 mm²** [HAND]). With forecast: **≈ 0.340 mm²**, at the ≤ 0.34 limit (not 0.0166 under). ≤ 0.36 die re-total not opened unless join packing or forecast grows. `tail_block` join bbox **0.2352 mm²** [GDS] (not added on top of the cell-sum tally). **tail_block join PASS** (DRC density waived; KLayout LVS; netgen uniquely) — see `spec/p27-layout-notes.md`.
 
+**P2.7.2b footprint island finding (2026-11-14, not accepted) [GDS/HAND]:** island gate uses **block footprints**, not cell sums (`decisions.md` join). Measured: core+tank **0.1102** + bank **0.1514** + tail join **0.2352** + forecast **0.017** = **0.5139 mm²** vs ≤ 0.34 (over **0.1739**). Children union inside join **0.2088**; packing floor ≥ **0.168** vs tail budget **0.061–0.081** — compact cannot pass. If owner raises D23 to ≤ **0.52 mm²**:
+
+| Block | Area (mm²) | Basis |
+|---|---|---|
+| VCO island | **≤ 0.52** | footprint finding [GDS/HAND] |
+| Rest of synthesizer | **≈ 0.28–0.32** | unchanged |
+| Synth island total | **≈ 0.80–0.84** | +0.18 vs 0.34 path |
+| Other rows (§8 table) | unchanged | |
+| **Total estimate** | **≈ 3.81–3.91** | still YES on 2.5 × 2.5 mm (~2.3–2.4 mm² slack) |
+
 **Flag:** the §1 sketch of a **1.6 × 1.6 mm** active core **does not fit** the Phase 3/4 RX+TX + synth + digital + pads tally. Before Phase 5, plan on a die closer to **≥ ~2.2 × 2.2 mm** (≈ 4.8 mm²) or tighten RX/TX area after topology.
