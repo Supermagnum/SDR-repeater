@@ -63,6 +63,7 @@ class B:
         self.m1txt = self.ly.layer(8, 25)
         self.m2 = self.ly.layer(10, 0)
         self.m3 = self.ly.layer(30, 0)
+        self.m4 = self.ly.layer(50, 0)
         self.m5 = self.ly.layer(67, 0)
         self.tm1 = self.ly.layer(126, 0)
         self.cont = self.ly.layer(6, 0)
@@ -129,6 +130,10 @@ class B:
 
     def box_m3(self, cell, x0, y0, x1, y1):
         cell.shapes(self.m3).insert(pya.DBox(min(x0, x1), min(y0, y1),
+                                             max(x0, x1), max(y0, y1)))
+
+    def box_m4(self, cell, x0, y0, x1, y1):
+        cell.shapes(self.m4).insert(pya.DBox(min(x0, x1), min(y0, y1),
                                              max(x0, x1), max(y0, y1)))
 
     def box_m5(self, cell, x0, y0, x1, y1):
@@ -1272,20 +1277,33 @@ Ccbf nbf gnd cap_cmim w=68.94u l=68.94u m=7
     def build_tail_join(self, routed=None):
         """Join dac_array + tail_mt + ota_vds + d9_rc + cbf [prompt].
 
-        routed: None=all, or set of groups:
-          place | power | tail | filter | bypass | codes
-        Child pin texts stripped; labels only on join ports [LVS].
+        routed groups: place | power | tail | filter | nb | xraw | bypass | codes
+        Signals on M3 in corridors (M4 over dac); power on M2 corridors only
+        [spec/p27-layout-notes.md join layer map]. Child pin texts stripped.
         """
         if routed is None:
-            routed = {"place", "power", "tail", "filter", "bypass", "codes"}
+            routed = {"place", "power", "tail", "filter", "nb", "xraw",
+                      "bypass", "codes"}
         c = self.ly.create_cell("tail_block")
         vs12 = self.pcell("via_stack", {
             "b_layer": "Metal1", "t_layer": "Metal2",
             "vn_columns": 1, "vn_rows": 1,
         })
+        vs13 = self.pcell("via_stack", {
+            "b_layer": "Metal1", "t_layer": "Metal3",
+            "vn_columns": 1, "vn_rows": 1,
+        })
+        vs34 = self.pcell("via_stack", {
+            "b_layer": "Metal3", "t_layer": "Metal4",
+            "vn_columns": 1, "vn_rows": 1,
+        })
         vs2t = self.pcell("via_stack", {
             "b_layer": "Metal2", "t_layer": "TopMetal1",
             "vn_columns": 2, "vn_rows": 2,
+        })
+        vs23 = self.pcell("via_stack", {
+            "b_layer": "Metal2", "t_layer": "Metal3",
+            "vn_columns": 1, "vn_rows": 1,
         })
 
         dac_id, dac_p, dac_bb = self._load_child("dac_array")
@@ -1319,90 +1337,68 @@ Ccbf nbf gnd cap_cmim w=68.94u l=68.94u m=7
                         max(x0, x1) + hw, max(y0, y1) + hw)
 
         def via_m1m2(x, y, ox=0.0, oy=0.0):
-            """Via at (x+ox,y+oy); M1 stub back to (x,y) if offset [V1.b]."""
             vx, vy = x + ox, y + oy
             if ox or oy:
                 self.box_m1(c, min(x, vx) - 0.20, min(y, vy) - 0.20,
                             max(x, vx) + 0.20, max(y, vy) + 0.20)
             self._via12(c, vs12, vx, vy)
 
-        def port_m1(x, y, name, dx=0.0, dy=-2.5):
-            """Top-level port only — short stub off the child pin metal."""
-            px, py = x + dx, y + dy
-            self.box_m1(c, min(x, px) - 0.20, min(y, py) - 0.20,
-                        max(x, px) + 0.20, max(y, py) + 0.20)
-            self.pin_m1(c, px, py, name)
+        def strap_m3(x0, y0, x1, y1, w=0.50):
+            hw = w / 2
+            self.box_m3(c, min(x0, x1) - hw, min(y0, y1) - hw,
+                        max(x0, x1) + hw, max(y0, y1) + hw)
+
+        def escape_m3(px, py, tx, ty):
+            """M1 pin → M1-M3 via at (tx,ty) in corridor (outside child metal)."""
+            self.box_m1(c, min(px, tx) - 0.20, min(py, ty) - 0.20,
+                        max(px, tx) + 0.20, max(py, ty) + 0.20)
+            self.box_m3(c, tx - 0.30, ty - 0.30, tx + 0.30, ty + 0.30)
+            self.place(c, vs13, tx, ty)
 
         self.say(f"tail_block place d9@({ox_d9},{oy_d9}) dac@({ox_dac},{oy_dac}) "
                  f"ota@({ox_ota},{oy_ota:.1f}) cbf@({ox_cbf},{oy_cbf:.1f}) "
                  f"mt@({ox_mt},{oy_mt:.1f}); routed={sorted(routed)}")
 
-        # ---- place: top ports at child pin sites (no inter-cell route) ----
-        if "place" in routed and not (
-                {"power", "tail", "filter", "bypass", "codes"} & routed):
-            for label, pt in (
-                ("gnd", P(mt_p, ox_mt, oy_mt, "gnd")),
-                ("vdd", P(dac_p, ox_dac, oy_dac, "vdd")),
-                ("xraw", P(dac_p, ox_dac, oy_dac, "xraw")),
-                ("nb", P(d9_p, ox_d9, oy_d9, "nb")),
-                ("nbf", P(d9_p, ox_d9, oy_d9, "nbf")),
-                ("tail", P(mt_p, ox_mt, oy_mt, "tail")),
-                ("pbias", P(dac_p, ox_dac, oy_dac, "pbias")),
-                ("code_gnd", P(dac_p, ox_dac, oy_dac, "code_gnd")),
-                ("code0", P(dac_p, ox_dac, oy_dac, "code0")),
-                ("code1", P(dac_p, ox_dac, oy_dac, "code1")),
-                ("code2", P(dac_p, ox_dac, oy_dac, "code2")),
-                ("code3", P(dac_p, ox_dac, oy_dac, "code3")),
-                ("code4", P(dac_p, ox_dac, oy_dac, "code4")),
-                ("code_vdd", P(dac_p, ox_dac, oy_dac, "code_vdd")),
-                ("vbp_tail", P(d9_p, ox_d9, oy_d9, "en_vco_bias_bp")),
-                ("ss", P(ota_p, ox_ota, oy_ota, "ss")),
-                ("tail_f", P(ota_p, ox_ota, oy_ota, "tail_f")),
-            ):
-                port_m1(*pt, label)
-            # cbf nbf is TM1 — mark with TM1 pin only (no M1)
-            nbf_cbf = P(cbf_p, ox_cbf, oy_cbf, "nbf")
-            tm1pin = self.ly.layer(126, 2)
-            tm1txt = self.ly.layer(126, 25)
-            c.shapes(self.tm1).insert(pya.DBox(
-                nbf_cbf[0] - 0.5, nbf_cbf[1] - 3.0,
-                nbf_cbf[0] + 0.5, nbf_cbf[1] + 0.5))
-            c.shapes(tm1pin).insert(pya.DBox(
-                nbf_cbf[0] - 0.4, nbf_cbf[1] - 2.8,
-                nbf_cbf[0] + 0.4, nbf_cbf[1] - 2.0))
-            c.shapes(tm1txt).insert(
-                pya.DText("nbf_cbf_open", pya.DTrans(nbf_cbf[0], nbf_cbf[1] - 2.4)))
+        # Corridor anchors (outside all child bboxes) [layer map]
+        x_east_edge = max(ox_dac + dac_bb.width(),
+                          ox_cbf + cbf_bb.width(),
+                          ox_mt + mt_bb.width())
+        x_west = -14.0
+        x_sig_w = -18.0          # M3 signal west of M2 gnd
+        x_vdd = x_east_edge + 8.0
+        x_gnd_e = x_vdd + 6.0
+        x_sig_e = x_gnd_e + 6.0  # M3 signal east of M2 power
+        y_south = min(
+            oy_mt + mt_bb.bottom, oy_ota + ota_bb.bottom,
+            oy_d9 + d9_bb.bottom, oy_cbf + cbf_bb.bottom) - 14.0
 
-        # ---- power: gnd + vdd ----
-        # West cells → west channel; east pins → east-of-vdd channel; meet on
-        # south rail. Tracks never cross [LVS gnd|vdd lesson].
+        # ---- power: gnd + vdd on M2 corridors only (known-good pattern) ----
         if "power" in routed:
-            x_east_edge = max(ox_dac + dac_bb.width(),
-                              ox_cbf + cbf_bb.width(),
-                              ox_mt + mt_bb.width())
-            x_vdd = x_east_edge + 8.0
-            x_gnd_e = x_vdd + 6.0
-            x_west = -12.0
-            # mt gnd is on the west edge of mt — west channel (east would
-            # cross the mt body into tail) [LVS].
+            # West gnds: d9/ota can jog M1 ox=-2 (small cells). mt cannot —
+            # ox=-2 M1 overlaps a vertical drain (tail) finger → gnd|tail
+            # [LVS 2026-11-14]. mt: via at pin, M2 south around bbox, then west.
             gnds_w = [
                 P(d9_p, ox_d9, oy_d9, "gnd"),
                 P(ota_p, ox_ota, oy_ota, "gnd"),
-                P(mt_p, ox_mt, oy_mt, "gnd"),
             ]
-            gnds_e = [
-                P(cbf_p, ox_cbf, oy_cbf, "gnd"),
-            ]
-            y_south = min(p[1] for p in gnds_w + gnds_e) - 12.0
-            # south rail spans west channel to east-gnd channel
+            gx_mt, gy_mt = P(mt_p, ox_mt, oy_mt, "gnd")
+            gnds_e = [P(cbf_p, ox_cbf, oy_cbf, "gnd")]
             strap_m2(x_west, y_south, x_gnd_e, y_south, w=0.60)
             strap_m2(x_west, y_south, x_west,
-                     max(p[1] for p in gnds_w) + 2.0, w=0.60)
+                     max(p[1] for p in gnds_w + [(gx_mt, gy_mt)]) + 2.0,
+                     w=0.60)
             strap_m2(x_gnd_e, y_south, x_gnd_e,
                      max(p[1] for p in gnds_e) + 2.0, w=0.60)
             for gx, gy in gnds_w:
-                via_m1m2(gx, gy, ox=-2.0)  # offset clear of child vias [V1.b]
+                via_m1m2(gx, gy, ox=-2.0)
                 strap_m2(gx - 2.0, gy, x_west, gy, w=0.50)
+            # mt gnd: via at pin, M2 west in the gap between source/drain M2
+            # rails, then corridor. Must NOT run M2 south through the cell —
+            # that crosses the drain (tail) M2 bar → gnd|tail [LVS].
+            x_mt_w = ox_mt + mt_bb.left - 2.0
+            via_m1m2(gx_mt, gy_mt)
+            strap_m2(gx_mt, gy_mt, x_mt_w, gy_mt, w=0.50)
+            strap_m2(x_mt_w, gy_mt, x_west, gy_mt, w=0.50)
             for gx, gy in gnds_e:
                 via_m1m2(gx, gy, ox=2.0)
                 strap_m2(gx + 2.0, gy, x_gnd_e, gy, w=0.50)
@@ -1412,96 +1408,143 @@ Ccbf nbf gnd cap_cmim w=68.94u l=68.94u m=7
                         x_west + 0.30, y_south + 0.30)
             self.pin_m1(c, x_west, y_south - 2.0, "gnd")
 
+            # vdd: corridors only. ota: M2 north hits d1 ring at y≈23.3;
+            # M2 east through cell also hit d1. Use M3 over ota (free) to
+            # east corridor, then M2 spine [LVS power+tail d1≡vdd].
             vd_dac = P(dac_p, ox_dac, oy_dac, "vdd")
             vd_ota = P(ota_p, ox_ota, oy_ota, "vdd")
-            via_m1m2(*vd_dac, ox=2.0)
-            via_m1m2(*vd_ota, ox=2.0)
-            strap_m2(vd_dac[0] + 2.0, vd_dac[1], x_vdd, vd_dac[1])
-            strap_m2(vd_ota[0] + 2.0, vd_ota[1], x_vdd, vd_ota[1])
-            strap_m2(x_vdd, vd_dac[1], x_vdd, vd_ota[1])
-            via_m1m2(x_vdd, vd_dac[1])
-            self.box_m1(c, x_vdd - 0.30, vd_dac[1] - 0.30,
-                        x_vdd + 2.5, vd_dac[1] + 0.30)
-            self.pin_m1(c, x_vdd + 2.0, vd_dac[1], "vdd")
+            x_dac_w = ox_dac + dac_bb.left - 2.0
+            y_dac_n = oy_dac + dac_bb.top + 2.0
+            x_ota_e = ox_ota + ota_bb.right + 2.0
+            via_m1m2(*vd_dac)
+            # dac: west outside, north, east to spine
+            strap_m2(vd_dac[0], vd_dac[1], x_dac_w, vd_dac[1], w=0.50)
+            strap_m2(x_dac_w, vd_dac[1], x_dac_w, y_dac_n, w=0.50)
+            strap_m2(x_dac_w, y_dac_n, x_vdd, y_dac_n, w=0.50)
+            # ota: M1–M3 offset from pin via (V1.b), M3 east outside → M2 spine
+            vo = (vd_ota[0] + 1.5, vd_ota[1])  # on vdd M2 strip toward +x
+            self.box_m1(c, min(vd_ota[0], vo[0]) - 0.20, vd_ota[1] - 0.20,
+                        max(vd_ota[0], vo[0]) + 0.20, vd_ota[1] + 0.20)
+            self.box_m3(c, vo[0] - 0.30, vo[1] - 0.30, vo[0] + 0.30, vo[1] + 0.30)
+            self.place(c, vs13, *vo)
+            strap_m3(vo[0], vo[1], x_ota_e, vo[1])
+            self.place(c, vs23, x_ota_e, vo[1])
+            self.box_m2(c, x_ota_e - 0.30, vo[1] - 0.30,
+                        x_ota_e + 0.30, vo[1] + 0.30)
+            strap_m2(x_ota_e, vo[1], x_vdd, vo[1], w=0.50)
+            strap_m2(x_vdd, y_dac_n, x_vdd, vd_ota[1], w=0.50)
+            via_m1m2(x_vdd, y_dac_n)
+            self.box_m1(c, x_vdd - 0.30, y_dac_n - 0.30,
+                        x_vdd + 2.5, y_dac_n + 0.30)
+            self.pin_m1(c, x_vdd + 2.0, y_dac_n, "vdd")
 
-        # ---- tail: tail port + xraw↔xref + ota.out↔d9.nb ----
+        # ---- tail port only (M1 stub east of mt — no M2 into mt body) ----
         if "tail" in routed:
-            xr = P(dac_p, ox_dac, oy_dac, "xraw")
-            xf = P(ota_p, ox_ota, oy_ota, "xref")
-            via_m1m2(*xr)
-            via_m1m2(*xf)
-            # east channel (right of all cells) for xraw — avoid west power
-            x_east = max(ox_dac + dac_bb.width(),
-                         ox_cbf + cbf_bb.width(),
-                         ox_mt + mt_bb.width()) + 10.0
-            # xraw is on west of dac — go south around then east
-            y_below_dac = oy_dac - 8.0
-            strap_m2(xr[0], xr[1], xr[0], y_below_dac)
-            strap_m2(xr[0], y_below_dac, xf[0], y_below_dac)
-            strap_m2(xf[0], y_below_dac, xf[0], xf[1])
-            via_m1m2(xr[0], y_below_dac)
-            self.box_m1(c, xr[0] - 0.30, y_below_dac - 2.5,
-                        xr[0] + 0.30, y_below_dac + 0.30)
-            self.pin_m1(c, xr[0], y_below_dac - 2.0, "xraw")
-
             tail_p = P(mt_p, ox_mt, oy_mt, "tail")
-            # tail already on east of mt — stub further east
-            self.box_m1(c, tail_p[0], tail_p[1] - 0.25,
-                        tail_p[0] + 4.0, tail_p[1] + 0.25)
+            self.box_m1(c, tail_p[0], tail_p[1] - 0.20,
+                        tail_p[0] + 4.0, tail_p[1] + 0.20)
             self.pin_m1(c, tail_p[0] + 3.5, tail_p[1], "tail")
 
-            out_p = P(ota_p, ox_ota, oy_ota, "out")
-            nb_p = P(d9_p, ox_d9, oy_d9, "nb")
-            via_m1m2(*out_p)
-            via_m1m2(*nb_p)
-            # corridor between d9 and dac (x ≈ ox_dac - 8)
-            x_mid = ox_dac - 8.0
-            strap_m2(out_p[0], out_p[1], x_mid, out_p[1])
-            strap_m2(x_mid, out_p[1], x_mid, nb_p[1])
-            strap_m2(x_mid, nb_p[1], nb_p[0], nb_p[1])
-            self.box_m1(c, nb_p[0] - 3.5, nb_p[1] - 0.25,
-                        nb_p[0] + 0.25, nb_p[1] + 0.25)
-            self.pin_m1(c, nb_p[0] - 3.0, nb_p[1], "nb")
-
-        # ---- filter node nbf: sky north of all, then east drop [LVS] ----
+        # ---- filter nbf on M3 corridors (around cells; TM1 only at cbf pin) ----
         if "filter" in routed:
             nbf_mt = P(mt_p, ox_mt, oy_mt, "nbf")
             nbf_d9 = P(d9_p, ox_d9, oy_d9, "nbf")
             nbf_cbf = P(cbf_p, ox_cbf, oy_cbf, "nbf")
-            via_m1m2(*nbf_mt, ox=-2.0)
-            via_m1m2(*nbf_d9, ox=-2.0)
-            self.place(c, vs2t, nbf_cbf[0] - 0.05, nbf_cbf[1] - 0.05)
-            self.box_m2(c, nbf_cbf[0] - 0.45, nbf_cbf[1] - 0.45,
-                        nbf_cbf[0] + 0.45, nbf_cbf[1] + 0.45)
-            c.shapes(self.tm1).insert(pya.DBox(
-                nbf_cbf[0] - 0.45, nbf_cbf[1] - 0.45,
-                nbf_cbf[0] + 0.45, nbf_cbf[1] + 0.45))
-            # d9 nbf is already at top of island — use as sky spine Y
             y_sky = nbf_d9[1]
-            x_nbf = max(ox_dac + dac_bb.width(),
-                        ox_cbf + cbf_bb.width(),
-                        ox_mt + mt_bb.width()) + 14.0
-            # mt: west then north on x_west-side track to sky, then east
-            x_nbf_w = -16.0  # west of gnd channel
-            strap_m2(nbf_mt[0] - 2.0, nbf_mt[1], x_nbf_w, nbf_mt[1])
-            strap_m2(x_nbf_w, nbf_mt[1], x_nbf_w, y_sky)
-            strap_m2(nbf_d9[0] - 2.0, nbf_d9[1], x_nbf_w, nbf_d9[1])
-            # cbf: east to x_nbf at pin Y (south of tiles), north to sky
-            strap_m2(nbf_cbf[0], nbf_cbf[1], x_nbf, nbf_cbf[1])
-            strap_m2(x_nbf, nbf_cbf[1], x_nbf, y_sky)
-            strap_m2(x_nbf_w, y_sky, x_nbf, y_sky)
-            via_m1m2(x_nbf, y_sky)
-            self.box_m1(c, x_nbf - 0.30, y_sky - 0.30,
-                        x_nbf + 2.5, y_sky + 0.30)
-            self.pin_m1(c, x_nbf + 2.0, y_sky, "nbf")
+            # mt / d9 → west M3 corridor (outside bboxes)
+            escape_m3(nbf_mt[0], nbf_mt[1], x_sig_w, nbf_mt[1])
+            escape_m3(nbf_d9[0], nbf_d9[1], x_sig_w, nbf_d9[1])
+            strap_m3(x_sig_w, nbf_mt[1], x_sig_w, y_sky)
+            # cbf: TM1→M2 at pin, M2→M3 at east edge (outside plate array)
+            self.place(c, vs2t, nbf_cbf[0] - 0.05, nbf_cbf[1] - 0.05)
+            self.box_m2(c, nbf_cbf[0] - 0.40, nbf_cbf[1] - 0.40,
+                        nbf_cbf[0] + 0.40, nbf_cbf[1] + 0.40)
+            c.shapes(self.tm1).insert(pya.DBox(
+                nbf_cbf[0] - 0.40, nbf_cbf[1] - 0.40,
+                nbf_cbf[0] + 0.40, nbf_cbf[1] + 0.40))
+            # jog south of cbf bbox into south corridor, then east, then north
+            y_cbf_s = oy_cbf + cbf_bb.bottom - 4.0
+            self.box_m2(c, nbf_cbf[0] - 0.30, y_cbf_s,
+                        nbf_cbf[0] + 0.30, nbf_cbf[1])
+            self.place(c, vs23, nbf_cbf[0], y_cbf_s)
+            self.box_m3(c, nbf_cbf[0] - 0.30, y_cbf_s - 0.30,
+                        nbf_cbf[0] + 0.30, y_cbf_s + 0.30)
+            strap_m3(nbf_cbf[0], y_cbf_s, x_sig_e, y_cbf_s)
+            strap_m3(x_sig_e, y_cbf_s, x_sig_e, y_sky)
+            strap_m3(x_sig_w, y_sky, x_sig_e, y_sky)
+            # nbf port on M3→M1 at east sky
+            self.place(c, vs13, x_sig_e, y_sky)
+            self.box_m1(c, x_sig_e - 0.30, y_sky - 0.30,
+                        x_sig_e + 2.5, y_sky + 0.30)
+            self.pin_m1(c, x_sig_e + 2.0, y_sky, "nbf")
 
-        # ---- bypass / bias ports (stubs clear of neighbours) ----
+        # ---- nb: ota.out ↔ d9.nb on M3 (free over ota/d9; dac owns M3) ----
+        # Do NOT M1-jog through cells: that hit ota/d9 rails → gnd|nb|vdd + M1.b
+        # [LVS/DRC 2026-11-14]. ota.out is already on M2 — M2–M3 via inside
+        # that island (via at pin → M2.b vs existing pin via). d9.nb: M1–M3 at pin.
+        if "nb" in routed:
+            out_p = P(ota_p, ox_ota, oy_ota, "out")
+            nb_p = P(d9_p, ox_d9, oy_d9, "nb")
+            x_mid = ox_dac - 10.0  # gap between d9 and dac
+            # out M2 is a thin strip ~ local (22.05..22.55, 3.65..12.43) tied
+            # to pin pad (24,10.08); (20,8) was empty.
+            out_via = (ox_ota + 22.3, oy_ota + 10.38)
+            self.box_m3(c, out_via[0] - 0.30, out_via[1] - 0.30,
+                        out_via[0] + 0.30, out_via[1] + 0.30)
+            self.place(c, vs23, *out_via)
+            self.box_m3(c, nb_p[0] - 0.30, nb_p[1] - 0.30,
+                        nb_p[0] + 0.30, nb_p[1] + 0.30)
+            self.place(c, vs13, *nb_p)
+            # South first then west — horizontal at out_via Y crossed xref
+            # M3 pad → nb|xraw [LVS]
+            y_nb_cor = oy_ota + ota_bb.bottom - 3.0
+            strap_m3(out_via[0], out_via[1], out_via[0], y_nb_cor)
+            strap_m3(out_via[0], y_nb_cor, x_mid, y_nb_cor)
+            strap_m3(nb_p[0], nb_p[1], x_mid, nb_p[1])
+            strap_m3(x_mid, y_nb_cor, x_mid, nb_p[1])
+            # nb port west of d9 on M3→M1 (outside child M1)
+            x_nb_port = ox_d9 + d9_bb.left - 4.0
+            strap_m3(nb_p[0], nb_p[1], x_nb_port, nb_p[1])
+            self.place(c, vs13, x_nb_port, nb_p[1])
+            self.box_m1(c, x_nb_port - 0.30, nb_p[1] - 0.30,
+                        x_nb_port + 0.30, nb_p[1] + 0.30)
+            self.pin_m1(c, x_nb_port, nb_p[1], "nb")
+
+        # ---- xraw: dac.xraw ↔ ota.xref — M3 only in gap (dac owns M3) ----
+        # Escape dac pin M1 south outside bbox before any via (via M3 would
+        # land on dac M3). ota: M1–M3 at xref, M3 free over ota.
+        if "xraw" in routed:
+            xr = P(dac_p, ox_dac, oy_dac, "xraw")
+            xf = P(ota_p, ox_ota, oy_ota, "xref")
+            y_gap = oy_dac - 10.0
+            y_dac_s = oy_dac + dac_bb.bottom - 2.0
+            self.box_m1(c, xr[0] - 0.20, min(xr[1], y_dac_s) - 0.20,
+                        xr[0] + 0.20, max(xr[1], y_dac_s) + 0.20)
+            self.box_m3(c, xr[0] - 0.30, y_dac_s - 0.30,
+                        xr[0] + 0.30, y_dac_s + 0.30)
+            self.place(c, vs13, xr[0], y_dac_s)
+            strap_m3(xr[0], y_dac_s, xr[0], y_gap)
+            # ota xref M1 strip local (4.04..4.32). Via on strip → M2.b vs M2
+            # at x=3.93. Jog M1 east into clear space, via at x=6.0.
+            xf_via = (ox_ota + 6.0, oy_ota + 10.0)
+            self.box_m1(c, ox_ota + 4.04, xf_via[1] - 0.20,
+                        xf_via[0] + 0.20, xf_via[1] + 0.20)
+            self.box_m3(c, xf_via[0] - 0.30, xf_via[1] - 0.30,
+                        xf_via[0] + 0.30, xf_via[1] + 0.30)
+            self.place(c, vs13, *xf_via)
+            strap_m3(xf_via[0], xf_via[1], xf_via[0], y_gap)
+            strap_m3(xr[0], y_gap, xf_via[0], y_gap)
+            self.place(c, vs13, xr[0], y_gap)
+            self.box_m1(c, xr[0] - 0.30, y_gap - 2.5,
+                        xr[0] + 0.30, y_gap + 0.30)
+            self.pin_m1(c, xr[0], y_gap - 2.0, "xraw")
+
+        # ---- bypass ports: M1 stubs only, outside neighbour pins ----
         if "bypass" in routed:
-            # pbias is 0.9 µm below code_gnd on same X — exit NORTH then west
             pb = P(dac_p, ox_dac, oy_dac, "pbias")
-            self.box_m1(c, pb[0] - 0.14, pb[1] - 0.14, pb[0] + 0.14, pb[1] + 4.0)
-            self.box_m1(c, pb[0] - 4.0, pb[1] + 3.7, pb[0] + 0.14, pb[1] + 4.0)
-            self.pin_m1(c, pb[0] - 3.5, pb[1] + 3.85, "pbias")
+            # West only — do NOT jog north through the code bus [M1 short]
+            self.box_m1(c, pb[0] - 4.0, pb[1] - 0.14, pb[0] + 0.14, pb[1] + 0.14)
+            self.pin_m1(c, pb[0] - 3.5, pb[1], "pbias")
             for label, pt, dx, dy in (
                 ("vbp_tail", P(d9_p, ox_d9, oy_d9, "en_vco_bias_bp"), -4.0, 0.0),
                 ("ss", P(ota_p, ox_ota, oy_ota, "ss"), 0.0, -4.0),
@@ -1513,7 +1556,7 @@ Ccbf nbf gnd cap_cmim w=68.94u l=68.94u m=7
                             max(pt[1], pt[1] + dy) + 0.20)
                 self.pin_m1(c, pt[0] + dx, pt[1] + dy, label)
 
-        # ---- code bus: thin M1 east stubs (no via — pins 0.9 µm pitch) ----
+        # ---- code bus: thin M1 east stubs (0.9 µm pitch — continuous to pin) ----
         if "codes" in routed:
             codes = [
                 ("code_gnd", P(dac_p, ox_dac, oy_dac, "code_gnd")),
@@ -1524,29 +1567,25 @@ Ccbf nbf gnd cap_cmim w=68.94u l=68.94u m=7
                 ("code4", P(dac_p, ox_dac, oy_dac, "code4")),
                 ("code_vdd", P(dac_p, ox_dac, oy_dac, "code_vdd")),
             ]
-            for i, (label, pt) in enumerate(codes):
-                x_end = pt[0] + 4.0 + i * 0.0
-                # 0.28 µm wide to keep M1.b vs neighbour (0.9 µm pitch)
-                self.box_m1(c, pt[0], pt[1] - 0.14, x_end, pt[1] + 0.14)
-                self.pin_m1(c, x_end + 0.3, pt[1], label)
+            for label, pt in codes:
+                # Stub must overlap pin pad (gap 0.05 µm → M1.b)
+                self.box_m1(c, pt[0], pt[1] - 0.14, pt[0] + 4.6, pt[1] + 0.14)
+                self.pin_m1(c, pt[0] + 4.3, pt[1], label)
 
         bb = c.bbox().to_dtype(self.ly.dbu)
         area = bb.width() * bb.height() * 1e-6
         self.say(f"tail_block bbox {bb} area={area:.4f} mm2")
         self.tail_block_area = area
-        # Island = core+tank + bank + parts [GDS]; cbf now 0.0431 [GDS]
         dac_a, mt_a, ota_a, d9_a, cbf_a = 0.0073, 0.0058, 0.0017, 0.0039, 0.0431
         parts_sum = dac_a + mt_a + ota_a + d9_a + cbf_a
-        island_sum = 0.1102 + 0.1514 + parts_sum
-        self.say(f"parts sum dac+mt+ota+d9+cbf="
-                 f"{dac_a}+{mt_a}+{ota_a}+{d9_a}+{cbf_a}={parts_sum:.4f} mm2 [GDS]")
-        self.say(f"island sum core+bank+parts={island_sum:.4f} mm2 "
-                 f"(limit 0.34) [GDS]; join bbox={area:.4f}")
-        self.island_forecast = island_sum
-        head = 0.34 - island_sum
-        self.say(f"headroom for varactor+D22+top route ≈ {head:.4f} mm2 [HAND]")
-        if island_sum > 0.34:
-            self.say("OVER 0.34 — die re-total for ≤0.36 in floorplan §8; stop")
+        island_cells = 0.1102 + 0.1514 + parts_sum
+        forecast = 0.017  # varactor+D22+top [HAND]
+        island_with_fc = island_cells + forecast
+        self.say(f"parts sum={parts_sum:.4f} mm2 [GDS]")
+        self.say(f"island cells={island_cells:.4f} mm2 [GDS]; "
+                 f"+forecast {forecast:.3f} → {island_with_fc:.3f} "
+                 f"(limit 0.34) [HAND]; join bbox={area:.4f}")
+        self.island_forecast = island_with_fc
         return c.cell_index()
 
     def write_spice_tail_join(self):
@@ -1708,15 +1747,12 @@ def main():
         b.write_spice_cbf()
 
     if args.stage in ("g", "all"):
-        # Prerequisites: proven GDS for each child in out/
-        # --nets place | power,tail | all  (join incremental groups)
+        # --nets power | power,tail | power,tail,filter | … | all
         if args.nets.strip() == "all":
             routed = None
-        elif args.nets.strip() == "place":
-            routed = {"place"}
         else:
             routed = {p.strip() for p in args.nets.split(",") if p.strip()}
-            routed.add("place")  # always place children
+            routed.add("place")
         cid = b.build_tail_join(routed=routed)
         b.write_cell("tail_block", cid)
         b.write_spice_tail_join()

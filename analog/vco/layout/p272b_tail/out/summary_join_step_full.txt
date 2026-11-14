@@ -1,0 +1,16 @@
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_tail/out/tail_block.gds --topcell=tail_block --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_tail/out/drc_tail_block --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_tail/out/drc_tail_block.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_tail/out/tail_block.gds --netlist=/foss/designs/analog/vco/layout/p272b_tail/out/tail_block.spice --topcell=tail_block --run_dir=/foss/designs/analog/vco/layout/p272b_tail/out/lvs_tail_block --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_tail/out/lvs_klayout_tail_block.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_tail/out/netgen_tail_block.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_tail/out/netgen_tail_block.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_tail/out/_klayout_shot_tail_block.py -rd out=/foss/designs/analog/vco/layout/p272b_tail/out -rd name=tail_block
+  exit 0; log /foss/designs/analog/vco/layout/p272b_tail/out/render_tail_block.log
+
+# Summary
+cell=tail_block
+DRC clean (density waived): True  non-density=[]
+KLayout LVS: PASS
+netgen: PASS
+ports: code0 code1 code2 code3 code4 code_gnd code_vdd gnd nb nbf
+ports_ok: no merged names

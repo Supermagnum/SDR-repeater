@@ -1,0 +1,27 @@
+=== dac_array bbox (-2.61,-5.42;101.69,64.37) area=0.0073 mm2
+  Metal1       area=     514.9 um2  bbox=[-2.31, -5.42, 100.94, 64.37]
+  Metal2       area=     651.4 um2  bbox=[-2.31, -5.37, 101.69, 64.32]
+  Metal3       area=     840.0 um2  bbox=[1.14, -5.37, 97.54, 64.32]
+  Via3         area=       9.1 um2  bbox=[1.245, -5.265, 97.435, 64.215]
+  Via4         area=     256.4 um2  bbox=[0.34, -0.18, 91.07, 51.7]
+=== tail_mt bbox (-3.53,-6.23;422.96,7.39) area=0.0058 mm2
+  Metal1       area=     354.4 um2  bbox=[-3.5, -6.23, 422.96, 7.39]
+  Metal2       area=     337.2 um2  bbox=[-3.5, -5.18, 422.96, -1.78]
+  Via4         area=    2058.2 um2  bbox=[0.34, -0.18, 420.44, 5.18]
+=== ota_vds bbox (-7.35,-13.73;34.83,26.75) area=0.0017 mm2
+  Metal1       area=     217.3 um2  bbox=[-7.3, -13.68, 34.78, 26.7]
+  Metal2       area=      82.0 um2  bbox=[-5.8, -10.68, 31.78, 23.7]
+  Via4         area=      71.2 um2  bbox=[0.34, -0.18, 27.14, 16.67]
+=== d9_rc bbox (-4.5,-21.4;5.97,355.66) area=0.0039 mm2
+  Metal1       area=      13.6 um2  bbox=[-4.5, -21.4, 5.97, 355.66]
+  Metal2       area=     194.9 um2  bbox=[-4.5, -16.81, 5.39, 355.01]
+  Via4         area=       2.8 um2  bbox=[0.14, -14.15, 1.8, -8.79]
+=== cbf bbox (-3.15,-8.6;282.51,142.23) area=0.0431 mm2
+  Metal1       area=    1206.9 um2  bbox=[-3.1, -8.55, 282.46, 142.18]
+  Metal2       area=       3.0 um2  bbox=[33.77, -1.605, 244.89, 69.145]
+  Metal3       area=       3.0 um2  bbox=[33.77, -1.605, 244.89, 69.145]
+  Via3         area=       1.0 um2  bbox=[33.82, -1.6, 244.84, 69.14]
+  Metal4       area=       3.0 um2  bbox=[33.77, -1.605, 244.89, 69.145]
+  Metal5       area=   34440.2 um2  bbox=[-0.6, -1.605, 279.96, 139.68]
+  TopMetal1    area=   33123.8 um2  bbox=[0.45, -5.55, 278.91, 138.63]
+wrote /foss/designs/analog/vco/layout/p272b_tail/out/summary_join_layer_map.json

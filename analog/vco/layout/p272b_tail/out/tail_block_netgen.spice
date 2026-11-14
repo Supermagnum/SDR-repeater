@@ -72,7 +72,7 @@ Xrbf nb nbf gnd rhigh w=0.5u l=354u
 Mmbp_rbf nb en_vco_bias_bp nbf gnd sg13_lv_nmos w=20.0u l=0.13u ng=4
 .ends
 .subckt cbf nbf gnd
-Xcbf nbf gnd gnd cap_rfcmim w=45.64u l=45.64u wfeed=5u m=16
+Ccbf nbf gnd cap_cmim w=68.94u l=68.94u m=7
 .ends
 .subckt tail_block tail vdd gnd vbp_tail nb nbf pbias xraw code_gnd code0 code1 code2 code3 code4 code_vdd ss tail_f
 * vsense: xraw≡xref [SCH]; vbp_tail≡en_vco_bias_bp [SCH]

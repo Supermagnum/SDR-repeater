@@ -1,2 +1,2 @@
-drc_clean=False non_density=['M1.b', 'M2.b', 'V1.b']
-klayout=False netgen=False
+drc_clean=True non_density=[]
+klayout=True netgen=True

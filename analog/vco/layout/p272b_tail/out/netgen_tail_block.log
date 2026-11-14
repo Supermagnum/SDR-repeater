@@ -4,9 +4,9 @@ Warning: netgen command 'global' use fully-qualified name '::netgen::global'
 Reading netlist file /foss/designs/analog/vco/layout/p272b_tail/out/tail_block_netgen.spice for /foss/designs/analog/vco/layout/p272b_tail/out/tail_block_netgen.spice tail_block
 Call to undefined subcircuit rhigh
 Creating placeholder cell definition.
-Call to undefined subcircuit cap_rfcmim
-Creating placeholder cell definition.
 Reading netlist file /foss/designs/analog/vco/layout/p272b_tail/out/tail_block_extracted_netgen.cir for /foss/designs/analog/vco/layout/p272b_tail/out/tail_block_extracted_netgen.cir tail_block
+Call to undefined subcircuit rhigh
+Creating placeholder cell definition.
 
 Reading setup file /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl
 
@@ -18,8 +18,11 @@ No property as found for device sg13_lv_nmos
 No property ad found for device sg13_lv_nmos
 No property ps found for device sg13_lv_nmos
 No property pd found for device sg13_lv_nmos
+No property area found for device cap_cmim
+No property area found for device cap_cmim
 Model rhigh pin 1 == 2
 No property b found for device rhigh
+Model rhigh pin 1 == 2
 No such pin 1 in model sg13_lv_nmos
 Unable to permute model sg13_lv_nmos pins 1, 3.
 No property as found for device sg13_lv_nmos
@@ -68,47 +71,55 @@ No property z1 found for device sg13_lv_pmos
 No property z2 found for device sg13_lv_pmos
 No property wmin found for device sg13_lv_pmos
 No property pre_layout found for device sg13_lv_pmos
-No property ic found for device cap_rfcmim
+No property ic found for device cap_cmim
+No property ic found for device cap_cmim
 Comparison output logged to file /foss/designs/analog/vco/layout/p272b_tail/out/netgen_tail_block.json
 Logging to file "/foss/designs/analog/vco/layout/p272b_tail/out/netgen_tail_block.json" enabled
+Circuit rhigh contains no devices.
 
 Contents of circuit 1:  Circuit: 'tail_block'
 Circuit tail_block contains 112 device instances.
-  Class: cap_rfcmim            instances:   1
   Class: rhigh                 instances:   1
   Class: sg13_lv_pmos          instances: 104
   Class: sg13_lv_nmos          instances:   6
+  Class: cap_cmim              instances:   1
 Circuit contains 69 nets.
 Contents of circuit 2:  Circuit: 'tail_block'
-Circuit tail_block contains 110 device instances.
-  Class: code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref instances:   2
-  Class: sg13_lv_pmos          instances: 103
+Circuit tail_block contains 111 device instances.
+  Class: rhigh                 instances:   1
+  Class: sg13_lv_pmos          instances: 104
   Class: sg13_lv_nmos          instances:   5
-Circuit contains 107 nets.
+  Class: cap_cmim              instances:   1
+Circuit contains 69 nets.
 
 Circuit was modified by parallel/series device merging.
 New circuit summary:
 
 Contents of circuit 1:  Circuit: 'tail_block'
 Circuit tail_block contains 111 device instances.
-  Class: cap_rfcmim            instances:   1
   Class: rhigh                 instances:   1
   Class: sg13_lv_pmos          instances: 104
   Class: sg13_lv_nmos          instances:   5
+  Class: cap_cmim              instances:   1
 Circuit contains 69 nets.
 Contents of circuit 2:  Circuit: 'tail_block'
-Circuit tail_block contains 8 device instances.
-  Class: code0|code1|code2|code3|code4|code_gnd|code_vdd|gnd|nb|nbf|out|pbias|tail|vdd|xraw|xref instances:   2
-  Class: sg13_lv_pmos          instances:   2
-  Class: sg13_lv_nmos          instances:   4
-Circuit contains 107 nets.
+Circuit tail_block contains 111 device instances.
+  Class: rhigh                 instances:   1
+  Class: sg13_lv_pmos          instances: 104
+  Class: sg13_lv_nmos          instances:   5
+  Class: cap_cmim              instances:   1
+Circuit contains 69 nets.
 
-Circuit 1 contains 111 devices, Circuit 2 contains 8 devices. *** MISMATCH ***
-Circuit 1 contains 69 nets,    Circuit 2 contains 6 nets. *** MISMATCH ***
+Circuit 1 contains 111 devices, Circuit 2 contains 111 devices.
+Circuit 1 contains 69 nets,    Circuit 2 contains 69 nets.
 
 
 Final result: 
-Netlists do not match.
-Port matching may fail to disambiguate symmetries.
+Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ tail_block
+
 Logging to file "/foss/designs/analog/vco/layout/p272b_tail/out/netgen_tail_block.json" disabled
 LVS Done.

@@ -317,13 +317,53 @@ breakdown MIM 0.0333 + ring/shield 0.0185 + empty 0.0056 ≈ +72 % over MIM [GDS
 ptap GR; PLUS=nbf (TM1), MINUS=gnd (M5); area **0.0431 mm²**; DRC clean (density
 waived); KLayout LVS PASS; netgen PASS (`w=l=68.94u m=7` extract-rounded). Sch /
 vacask re-netlisted to 7× `cap_cmim` [SCH].
-**tail_block join FAIL [TOOL]:** child pin texts stripped; power-only extract has
-separate `gnd` and `vdd` [GDS]. Full route still merges `gnd|nbf|tail` and
-`nb|vdd|xraw`; DRC non-density M1.b/M2.b; KLayout LVS and netgen FAIL. Join bbox
-0.2288 mm². Not accepted.
+**tail_block join PASS [TOOL] (2026-11-14):** see join section below. Join bbox
+**0.2352 mm²** [GDS].
 **Island sum [GDS]:** 0.1102+0.1514+0.0073+0.0058+0.0017+0.0039+0.0431 = **0.3234 mm²**
 (laid-out cells only). Forecast varactor+D22+top ≈ **0.017 mm²** [HAND] → **≈ 0.340 mm²**,
 at the ≤ 0.34 limit (not 0.0166 headroom). ≤ 0.36 not opened yet.
+
+#### P2.7.2b join layer-usage map + routing plan (2026-11-14) [GDS]
+Source: `analog/vco/layout/p272b_tail/out/summary_join_layer_map.json`.
+
+| Cell | Metals/vias present (area order) | Free over cell bbox |
+|---|---|---|
+| dac_array | M1, M2, M3 (heavy); Via3/Via4 | M4, M5, TM1 (go around or jump on M4+) |
+| tail_mt | M1 full; M2 south strip only; Via4 | M3+ over device body; avoid south M2 band |
+| ota_vds | M1, M2; Via4 | M3+ |
+| d9_rc | M1, M2 (tall); Via4 | M3+ |
+| cbf | M1 (GR); M5 + TM1 plates; tiny M2–M4 in via stacks | **No** signal over plates — route **around** bbox |
+
+**Rule:** never run inter-cell straps on a layer a child already uses inside that
+child’s bbox. Pin escape: short M1 to via → up to the free layer → corridor → down.
+
+**Channels [HAND]:** west (x < all cells), east (x > all cells), south (y < all),
+sky north of cbf / along d9 top. Power stays on **M2 in corridors only** (power-only
+already kept gnd≠vdd). Signals on **M3 in corridors**; any hop **over dac** uses
+**M4** (dac owns M3). cbf nbf stays TM1 at the pin, via down to M3/M4 only at the
+east/south edge outside the plate array.
+
+**Prove order:** power → tail → filter(nbf) → nb → xraw → bypass → codes; DRC+LVS
+after each; stop at first port merge.
+
+#### P2.7.2b tail_block join PASS (2026-11-14) [GDS/TOOL]
+Incremental join with layer-map corridors (`build_cells.py` `--nets`).
+**Causes fixed [LVS/DRC]:**
+- `gnd|tail`: M1 ox=−2 and M2 south through `tail_mt` hit drain finger / drain M2
+  bar → via at pin, M2 west in rail gap then corridor.
+- `gnd|nb|vdd` / M1.b: M1 jogs through ota/d9 → via at pins / M2–M3 on real metal only.
+- `nb|xraw`: M3 at out_via Y crossed xref pad → nb south corridor first.
+- Floating xraw / +1 net: vias placed on empty metal → vias on real M1/M2 strips.
+- `d1≡vdd` (even at power+tail): M2 vdd strap through ota hit d1 ring at y≈23.3 →
+  ota vdd on **M3 over cell** to east corridor.
+- Codes: pbias north jog crossed code bus; stub–pin M1 gap → M1.b.
+**Pass [TOOL]:** DRC clean (density waived); KLayout LVS PASS; netgen “Circuits match
+uniquely” (69 nets); ports 17 top-level only (no child pin texts); property noise =
+missing as/ad/ps/pd/area/b (same class as child proves). Tail port present.
+**Area:** join bbox **0.2352 mm²** [GDS]; island cells **0.3234** + forecast **0.017**
+→ **≈ 0.340 / 0.34** [GDS/HAND].
+Artifacts: `analog/vco/layout/p272b_tail/out/tail_block.gds.gz`,
+`summary_join_step_full.txt`, `summary_join_layer_map.*`.
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin
