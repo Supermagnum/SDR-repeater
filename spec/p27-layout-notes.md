@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 ≤ 0.34 (≤ 0.36 allowed).** **tail reshape cells PASS** (d9 fold / mt 2×2 / cbf 3×3). **Place-only tail ≈ 0.0805**; island sum ≈ 0.359 at ≤ 0.36; corridors → > 0.36. **Join filter WIP** (nbf|gnd|vdd). Owner decides; varactor blocked.
+Status: **D23 ≤ 0.38 mm² final.** **tail_block join PASS** (0.0950 mm² [GDS]; DRC density waived; KLayout LVS; netgen 69 nets / 17 ports). **Island outline GDS 0.3906 > 0.38** — finding; varactor blocked.
 
 ---
 
@@ -386,6 +386,37 @@ Prior join bbox **0.2352** → owner chose reshape (not raise to 0.52).
 
 **Join:** power+tail intermediate ports clean; filter merges `nbf|gnd|vdd` — full join
 not finished. **Stop for owner** (`out/summary_reshape_stop.txt`). Varactor not started.
+
+#### P2.7.2b filter merge fix + full join + island outline (2026-11-14) [GDS/TOOL]
+**Filter-node merge cause [PDK/LVS]:** cmim stack is M5 bottom plate (gnd) / TopVia1 /
+TopMetal1 top plate (nbf). Prior join routed nbf on M2/via over the cbf block and its
+ring, shorting nbf|gnd; ota vdd M2 at y≈21 crossed d9 nbf; dac vdd via landed in M2
+rails → pbias|vdd. Fix: nbf escapes on TM1 north / M3 east only (no filter metal on
+M5 or below over cbf); ota vdd via alley on M2; dac vdd on M1 north of M2 rails then
+via. Recorded in join build (`build_cells.py`) and prove logs.
+
+**Full join PASS [TOOL]:** DRC clean (density waived); KLayout LVS PASS; netgen
+“Circuits match uniquely” (69 nets); 17 top ports; no child pin texts. Spice rhigh
+must carry extract props `l=21.285u ps=0.18u b=16 m=1` [TOOL] (PCell Calculate=l;
+omitting `ps`/`b` fails KLayout LVS while netgen still matches). Footprint
+**0.0950 mm²** [GDS] (`out/tail_block.gds.gz`, `summary_prove_join_full_lfix.txt`).
+
+**Island outline GDS [GDS]:** `vco_island_outline` places core+tank, bank, tail_block
+(blocks only; no inter-block routing) with reserved pocket for varactor / D22 / top
+corridors. Compact pack: bank south; core|tail north (gap=0).
+
+| Item | Area (mm²) | Source |
+|---|---|---|
+| core + tank | **0.1102** | [GDS] |
+| bank | **0.1514** | [GDS] |
+| tail_block join | **0.0950** | [GDS] |
+| reserved pocket | **0.0187** (target 0.017) | [HAND/GDS] |
+| cell-sum + forecast | **0.3737** | ≤ 0.38 |
+| **island outline bbox** | **0.3906** | **> 0.38** [GDS] |
+
+**Stop:** outline overrun **+0.0106 mm²** vs D23 final ≤ 0.38. Per decisions: finding
+with numbers, not a further raise. Varactor / bias not started.
+Artifacts: `out/vco_island_outline.gds.gz`, `summary_island_outline.txt`.
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin

@@ -1,6 +1,6 @@
 * P2.7.2b d9_rc: rbf 1M folded b=16 + mbp_rbf [SCH vco_tail_dac]
 * en_vco_bias_bp == vbp_tail (D22 start-up / tail-only bypass gate)
 .subckt d9_rc nb nbf en_vco_bias_bp gnd
-Xrbf nb nbf gnd rhigh w=0.5u l=20.6u
+Xrbf nb nbf gnd rhigh w=0.5u l=21.285u ps=0.18u b=16 m=1
 Mmbp_rbf nb en_vco_bias_bp nbf gnd sg13_lv_nmos w=20.0u l=0.13u ng=4
 .ends

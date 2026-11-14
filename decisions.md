@@ -670,3 +670,11 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   at ≤ 0.36; power corridors alone push join ≈ 0.091 → island ≈ 0.370 > 0.36. Filter join
   still merges nbf|gnd|vdd — full join not finished.
 - Owner decides on the numbers before varactor (further squeeze vs raise D23).
+
+## 2026-11-14 — D23 final island ceiling
+- Reshaped tail cells accepted: d9_rc (R 962.9 → 998.7 kΩ [PDK], filter pole ≈ 4 % lower,
+  accepted), tail_mt, cbf block; each DRC / KLayout LVS / netgen / finger-count clean. Tail
+  block place-only 0.0805 mm² [GDS].
+- D23 amended, final: VCO island outline ≤ 0.38 mm². Any further overrun comes to the owner as
+  a finding with numbers, not a further raise.
+- Next: finish the tail join (filter-node merge), then place the island outline in GDS.

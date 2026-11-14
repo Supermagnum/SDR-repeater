@@ -15,7 +15,6 @@ No property ad found for device sg13_lv_nmos
 No property ps found for device sg13_lv_nmos
 No property pd found for device sg13_lv_nmos
 Model rhigh pin 1 == 2
-No property b found for device rhigh
 Model rhigh pin 1 == 2
 No such pin 1 in model sg13_lv_nmos
 Unable to permute model sg13_lv_nmos pins 1, 3.
@@ -62,10 +61,6 @@ Circuit 1 contains 4 nets,    Circuit 2 contains 4 nets.
 
 Final result: 
 Circuits match uniquely.
-Property errors were found.
-
-The following cells had property errors:
- d9_rc
-
+.
 Logging to file "/foss/designs/analog/vco/layout/p272b_tail/out/netgen_d9_rc.json" disabled
 LVS Done.

@@ -161,4 +161,6 @@ Rough Phase-5 squeeze check against the SX1255-compatible **MLPQ-W 5 × 5 mm** p
 
 **P2.7.2b reshape stop (2026-11-14) [GDS/HAND]:** cells reshaped (d9 fold / mt 2×2 / cbf 3×3) PASS. Place-only tail **0.0805**; island sum **0.1102+0.1514+0.0805+0.017 ≈ 0.359** at ≤ 0.36. Power corridors → join ≈ 0.091 → island ≈ **0.370 > 0.36**. Filter join WIP. Owner decides (further squeeze vs raise D23). Die re-total if raised to ≈ 0.38: total ≈ 3.68–3.78; still fits 2.5×2.5.
 
+**D23 final ≤ 0.38 mm² (2026-11-14)** (`decisions.md`). **tail_block join PASS** footprint **0.0950 mm²** [GDS]. **Island outline GDS** (core+tank + bank + tail, reserved pocket, no inter-block routing): bbox **0.3906 mm²** [GDS] — **over** ≤ 0.38 by **0.0106**. Cell-sum+forecast **0.3737** still under. Finding for owner (not a further D23 raise). Die re-total at 0.3906: synth ≈ +0.01 vs 0.38 case; still fits ≈ 2.5 × 2.5 mm [HAND].
+
 **Flag:** the §1 sketch of a **1.6 × 1.6 mm** active core **does not fit** the Phase 3/4 RX+TX + synth + digital + pads tally. Before Phase 5, plan on a die closer to **≥ ~2.2 × 2.2 mm** (≈ 4.8 mm²) or tighten RX/TX area after topology.

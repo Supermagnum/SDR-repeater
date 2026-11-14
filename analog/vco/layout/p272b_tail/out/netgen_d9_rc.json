@@ -23,11 +23,7 @@ Number of nets: 4                          |Number of nets: 4
 ---------------------------------------------------------------------------------------
 Resolving symmetries by property value.
 Resolving symmetries by pin name.
-Netlists match uniquely with property errors.
-rhigh:rbf vs. rhigh:$5:
- l circuit1: 2.06e-05   circuit2: 2.1285e-05   (delta=3.27%, cutoff=1%)
-rhigh:rbf vs. rhigh:$5:
-Property ps in circuit2 has no matching property in circuit1
+Netlists match uniquely.
 
 Subcircuit pins:
 Circuit 1: d9_rc                           |Circuit 2: d9_rc                           
@@ -41,7 +37,4 @@ Cell pin lists are equivalent.
 Device classes d9_rc and d9_rc are equivalent.
 
 Final result: Circuits match uniquely.
-Property errors were found.
-
-The following cells had property errors:
- d9_rc
+.

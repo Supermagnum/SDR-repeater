@@ -1,0 +1,12 @@
+# vco_island_outline — blocks only, no inter-block routing [GDS]
+pack: bank south; core|tail north (gap=0) [HAND]
+core+tank bbox (0,274.77;254,708.76) area=0.1102 mm2 [GDS]
+bank bbox (0,0;551.08,274.77) area=0.1514 mm2 [GDS]
+tail_block bbox (254,274.77;507.92,649.06) area=0.0950 mm2 [GDS]
+reserved pocket total=0.0187 mm2 (target 0.017) [HAND/GDS]
+cells-only sum=0.3567 mm2 [GDS]
+cell-sum+forecast=0.3737 mm2 [GDS/HAND]
+island outline bbox (0,0;551.08,708.76)
+island outline area=0.3906 mm2 [GDS]
+D23 limit=0.38 mm2 final
+pass=NO — OVER

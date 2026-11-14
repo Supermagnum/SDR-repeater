@@ -80,6 +80,10 @@ def prove(cell: str) -> dict:
 
     lvs_dir = os.path.join(OUT, f"lvs_{cell}")
     os.makedirs(lvs_dir, exist_ok=True)
+    # PDK run_lvs appends to {cell}.log; truncate so PASS/FAIL is this run only.
+    cell_log = os.path.join(lvs_dir, f"{cell}.log")
+    if os.path.exists(cell_log):
+        open(cell_log, "w").close()
     res["klayout_lvs"] = run([
         "python3", PDK_LVS, f"--layout={gds}", f"--netlist={spice}",
         f"--topcell={cell}", f"--run_dir={lvs_dir}",
@@ -87,7 +91,6 @@ def prove(cell: str) -> dict:
         "--combine_devices", "--top_lvl_pins",
     ], os.path.join(OUT, f"lvs_klayout_{cell}.log"))
     # PDK run_lvs can print Status PASS from a stale run; trust the cell log.
-    cell_log = os.path.join(lvs_dir, f"{cell}.log")
     kl_cell = open(cell_log, errors="ignore").read() if os.path.exists(cell_log) else ""
     # Last match wins
     last_ok = kl_cell.rfind("Congratulations! Netlists match")

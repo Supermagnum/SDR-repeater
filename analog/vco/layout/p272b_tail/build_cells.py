@@ -1169,13 +1169,14 @@ MdR gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
         return c.cell_index()
 
     def write_spice_d9_rc(self):
-        # Folded extract: LVS often reports segment l≈20.6u (b=16); keep w=0.5u.
-        # If LVS wants total-path l, adjust after prove [TOOL].
+        # Folded PCell Calculate=l: extract l=21.285u ps=0.18u b=16 — spice must
+        # match those props or KLayout LVS fails (netgen still matches) [TOOL].
         open(os.path.join(OUT, "d9_rc.spice"), "w").write(
             """* P2.7.2b d9_rc: rbf 1M folded b=16 + mbp_rbf [SCH vco_tail_dac]
 * en_vco_bias_bp == vbp_tail (D22 start-up / tail-only bypass gate)
+* rhigh l from KLayout extract (PCell Calculate=l, b=16) [TOOL]
 .subckt d9_rc nb nbf en_vco_bias_bp gnd
-Rrbf nb nbf gnd rhigh w=0.5u l=20.6u
+Rrbf nb nbf gnd rhigh w=0.5u l=21.285u ps=0.18u b=16 m=1
 Mmbp_rbf nb en_vco_bias_bp nbf gnd sg13_lv_nmos w=20.0u l=0.13u ng=4
 .ends
 """)
@@ -1372,6 +1373,10 @@ Ccbf nbf gnd cap_cmim w=68.94u l=68.94u m=7
             "b_layer": "Metal2", "t_layer": "TopMetal1",
             "vn_columns": 2, "vn_rows": 2,
         })
+        vs3t = self.pcell("via_stack", {
+            "b_layer": "Metal3", "t_layer": "TopMetal1",
+            "vn_columns": 2, "vn_rows": 2,
+        })
         vs23 = self.pcell("via_stack", {
             "b_layer": "Metal2", "t_layer": "Metal3",
             "vn_columns": 1, "vn_rows": 1,
@@ -1499,10 +1504,16 @@ Ccbf nbf gnd cap_cmim w=68.94u l=68.94u m=7
             # alley Y between dac top and mt metal bottom
             y_alley = 0.5 * ((oy_dac + dac_bb.top) + (oy_mt + mt_bb.bottom))
             x_ota_e = ox_ota + ota_bb.right + 2.0
-            via_m1m2(*vd_dac)
-            strap_m2(vd_dac[0], vd_dac[1], vd_dac[0], y_alley, w=0.50)
+            # dac vdd: M1 north past dac M2 rails (y≈57–64), then M1→M2 in
+            # alley — via at the pin shorted those rails to pbias [LVS/GDS]
+            y_dac_n = oy_dac + dac_bb.top + 2.0
+            self.box_m1(c, vd_dac[0] - 0.20, min(vd_dac[1], y_dac_n) - 0.20,
+                        vd_dac[0] + 0.20, max(vd_dac[1], y_dac_n) + 0.20)
+            via_m1m2(vd_dac[0], y_dac_n)
+            strap_m2(vd_dac[0], y_dac_n, vd_dac[0], y_alley, w=0.50)
             strap_m2(vd_dac[0], y_alley, x_vdd, y_alley, w=0.50)
-            # ota: M3 east outside → M2 spine (avoid d1 on M2) [LVS]
+            # ota: M3 east of ota, M2 north to alley (y≈69), then east —
+            # never M2 at ota vdd Y≈21 through d9 nbf M2 (y≈22) [LVS/GDS]
             vo = (vd_ota[0] + 1.5, vd_ota[1])
             self.box_m1(c, min(vd_ota[0], vo[0]) - 0.20, vd_ota[1] - 0.20,
                         max(vd_ota[0], vo[0]) + 0.20, vd_ota[1] + 0.20)
@@ -1512,8 +1523,8 @@ Ccbf nbf gnd cap_cmim w=68.94u l=68.94u m=7
             self.place(c, vs23, x_ota_e, vo[1])
             self.box_m2(c, x_ota_e - 0.30, vo[1] - 0.30,
                         x_ota_e + 0.30, vo[1] + 0.30)
-            strap_m2(x_ota_e, vo[1], x_vdd, vo[1], w=0.50)
-            strap_m2(x_vdd, min(vd_ota[1], y_alley), x_vdd, y_alley, w=0.50)
+            strap_m2(x_ota_e, vo[1], x_ota_e, y_alley, w=0.50)
+            strap_m2(x_ota_e, y_alley, x_vdd, y_alley, w=0.50)
             via_m1m2(x_vdd, y_alley)
             self.box_m1(c, x_vdd - 0.30, y_alley - 0.30,
                         x_vdd + 2.5, y_alley + 0.30)
@@ -1526,36 +1537,38 @@ Ccbf nbf gnd cap_cmim w=68.94u l=68.94u m=7
                         tail_p[0] + 4.0, tail_p[1] + 0.20)
             self.pin_m1(c, tail_p[0] + 3.5, tail_p[1], "tail")
 
-        # ---- filter nbf on M3 corridors (around cells; TM1 only at cbf pin) ----
+        # ---- filter nbf ----
+        # cmim [PDK]: bottom Metal5 (=gnd), top TopMetal1 (=nbf / TopVia1).
+        # Never M2 or M5-or-below over cbf plates/ring; TM1 out, via north of bbox.
+        # Also: ota vdd must not run M2 through d9 (see power section) [LVS].
         if "filter" in routed:
             nbf_mt = P(mt_p, ox_mt, oy_mt, "nbf")
             nbf_d9 = P(d9_p, ox_d9, oy_d9, "nbf")
             nbf_cbf = P(cbf_p, ox_cbf, oy_cbf, "nbf")
             y_sky = max(oy_cbf + cbf_bb.top + 4.0, nbf_d9[1] + 20.0)
-            # All nbf on east M3 spine — keep clear of west gnd M2 [LVS]
+            # mt: M1 north into alley, M3 east spine
             y_mt_n = oy_mt + mt_bb.top + 3.0
             escape_m3(nbf_mt[0], nbf_mt[1], nbf_mt[0], y_mt_n)
             strap_m3(nbf_mt[0], y_mt_n, x_sig_e, y_mt_n)
-            escape_m3(nbf_d9[0], nbf_d9[1], x_sig_e, nbf_d9[1])
-            strap_m3(x_sig_e, nbf_d9[1], x_sig_e, y_sky)
             strap_m3(x_sig_e, y_mt_n, x_sig_e, y_sky)
-            # cbf: TM1→M2 at pin, M2→M3 at east edge (outside plate array)
-            self.place(c, vs2t, nbf_cbf[0] - 0.05, nbf_cbf[1] - 0.05)
-            self.box_m2(c, nbf_cbf[0] - 0.40, nbf_cbf[1] - 0.40,
-                        nbf_cbf[0] + 0.40, nbf_cbf[1] + 0.40)
+            # d9: via on pin → M3 east (no M1 jog through neighbours)
+            self.box_m3(c, nbf_d9[0] - 0.30, nbf_d9[1] - 0.30,
+                        nbf_d9[0] + 0.30, nbf_d9[1] + 0.30)
+            self.place(c, vs13, *nbf_d9)
+            strap_m3(nbf_d9[0], nbf_d9[1], x_sig_e, nbf_d9[1])
+            strap_m3(x_sig_e, nbf_d9[1], x_sig_e, y_sky)
+            # cbf: TM1 north of bbox, Metal3→TM1, M3 to east spine
+            y_tm_out = oy_cbf + cbf_bb.top + 4.0
+            tw = 3.0
             c.shapes(self.tm1).insert(pya.DBox(
-                nbf_cbf[0] - 0.40, nbf_cbf[1] - 0.40,
-                nbf_cbf[0] + 0.40, nbf_cbf[1] + 0.40))
-            # North of cbf to sky (avoid vdd alley under mt) [LVS nbf|vdd]
-            y_cbf_n = oy_cbf + cbf_bb.top + 4.0
-            self.box_m2(c, nbf_cbf[0] - 0.30, nbf_cbf[1],
-                        nbf_cbf[0] + 0.30, y_cbf_n)
-            self.place(c, vs23, nbf_cbf[0], y_cbf_n)
-            self.box_m3(c, nbf_cbf[0] - 0.30, y_cbf_n - 0.30,
-                        nbf_cbf[0] + 0.30, y_cbf_n + 0.30)
-            strap_m3(nbf_cbf[0], y_cbf_n, x_sig_e, y_cbf_n)
-            strap_m3(x_sig_e, y_cbf_n, x_sig_e, y_sky)
-            # nbf port on M3→M1 at east sky
+                nbf_cbf[0] - tw * 0.5, nbf_cbf[1] - tw * 0.5,
+                nbf_cbf[0] + tw * 0.5, y_tm_out + tw * 0.5))
+            self.place(c, vs3t, nbf_cbf[0] - 0.35, y_tm_out - 0.35)
+            self.box_m3(c, nbf_cbf[0] - 0.40, y_tm_out - 0.40,
+                        nbf_cbf[0] + 0.40, y_tm_out + 0.40)
+            strap_m3(nbf_cbf[0], y_tm_out, x_sig_e, y_tm_out)
+            strap_m3(x_sig_e, y_tm_out, x_sig_e, y_sky)
+            # nbf port at east sky
             self.place(c, vs13, x_sig_e, y_sky)
             self.box_m1(c, x_sig_e - 0.30, y_sky - 0.30,
                         x_sig_e + 2.5, y_sky + 0.30)
@@ -1659,7 +1672,7 @@ Ccbf nbf gnd cap_cmim w=68.94u l=68.94u m=7
         self.say(f"join footprint={area:.4f} mm2 [GDS]; "
                  f"island outline forecast sum="
                  f"0.1102+0.1514+{area:.4f}+{forecast:.3f}={island_fp:.4f} "
-                 f"(≤0.34 / ≤0.36) [GDS/HAND]")
+                 f"(≤0.38 final) [GDS/HAND]")
         self.island_forecast = island_fp
         return c.cell_index()
 
@@ -1739,7 +1752,7 @@ MdL gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
 MdR gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
 .ends
 .subckt d9_rc nb nbf en_vco_bias_bp gnd
-Rrbf nb nbf gnd rhigh w=0.5u l=20.6u
+Rrbf nb nbf gnd rhigh w=0.5u l=21.285u ps=0.18u b=16 m=1
 Mmbp_rbf nb en_vco_bias_bp nbf gnd sg13_lv_nmos w=20.0u l=0.13u ng=4
 .ends
 .subckt cbf nbf gnd

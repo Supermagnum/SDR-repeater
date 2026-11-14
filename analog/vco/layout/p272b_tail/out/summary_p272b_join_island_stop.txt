@@ -1,0 +1,48 @@
+# P2.7.2b stop — join PASS; island outline OVER ≤ 0.38 [GDS/TOOL]
+
+## Results vs pass criteria
+
+### 1. Filter-node merge (nbf | gnd | vdd)
+PASS. Cause: M2/via over cbf (M5 gnd / TM1 nbf) shorted nbf|gnd; ota M2 vdd
+crossed d9 nbf; dac vdd via into M2 rails → pbias|vdd. Fix: nbf on TM1/M3 only
+over cbf; ota vdd alley; dac vdd M1 north then via. [PDK/LVS]
+
+### 2. Full join (nb → xraw → bypass → codes)
+| Check | Result |
+|---|---|
+| DRC (density waived) | PASS [TOOL] |
+| KLayout LVS | PASS [TOOL] |
+| netgen | PASS uniquely, 69 nets [TOOL] |
+| top ports | 17, no merges [TOOL] |
+| child pin texts | 0 [GDS] |
+| tail_block footprint | 0.0950 mm² [GDS] |
+
+### 3. Island outline in GDS
+| Item | mm² | Tag |
+|---|---|---|
+| tail_block | 0.0950 | [GDS] |
+| core+tank | 0.1102 | [GDS] |
+| bank | 0.1514 | [GDS] |
+| reserved pocket | 0.0187 (target 0.017) | [HAND/GDS] |
+| cell-sum+forecast | 0.3737 | ≤ 0.38 |
+| island outline bbox | 0.3906 | > 0.38 [GDS] |
+
+STOP: outline +0.0106 mm² over D23 final ≤ 0.38.
+
+## Failed or uncertain
+- Island outline bbox fails ≤ 0.38 (compact pack gap=0). Cell-sum method still under.
+- netgen reports property noise (as/ad/ps/pd/area) — same class as accepted children; topology unique match.
+- Inter-block island routing not done (prompt: blocks only).
+
+## Decision needed
+Owner on outline 0.3906 vs ≤ 0.38: accept finding and proceed with 0.3906 bbox, or
+require further reshape / re-pack before varactor. Per D23 final: not a further raise
+unless the owner explicitly amends.
+
+## Found, not done
+- Varactor and bias layout
+- Inter-block routing inside the island
+- Die re-total formal update beyond the HAND note in floorplan §8
+
+## Next run
+P2.7.2b — varactor and bias (blocked until owner on outline overrun).
