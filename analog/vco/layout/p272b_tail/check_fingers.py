@@ -22,7 +22,7 @@ import pya  # noqa: E402
 EXPECT = {
     "dac_unit": [("pmos mdb", 1), ("pmos msw", 1)],
     "dac_array": [("pmos per unit", 1)],  # each unit child ng=1; 102 devices
-    "tail_mt": [("nmos mt", 96)],
+    "tail_mt": [("nmos mt row", 24)],  # 4× ng=24 = 96 total [SCH]
     # ota: mo1/mo2 ng=2, mp1/mp2 ng=2, dummies ng=1 [SCH]
     "ota_vds": [("nmos mo", 2), ("pmos mp", 2), ("nmos dum", 1)],
 }
@@ -109,11 +109,11 @@ def check_tail_mt(gds):
         ng = poly_gate_count(cell)
         if ng > 0:
             ngs.append((cell.name, ng))
-    # Largest MOS child should be mt with 96 fingers
-    ngs.sort(key=lambda t: -t[1])
-    best = ngs[0][1] if ngs else 0
-    ok = best == 96
-    return ok, f"mos_children={ngs} expect mt ng=96"
+    # Reshape: 4 × (120u/4u ng=24) = 480u ng=96 [SCH]
+    mos_ngs = sorted(ng for _, ng in ngs if ng >= 24)
+    ok = mos_ngs == [24, 24, 24, 24]
+    return ok, (f"mos_children={ngs} mos_ngs={mos_ngs} "
+                f"expect 4× ng=24 (total 96)")
 
 
 def check_ota_vds(gds):

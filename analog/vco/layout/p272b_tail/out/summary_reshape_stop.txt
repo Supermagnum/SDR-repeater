@@ -1,0 +1,47 @@
+P2.7.2b tail reshape + island outline — STOP (2026-11-14) [GDS/TOOL/HAND]
+=========================================================================
+
+1. Reshaped cells — PASS [TOOL/GDS]
+   cell      W x H (um)       area    aspect  prove
+   --------  ---------------  ------  ------  -----
+   d9_rc     19.33 x 44.59    0.0009  2.31    DRC/LVS/netgen/fingers PASS
+             rhigh b=16 AR 1.93; R before 962880 / after 998699 Ohm [PDK]
+             (target 1e6; same squares via Calculate=l)
+   tail_mt   227.1 x 33.0     0.0075  6.9     DRC/LVS/netgen/fingers PASS
+             2x2 common-centroid 120u/4u ng=24 (total W/ng = 480/96) [SCH]
+   cbf       215.5 x 221.0    0.0476  1.03    DRC/LVS/netgen PASS
+             7x cmim in 3x3 (spine col filled; corners empty)
+   dac/ota   unchanged        0.0073 / 0.0017
+
+2. Floorplan [HAND]
+   South strip dac|ota|d9; mt above (gap_mt=12 for pin stubs); cbf above mt.
+   Cells-only planned ≈ 227 x 342 = 0.0776 mm2; target ≈ 0.08.
+
+3. Join re-route — incomplete [TOOL]
+   place-only bbox 0.0805 mm2 [GDS].
+   power + tail: DRC clean; ports gnd/tail/vdd unmerged (intermediate gate) [TOOL].
+   filter: nbf merges with gnd|vdd [LVS] — not cleared. Full LVS/netgen for
+   complete join not reached. Known-good prior join 0.2352 left in history;
+   reshape join GDS is WIP.
+
+4. Island vs ≤ 0.34 / ≤ 0.36 [GDS/HAND]
+   Footprint sum method (decisions):
+     core+tank 0.1102 + bank 0.1514 + tail_place 0.0805 + forecast 0.017
+     = 0.3591 mm2  → at/over ≤ 0.36; over ≤ 0.34 by 0.0191.
+   With power corridors alone join ≈ 0.091 → island ≈ 0.370 > 0.36.
+   Routing headroom above place-only to stay ≤ 0.36 is ≈ 0.001 mm2 — not
+   enough for DRC-clean power+signal corridors.
+   Geometric AABB of core|bank + tail (naive) ≈ 0.64 mm2 [HAND] — not used
+   as the gate; footprint sum is the recorded method.
+
+5. Stop / decision needed
+   Reshape reduced tail from 0.2352 → ≈ 0.08 place-only, but the island still
+   cannot meet ≤ 0.36 once join corridors are added. Owner chooses:
+   (A) raise D23 further (numbers: island ≈ 0.37–0.38 with a finished join);
+   (B) further cell/floorplan squeeze (e.g. 4-row mt column, overlap forecast
+       into empty cbf corners) then resume join;
+   (C) other.
+   Varactor / bias not started.
+
+Artifacts: reshaped d9_rc/tail_mt/cbf .gds.gz + proves; summary_floorplan_reshape.txt;
+summary_prove_*_reshape*; build_cells.py.

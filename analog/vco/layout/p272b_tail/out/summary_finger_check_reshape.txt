@@ -1,0 +1,6 @@
+dac_unit: PASS — mos_child_ngs=[1, 1] expect [1,1]
+dac_array: PASS — n_units=51 expect 51; bad_units=0 sample=[[1, 1], [1, 1]]
+tail_mt: PASS — mos_children=[('nmos', 24), ('nmos', 24), ('nmos', 24), ('nmos', 24)] mos_ngs=[24, 24, 24, 24] expect 4× ng=24 (total 96)
+ota_vds: PASS — nmos_ngs=[1, 1, 2, 2] pmos_ngs=[2, 2] expect n[1,1,2,2] p[2,2]
+d9_rc: PASS — mbp_rbf ngs=[4] expect [4]
+Wrote /foss/designs/analog/vco/layout/p272b_tail/out/summary_finger_check.txt

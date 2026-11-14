@@ -1,0 +1,16 @@
+14-Nov-2026 15:18:44 | INFO    | Your Klayout version is: KLayout 0.30.12 (required >= 0.30.5)
+14-Nov-2026 15:18:44 | INFO    | Running SG13G2 LVS checks on design /foss/designs/analog/vco/layout/p272b_tail/out/cbf.gds on cell cbf
+14-Nov-2026 15:18:46 | INFO    | ==============================================================================
+14-Nov-2026 15:18:46 | INFO    | Important Summary
+14-Nov-2026 15:18:46 | INFO    | +------------------+--------------------------------------------------------------+
+14-Nov-2026 15:18:46 | INFO    | | Status           | PASS                                                         |
+14-Nov-2026 15:18:46 | INFO    | | Mode             | COMPARE                                                      |
+14-Nov-2026 15:18:46 | INFO    | | Outcome          | Comparison mode: PASS (netlists match).                      |
+14-Nov-2026 15:18:46 | INFO    | | Layout           | cbf.gds                                                      |
+14-Nov-2026 15:18:46 | INFO    | | Top Cell         | cbf                                                          |
+14-Nov-2026 15:18:46 | INFO    | | Results Dir      | /foss/designs/analog/vco/layout/p272b_tail/out/lvs_cbf       |
+14-Nov-2026 15:18:46 | INFO    | | Warnings         | 0                                                            |
+14-Nov-2026 15:18:46 | INFO    | | Errors           | 0                                                            |
+14-Nov-2026 15:18:46 | INFO    | | Run Time (s)     | 3.085                                                        |
+14-Nov-2026 15:18:46 | INFO    | +------------------+--------------------------------------------------------------+
+14-Nov-2026 15:18:46 | INFO    | ==============================================================================

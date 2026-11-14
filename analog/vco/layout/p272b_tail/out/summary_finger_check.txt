@@ -6,7 +6,8 @@ Method: tall/thin poly boxes in each MOS PCell child (excludes straps). Catches 
 |---|---|---|
 | dac_unit | mos_child_ngs=[1, 1] expect [1,1] | yes |
 | dac_array | n_units=51 expect 51; bad_units=0 sample=[[1, 1], [1, 1]] | yes |
-| tail_mt | mos_children=[('nmos', 96)] expect mt ng=96 | yes |
+| tail_mt | mos_children=[('nmos', 24), ('nmos', Wrote /foss/designs/analog/vco/layout/p272b_tail/out/summary_finger_check.txt
+tal 96) | yes |
 | ota_vds | nmos_ngs=[1, 1, 2, 2] pmos_ngs=[2, 2] expect n[1,1,2,2] p[2,2] | yes |
 | d9_rc | mbp_rbf ngs=[4] expect [4] | yes |
 

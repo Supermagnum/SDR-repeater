@@ -1,8 +1,8 @@
 Netgen 1.5.324 compiled on Thu Oct 15 02:24:51 PM CEST 2026
 Warning: netgen command 'format' use fully-qualified name '::netgen::format'
 Warning: netgen command 'global' use fully-qualified name '::netgen::global'
-Reading netlist file /foss/designs/analog/vco/layout/p272b_tail/out/tail_mt.spice for /foss/designs/analog/vco/layout/p272b_tail/out/tail_mt.spice tail_mt
-Reading netlist file /foss/designs/analog/vco/layout/p272b_tail/out/lvs_tail_mt/tail_mt_extracted.cir for /foss/designs/analog/vco/layout/p272b_tail/out/lvs_tail_mt/tail_mt_extracted.cir tail_mt
+Reading netlist file /foss/designs/analog/vco/layout/p272b_tail/out/tail_mt_netgen.spice for /foss/designs/analog/vco/layout/p272b_tail/out/tail_mt_netgen.spice tail_mt
+Reading netlist file /foss/designs/analog/vco/layout/p272b_tail/out/tail_mt_extracted_netgen.cir for /foss/designs/analog/vco/layout/p272b_tail/out/tail_mt_extracted_netgen.cir tail_mt
 
 Reading setup file /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl
 
@@ -36,6 +36,18 @@ No property wmin found for device sg13_lv_nmos
 No property pre_layout found for device sg13_lv_nmos
 Comparison output logged to file /foss/designs/analog/vco/layout/p272b_tail/out/netgen_tail_mt.json
 Logging to file "/foss/designs/analog/vco/layout/p272b_tail/out/netgen_tail_mt.json" enabled
+
+Contents of circuit 1:  Circuit: 'tail_mt'
+Circuit tail_mt contains 4 device instances.
+  Class: sg13_lv_nmos          instances:   4
+Circuit contains 3 nets.
+Contents of circuit 2:  Circuit: 'tail_mt'
+Circuit tail_mt contains 1 device instances.
+  Class: sg13_lv_nmos          instances:   1
+Circuit contains 3 nets.
+
+Circuit was modified by parallel/series device merging.
+New circuit summary:
 
 Contents of circuit 1:  Circuit: 'tail_mt'
 Circuit tail_mt contains 1 device instances.

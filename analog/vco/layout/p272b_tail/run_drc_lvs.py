@@ -86,8 +86,13 @@ def prove(cell: str) -> dict:
         "--disable_tap_extraction", "--ignore_top_ports_mismatch",
         "--combine_devices", "--top_lvl_pins",
     ], os.path.join(OUT, f"lvs_klayout_{cell}.log"))
-    kl = open(os.path.join(OUT, f"lvs_klayout_{cell}.log"), errors="ignore").read()
-    res["klayout_pass"] = "| Status           | PASS" in kl or "Status           | PASS" in kl
+    # PDK run_lvs can print Status PASS from a stale run; trust the cell log.
+    cell_log = os.path.join(lvs_dir, f"{cell}.log")
+    kl_cell = open(cell_log, errors="ignore").read() if os.path.exists(cell_log) else ""
+    # Last match wins
+    last_ok = kl_cell.rfind("Congratulations! Netlists match")
+    last_bad = kl_cell.rfind("ERROR : Netlists don't match")
+    res["klayout_pass"] = last_ok > last_bad and last_ok >= 0
 
     ext = None
     for root, _, files in os.walk(lvs_dir):

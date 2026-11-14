@@ -1,6 +1,6 @@
-* Extracted by KLayout with SG13G2 LVS runset on : 13/11/2026 07:08
+* Extracted by KLayout with SG13G2 LVS runset on : 14/11/2026 15:18
 
 .SUBCKT tail_mt gnd nbf tail
-M$1 tail nbf gnd gnd sg13_lv_nmos L=4u W=480u AS=91.95p AD=91.95p PS=521.78u
-+ PD=521.78u rfmode=0
+M$1 tail nbf gnd gnd sg13_lv_nmos L=4u W=480u AS=94.2p AD=94.2p PS=537.68u
++ PD=537.68u rfmode=0
 .ENDS tail_mt

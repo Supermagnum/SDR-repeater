@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 Option A accepted; D9 path ≤ 0.34 (amended).** **D24 segmented bank recorded.** **P2.7.2c PASS.** **P2.7.2 lin gate accepted (−102.9 dBc).** **P2.7.2a3 Q gate accepted.** **P2.7.2b re-spin 2 PASS** (core+tank). **P2.7.2b D24 bank PASS.** **cmim cbf PASS** (0.0431). **tail_block join PASS** (0.2352). **Footprint island finding** 0.5139 vs ≤ 0.34 — owner A/B/C; varactor blocked.
+Status: **D23 ≤ 0.34 (≤ 0.36 allowed).** **tail reshape cells PASS** (d9 fold / mt 2×2 / cbf 3×3). **Place-only tail ≈ 0.0805**; island sum ≈ 0.359 at ≤ 0.36; corridors → > 0.36. **Join filter WIP** (nbf|gnd|vdd). Owner decides; varactor blocked.
 
 ---
 
@@ -368,22 +368,24 @@ Artifacts: `analog/vco/layout/p272b_tail/out/tail_block.gds.gz`,
 
 #### P2.7.2b island footprint reconciliation + D23 finding (2026-11-14) [GDS/HAND]
 **Method:** island = sum of placed block footprints + forecast (not cell area sums).
-`out/summary_area_reconcile.txt`, `out/summary_d23_finding_footprint.txt`.
+Prior join bbox **0.2352** → owner chose reshape (not raise to 0.52).
+
+#### P2.7.2b reshape + island stop (2026-11-14) [GDS/TOOL]
+**Cells PASS:** `d9_rc` serpentine b=16 (R 962880→998699 [PDK]); `tail_mt` 2×2 of
+120u/4u ng=24; `cbf` 3×3 cmim; DRC/LVS/netgen (+ fingers) each [TOOL].
+**Floorplan [HAND]:** dac|ota|d9 south; mt; cbf. Place-only join **0.0805 mm²** [GDS].
 
 | Block | Footprint (mm²) | Source |
 |---|---|---|
 | core + tank | **0.1102** | [GDS] |
 | bank | **0.1514** | [GDS] |
-| tail_block join | **0.2352** | [GDS] |
-| forecast varactor + D22 + top | **≈ 0.017** | [HAND] |
-| **Island total** | **0.5139** | |
-| Limit | **≤ 0.34** (≤ 0.36 allowed) | D9 path |
+| tail place-only | **0.0805** | [GDS] |
+| forecast var+D22+top | **≈ 0.017** | [HAND] |
+| **Island sum** | **≈ 0.359** | at ≤ 0.36 |
+| with power corridors | join ≈ 0.091 → island ≈ **0.370** | **> 0.36** |
 
-Join empty vs children union: **0.0264 mm²** [GDS]. Children union **0.2088**; packing
-floor d9×mt extents ≥ **0.168 mm²** [HAND] vs tail budget **0.0613 / 0.0813**. Compact
-of corridors cannot pass; no compact LVS re-prove [TOOL not run for gate]. **Finding
-(not accepted):** raise D23 to ≤ **0.52** (die ≈ 3.81–3.91, still fits 2.5×2.5) **or**
-redesign d9/mt. **Varactor / bias not started.**
+**Join:** power+tail intermediate ports clean; filter merges `nbf|gnd|vdd` — full join
+not finished. **Stop for owner** (`out/summary_reshape_stop.txt`). Varactor not started.
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin

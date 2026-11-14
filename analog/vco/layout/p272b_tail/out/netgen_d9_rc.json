@@ -1,8 +1,22 @@
 
+Circuit 1 cell rhigh and Circuit 2 cell rhigh are black boxes.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: rhigh                           |Circuit 2: rhigh                           
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes rhigh and rhigh are equivalent.
+
 Subcircuit summary:
 Circuit 1: d9_rc                           |Circuit 2: d9_rc                           
 -------------------------------------------|-------------------------------------------
-gnd (1)                                    |gnd (1)                                    
+rhigh (1)                                  |rhigh (1)                                  
 sg13_lv_nmos (1)                           |sg13_lv_nmos (1)                           
 Number of devices: 2                       |Number of devices: 2                       
 Number of nets: 4                          |Number of nets: 4                          
@@ -10,18 +24,18 @@ Number of nets: 4                          |Number of nets: 4
 Resolving symmetries by property value.
 Resolving symmetries by pin name.
 Netlists match uniquely with property errors.
-gnd:rbf vs. gnd:$5:
-Property b in circuit2 has no matching property in circuit1
-gnd:rbf vs. gnd:$5:
+rhigh:rbf vs. rhigh:$5:
+ l circuit1: 2.06e-05   circuit2: 2.1285e-05   (delta=3.27%, cutoff=1%)
+rhigh:rbf vs. rhigh:$5:
 Property ps in circuit2 has no matching property in circuit1
 
 Subcircuit pins:
 Circuit 1: d9_rc                           |Circuit 2: d9_rc                           
 -------------------------------------------|-------------------------------------------
 en_vco_bias_bp                             |en_vco_bias_bp                             
-gnd                                        |gnd                                        
 nbf                                        |nbf                                        
 nb                                         |nb                                         
+gnd                                        |gnd                                        
 ---------------------------------------------------------------------------------------
 Cell pin lists are equivalent.
 Device classes d9_rc and d9_rc are equivalent.

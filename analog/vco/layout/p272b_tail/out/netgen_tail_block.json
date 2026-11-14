@@ -19,56 +19,509 @@ Flattening unmatched subcell ota_vds in circuit tail_block (0)(1 instance)
 Flattening unmatched subcell d9_rc in circuit tail_block (0)(1 instance)
 Flattening unmatched subcell cbf in circuit tail_block (0)(1 instance)
 
-Class tail_block (0):  Merged 1 parallel devices.
+Class tail_block (0):  Merged 4 parallel devices.
 Subcircuit summary:
 Circuit 1: tail_block                      |Circuit 2: tail_block                      
 -------------------------------------------|-------------------------------------------
 sg13_lv_pmos (104)                         |sg13_lv_pmos (104)                         
-sg13_lv_nmos (6->5)                        |sg13_lv_nmos (5)                           
+sg13_lv_nmos (9->5)                        |sg13_lv_nmos (5)                           
 rhigh (1)                                  |rhigh (1)                                  
 cap_cmim (7->1)                            |cap_cmim (7->1)                            
 Number of devices: 111                     |Number of devices: 111                     
-Number of nets: 69                         |Number of nets: 69                         
+Number of nets: 69 **Mismatch**            |Number of nets: 61 **Mismatch**            
 ---------------------------------------------------------------------------------------
-Resolving symmetries by property value.
-Resolving symmetries by pin name.
-Resolving symmetries by net name.
-Netlists match with 15 symmetries with property errors.
-cbf/cap_cmim:cbf vs. cap_cmim:$214:
-Property P in circuit2 has no matching property in circuit1
-cbf/cap_cmim:cbf vs. cap_cmim:$214:
-Property A in circuit2 has no matching property in circuit1
-cbf/cap_cmim:cbf vs. cap_cmim:$214:
-Property area in circuit2 has no matching property in circuit1
-d9_rc:d9/rhigh:rbf vs. rhigh:$213:
-Property ps in circuit2 has no matching property in circuit1
+NET mismatches: Class fragments follow (with fanout counts):
+Circuit 1: tail_block                      |Circuit 2: tail_block                      
+
+---------------------------------------------------------------------------------------
+Net: vdd                                   |Net: \$36                                  
+  sg13_lv_pmos/(drain|source) = 53         |  sg13_lv_nmos/gate = 1                    
+  sg13_lv_pmos/bulk = 104                  |                                           
+                                           |                                           
+Net: xraw                                  |Net: \$4                                   
+  sg13_lv_pmos/(drain|source) = 51         |  sg13_lv_nmos/(drain|source) = 1          
+  sg13_lv_nmos/gate = 1                    |  rhigh/(1|2) = 1                          
+                                           |                                           
+Net: code_gnd                              |Net: \$17                                  
+  sg13_lv_pmos/gate = 19                   |  sg13_lv_nmos/(drain|source) = 1          
+                                           |  sg13_lv_pmos/(drain|source) = 1          
+                                           |                                           
+Net: code0                                 |Net: \$9                                   
+  sg13_lv_pmos/gate = 1                    |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: code_vdd                              |Net: \$10                                  
+  sg13_lv_pmos/gate = 1                    |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: code1                                 |Net: \$11                                  
+  sg13_lv_pmos/gate = 2                    |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b0                   |Net: \$12                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b1                   |Net: \$13                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b2                   |Net: \$14                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b3                   |Net: \$15                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4                   |Net: \$38                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b5                   |Net: \$39                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b6                   |Net: \$40                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b7                   |Net: \$41                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b8                   |Net: \$42                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b9                   |Net: \$43                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b10                  |Net: \$44                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b11                  |Net: \$79                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b12                  |Net: \$59                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b13                  |Net: \$80                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b14                  |Net: \$60                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b15                  |Net: \$61                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b16                  |Net: \$81                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b17                  |Net: \$62                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b18                  |Net: \$82                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4_0                 |Net: \$63                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b3_0                 |Net: \$83                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b2_0                 |Net: \$84                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4_1                 |Net: \$85                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b3_1                 |Net: \$86                                  
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4_2                 |Net: \$103                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b1_0                 |Net: \$104                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4_3                 |Net: \$105                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4_4                 |Net: \$106                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b0_0                 |Net: \$107                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4_5                 |Net: \$108                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b3_2                 |Net: \$109                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4_6                 |Net: \$110                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b2_1                 |Net: \$127                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b3_3                 |Net: \$128                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4_7                 |Net: \$129                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4_8                 |Net: \$130                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b3_4                 |Net: \$131                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b2_2                 |Net: \$132                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4_9                 |Net: \$133                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b3_5                 |Net: \$134                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4_10                |Net: \$151                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b1_1                 |Net: \$152                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4_11                |Net: \$153                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4_12                |Net: \$154                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_dmy                  |Net: \$155                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b3_6                 |Net: \$156                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4_13                |Net: \$157                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b4_14                |Net: \$158                                 
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 2          
+                                           |                                           
+Net: dac_array:dac/xd_b2_3                 |Net: gnd|nbf|vdd                           
+  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_nmos/(drain|source) = 4          
+                                           |  sg13_lv_nmos/bulk = 5                    
+                                           |  sg13_lv_nmos/gate = 2                    
+                                           |  sg13_lv_pmos/gate = 102                  
+                                           |  sg13_lv_pmos/(drain|source) = 53         
+                                           |  sg13_lv_pmos/bulk = 104                  
+                                           |  rhigh/(1|2) = 1                          
+                                           |  rhigh/3 = 1                              
+                                           |  cap_cmim/top = 1                         
+                                           |  cap_cmim/bottom = 1                      
+                                           |                                           
+Net: dac_array:dac/xd_b3_7                 |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: dac_array:dac/xd_b4_15                |(no matching net)                          
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+                                           |                                           
+Net: code2                                 |(no matching net)                          
+  sg13_lv_pmos/gate = 4                    |                                           
+                                           |                                           
+Net: nbf                                   |(no matching net)                          
+  sg13_lv_nmos/gate = 1                    |                                           
+  rhigh/(1|2) = 1                          |                                           
+  sg13_lv_nmos/(drain|source) = 1          |                                           
+  cap_cmim/top = 1                         |                                           
+                                           |                                           
+Net: nb                                    |(no matching net)                          
+  sg13_lv_nmos/(drain|source) = 2          |                                           
+  sg13_lv_pmos/(drain|source) = 1          |                                           
+  rhigh/(1|2) = 1                          |                                           
+                                           |                                           
+Net: code3                                 |(no matching net)                          
+  sg13_lv_pmos/gate = 8                    |                                           
+                                           |                                           
+Net: code4                                 |(no matching net)                          
+  sg13_lv_pmos/gate = 16                   |                                           
+                                           |                                           
+Net: gnd                                   |(no matching net)                          
+  sg13_lv_nmos/(drain|source) = 3          |                                           
+  sg13_lv_nmos/bulk = 5                    |                                           
+  sg13_lv_nmos/gate = 1                    |                                           
+  rhigh/3 = 1                              |                                           
+  cap_cmim/bottom = 1                      |                                           
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+Net: pbias                                 |Net: \$7                                   
+  sg13_lv_pmos/gate = 51                   |  sg13_lv_pmos/(drain|source) = 51         
+---------------------------------------------------------------------------------------
+DEVICE mismatches: Class fragments follow (with node fanout counts):
+Circuit 1: tail_block                      |Circuit 2: tail_block                      
+
+---------------------------------------------------------------------------------------
+Instance: dac_array:dac/dac_unit:b4_15/sg1 |Instance: sg13_lv_pmos:$212                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_7/sg13 |Instance: sg13_lv_pmos:$210                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b2_3/sg13 |Instance: sg13_lv_pmos:$208                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_14/sg1 |Instance: sg13_lv_pmos:$206                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_13/sg1 |Instance: sg13_lv_pmos:$204                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_6/sg13 |Instance: sg13_lv_pmos:$202                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:dmy/sg13_ |Instance: sg13_lv_pmos:$200                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_12/sg1 |Instance: sg13_lv_pmos:$198                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_11/sg1 |Instance: sg13_lv_pmos:$196                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b1_1/sg13 |Instance: sg13_lv_pmos:$194                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_10/sg1 |Instance: sg13_lv_pmos:$192                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_5/sg13 |Instance: sg13_lv_pmos:$190                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_9/sg13 |Instance: sg13_lv_pmos:$188                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b2_2/sg13 |Instance: sg13_lv_pmos:$186                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_4/sg13 |Instance: sg13_lv_pmos:$184                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_8/sg13 |Instance: sg13_lv_pmos:$182                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_7/sg13 |Instance: sg13_lv_pmos:$180                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_3/sg13 |Instance: sg13_lv_pmos:$178                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b2_1/sg13 |Instance: sg13_lv_pmos:$176                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_6/sg13 |Instance: sg13_lv_pmos:$174                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_2/sg13 |Instance: sg13_lv_pmos:$172                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_5/sg13 |Instance: sg13_lv_pmos:$170                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b0_0/sg13 |Instance: sg13_lv_pmos:$168                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_4/sg13 |Instance: sg13_lv_pmos:$166                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_3/sg13 |Instance: sg13_lv_pmos:$160                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b1_0/sg13 |Instance: sg13_lv_pmos:$158                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_2/sg13 |Instance: sg13_lv_pmos:$156                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_1/sg13 |Instance: sg13_lv_pmos:$154                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_1/sg13 |Instance: sg13_lv_pmos:$153                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b2_0/sg13 |Instance: sg13_lv_pmos:$150                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3_0/sg13 |Instance: sg13_lv_pmos:$149                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4_0/sg13 |Instance: sg13_lv_pmos:$146                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b18/sg13_ |Instance: sg13_lv_pmos:$145                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b17/sg13_ |Instance: sg13_lv_pmos:$142                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b16/sg13_ |Instance: sg13_lv_pmos:$141                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b15/sg13_ |Instance: sg13_lv_pmos:$138                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b14/sg13_ |Instance: sg13_lv_pmos:$137                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b13/sg13_ |Instance: sg13_lv_pmos:$134                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b12/sg13_ |Instance: sg13_lv_pmos:$132                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b11/sg13_ |Instance: sg13_lv_pmos:$130                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b10/sg13_ |Instance: sg13_lv_pmos:$128                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b9/sg13_l |Instance: sg13_lv_pmos:$126                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b8/sg13_l |Instance: sg13_lv_pmos:$124                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b7/sg13_l |Instance: sg13_lv_pmos:$122                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b6/sg13_l |Instance: sg13_lv_pmos:$120                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b5/sg13_l |Instance: sg13_lv_pmos:$118                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b4/sg13_l |Instance: sg13_lv_pmos:$116                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b3/sg13_l |Instance: sg13_lv_pmos:$114                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b2/sg13_l |Instance: sg13_lv_pmos:$112                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b1/sg13_l |Instance: sg13_lv_pmos:$110                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+                                           |                                           
+Instance: dac_array:dac/dac_unit:b0/sg13_l |Instance: sg13_lv_pmos:$108                
+  (drain,source) = (157,2)                 |  (drain,source) = (51,2)                  
+  gate = 51                                |  gate = 274                               
+  bulk = 157                               |  bulk = 274                               
+---------------------------------------------------------------------------------------
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
 
 Subcircuit pins:
 Circuit 1: tail_block                      |Circuit 2: tail_block                      
 -------------------------------------------|-------------------------------------------
-gnd                                        |gnd                                        
-code4                                      |code4                                      
-code3                                      |code3                                      
-nbf                                        |nbf                                        
-nb                                         |nb                                         
-code2                                      |code2                                      
-ss                                         |ss                                         
-code1                                      |code1                                      
-tail                                       |tail                                       
-vbp_tail                                   |vbp_tail                                   
-tail_f                                     |tail_f                                     
-code0                                      |code0                                      
-code_vdd                                   |code_vdd                                   
-code_gnd                                   |code_gnd                                   
-xraw                                       |xraw                                       
-pbias                                      |pbias                                      
-vdd                                        |vdd                                        
----------------------------------------------------------------------------------------
+vdd                                        |(no pin, node is \$36)                     
+xraw                                       |(no pin, node is \$4)                      
+code_gnd                                   |(no pin, node is \$17)                     
+code0                                      |(no pin, node is \$9)                      
+code_vdd                                   |(no pin, node is \$10)                     
+code1                                      |(no pin, node is \$11)                     
 Cell pin lists are equivalent.
 Device classes tail_block and tail_block are equivalent.
 
-Final result: Circuits match uniquely.
-Property errors were found.
-
-The following cells had property errors:
- tail_block
+Final result: Netlists do not match.
+Port matching may fail to disambiguate symmetries.

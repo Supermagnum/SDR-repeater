@@ -652,3 +652,21 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   ≈ 2.5 × 2.5 mm (~2.3–2.4 mm² slack) [HAND].
 - Owner must choose before varactor/bias: (A) raise D23 to ≤ 0.52 mm²; (B) redesign d9/mt
   extents to fit ≤ 0.34; (C) reject footprint accounting. Varactor not started.
+
+## 2026-11-14 — D23 footprint finding
+- Island area is counted from block footprints (and, once placed, the island outline), not
+  cell sums.
+- Tail block (footprint 0.2352 mm², cells 0.0618 mm² [GDS]) is re-laid out by reshaping cell
+  aspect ratios, without circuit changes: d9_rc resistor folded (serpentine, same squares),
+  tail_mt as 2–4 rows (same W / L / ng), cbf tiles as a block, not a row. Target ≈ 0.08 mm²
+  for the tail block. D23 stays ≤ 0.34 mm², with ≤ 0.36 mm² allowed (2026-11-14).
+- A (≤ 0.52 mm²) not taken. If the reshaped island still exceeds 0.36 mm², the owner decides
+  on the numbers.
+
+## 2026-11-14 — P2.7.2b reshape stop (island still over ≤ 0.36)
+- Reshape PASS: d9_rc folded b=16 (R 963k→999k [PDK]); tail_mt 2×2×(120u/4u ng=24);
+  cbf 3×3 cmim; each DRC/LVS/netgen clean [TOOL]. Place-only tail ≈ 0.0805 mm² [GDS].
+- Island footprint sum with place-only tail: 0.1102+0.1514+0.0805+0.017 ≈ 0.359 [GDS/HAND]
+  at ≤ 0.36; power corridors alone push join ≈ 0.091 → island ≈ 0.370 > 0.36. Filter join
+  still merges nbf|gnd|vdd — full join not finished.
+- Owner decides on the numbers before varactor (further squeeze vs raise D23).

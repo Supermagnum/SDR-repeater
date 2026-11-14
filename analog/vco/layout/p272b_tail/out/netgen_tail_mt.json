@@ -1,8 +1,9 @@
 
+Class tail_mt (0):  Merged 3 parallel devices.
 Subcircuit summary:
 Circuit 1: tail_mt                         |Circuit 2: tail_mt                         
 -------------------------------------------|-------------------------------------------
-sg13_lv_nmos (1)                           |sg13_lv_nmos (1)                           
+sg13_lv_nmos (4->1)                        |sg13_lv_nmos (1)                           
 Number of devices: 1                       |Number of devices: 1                       
 Number of nets: 3                          |Number of nets: 3                          
 ---------------------------------------------------------------------------------------

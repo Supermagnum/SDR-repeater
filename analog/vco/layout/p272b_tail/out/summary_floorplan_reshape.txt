@@ -1,0 +1,21 @@
+P2.7.2b tail_block reshape floorplan (2026-11-14) [HAND/GDS]
+============================================================
+Cell footprints after reshape (proven DRC density-waived + KLayout LVS + netgen
++ fingers where applicable) [GDS/TOOL]:
+
+  cell      W x H (um)      area mm2   aspect   notes
+  --------  --------------  ---------  -------  -----
+  d9_rc     19.33 x 44.59   0.0009     2.31     rhigh b=16 (res AR 1.93); R 963k→999k [PDK]
+  tail_mt   227.12 x 32.98  0.0075     6.89     2x2 of 120u/4u ng=24 (total ng=96)
+  cbf       215.52 x 220.97 0.0476     1.03     3x3 cmim, spine col filled, corners empty
+  dac_array 104.3 x 69.8    0.0073     1.49     unchanged
+  ota_vds   42.2 x 40.5     0.0017     1.04     unchanged
+  cell sum                  0.0650
+
+Placement [HAND]: mt @ (0,0); cbf above mt; dac above cbf; ota east of dac;
+d9 south of ota. gap=8 um. Layer-map corridors west/east/south outside children.
+
+Planned cells-only bbox [HAND]: ~ max(mt,cbf,dac)+ota ≈ 227+8+42 = 277 um wide
+  x (mt+cbf+dac heights + gaps) ≈ 33+8+221+8+70 ≈ 340 um
+  → ≈ 0.094 mm2 before pin stubs / power corridors.
+  Target ≈ 0.08 mm2 — tight; join GDS decides. Island gate ≤ 0.34 / ≤ 0.36.

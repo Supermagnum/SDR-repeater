@@ -57,7 +57,10 @@ Xb3_7 vdd pbias xd_b3_7 code3 xraw dac_unit
 Xb4_15 vdd pbias xd_b4_15 code4 xraw dac_unit
 .ends
 .subckt tail_mt tail nbf gnd
-Mmt tail nbf gnd gnd sg13_lv_nmos w=480.0u l=4.0u ng=96
+Mmt0 tail nbf gnd gnd sg13_lv_nmos w=120.0u l=4.0u ng=24
+Mmt1 tail nbf gnd gnd sg13_lv_nmos w=120.0u l=4.0u ng=24
+Mmt2 tail nbf gnd gnd sg13_lv_nmos w=120.0u l=4.0u ng=24
+Mmt3 tail nbf gnd gnd sg13_lv_nmos w=120.0u l=4.0u ng=24
 .ends
 .subckt ota_vds xref tail_f out vdd gnd ss
 Mmo1 d1 xref ss gnd sg13_lv_nmos w=8.0u l=2.0u ng=2
@@ -68,7 +71,7 @@ MdL gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
 MdR gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
 .ends
 .subckt d9_rc nb nbf en_vco_bias_bp gnd
-Xrbf nb nbf gnd rhigh w=0.5u l=354u
+Xrbf nb nbf gnd rhigh w=0.5u l=20.6u
 Mmbp_rbf nb en_vco_bias_bp nbf gnd sg13_lv_nmos w=20.0u l=0.13u ng=4
 .ends
 .subckt cbf nbf gnd

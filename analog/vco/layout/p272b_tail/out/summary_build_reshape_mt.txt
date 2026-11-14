@@ -1,0 +1,13 @@
+# P2.7.2b DAC build stage=c nets=all
+
+CENTROID_31 counts: {'b4': 16, 'b3': 8, 'b2': 4, 'b1': 2, 'b0': 1, 'D': 1}
+Technology SG13_dev is loaded.
+GRID : 0.01
+GRID inverse : 100.0
+EPSILON1  : 0.001
+EPSILON2  : 1e-9
+Success.
+tail_mt 2x2 W=120 ng=24; n_dev=4
+tail_mt bbox (-5.53,-6.23;221.09,23.75) area=0.0068 mm2 aspect=7.56
+wrote /foss/designs/analog/vco/layout/p272b_tail/out/tail_mt.gds (+.gz)
+wrote tail_mt.spice

@@ -1,0 +1,15 @@
+# P2.7.2b DAC build stage=e nets=all
+
+CENTROID_31 counts: {'b4': 16, 'b3': 8, 'b2': 4, 'b1': 2, 'b0': 1, 'D': 1}
+Technology SG13_dev is loaded.
+GRID : 0.01
+GRID inverse : 100.0
+EPSILON1  : 0.001
+EPSILON2  : 1e-9
+Success.
+rhigh 1M folded b=16 bbox (-0.2,-0.61;11.58,22.14) aspect=1.93
+rhigh R before (b=0 L=354)=962880 Ohm [PDK]; after (b=16 L=20.6)=998699 Ohm [PDK]; target 1e6
+rhigh terminals bot=(0.02,-0.41;0.48,-0.15) top=(10.9,21.68;11.36,21.94)
+d9_rc bbox (-4.5,-21.4;14.83,23.19) area=0.0009 mm2 aspect=2.31
+wrote /foss/designs/analog/vco/layout/p272b_tail/out/d9_rc.gds (+.gz)
+wrote d9_rc.spice

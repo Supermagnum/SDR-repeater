@@ -78,10 +78,10 @@ Logging to file "/foss/designs/analog/vco/layout/p272b_tail/out/netgen_tail_bloc
 Circuit rhigh contains no devices.
 
 Contents of circuit 1:  Circuit: 'tail_block'
-Circuit tail_block contains 112 device instances.
+Circuit tail_block contains 115 device instances.
   Class: rhigh                 instances:   1
   Class: sg13_lv_pmos          instances: 104
-  Class: sg13_lv_nmos          instances:   6
+  Class: sg13_lv_nmos          instances:   9
   Class: cap_cmim              instances:   1
 Circuit contains 69 nets.
 Contents of circuit 2:  Circuit: 'tail_block'
@@ -90,7 +90,7 @@ Circuit tail_block contains 111 device instances.
   Class: sg13_lv_pmos          instances: 104
   Class: sg13_lv_nmos          instances:   5
   Class: cap_cmim              instances:   1
-Circuit contains 69 nets.
+Circuit contains 61 nets.
 
 Circuit was modified by parallel/series device merging.
 New circuit summary:
@@ -108,18 +108,14 @@ Circuit tail_block contains 111 device instances.
   Class: sg13_lv_pmos          instances: 104
   Class: sg13_lv_nmos          instances:   5
   Class: cap_cmim              instances:   1
-Circuit contains 69 nets.
+Circuit contains 61 nets.
 
 Circuit 1 contains 111 devices, Circuit 2 contains 111 devices.
-Circuit 1 contains 69 nets,    Circuit 2 contains 69 nets.
+Circuit 1 contains 69 nets,    Circuit 2 contains 61 nets. *** MISMATCH ***
 
 
 Final result: 
-Circuits match uniquely.
-Property errors were found.
-
-The following cells had property errors:
- tail_block
-
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
 Logging to file "/foss/designs/analog/vco/layout/p272b_tail/out/netgen_tail_block.json" disabled
 LVS Done.
