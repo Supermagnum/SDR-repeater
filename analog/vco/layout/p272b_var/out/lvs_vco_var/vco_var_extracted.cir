@@ -1,16 +1,14 @@
-* Extracted by KLayout with SG13G2 LVS runset on : 14/11/2026 19:30
+* Extracted by KLayout with SG13G2 LVS runset on : 16/11/2026 10:38
 
-.SUBCKT vco_var G1|G2|W|gnd|vbp tn tp
-M$1 G1|G2|W|gnd|vbp G1|G2|W|gnd|vbp G1|G2|W|gnd|vbp G1|G2|W|gnd|vbp
-+ sg13_lv_nmos L=0.13u W=10u AS=2.65p AD=2.65p PS=17.12u PD=17.12u rfmode=0
-R$5 G1|G2|W|gnd|vbp G1|G2|W|gnd|vbp G1|G2|W|gnd|vbp rhigh w=0.5u l=42.095u
-+ ps=0.18u b=16 m=2
-C$7 tp G1|G2|W|gnd|vbp G1|G2|W|gnd|vbp rfcmim w=21.29u l=21.29u A=453.2641p
-+ P=85.16u m=1 wfeed=5u
-C$8 tn G1|G2|W|gnd|vbp G1|G2|W|gnd|vbp rfcmim w=21.29u l=21.29u A=453.2641p
-+ P=85.16u m=1 wfeed=5u
-C$9 G1|G2|W|gnd|vbp G1|G2|W|gnd|vbp G1|G2|W|gnd|vbp G1|G2|W|gnd|vbp
-+ sg13_hv_svaricap w=3.74u l=0.3u Nx=10
-C$10 G1|G2|W|gnd|vbp G1|G2|W|gnd|vbp G1|G2|W|gnd|vbp G1|G2|W|gnd|vbp
-+ sg13_hv_svaricap w=3.74u l=0.3u Nx=10
+.SUBCKT vco_var G1 G2 W gnd tn tp vbp
+M$1 G1 vbp \$33 gnd sg13_lv_nmos L=0.13u W=5u AS=1.325p AD=1.325p PS=8.56u
++ PD=8.56u rfmode=0
+M$3 G2 vbp \$33 gnd sg13_lv_nmos L=0.13u W=5u AS=1.325p AD=1.325p PS=8.56u
++ PD=8.56u rfmode=0
+R$5 \$33 G1 gnd rhigh w=0.5u l=42.095u ps=0.18u b=16 m=1
+R$6 \$33 G2 gnd rhigh w=0.5u l=42.095u ps=0.18u b=16 m=1
+C$7 tp G1 gnd rfcmim w=21.29u l=21.29u A=453.2641p P=85.16u m=1 wfeed=5u
+C$8 tn G2 gnd rfcmim w=21.29u l=21.29u A=453.2641p P=85.16u m=1 wfeed=5u
+C$9 G1 W G2 gnd sg13_hv_svaricap w=3.74u l=0.3u Nx=10
+C$10 G1 W G2 gnd sg13_hv_svaricap w=3.74u l=0.3u Nx=10
 .ENDS vco_var

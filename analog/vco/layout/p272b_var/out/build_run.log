@@ -1,0 +1,121 @@
+Technology SG13_dev is loaded.
+GRID : 0.01
+GRID inverse : 100.0
+EPSILON1  : 0.001
+EPSILON2  : 1e-9
+Success.
+sv_pair bbox (-3.9,-6.04;28.4,8.41)
+wrote /foss/designs/analog/vco/layout/p272b_var/out/sv_pair.gds bbox=(-3.9,-6.04;28.4,8.41) area=0.0005 mm2
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_var/out/sv_pair.gds --topcell=sv_pair --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/drc_sv_pair --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_var/out/drc_sv_pair.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_var/out/sv_pair.gds --netlist=/foss/designs/analog/vco/layout/p272b_var/out/sv_pair.spice --topcell=sv_pair --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/lvs_sv_pair --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/lvs_klayout_sv_pair.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_var/out/netgen_sv_pair.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/netgen_sv_pair.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_var/out/_klayout_shot_sv_pair.py -rd out=/foss/designs/analog/vco/layout/p272b_var/out -rd name=sv_pair
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/render_sv_pair.log
+
+# Summary
+cell=sv_pair
+DRC clean (density waived): False  non-density=['M1.b']
+KLayout LVS: PASS
+netgen: PASS
+prove sv_pair: FAIL
+mim_couple bbox (-10.63,-5.63;30.67,63.47)
+wrote /foss/designs/analog/vco/layout/p272b_var/out/mim_couple.gds bbox=(-10.63,-5.63;30.67,63.47) area=0.0029 mm2
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_var/out/mim_couple.gds --topcell=mim_couple --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/drc_mim_couple --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_var/out/drc_mim_couple.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_var/out/mim_couple.gds --netlist=/foss/designs/analog/vco/layout/p272b_var/out/mim_couple.spice --topcell=mim_couple --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/lvs_mim_couple --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/lvs_klayout_mim_couple.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_var/out/netgen_mim_couple.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/netgen_mim_couple.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_var/out/_klayout_shot_mim_couple.py -rd out=/foss/designs/analog/vco/layout/p272b_var/out -rd name=mim_couple
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/render_mim_couple.log
+
+# Summary
+cell=mim_couple
+DRC clean (density waived): True  non-density=[]
+KLayout LVS: PASS
+netgen: PASS
+prove mim_couple: PASS
+bias_r bbox (-0.2,-5.96;30.69,44)
+wrote /foss/designs/analog/vco/layout/p272b_var/out/bias_r.gds bbox=(-0.2,-5.96;30.69,44) area=0.0015 mm2
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_var/out/bias_r.gds --topcell=bias_r --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/drc_bias_r --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_var/out/drc_bias_r.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_var/out/bias_r.gds --netlist=/foss/designs/analog/vco/layout/p272b_var/out/bias_r.spice --topcell=bias_r --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/lvs_bias_r --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/lvs_klayout_bias_r.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_var/out/netgen_bias_r.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/netgen_bias_r.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_var/out/_klayout_shot_bias_r.py -rd out=/foss/designs/analog/vco/layout/p272b_var/out -rd name=bias_r
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/render_bias_r.log
+
+# Summary
+cell=bias_r
+DRC clean (density waived): True  non-density=[]
+KLayout LVS: PASS
+netgen: PASS
+bias_r: spice l←extract 42.095u; re-prove
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_var/out/bias_r.gds --topcell=bias_r --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/drc_bias_r --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_var/out/drc_bias_r.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_var/out/bias_r.gds --netlist=/foss/designs/analog/vco/layout/p272b_var/out/bias_r.spice --topcell=bias_r --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/lvs_bias_r --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/lvs_klayout_bias_r.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_var/out/netgen_bias_r.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/netgen_bias_r.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_var/out/_klayout_shot_bias_r.py -rd out=/foss/designs/analog/vco/layout/p272b_var/out -rd name=bias_r
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/render_bias_r.log
+
+# Summary
+cell=bias_r
+DRC clean (density waived): True  non-density=[]
+KLayout LVS: PASS
+netgen: PASS
+prove bias_r: PASS
+bypass_pair bbox (-5.25,-4.93;11.97,5.88)
+wrote /foss/designs/analog/vco/layout/p272b_var/out/bypass_pair.gds bbox=(-5.25,-4.93;11.97,5.88) area=0.0002 mm2
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_var/out/bypass_pair.gds --topcell=bypass_pair --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/drc_bypass_pair --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_var/out/drc_bypass_pair.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_var/out/bypass_pair.gds --netlist=/foss/designs/analog/vco/layout/p272b_var/out/bypass_pair.spice --topcell=bypass_pair --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/lvs_bypass_pair --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/lvs_klayout_bypass_pair.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_var/out/netgen_bypass_pair.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/netgen_bypass_pair.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_var/out/_klayout_shot_bypass_pair.py -rd out=/foss/designs/analog/vco/layout/p272b_var/out -rd name=bypass_pair
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/render_bypass_pair.log
+
+# Summary
+cell=bypass_pair
+DRC clean (density waived): True  non-density=[]
+KLayout LVS: PASS
+netgen: PASS
+prove bypass_pair: PASS
+pins mim=['gnd', 'tp', 'vgp', 'tn', 'vgn'] sv=['G1', 'G2', 'W'] bias=['vgp', 'vgn', 'vvb', 'gnd'] byp=['vgp', 'vgn', 'vvb', 'vbp', 'gnd']
+vco_var bbox (-16.03,-9.08;30.67,153.69) area=0.0076 mm2 (share 0.0062; strip_w=43.16)
+pocket fit area=NO; width=NO
+wrote /foss/designs/analog/vco/layout/p272b_var/out/vco_var.gds bbox=(-16.03,-9.08;30.67,153.69) area=0.0076 mm2
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_var/out/vco_var.gds --topcell=vco_var --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/drc_vco_var --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_var/out/drc_vco_var.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_var/out/vco_var.gds --netlist=/foss/designs/analog/vco/layout/p272b_var/out/vco_var.spice --topcell=vco_var --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/lvs_vco_var --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/lvs_klayout_vco_var.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_var/out/netgen_vco_var.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/netgen_vco_var.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_var/out/_klayout_shot_vco_var.py -rd out=/foss/designs/analog/vco/layout/p272b_var/out -rd name=vco_var
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/render_vco_var.log
+
+# Summary
+cell=vco_var
+DRC clean (density waived): False  non-density=['M1.b']
+KLayout LVS: FAIL
+netgen: FAIL
+prove vco_var: FAIL
+# P2.7.2b varactor build summary
+
+- sv_pair: FAIL
+- mim_couple: PASS
+- bias_r: PASS
+- bypass_pair: PASS
+- vco_var: FAIL
+
+vco_var area=0.0076 mm2 bbox=(-16.03,-9.08;30.67,153.69) [GDS]
+pocket share=0.0062 mm2 strip_w=43.16 um [GDS/HAND]
+fit area: NO
+fit width: NO
+

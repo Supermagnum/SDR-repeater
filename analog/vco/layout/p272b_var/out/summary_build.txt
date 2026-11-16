@@ -1,12 +1,12 @@
 # P2.7.2b varactor build summary
 
-- sv_pair: FAIL
+- sv_pair: PASS
 - mim_couple: PASS
 - bias_r: PASS
 - bypass_pair: PASS
-- vco_var: FAIL
+- vco_var: PASS
 
-vco_var area=0.0076 mm2 bbox=(-16.03,-9.08;30.67,153.69) [GDS]
+vco_var area=0.0066 mm2 bbox=(-10.63,-8.38;30.67,152.09) [GDS]
 pocket share=0.0062 mm2 strip_w=43.16 um [GDS/HAND]
 fit area: NO
-fit width: NO
+fit width: YES

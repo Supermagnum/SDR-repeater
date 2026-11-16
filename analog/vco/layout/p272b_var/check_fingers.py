@@ -47,13 +47,20 @@ def load(name):
     return ly
 
 
+def _walk_insts(ly, cell, pred, out):
+    for inst in cell.each_inst():
+        child = ly.cell(inst.cell_index)
+        if pred(child.name):
+            out.append(child)
+        _walk_insts(ly, child, pred, out)
+
+
 def check_bypass(ly):
     top = ly.top_cell()
+    nmos = []
+    _walk_insts(ly, top, lambda n: "nmos" in n.lower(), nmos)
     ngs = []
-    for inst in top.each_inst():
-        cell = ly.cell(inst.cell_index)
-        if "nmos" not in cell.name:
-            continue
+    for cell in nmos:
         ng = poly_gate_count(cell)
         if ng > 0:
             ngs.append(ng)
@@ -63,27 +70,15 @@ def check_bypass(ly):
 
 def check_sv(ly, expect_n=2):
     top = ly.top_cell()
-    n_sv = 0
-    # Count SVaricap instances (name contains SVaricap)
-    for inst in top.each_inst():
-        cell = ly.cell(inst.cell_index)
-        if "SVaricap" in cell.name or "svaricap" in cell.name.lower():
-            n_sv += 1
-            # Recurse one level if nested
-        for k in cell.each_inst():
-            kc = ly.cell(k.cell_index)
-            if "SVaricap" in kc.name:
-                n_sv += 1
-    # Also count direct
-    direct = sum(
-        1 for inst in top.each_inst()
-        if "SVaricap" in ly.cell(inst.cell_index).name
+    found = []
+    _walk_insts(ly, top, lambda n: "svaricap" in n.lower(), found)
+    names = sorted({c.name for c in found})
+    n = len(found)
+    ok = n == expect_n
+    return ok, (
+        f"SVaricap_inst={n} cells={names} expect {expect_n}; "
+        f"Nx=10 each [SCH #753]"
     )
-    n = max(n_sv, direct)
-    # Flattened count: walk all cells
-    names = [c.name for c in ly.each_cell() if "SVaricap" in c.name]
-    ok = direct == expect_n
-    return ok, f"SVaricap_inst={direct} cells={names} expect {expect_n}; Nx=10 each [SCH #753]"
 
 
 def check_vco_var(ly):

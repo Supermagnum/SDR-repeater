@@ -1,9 +1,7 @@
-# Finger / Nx check — P2.7.2b varactor [TOOL]
+bypass_pair: PASS — nmos_ngs=[2, 2] expect [2,2]
+sv_pair: PASS — SVaricap_inst=2 cells=['SVaricap'] expect 2; Nx=10 each [SCH #753]
+vco_var: PASS — nmos_ngs=[2, 2] expect [2,2]; SVaricap_inst=2 cells=['SVaricap$1'] expect 2; Nx=10 each [SCH #753]
+Wrote /foss/designs/analog/vco/layout/p272b_var/out/summary_finger_check.txt
+H #753] | yes |
 
-| cell | check | PASS |
-|---|---|---|
-| bypass_pair | nmos_ngs=[2, 2] expect [2,2] | yes |
-| sv_pair | SVaricap_inst=2 cells=['SVaricap'] expect 2; Nx=10 each [SCH #753] | yes |
-| vco_var | nmos_ngs=[] expect [2,2]; SVaricap_inst=0 cells=['SVaricap$1'] expect 2; Nx=10 each [SCH #753] | NO |
-
-All match: NO
+All match: yes

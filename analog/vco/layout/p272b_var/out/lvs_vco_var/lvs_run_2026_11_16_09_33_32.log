@@ -1,0 +1,16 @@
+16-Nov-2026 10:33:32 | INFO    | Your Klayout version is: KLayout 0.30.12 (required >= 0.30.5)
+16-Nov-2026 10:33:32 | INFO    | Running SG13G2 LVS checks on design /foss/designs/analog/vco/layout/p272b_var/out/vco_var.gds on cell vco_var
+16-Nov-2026 10:33:35 | INFO    | ==============================================================================
+16-Nov-2026 10:33:35 | INFO    | Important Summary
+16-Nov-2026 10:33:35 | INFO    | +------------------+--------------------------------------------------------------+
+16-Nov-2026 10:33:35 | INFO    | | Status           | PASS                                                         |
+16-Nov-2026 10:33:35 | INFO    | | Mode             | COMPARE                                                      |
+16-Nov-2026 10:33:35 | INFO    | | Outcome          | Comparison mode: PASS (netlists match).                      |
+16-Nov-2026 10:33:35 | INFO    | | Layout           | vco_var.gds                                                  |
+16-Nov-2026 10:33:35 | INFO    | | Top Cell         | vco_var                                                      |
+16-Nov-2026 10:33:35 | INFO    | | Results Dir      | /foss/designs/analog/vco/layout/p272b_var/out/lvs_vco_var    |
+16-Nov-2026 10:33:35 | INFO    | | Warnings         | 0                                                            |
+16-Nov-2026 10:33:35 | INFO    | | Errors           | 0                                                            |
+16-Nov-2026 10:33:35 | INFO    | | Run Time (s)     | 3.063                                                        |
+16-Nov-2026 10:33:35 | INFO    | +------------------+--------------------------------------------------------------+
+16-Nov-2026 10:33:35 | INFO    | ==============================================================================

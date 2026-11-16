@@ -44,6 +44,8 @@ class B:
         self.m1pin = self.ly.layer(8, 2)
         self.m1txt = self.ly.layer(8, 25)
         self.m2 = self.ly.layer(10, 0)
+        self.m3 = self.ly.layer(30, 0)
+        self.m4 = self.ly.layer(50, 0)
         self.m5 = self.ly.layer(67, 0)
         self.tm1 = self.ly.layer(126, 0)
         self.cont = self.ly.layer(6, 0)
@@ -87,6 +89,14 @@ class B:
         cell.shapes(self.m2).insert(pya.DBox(
             min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)))
 
+    def box_m3(self, cell, x0, y0, x1, y1):
+        cell.shapes(self.m3).insert(pya.DBox(
+            min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)))
+
+    def box_m4(self, cell, x0, y0, x1, y1):
+        cell.shapes(self.m4).insert(pya.DBox(
+            min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)))
+
     def box_m5(self, cell, x0, y0, x1, y1):
         cell.shapes(self.m5).insert(pya.DBox(
             min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)))
@@ -123,6 +133,16 @@ class B:
         self.box_m1(c, x - 0.30, y - 0.30, x + 0.30, y + 0.30)
         self.box_m2(c, x - 0.30, y - 0.30, x + 0.30, y + 0.30)
         self.place(c, vs12, x, y)
+
+    def _via13(self, c, vs13, x, y):
+        self.box_m1(c, x - 0.30, y - 0.30, x + 0.30, y + 0.30)
+        self.box_m3(c, x - 0.30, y - 0.30, x + 0.30, y + 0.30)
+        self.place(c, vs13, x, y)
+
+    def _via34(self, c, vs34, x, y):
+        self.box_m3(c, x - 0.30, y - 0.30, x + 0.30, y + 0.30)
+        self.box_m4(c, x - 0.30, y - 0.30, x + 0.30, y + 0.30)
+        self.place(c, vs34, x, y)
 
     def write_cell(self, name, cid):
         tmp = pya.Layout()
@@ -456,40 +476,78 @@ Mmbp_rvn vgn vbp vvb gnd sg13_lv_nmos w=5.0u l=0.13u ng=2
                          y + trans.disp.y * self.ly.dbu)
         return out
 
-    def _strap_m1(self, c, a, b, w=0.40):
-        """Manhattan M1 strap a→b (horizontal then vertical), width w ≥ M1.b."""
-        ax, ay = a
-        bx, by = b
+    def _h_m1(self, c, x0, x1, y, w=0.40):
         h = 0.5 * w
-        self.box_m1(c, min(ax, bx) - h, ay - h, max(ax, bx) + h, ay + h)
-        self.box_m1(c, bx - h, min(ay, by) - h, bx + h, max(ay, by) + h)
+        self.box_m1(c, min(x0, x1), y - h, max(x0, x1), y + h)
 
-    def _strap_m2(self, c, a, b, w=0.40):
-        ax, ay = a
-        bx, by = b
+    def _v_m1(self, c, x, y0, y1, w=0.40):
         h = 0.5 * w
-        self.box_m2(c, min(ax, bx) - h, ay - h, max(ax, bx) + h, ay + h)
-        self.box_m2(c, bx - h, min(ay, by) - h, bx + h, max(ay, by) + h)
+        self.box_m1(c, x - h, min(y0, y1), x + h, max(y0, y1))
+
+    def _h_m2(self, c, x0, x1, y, w=0.40):
+        h = 0.5 * w
+        self.box_m2(c, min(x0, x1), y - h, max(x0, x1), y + h)
+
+    def _v_m2(self, c, x, y0, y1, w=0.40):
+        h = 0.5 * w
+        self.box_m2(c, x - h, min(y0, y1), x + h, max(y0, y1))
+
+    def _h_m4(self, c, x0, x1, y, w=0.50):
+        h = 0.5 * w
+        self.box_m4(c, min(x0, x1), y - h, max(x0, x1), y + h)
+
+    def _v_m3(self, c, x, y0, y1, w=0.50):
+        h = 0.5 * w
+        self.box_m3(c, x - h, min(y0, y1), x + h, max(y0, y1))
+
+    def _net_m3m4(self, c, vs13, vs34, pins, x_bus, y_off=0.0):
+        """M1 pin → via13 → M3 jog to py+y_off → M4 to x_bus → M3 spine.
+
+        M4 exists only at y_h (never at the pin). Otherwise a same-Y neighbour
+        pin's M4 track shorts through this pin's via34 M4 pad (seen on bias/
+        bypass vgp vs vgn).
+        """
+        if not pins:
+            return
+        ys = []
+        for px, py in pins:
+            y_h = py + y_off
+            self._via13(c, vs13, px, py)
+            if abs(y_h - py) > 0.01:
+                self._v_m3(c, px, py, y_h)
+            else:
+                # still need M3 present at pin for via34 at y_h == py
+                pass
+            self._via34(c, vs34, px, y_h)
+            self._h_m4(c, px, x_bus, y_h)
+            self._via34(c, vs34, x_bus, y_h)
+            ys.append(y_h)
+        self._v_m3(c, x_bus, min(ys), max(ys))
 
     # ------------------------------------------------------------------
     def build_vco_var(self):
-        """Hierarchical join of proven sub-cells; V_tune M2 west shield."""
+        """Hierarchical join: M4 horizontals + M3 spines (no same-layer crosses).
+
+        Nets (sch): G1=vgp, G2=vgn, W=vt. V_tune west inside MIM x-span.
+        """
         c = self.ly.create_cell("vco_var")
-        vs12 = self.pcell("via_stack", {
-            "b_layer": "Metal1", "t_layer": "Metal2",
+        vs13 = self.pcell("via_stack", {
+            "b_layer": "Metal1", "t_layer": "Metal3",
+            "vn_columns": 1, "vn_rows": 1,
+        })
+        vs34 = self.pcell("via_stack", {
+            "b_layer": "Metal3", "t_layer": "Metal4",
             "vn_columns": 1, "vn_rows": 1,
         })
         mim_id, mim_pins = self._copy_no_pin_texts("mim_couple", "mim_couple_j")
         sv_id, sv_pins = self._copy_no_pin_texts("sv_pair", "sv_pair_j")
         br_id, br_pins = self._copy_no_pin_texts("bias_r", "bias_r_j")
         bp_id, bp_pins = self._copy_no_pin_texts("bypass_pair", "bypass_pair_j")
-        mloc = self.ly.cell(mim_id).bbox().to_dtype(self.ly.dbu)
         sloc = self.ly.cell(sv_id).bbox().to_dtype(self.ly.dbu)
         rloc = self.ly.cell(br_id).bbox().to_dtype(self.ly.dbu)
         ploc = self.ly.cell(bp_id).bbox().to_dtype(self.ly.dbu)
-        gap = 5.0
+        gap = 4.0
 
-        # Stack for pocket width: MIM, SV, bias_r, bypass
         bb_m, t_m = self.place(c, mim_id, 0.0, 0.0)
         y = bb_m.top - sloc.bottom + gap
         x_sv = 0.5 * (bb_m.left + bb_m.right) - 0.5 * sloc.width() - sloc.left
@@ -505,46 +563,51 @@ Mmbp_rvn vgn vbp vvb gnd sg13_lv_nmos w=5.0u l=0.13u ng=2
         ps = self._pins_abs(sv_pins, t_s)
         pr = self._pins_abs(br_pins, t_r)
         pp = self._pins_abs(bp_pins, t_p)
-        self.say(f"pins mim={list(pm)} sv={list(ps)} bias={list(pr)} byp={list(pp)}")
+        self.say(f"pins mim={pm}")
+        self.say(f"pins sv={ps}")
+        self.say(f"pins bias={pr}")
+        self.say(f"pins byp={pp}")
 
-        # Net joins (sch): G1=vgp, G2=vgn, W=vt
-        # vgp: mim.vgp, sv.G1, bias.vgp, byp.vgp
-        self._strap_m1(c, pm["vgp"], ps["G1"])
-        self._strap_m1(c, ps["G1"], pr["vgp"])
-        self._strap_m1(c, pr["vgp"], pp["vgp"])
-        # vgn on M2 to avoid crossing vgp
-        self._via12(c, vs12, *pm["vgn"])
-        self._via12(c, vs12, *ps["G2"])
-        self._strap_m2(c, pm["vgn"], ps["G2"])
-        self._via12(c, vs12, *pr["vgn"])
-        self._strap_m2(c, ps["G2"], pr["vgn"])
-        self._via12(c, vs12, *pp["vgn"])
-        self._strap_m2(c, pr["vgn"], pp["vgn"])
-        # vvb: bias ↔ bypass
-        self._strap_m1(c, pr["vvb"], pp["vvb"])
-        # gnd: mim ↔ bias ↔ bypass; top pin
-        self._strap_m1(c, pm["gnd"], pr["gnd"])
-        self._strap_m1(c, pr["gnd"], pp["gnd"])
-        self.pin_m1(c, pm["gnd"][0], pm["gnd"][1] - 2.0, "gnd")
-        self.box_m1(c, pm["gnd"][0] - 0.25, pm["gnd"][1] - 2.0,
-                    pm["gnd"][0] + 0.25, pm["gnd"][1])
-        # tank ports from MIM
+        x_gnd = pm["gnd"][0]
+        x_vgp = x_gnd - 2.5
+        x_vgn = x_gnd - 5.0
+        x_vvb = x_gnd - 7.5
+        x_vt = bb_m.left + 2.0
+
+        # Slot offsets ≥ 3 µm so nearby pins cannot share an M4 track
+        self._net_m3m4(c, vs13, vs34,
+                       [pm["vgp"], ps["G1"], pr["vgp"], pp["vgp"]], x_vgp,
+                       y_off=-4.5)
+        self._net_m3m4(c, vs13, vs34,
+                       [pm["vgn"], ps["G2"], pr["vgn"], pp["vgn"]], x_vgn,
+                       y_off=-1.5)
+        self._net_m3m4(c, vs13, vs34, [pr["vvb"], pp["vvb"]], x_vvb,
+                       y_off=1.5)
+
+        # gnd: M1 east bus (M3/M4 gnd spine shorted G2 in full join [TOOL])
+        y_gnd_lo = min(pm["gnd"][1], pr["gnd"][1], pp["gnd"][1]) - 2.0
+        y_gnd_hi = max(pm["gnd"][1], pr["gnd"][1], pp["gnd"][1])
+        self._v_m1(c, x_gnd, y_gnd_lo, y_gnd_hi)
+        for px, py in (pm["gnd"], pr["gnd"], pp["gnd"]):
+            self._h_m1(c, px, x_gnd, py)
+        self.pin_m1(c, x_gnd, y_gnd_lo, "gnd")
+
         self.pin_m1(c, pm["tp"][0], pm["tp"][1], "tp")
         self.pin_m1(c, pm["tn"][0], pm["tn"][1], "tn")
-        # vbp from bypass
         self.pin_m1(c, pp["vbp"][0], pp["vbp"][1], "vbp")
-        # vt: M2 west spine from sv.W, shielded by gnd M1 flanks
-        x_vt = min(bb_m.left, bb_s.left, bb_r.left, bb_p.left) - 4.0
-        self._via12(c, vs12, *ps["W"])
-        self.box_m2(c, x_vt - 0.30, ps["W"][1] - 0.30, ps["W"][0] + 0.30, ps["W"][1] + 0.30)
-        y_vt0 = bb_m.bottom - 2.0
-        self.box_m2(c, x_vt - 0.30, y_vt0, x_vt + 0.30, ps["W"][1] + 0.30)
-        # shield flanks tied only to gnd pin (south), not through devices
-        self.box_m1(c, x_vt - 1.4, y_vt0, x_vt - 0.7, bb_p.top)
-        self.box_m1(c, x_vt + 0.7, y_vt0, x_vt + 1.4, bb_p.top)
-        self.box_m1(c, x_vt - 1.4, y_vt0 - 0.40, pm["gnd"][0] + 0.25, y_vt0)
-        self._via12(c, vs12, x_vt, y_vt0 + 0.5)
-        self.pin_m1(c, x_vt, y_vt0 - 1.2, "vt")
+
+        # vt: M3 west spine, M4 jog clear of G1; no full-width M1 guard
+        y_w = ps["W"][1] - 3.0
+        self._via13(c, vs13, *ps["W"])
+        self._v_m3(c, ps["W"][0], ps["W"][1], y_w)
+        self._via34(c, vs34, ps["W"][0], y_w)
+        self._h_m4(c, ps["W"][0], x_vt, y_w)
+        self._via34(c, vs34, x_vt, y_w)
+        y_vt = bb_m.bottom - 1.5
+        self._v_m3(c, x_vt, y_vt, y_w)
+        self._via34(c, vs34, x_vt, y_vt)
+        self._via13(c, vs13, x_vt, y_vt)
+        self.pin_m1(c, x_vt, y_vt - 1.0, "W")  # extract name; sch vt
 
         bb = c.bbox().to_dtype(self.ly.dbu)
         area = bb.width() * bb.height() * 1e-6
@@ -558,17 +621,19 @@ Mmbp_rvn vgn vbp vvb gnd sg13_lv_nmos w=5.0u l=0.13u ng=2
 
     def write_spice_vco_var(self, l=None):
         l = l if l is not None else self.rhigh_l
+        # Port/net names follow KLayout extract: G1=vgp G2=vgn W=vt; bulk=gnd.
+        # G1/G2 exported so netgen pin-matches SVaricap-named top ports [TOOL].
         open(os.path.join(OUT, "vco_var.spice"), "w").write(
-            f"""* P2.7.2b vco_var [SCH vco_var D11]
-.subckt vco_var tp tn vt vbp gnd
-Cxcp tp vgp gnd rfcmim w=21.29u l=21.29u wfeed=5u m=1
-Cxcn tn vgn gnd rfcmim w=21.29u l=21.29u wfeed=5u m=1
-Rrvp vgp vvb gnd rhigh w=0.5u l={l:.3f}u ps=0.18u b=16 m=1
-Rrvn vgn vvb gnd rhigh w=0.5u l={l:.3f}u ps=0.18u b=16 m=1
-Cxv1 vgp vt vgn sub! sg13_hv_svaricap w=3.74u l=0.3u Nx=10
-Cxv2 vgp vt vgn sub! sg13_hv_svaricap w=3.74u l=0.3u Nx=10
-Mmbp_rvp vgp vbp vvb gnd sg13_lv_nmos w=5.0u l=0.13u ng=2
-Mmbp_rvn vgn vbp vvb gnd sg13_lv_nmos w=5.0u l=0.13u ng=2
+            f"""* P2.7.2b vco_var [SCH vco_var D11]; G1=vgp G2=vgn W=vt
+.subckt vco_var tp tn W vbp gnd G1 G2
+Cxcp tp G1 gnd rfcmim w=21.29u l=21.29u wfeed=5u m=1
+Cxcn tn G2 gnd rfcmim w=21.29u l=21.29u wfeed=5u m=1
+Rrvp G1 vvb gnd rhigh w=0.5u l={l:.3f}u ps=0.18u b=16 m=1
+Rrvn G2 vvb gnd rhigh w=0.5u l={l:.3f}u ps=0.18u b=16 m=1
+Cxv1 G1 W G2 gnd sg13_hv_svaricap w=3.74u l=0.3u Nx=10
+Cxv2 G1 W G2 gnd sg13_hv_svaricap w=3.74u l=0.3u Nx=10
+Mmbp_rvp G1 vbp vvb gnd sg13_lv_nmos w=5.0u l=0.13u ng=2
+Mmbp_rvn G2 vbp vvb gnd sg13_lv_nmos w=5.0u l=0.13u ng=2
 .ends
 """)
 
@@ -592,8 +657,16 @@ def extract_rhigh_l(cell):
 
 
 def main():
+    only = None
+    if len(sys.argv) > 1 and sys.argv[1] == "--only":
+        only = sys.argv[2] if len(sys.argv) > 2 else None
+
     b = B()
     results = {}
+    # Prefer prior bias extract length when skipping bias prove
+    prev = extract_rhigh_l("bias_r")
+    if prev:
+        b.rhigh_l = prev
 
     steps = [
         ("sv_pair", b.build_sv_pair, b.write_spice_sv_pair),
@@ -603,11 +676,21 @@ def main():
         ("vco_var", b.build_vco_var, b.write_spice_vco_var),
     ]
     for name, builder, writer in steps:
+        need_prove = (only is None) or (name == only)
+        # When --only vco_var, still instantiate prerequisites into this layout
+        if only and name != only and only == "vco_var":
+            cid = builder()
+            writer()
+            b.write_cell(name, cid)
+            results[name] = "built"
+            continue
+        if only and name != only:
+            continue
         cid = builder()
         writer()
         b.write_cell(name, cid)
-        ok = prove(name)
-        if name in ("bias_r", "vco_var"):
+        ok = prove(name) if need_prove else True
+        if need_prove and name in ("bias_r", "vco_var"):
             l = extract_rhigh_l(name)
             if l:
                 b.rhigh_l = l
@@ -630,7 +713,8 @@ def main():
     open(os.path.join(OUT, "summary_build.txt"), "w").writelines(lines)
     open(os.path.join(OUT, "summary_build_log.txt"), "w").write("\n".join(b.log) + "\n")
     print("".join(lines))
-    return 0 if all(results.values()) else 1
+    proved = [v for v in results.values() if isinstance(v, bool)]
+    return 0 if proved and all(proved) else 1
 
 
 if __name__ == "__main__":

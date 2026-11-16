@@ -1,0 +1,64 @@
+Technology SG13_dev is loaded.
+GRID : 0.01
+GRID inverse : 100.0
+EPSILON1  : 0.001
+EPSILON2  : 1e-9
+Success.
+sv_pair bbox (-3.9,-6.04;28.4,8.41)
+wrote /foss/designs/analog/vco/layout/p272b_var/out/sv_pair.gds bbox=(-3.9,-6.04;28.4,8.41) area=0.0005 mm2
+mim_couple bbox (-10.63,-5.63;30.67,63.47)
+wrote /foss/designs/analog/vco/layout/p272b_var/out/mim_couple.gds bbox=(-10.63,-5.63;30.67,63.47) area=0.0029 mm2
+bias_r bbox (-0.2,-5.96;30.69,44)
+wrote /foss/designs/analog/vco/layout/p272b_var/out/bias_r.gds bbox=(-0.2,-5.96;30.69,44) area=0.0015 mm2
+bypass_pair bbox (-5.25,-4.93;11.97,5.88)
+wrote /foss/designs/analog/vco/layout/p272b_var/out/bypass_pair.gds bbox=(-5.25,-4.93;11.97,5.88) area=0.0002 mm2
+pins mim={'gnd': (30.42, 28.92), 'tp': (-9.63, 8.645), 'vgp': (28.92, 9.145), 'tn': (-9.63, 45.195), 'vgn': (28.92, 45.695)}
+pins sv={'G1': (12.0, 70.12), 'G2': (12.0, 81.67), 'W': (-5.83, 67.72)}
+pins bias={'vgp': (5.905, 135.63), 'vgn': (21.685, 135.63), 'vvb': (2.915, 89.57), 'gnd': (25.025, 86.17)}
+pins byp={'vgp': (7.32, 142.33), 'vgn': (14.64, 142.33), 'vvb': (10.98, 150.29), 'vbp': (1.6600000000000001, 149.74), 'gnd': (18.189999999999998, 140.13)}
+vco_var bbox (-10.63,-8.38;30.67,152.09) area=0.0066 mm2 (share 0.0062; strip_w=43.16)
+pocket fit area=NO; width=YES
+wrote /foss/designs/analog/vco/layout/p272b_var/out/vco_var.gds bbox=(-10.63,-8.38;30.67,152.09) area=0.0066 mm2
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_var/out/vco_var.gds --topcell=vco_var --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/drc_vco_var --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_var/out/drc_vco_var.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_var/out/vco_var.gds --netlist=/foss/designs/analog/vco/layout/p272b_var/out/vco_var.spice --topcell=vco_var --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/lvs_vco_var --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/lvs_klayout_vco_var.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_var/out/netgen_vco_var.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/netgen_vco_var.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_var/out/_klayout_shot_vco_var.py -rd out=/foss/designs/analog/vco/layout/p272b_var/out -rd name=vco_var
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/render_vco_var.log
+
+# Summary
+cell=vco_var
+DRC clean (density + SVaricap M1.b waived): True  non-density=['M1.b'] svaricap_M1.b=True
+KLayout LVS: PASS
+netgen: PASS
+vco_var: spice l←extract 42.095u; re-prove
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_var/out/vco_var.gds --topcell=vco_var --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/drc_vco_var --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_var/out/drc_vco_var.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_var/out/vco_var.gds --netlist=/foss/designs/analog/vco/layout/p272b_var/out/vco_var.spice --topcell=vco_var --run_dir=/foss/designs/analog/vco/layout/p272b_var/out/lvs_vco_var --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/lvs_klayout_vco_var.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_var/out/netgen_vco_var.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/netgen_vco_var.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_var/out/_klayout_shot_vco_var.py -rd out=/foss/designs/analog/vco/layout/p272b_var/out -rd name=vco_var
+  exit 0; log /foss/designs/analog/vco/layout/p272b_var/out/render_vco_var.log
+
+# Summary
+cell=vco_var
+DRC clean (density + SVaricap M1.b waived): True  non-density=['M1.b'] svaricap_M1.b=True
+KLayout LVS: PASS
+netgen: PASS
+prove vco_var: PASS
+# P2.7.2b varactor build summary
+
+- sv_pair: PASS
+- mim_couple: PASS
+- bias_r: PASS
+- bypass_pair: PASS
+- vco_var: PASS
+
+vco_var area=0.0066 mm2 bbox=(-10.63,-8.38;30.67,152.09) [GDS]
+pocket share=0.0062 mm2 strip_w=43.16 um [GDS/HAND]
+fit area: NO
+fit width: YES
+

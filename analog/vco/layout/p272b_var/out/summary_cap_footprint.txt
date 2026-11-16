@@ -1,33 +1,19 @@
-# Varactor node C and footprint — P2.7.2b (2026-11-14)
+# P2.7.2b varactor C / footprint report (2026-11-16)
 
-## Capacitance per tank side [SCH/PDK]
-| Device | Value | Source |
+## Capacitance per side (coupling MIM)
+| Item | Value | Tag |
 |---|---|---|
-| Coupling rfcmim 21.292 µm | **684 fF** (PCell text); formula ≈ 683 fF | [PDK] |
-| SVaricap Nx=10 (one side of pair) | not extracted as C; LVS device present w/l/Nx | [TOOL] |
-| Schematic AC-coupled node | coupling dominates; varactor C(V) behind MIM | [SCH D11] |
-
-PEX not run this step. Extracted layout confirms 2× rfcmim + 2× sg13_hv_svaricap Nx=10
-when cells prove LVS (mim_couple / sv_pair).
+| rfcmim w=l=21.29u | ≈ 684 fF | [PDK] Cmim≈1.5 fF/µm² × 453.26 µm² |
+| Schematic coupling | 2× rfcmim same size | [SCH] |
+| SVaricap C(V) | not PEX-extracted this run | [TOOL] PEX not run |
 
 ## Footprint vs pocket
 | Item | Value | Tag |
 |---|---|---|
-| vco_var bbox area (hierarchical join) | 0.0076 mm² | [GDS] |
-| Island reserve strip (1/3 of 0.0187) | 0.0062 mm² | [GDS/HAND] |
-| Full reserved pocket | 0.0187 mm² | [GDS] |
-| Strip width | 43.16 µm | [GDS] |
-| vco_var width | 46.70 µm | [GDS] |
-| Fit 1/3 strip | NO (area + width) | |
-| Fit full pocket area | YES (0.0076 < 0.0187) | |
-
-## Sub-cell prove
-| cell | DRC (dens. waived) | KLayout LVS | netgen | notes |
-|---|---|---|---|---|
-| sv_pair | M1.b only | PASS | PASS | M1.b also on bare SVaricap PCell [TOOL] |
-| mim_couple | PASS | PASS | PASS | |
-| bias_r | PASS | PASS | PASS | l=42.095u extract |
-| bypass_pair | PASS | PASS | PASS | ng=2 |
-| vco_var join | M1.b | FAIL | FAIL | M1 strap shorts across nets [TOOL] |
-
-SVaricap: KLayout LVS + netgen recognise sg13_hv_svaricap on this pin (ThickGateOx present).
+| vco_var bbox | (-10.63,-8.38;30.67,152.09) | [GDS] |
+| vco_var area | 0.0066 mm² | [GDS] |
+| full pocket | 0.0187 mm² | [HAND/GDS] |
+| 1/3 strip share | 0.0062 mm² / 43.16 µm | [HAND] |
+| fit full pocket | YES | [GDS] |
+| fit 1/3 strip area | NO (0.0066 > 0.0062) | [GDS] |
+| fit strip width | YES (41.30 ≤ 43.16+1) | [GDS] |

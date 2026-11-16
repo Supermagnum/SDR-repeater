@@ -13,6 +13,8 @@ Call to undefined subcircuit rhigh
 Creating placeholder cell definition.
 Call to undefined subcircuit cap_rfcmim
 Creating placeholder cell definition.
+Call to undefined subcircuit sg13_hv_svaricap
+Creating placeholder cell definition.
 
 Reading setup file /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl
 
@@ -20,7 +22,6 @@ No property as found for device sg13_lv_nmos
 No property ad found for device sg13_lv_nmos
 No property ps found for device sg13_lv_nmos
 No property pd found for device sg13_lv_nmos
-No property area found for device G1|G2|W|gnd|vbp
 Model rhigh pin 1 == 2
 Model rhigh pin 1 == 2
 No such pin 1 in model sg13_lv_nmos
@@ -59,12 +60,25 @@ No property z2 found for device sg13_hv_svaricap
 No property wmin found for device sg13_hv_svaricap
 No property rfmode found for device sg13_hv_svaricap
 No property pre_layout found for device sg13_hv_svaricap
+Model sg13_hv_svaricap pin 1 == 3
+No property ng found for device sg13_hv_svaricap
+No property as found for device sg13_hv_svaricap
+No property ad found for device sg13_hv_svaricap
+No property pd found for device sg13_hv_svaricap
+No property ps found for device sg13_hv_svaricap
+No property trise found for device sg13_hv_svaricap
+No property z1 found for device sg13_hv_svaricap
+No property z2 found for device sg13_hv_svaricap
+No property wmin found for device sg13_hv_svaricap
+No property rfmode found for device sg13_hv_svaricap
+No property pre_layout found for device sg13_hv_svaricap
 No property ic found for device cap_rfcmim
 No property ic found for device cap_rfcmim
 Comparison output logged to file /foss/designs/analog/vco/layout/p272b_var/out/netgen_vco_var.json
 Logging to file "/foss/designs/analog/vco/layout/p272b_var/out/netgen_vco_var.json" enabled
 Circuit cap_rfcmim contains no devices.
 Circuit rhigh contains no devices.
+Circuit sg13_hv_svaricap contains no devices.
 
 Contents of circuit 1:  Circuit: 'vco_var'
 Circuit vco_var contains 8 device instances.
@@ -72,14 +86,14 @@ Circuit vco_var contains 8 device instances.
   Class: cap_rfcmim            instances:   2
   Class: rhigh                 instances:   2
   Class: sg13_lv_nmos          instances:   2
-Circuit contains 9 nets.
+Circuit contains 8 nets.
 Contents of circuit 2:  Circuit: 'vco_var'
-Circuit vco_var contains 6 device instances.
+Circuit vco_var contains 8 device instances.
+  Class: sg13_hv_svaricap      instances:   2
   Class: cap_rfcmim            instances:   2
-  Class: rhigh                 instances:   1
-  Class: sg13_lv_nmos          instances:   1
-  Class: G1|G2|W|gnd|vbp       instances:   2
-Circuit contains 3 nets.
+  Class: rhigh                 instances:   2
+  Class: sg13_lv_nmos          instances:   2
+Circuit contains 8 nets.
 
 Circuit was modified by parallel/series device merging.
 New circuit summary:
@@ -90,21 +104,25 @@ Circuit vco_var contains 7 device instances.
   Class: cap_rfcmim            instances:   2
   Class: rhigh                 instances:   2
   Class: sg13_lv_nmos          instances:   2
-Circuit contains 9 nets.
+Circuit contains 8 nets.
 Contents of circuit 2:  Circuit: 'vco_var'
-Circuit vco_var contains 6 device instances.
+Circuit vco_var contains 7 device instances.
+  Class: sg13_hv_svaricap      instances:   1
   Class: cap_rfcmim            instances:   2
-  Class: rhigh                 instances:   1
-  Class: sg13_lv_nmos          instances:   1
-  Class: G1|G2|W|gnd|vbp       instances:   2
-Circuit contains 3 nets.
+  Class: rhigh                 instances:   2
+  Class: sg13_lv_nmos          instances:   2
+Circuit contains 8 nets.
 
-Circuit 1 contains 7 devices, Circuit 2 contains 6 devices. *** MISMATCH ***
-Circuit 1 contains 9 nets,    Circuit 2 contains 3 nets. *** MISMATCH ***
+Circuit 1 contains 7 devices, Circuit 2 contains 7 devices.
+Circuit 1 contains 8 nets,    Circuit 2 contains 8 nets.
 
 
 Final result: 
-Netlists do not match.
-Port matching may fail to disambiguate symmetries.
+Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ vco_var
+
 Logging to file "/foss/designs/analog/vco/layout/p272b_var/out/netgen_vco_var.json" disabled
 LVS Done.

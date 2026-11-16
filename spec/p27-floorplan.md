@@ -163,6 +163,6 @@ Rough Phase-5 squeeze check against the SX1255-compatible **MLPQ-W 5 × 5 mm** p
 
 **D23 final ≤ 0.38 mm² (2026-11-14)** (`decisions.md`). **tail_block join PASS** footprint **0.0950 mm²** [GDS]. **Island outline GDS** (core+tank + bank + tail, reserved pocket, no inter-block routing): bbox **0.3906 mm²** [GDS] — **over** ≤ 0.38 by **0.0106**. Cell-sum+forecast **0.3737** still under. Finding accepted as die-level gate at P2.7.2c (`spec/p27-floorplan.md` §8 re-total with inter-block routing). Die re-total at 0.3906: synth ≈ +0.01 vs 0.38 case; still fits ≈ 2.5 × 2.5 mm [HAND].
 
-**P2.7.2b varactor (2026-11-14) [GDS]:** hierarchical `vco_var` **0.0076 mm²**, width **46.7 µm** — over the reserved **1/3 strip** (0.0062 mm² / 43.2 µm); under full pocket **0.0187 mm²**. Join LVS not yet clean (M1 strap shorts). Sub-cells otherwise PASS. Update island tally when join passes.
+**P2.7.2b varactor (2026-11-16) [GDS]:** hierarchical `vco_var` **0.0066 mm²**, width **41.3 µm** — over the reserved **1/3 strip** area (0.0062 mm²) by **0.0004**; width YES vs 43.2 µm; under full pocket **0.0187 mm²**. Join **PASS** (DRC dens.+SVaricap M1.b waived; KLayout; netgen). Island cell-sum+forecast still uses pocket 0.0187 until D22 lands; die-level gate unchanged (P2.7.2c).
 
 **Flag:** the §1 sketch of a **1.6 × 1.6 mm** active core **does not fit** the Phase 3/4 RX+TX + synth + digital + pads tally. Before Phase 5, plan on a die closer to **≥ ~2.2 × 2.2 mm** (≈ 4.8 mm²) or tighten RX/TX area after topology.
