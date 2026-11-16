@@ -36,8 +36,14 @@ iss ss gnd 2e-05
 Xmp1 d1 d1 vdd vdd sg13_lv_pmos w=4u l=2u ng=2 m=1 mm_ok=1
 Xmp2 d2 d1 vdd vdd sg13_lv_pmos w=4u l=2u ng=2 m=1 mm_ok=1
 rout d2 nb 1
-Xrbf nb nbf gnd rhigh w=0.5u l=21.285u b=16 m=1 mm_ok=1
-cbf nbf gnd 5e-11
+Xrbf nb nbf gnd rhigh w=0.5u l=21.285u m=1 b=16 mm_ok=1
+Xcbf0 nbf gnd cap_cmim w=6.900700e-05 l=6.900700e-05 m=1 mm_ok=1
+Xcbf1 nbf gnd cap_cmim w=6.900700e-05 l=6.900700e-05 m=1 mm_ok=1
+Xcbf2 nbf gnd cap_cmim w=6.900700e-05 l=6.900700e-05 m=1 mm_ok=1
+Xcbf3 nbf gnd cap_cmim w=6.900700e-05 l=6.900700e-05 m=1 mm_ok=1
+Xcbf4 nbf gnd cap_cmim w=6.900700e-05 l=6.900700e-05 m=1 mm_ok=1
+Xcbf5 nbf gnd cap_cmim w=6.900700e-05 l=6.900700e-05 m=1 mm_ok=1
+Xcbf6 nbf gnd cap_cmim w=6.900700e-05 l=6.900700e-05 m=1 mm_ok=1
 rpd nb gnd 200000.0
 ctail tail gnd 8e-12
 Xmbp_rbf nb vbp_tail nbf gnd sg13_lv_nmos w=20u l=0.13u ng=4 m=1 mm_ok=1

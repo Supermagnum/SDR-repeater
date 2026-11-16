@@ -689,3 +689,13 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   ≈ 2.5 × 2.5 mm die with pad ring. If it does not, a finding to the owner.
 - d9_rc schematic carries the layout resistor geometry (serpentine l / b) so LVS compares it.
 - Next: varactor and bias.
+
+## 2026-11-16 — P2.7.2b varactor and bias
+- vco_var accepted: DRC clean (density and SVaricap M1.b waived), KLayout LVS and netgen clean,
+  fingers checked; 0.0066 mm² [GDS], 0.0004 mm² over its pocket strip, within the full pocket.
+- d9_rc schematic carries the layout geometry (l = 21.285 µm, b = 16; R 998.7 kΩ [PDK]).
+- SVaricap M1.b (PDK pcell) waived at block level; open item for Phase 5: cleared by a PDK fix
+  or a documented foundry waiver before any tape-out.
+- Varactor dimensions must be compared in LVS (netgen property or script), not a placeholder
+  (today W = vt in the export).
+- Next: D22 detector + comparator.

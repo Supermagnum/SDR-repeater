@@ -442,13 +442,27 @@ sv_pair / vco_var (density + this rule).
 | vco_var join | M1.b (PCell) | PASS | PASS | M3/M4 spines; M1 gnd bus |
 
 **Join routing [TOOL]:** M4 horizontals at per-net Y slots + M3 spines; gnd on M1
-east bus. LVS spice exports G1/G2 (SVaricap-named nets) so netgen pin-matches; W=vt.
+east bus. LVS spice exports G1/G2 (SVaricap-named nets) so netgen pin-matches.
+
+**W = vt mapping [TOOL]:** extract/netgen port **W** is the SVaricap **well** pin
+(schematic **vt** / V_tune). It is a net name, not the device width property.
+Netgen property compare on `sg13_hv_svaricap` is incomplete (#753-class). Real
+**w / l / Nx** are compared by script `p272b_var/check_svaricap_dims.py` →
+`summary_svaricap_dims.txt` (intent `w=3.74u l=0.3u Nx=10` [SCH]).
+
+**SVaricap M1.b — Phase 5 open item:** bare SVaricap PCell violates **M1.b** on
+this PDK pin (`a49358cc`); waived at block level for sv_pair / vco_var only.
+**Before any tape-out:** clear by a PDK fix or a documented foundry waiver.
+No dedicated IHP issue for M1.b today; related closed [#639](https://github.com/IHP-GmbH/IHP-Open-PDK/issues/639)
+was NW.e (not M1.b). Do not file upstream unasked. Track with #753 / #861 class
+workarounds in `reports/pdk-tool-issues-2026-10-30.md`.
 
 **Footprint [GDS]:** hierarchical join **0.0066 mm²**, width **41.3 µm** — strip
-area NO vs 0.0062 mm²; width YES vs 43.2 µm; under full pocket **0.0187 mm²**.
+area over by **0.0004 mm²** vs 0.0062 (accepted 2026-11-16); width YES; under full
+pocket **0.0187 mm²**.
 **C per side [PDK]:** rfcmim ≈ **684 fF**; SVaricap C(V) not PEX’d.
 Artifacts: `p272b_var/out/*.gds.gz`, `summary_cap_footprint.txt`, `summary_build.txt`,
-`summary_p272b_var_stop.txt`.
+`summary_p272b_var_stop.txt`, `summary_svaricap_dims.txt`.
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin

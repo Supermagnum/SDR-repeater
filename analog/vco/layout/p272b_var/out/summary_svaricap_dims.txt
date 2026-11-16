@@ -1,0 +1,21 @@
+# SVaricap dimension check — P2.7.2b vco_var [TOOL]
+
+## Why scripted
+Port **W** in the LVS netlist is the SVaricap **well** pin (schematic **vt**), not device width. Netgen property compare on `sg13_hv_svaricap` is incomplete (#753-class). Compare w/l/Nx here.
+
+## Intent [SCH]
+`w=3.74u l=0.3u Nx=10`
+
+## LVS spice (`vco_var.spice`) — 2 device(s)
+- [0] {'w': 3.74, 'l': 0.3, 'Nx': 10} → w=3.74 OK; l=0.3 OK; Nx=10 OK → PASS
+- [1] {'w': 3.74, 'l': 0.3, 'Nx': 10} → w=3.74 OK; l=0.3 OK; Nx=10 OK → PASS
+
+## Extracted (`vco_var_extracted.cir`) — 2 device(s)
+- [0] {'w': 3.74, 'l': 0.3, 'Nx': 10} → w=3.74 OK; l=0.3 OK; Nx=10 OK → PASS
+- [1] {'w': 3.74, 'l': 0.3, 'Nx': 10} → w=3.74 OK; l=0.3 OK; Nx=10 OK → PASS
+
+## GDS PCell walk — 2 SVaricap-named cell(s)
+- {'cell': 'SVaricap$1'}
+- {'cell': 'SVaricap$1'}
+
+## Result: PASS

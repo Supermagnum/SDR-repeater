@@ -124,8 +124,14 @@ Xmbp_rvp vgp vbp vvb gnd sg13_lv_nmos w=5u l=0.13u ng=2 m=1 mm_ok=1
 Xmbp_rvn vgn vbp vvb gnd sg13_lv_nmos w=5u l=0.13u ng=2 m=1 mm_ok=1
 ctail tail gnd 8e-12
 Xmt tail nbf gnd gnd sg13_lv_nmos w=160u l=4u ng=32 m=1 mm_ok=1
-Xrbf nb nbf gnd rhigh w=0.5u l=21.285u b=16 m=1 mm_ok=1
-cbf nbf gnd 5e-11
+Xrbf nb nbf gnd rhigh w=0.5u l=21.285u m=1 b=16 mm_ok=1
+Xcbf0 nbf gnd cap_cmim w=6.900700e-05 l=6.900700e-05 m=1 mm_ok=1
+Xcbf1 nbf gnd cap_cmim w=6.900700e-05 l=6.900700e-05 m=1 mm_ok=1
+Xcbf2 nbf gnd cap_cmim w=6.900700e-05 l=6.900700e-05 m=1 mm_ok=1
+Xcbf3 nbf gnd cap_cmim w=6.900700e-05 l=6.900700e-05 m=1 mm_ok=1
+Xcbf4 nbf gnd cap_cmim w=6.900700e-05 l=6.900700e-05 m=1 mm_ok=1
+Xcbf5 nbf gnd cap_cmim w=6.900700e-05 l=6.900700e-05 m=1 mm_ok=1
+Xcbf6 nbf gnd cap_cmim w=6.900700e-05 l=6.900700e-05 m=1 mm_ok=1
 Xmr nb nb gnd gnd sg13_lv_nmos w=20u l=4u ng=4 m=1 mm_ok=1
 iref vdd nb 0.0005
 Xmbp_rbf nb vbp_tail nbf gnd sg13_lv_nmos w=20u l=0.13u ng=4 m=1 mm_ok=1
