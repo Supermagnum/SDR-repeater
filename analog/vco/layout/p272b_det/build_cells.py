@@ -861,9 +861,12 @@ MdR gnd gnd gnd gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
         self.box_m2(c, x_pg - 0.25, y_over, x_pg2 + 0.25, y_over + 0.40)
         self.box_m2(c, x_pg - 0.25, y_n1, x_pg + 0.25, y_over + 0.40)
 
-        # n1 pin shares M2 with x_pg diode strap (same net) — abut, no gap [DRC M2.b]
-        nx = ds1[0].left - 2.5
-        self.box_m2(c, min(nx, x_pg) - 0.30, y_n1, ds1[0].left, y_n1 + 0.40)
+        # n1 pin + x_pg diode strap: one merged M2 island (no 0.02 µm M2.b gap)
+        nx = min(ds1[0].left - 2.5, x_pg - 0.50)
+        self.box_m2(c, nx - 0.40, y_n1 - 0.10,
+                    max(ds1[-1].right, pdr1[-1].right) + 0.25, y_n1 + 0.50)
+        # thicken vertical diode strap so it merges into the n1 bus
+        self.box_m2(c, x_pg - 0.50, y_n1 - 0.10, x_pg + 0.50, y_pad_p + 0.40)
         self._via12(c, vs12, nx, y_n1 + 0.20)
         self.box_m1(c, nx - 0.30, y_n1 - 0.5, nx + 0.30, y_n1 + 0.40)
         self.pin_m1(c, nx, y_n1 - 0.3, "n1")

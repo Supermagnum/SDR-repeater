@@ -165,6 +165,6 @@ Rough Phase-5 squeeze check against the SX1255-compatible **MLPQ-W 5 × 5 mm** p
 
 **P2.7.2b varactor (2026-11-16) [GDS]:** hierarchical `vco_var` **0.0066 mm²**, width **41.3 µm** — over the reserved **1/3 strip** area (0.0062 mm²) by **0.0004**; width YES vs 43.2 µm; under full pocket **0.0187 mm²**. Join **PASS** (DRC dens.+SVaricap M1.b waived; KLayout; netgen). Island cell-sum+forecast still uses pocket 0.0187 until D22 lands; die-level gate unchanged (P2.7.2c).
 
-**P2.7.2b D22 (2026-11-16) [GDS]:** hold_caps **0.0012** + det_sf_pair **0.0007** PASS; cmp_se **0.0023** (LVS/netgen PASS, DRC M2.b open). Remaining pocket after vco_var **0.0121**. D22 forecast ≈0.0013 [HAND] already exceeded by hold+cmp; retarget at join. bias_pd / ampcal_det join Found, not done.
+**P2.7.2b D22 (2026-11-16) [GDS/SCH] — not done:** hold_caps **0.0012** + det_sf_pair **0.0007** PASS; cmp_se **0.0023** PASS (M2.b fixed; DRC/LVS/netgen/fingers). Fab sch re-sim FAIL: tt/27 top Amp **1.377 V** (ideal 1.250) — I_hold ≈12.5 µA vs 4 µA [SCH]. Remaining pocket after vco_var **0.0121**. Bias retune, then bias_pd / ampcal_det join.
 
 **Flag:** the §1 sketch of a **1.6 × 1.6 mm** active core **does not fit** the Phase 3/4 RX+TX + synth + digital + pads tally. Before Phase 5, plan on a die closer to **≥ ~2.2 × 2.2 mm** (≈ 4.8 mm²) or tighten RX/TX area after topology.

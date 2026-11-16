@@ -700,10 +700,23 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   (today W = vt in the export).
 - Next: D22 detector + comparator.
 
-## 2026-11-16 — P2.7.2b D22 stop (partial)
-- hold_caps + det_sf_pair: DRC / KLayout / netgen PASS; fingers OK.
-- cmp_se: KLayout + netgen PASS; one M2.b open (not waived). Area 0.0023 mm² [GDS].
-- Tank load ≈ 0.5–1 fF/side [HAND/PDK] vs ≤ 10 fF; no PEX.
-- D22 forecast ≈0.0013 [HAND] already exceeded by hold_caps alone; remaining pocket 0.0121.
-- Found, not done: bias_pd, ampcal_det join.
-- Next: finish cmp_se M2.b; bias_pd; ampcal_det join (then P2.7.2c VCO top).
+## 2026-11-16 — P2.7.2b D22 detector, first part
+- hold_caps and det_sf_pair accepted (DRC, KLayout LVS, netgen, fingers). Tank load
+  ≈ 0.5–1 fF / side [HAND / PDK] against ≤ 10 fF.
+- cmp_se M2.b is fixed, not waived.
+- ampcal_det.sch is updated to the devices in the layout (MOS current sinks, cmim hold caps,
+  rhigh, en, vthn), and the D22 detector accuracy is re-simulated over corners before
+  bias_pd and the join. Pass: target 1.25 ± 0.10 V kept, steady ≤ 1.40 V / transient
+  ≤ 1.50 V.
+- D22 area forecast follows the layout; the joined cell must fit the remaining pocket
+  (0.0121 mm² after vco_var).
+
+## 2026-11-16 — D22 detector with fab devices
+- ampcal_det.sch uses fab devices (cmim, rhigh, MOS sinks + en, vthn) [SCH]; cmp_se accepted
+  (M2.b fixed; DRC, KLayout LVS, netgen, fingers clean; 0.0023 mm² [GDS]).
+- Fab re-simulation fails the target: tt 27 °C top band, code 20, 1.377 V (ideal: code 14,
+  1.250 V) [SCH]; cause: I_hold ≈ 12.5 µA against 4 µA, I_tt ≈ 22 µA against 20 µA. The window
+  (1.25 ± 0.10 V) is not widened.
+- Bias is retuned so hold and replica sinks track (same mirror / reference, or a stated
+  reason otherwise), then the full corner set and the comparator Monte Carlo are run before
+  bias_pd and the join.

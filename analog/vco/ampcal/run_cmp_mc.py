@@ -28,26 +28,34 @@ CMP_MID = A.CMP_HIGH  # SE trip level (lo≈0.58, bal≈0.67, hi≈1.11) [SCH]
 
 
 def op_full(vip, vin, vos, tag):
+    # Fab cmp: rhigh loads + MOS sinks [GDS cmp_se / bias_pd]
     body = (
         f"vdd (vdd 0) vsource dc=1.2\n"
+        f"ven (en 0) vsource dc=1.2\n"
         f"vip (vip 0) vsource dc={vip:.6g}\n"
         f"vin (vin 0) vsource dc={vin:.6g}\n"
         f"vo1 (g1 vip) vsource dc={vos[0]:.6g}\n"
         f"vo2 (g2 vin) vsource dc={vos[1]:.6g}\n"
         f"mc1 (co g1 tt 0) sg13_lv_nmos w={W}u l={L}u ng=2\n"
         f"mc2 (co2 g2 tt 0) sg13_lv_nmos w={W}u l={L}u ng=2\n"
-        "itt (tt 0) isource dc=20u\n"
-        "rc1 (vdd co) resistor r=20k\n"
-        "rc2 (vdd co2) resistor r=20k\n"
+        f"rbias (vdd nbias 0) rhigh w=0.5u l={A.RHIGH_BIAS_L} b=0\n"
+        "mdiode (nbias nbias pd_d 0) sg13_lv_nmos w=1.0u l=1.0u ng=1\n"
+        "men_d (pd_d en 0 0) sg13_lv_nmos w=2.0u l=0.13u ng=1\n"
+        "mid_tt (tt nbias pd_tt 0) sg13_lv_nmos w=2.0u l=1.0u ng=2\n"
+        "men_tt (pd_tt en 0 0) sg13_lv_nmos w=2.0u l=0.13u ng=1\n"
+        "mid_ss (ss2 nbias pd_ss 0) sg13_lv_nmos w=2.0u l=1.0u ng=2\n"
+        "men_ss (pd_ss en 0 0) sg13_lv_nmos w=2.0u l=0.13u ng=1\n"
+        f"rc1 (vdd co 0) rhigh w=0.5u l={A.RHIGH_CMP_L} b=0\n"
+        f"rc2 (vdd co2 0) rhigh w=0.5u l={A.RHIGH_CMP_L} b=0\n"
         "mcs1 (n1 co2 ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2\n"
         "mcs2 (cmp co ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2\n"
-        "iss2 (ss2 0) isource dc=20u\n"
         "mpl1 (n1 n1 vdd vdd) sg13_lv_pmos w=4u l=0.5u ng=2\n"
         "mpl2 (cmp n1 vdd vdd) sg13_lv_pmos w=4u l=0.5u ng=2\n"
     )
+    hdr = A.ensure_corner_res(S2.HEADER.format(title=f"cmp_{tag}"))
     path = os.path.join(A.OUT, f"cmp_{tag}.sim")
     open(path, "w").write(
-        S2.HEADER.format(title=f"cmp_{tag}") + body
+        hdr + body
         + "\ncontrol\n  abort always\n  options rawfile=\"binary\" temp=27\n"
         + "  save v(co) v(co2) v(cmp) v(tt)\n  analysis op1 op\nendc\n"
     )

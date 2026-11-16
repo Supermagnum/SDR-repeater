@@ -1,6 +1,6 @@
 # VCO amplitude control (P2.3 open point §9.3)
 
-Status: **D22 accepted 2026-11-02. Step 1 done 2026-11-11** (§10): end-to-end search on the single-ended comparator PASS; **interim A2 retired** for all bands. Calibration sets every band; bottom bands end at code 31 with tnr = 1.
+Status: **D22 topology / step-1 (ideal parts) accepted 2026-11-02 / 2026-11-11** (§10). **P2.7.2b fab devices: not done** — sch uses cmim/rhigh/MOS+en; cmp_se layout PASS; fab re-sim tt/27 top Amp 1.377 V fails 1.25±0.10 (I_hold ≈12.5 µA vs 4 µA) [SCH]. Bias retune required before join.
 
 Items 1–2 of `prompts/06-design-next-step.md` are closed (P2.6 accepted 2026-10-31; open points 1–3 closed). Newest status report `reports/status-2026-10-30.md`: no failed re-run; amplitude cal listed as open work, not as an unverified blocking result.
 

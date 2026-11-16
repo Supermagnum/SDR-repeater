@@ -44,10 +44,15 @@ HOLD_C = 200e-15
 # Tuned at tt/27 top: Vsense=0.419, Amp/2=0.642 -> loss~0.223 V [SCH]
 V_LOSS = 0.22
 C_HOLD = 400e-15
-I_DET = 4e-6          # few uA
+I_DET = 4e-6          # few uA (target; MOS sinks sized in layout)
 # Gate devices: W=0.5u L=0.13 -> Cgg ~ 0.5-1 fF each; 2 on tank << 10 fF
 W_DET = "0.5u"
 L_DET = "0.13u"
+# Fab geometry matching p272b_det layout [GDS extract]
+CMIM_HOLD_W = "16.27u"   # 400 fF side [GDS]
+CMIM_CMP_W = "5.78u"     # 50 fF side [PDK]
+RHIGH_CMP_L = "6.96u"    # ~20 kΩ [GDS extract]
+RHIGH_BIAS_L = "19.23u"  # bias R [GDS]
 
 # DAC / mirror (step 1c)
 I_MASTER = 10.5e-6    # above 10 uA so code31 stays within ±3% at ss/85 (PMOS Early into low V_DS)
@@ -199,43 +204,52 @@ def dac_transistor_body(code, mismatch=None, vtail=0.47):
 
 
 def detector_snippet(en=True):
-    """Differential max detector + replica; <= 10 fF tank gate load.
+    """Differential max detector + replica — fab devices [GDS p272b_det].
 
     hold charges to ~= max(tp,tn) - Vgs; rep ~= ct - Vgs.
     A_est = 2 * (V_hold - V_rep + V_LOSS)  (V_LOSS folds conduction-angle loss).
     cmp high when (hold - rep) > V_th = Amp_target/2 - V_LOSS.
+
+    Ideal I/C/R replaced by MOS sinks+en, cmim, rhigh. Test sources only:
+    ven (en), vth (vthn−rep = V_LOSS). en low → sinks off (no tank-path current).
     """
-    ib = f"{I_DET:.6g}" if en else "1e-12"
     th = v_th()
+    ven = "1.2" if en else "0"
     n = [
-        f"// D22 1b diff-max det; I={I_DET*1e6:.1f}uA C={C_HOLD*1e15:.0f}fF V_LOSS={V_LOSS:.3f}\n",
-        # Detector pair: shared source = hold
+        f"// D22 fab det; cmim {CMIM_HOLD_W} hold; rhigh cmp l={RHIGH_CMP_L}; "
+        f"V_LOSS={V_LOSS:.3f}; en={ven}\n",
+        # Detector / replica SF [GDS det_sf_pair]
         f"mdtp (vdd tp hold 0) sg13_lv_nmos w={W_DET} l={L_DET} ng=1\n",
         f"mdtn (vdd tn hold 0) sg13_lv_nmos w={W_DET} l={L_DET} ng=1\n",
-        f"idet (hold 0) isource dc={ib}\n",
-        f"chold (hold 0) capacitor c={C_HOLD:.6g}\n",
-        # Replica pair: both gates at centre tap
         f"mrtp (vdd ct rep 0) sg13_lv_nmos w={W_DET} l={L_DET} ng=1\n",
         f"mrtn (vdd ct rep 0) sg13_lv_nmos w={W_DET} l={L_DET} ng=1\n",
-        f"irep (rep 0) isource dc={ib}\n",
-        f"crep (rep 0) capacitor c={C_HOLD:.6g}\n",
-        # Comparator: vip = hold, vin = rep + V_th. Amp high → co < co2.
-        # First-stage co only swings ~±70 mV around 1 V — a CMOS inverter never
-        # trips. Second OTA (vip=co2, vin=co) makes a real single-ended cmp.
+        f"chold (hold 0) cap_cmim w={CMIM_HOLD_W} l={CMIM_HOLD_W}\n",
+        f"crep (rep 0) cap_cmim w={CMIM_HOLD_W} l={CMIM_HOLD_W}\n",
+        # Bias + PD [GDS bias_pd]
+        f"rbias (vdd nbias 0) rhigh w=0.5u l={RHIGH_BIAS_L} b=0\n",
+        "mdiode (nbias nbias pd_d 0) sg13_lv_nmos w=1.0u l=1.0u ng=1\n",
+        "men_d (pd_d en 0 0) sg13_lv_nmos w=2.0u l=0.13u ng=1\n",
+        "mid_h (hold nbias pd_h 0) sg13_lv_nmos w=1.0u l=1.0u ng=1\n",
+        "men_h (pd_h en 0 0) sg13_lv_nmos w=2.0u l=0.13u ng=1\n",
+        "mid_r (rep nbias pd_r 0) sg13_lv_nmos w=1.0u l=1.0u ng=1\n",
+        "men_r (pd_r en 0 0) sg13_lv_nmos w=2.0u l=0.13u ng=1\n",
+        "mid_tt (ttail nbias pd_tt 0) sg13_lv_nmos w=2.0u l=1.0u ng=2\n",
+        "men_tt (pd_tt en 0 0) sg13_lv_nmos w=2.0u l=0.13u ng=1\n",
+        "mid_ss (ss2 nbias pd_ss 0) sg13_lv_nmos w=2.0u l=1.0u ng=2\n",
+        "men_ss (pd_ss en 0 0) sg13_lv_nmos w=2.0u l=0.13u ng=1\n",
+        # Test sources (supplies / TB only)
+        f"ven (en 0) vsource dc={ven}\n",
         f"vth (vthn rep) vsource dc={th:.6g}\n",
+        # SE comparator [GDS cmp_se]
         "mc1 (co hold ttail 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
         "mc2 (co2 vthn ttail 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
-        "itt (ttail 0) isource dc=20u\n",
-        "rc1 (vdd co) resistor r=20k\n",
-        "rc2 (vdd co2) resistor r=20k\n",
-        # Diff→SE stage: high when co2 > co (Amp above target).
-        # Names mcs* — avoid ms1/ms2 (bank switch fingers in the VCO deck).
+        f"rc1 (vdd co 0) rhigh w=0.5u l={RHIGH_CMP_L} b=0\n",
+        f"rc2 (vdd co2 0) rhigh w=0.5u l={RHIGH_CMP_L} b=0\n",
         "mcs1 (n1 co2 ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
         "mcs2 (cmp co ss2 0) sg13_lv_nmos w=4u l=0.5u ng=2\n",
-        "iss2 (ss2 0) isource dc=20u\n",
         "mpl1 (n1 n1 vdd vdd) sg13_lv_pmos w=4u l=0.5u ng=2\n",
         "mpl2 (cmp n1 vdd vdd) sg13_lv_pmos w=4u l=0.5u ng=2\n",
-        "cl_cmp (cmp 0) capacitor c=50f\n",
+        f"cl_cmp (cmp 0) cap_cmim w={CMIM_CMP_W} l={CMIM_CMP_W}\n",
     ]
     return "".join(n)
 
@@ -260,9 +274,27 @@ def bias_block_vds(code):
     return dac_pmos_snippet(code, "xraw") + mirror_vds_match_snippet()
 
 
-def inject_dac_det(sim_path, bias_code, det=True):
+def ensure_corner_res(text, section="res_typ"):
+    """Add cornerRES include so rhigh fab devices resolve [PDK]."""
+    line = f'include "cornerRES.lib" section={section}\n'
+    if "cornerRES.lib" in text:
+        return re.sub(
+            r'include "cornerRES\.lib" section=\w+',
+            f'include "cornerRES.lib" section={section}',
+            text,
+        )
+    return re.sub(
+        r'(include "cornerCAP\.lib" section=\w+\n)',
+        r"\1" + line,
+        text,
+        count=1,
+    )
+
+
+def inject_dac_det(sim_path, bias_code, det=True, det_en=True):
     """Replace VCO diode+iref bias with DAC + V_DS-matched mirror; optional det."""
     text = open(sim_path).read()
+    text = ensure_corner_res(text)
     repl = bias_block_vds(bias_code)
     text2, n = _BIAS_BLOCK_RE.subn(repl, text, count=1)
     if n != 1:
@@ -273,5 +305,8 @@ def inject_dac_det(sim_path, bias_code, det=True):
             text,
         )
     if det:
-        text2 = text2.replace("\ncontrol\n", "\n" + detector_snippet(True) + "\ncontrol\n")
+        text2 = text2.replace(
+            "\ncontrol\n",
+            "\n" + detector_snippet(en=det_en) + "\ncontrol\n",
+        )
     open(sim_path, "w").write(text2)

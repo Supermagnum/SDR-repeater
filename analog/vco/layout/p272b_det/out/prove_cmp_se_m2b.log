@@ -1,0 +1,2 @@
+usage: run_drc_lvs.py [-h] --cell CELL
+run_drc_lvs.py: error: the following arguments are required: --cell

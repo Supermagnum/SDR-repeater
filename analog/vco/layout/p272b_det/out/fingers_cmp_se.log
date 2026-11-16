@@ -1,0 +1,3 @@
+det_sf_pair: PASS — [1, 1, 1, 1, 1, 1]
+cmp_se: PASS — [1, 1, 2, 2, 2, 2]
+Wrote /foss/designs/analog/vco/layout/p272b_det/out/summary_finger_check.txt

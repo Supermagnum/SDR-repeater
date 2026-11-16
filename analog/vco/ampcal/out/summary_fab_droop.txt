@@ -1,0 +1,3 @@
+hold early=0.8939 late=0.8915 droop_mV=2.36
+rep early=0.4825 late=0.4825 vsense_late=0.4090
+Amp=1.377 cmp=0.811 [SCH]

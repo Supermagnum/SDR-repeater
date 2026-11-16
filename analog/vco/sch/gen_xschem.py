@@ -56,6 +56,9 @@ def vacask_line(d):
                 f"w={d.params['w']} l={d.params['l']} nx={d.params['nx']}\n")
     if d.kind == "res":
         return f"{d.name} ({n}) resistor r={d.params['r']}\n"
+    if d.kind == "rhigh":
+        return (f"{d.name} ({n}) rhigh "
+                f"w={d.params['w']} l={d.params['l']} b={d.params['b']}\n")
     if d.kind == "capa":
         return f"{d.name} ({n}) capacitor c={d.params['c']}\n"
     if d.kind == "ind":
@@ -266,35 +269,50 @@ def gen_vco_var(rng):
 
 
 def gen_ampcal_det():
+    """D22 detector + SE cmp — fab devices matching layout [GDS p272b_det].
+
+    No ideal I/C/V inside the cell: MOS sinks + en, cmim hold/cl_cmp, rhigh
+    loads, pin vthn (V_LOSS bias from TB). Ports include en and vthn.
+    """
     import amp_common as A
     sch = Sch("ampcal_det", os.path.join(HERE, "ampcal_det.sch"))
-    for p in ("tp", "tn", "ct", "vdd", "gnd", "cmp", "hold", "rep"):
+    ports = ("tp", "tn", "ct", "vdd", "gnd", "cmp", "hold", "rep", "en", "vthn")
+    for p in ports:
         sch.iopin(p)
-    sch.title("ampcal_det_cmp_D22")
-    th = A.v_th()
+    sch.title("ampcal_det_cmp_D22_fab")
+    # SF pair [GDS det_sf_pair]
     sch.nmos("mdtp", "vdd", "tp", "hold", "gnd", A.W_DET, A.L_DET, 1)
     sch.nmos("mdtn", "vdd", "tn", "hold", "gnd", A.W_DET, A.L_DET, 1)
-    sch.isrc("idet", "hold", "gnd", A.I_DET)
-    sch.capa("chold", "hold", "gnd", A.C_HOLD)
     sch.nmos("mrtp", "vdd", "ct", "rep", "gnd", A.W_DET, A.L_DET, 1)
     sch.nmos("mrtn", "vdd", "ct", "rep", "gnd", A.W_DET, A.L_DET, 1)
-    sch.isrc("irep", "rep", "gnd", A.I_DET)
-    sch.capa("crep", "rep", "gnd", A.C_HOLD)
-    sch.vsrc("vth", "vthn", "rep", th)
+    # Hold caps: cmim w=l=16.27 µm → 400 fF [GDS extract / PDK]
+    sch.mim("chold", "hold", "gnd", "gnd", "16.27u", "16.27u", kind="cmim")
+    sch.mim("crep", "rep", "gnd", "gnd", "16.27u", "16.27u", kind="cmim")
+    # Bias + PD sinks [GDS bias_pd]
+    sch.rhigh("rbias", "vdd", "nbias", "gnd", w="0.5u", l="19.23u", bends=0)
+    sch.nmos("mdiode", "nbias", "nbias", "pd_d", "gnd", "1.0u", "1.0u", 1)
+    sch.nmos("men_d", "pd_d", "en", "gnd", "gnd", "2.0u", "0.13u", 1)
+    sch.nmos("mid_h", "hold", "nbias", "pd_h", "gnd", "1.0u", "1.0u", 1)
+    sch.nmos("men_h", "pd_h", "en", "gnd", "gnd", "2.0u", "0.13u", 1)
+    sch.nmos("mid_r", "rep", "nbias", "pd_r", "gnd", "1.0u", "1.0u", 1)
+    sch.nmos("men_r", "pd_r", "en", "gnd", "gnd", "2.0u", "0.13u", 1)
+    sch.nmos("mid_tt", "ttail", "nbias", "pd_tt", "gnd", "2.0u", "1.0u", 2)
+    sch.nmos("men_tt", "pd_tt", "en", "gnd", "gnd", "2.0u", "0.13u", 1)
+    sch.nmos("mid_ss", "ss2", "nbias", "pd_ss", "gnd", "2.0u", "1.0u", 2)
+    sch.nmos("men_ss", "pd_ss", "en", "gnd", "gnd", "2.0u", "0.13u", 1)
+    # SE comparator [GDS cmp_se]; rhigh l=6.96 µm [extract]
     sch.nmos("mc1", "co", "hold", "ttail", "gnd", "4u", "0.5u", 2)
     sch.nmos("mc2", "co2", "vthn", "ttail", "gnd", "4u", "0.5u", 2)
-    sch.isrc("itt", "ttail", "gnd", 20e-6)
-    sch.res("rc1", "vdd", "co", 20e3)
-    sch.res("rc2", "vdd", "co2", 20e3)
+    sch.rhigh("rc1", "vdd", "co", "gnd", w="0.5u", l="6.96u", bends=0)
+    sch.rhigh("rc2", "vdd", "co2", "gnd", w="0.5u", l="6.96u", bends=0)
     sch.nmos("mcs1", "n1", "co2", "ss2", "gnd", "4u", "0.5u", 2)
     sch.nmos("mcs2", "cmp", "co", "ss2", "gnd", "4u", "0.5u", 2)
-    sch.isrc("iss2", "ss2", "gnd", 20e-6)
     sch.pmos("mpl1", "n1", "n1", "vdd", "vdd", "4u", "0.5u", 2)
     sch.pmos("mpl2", "cmp", "n1", "vdd", "vdd", "4u", "0.5u", 2)
-    sch.capa("cl_cmp", "cmp", "gnd", 50e-15)
+    # cl_cmp 50 fF cmim [GDS]
+    sch.mim("cl_cmp", "cmp", "gnd", "gnd", "5.78u", "5.78u", kind="cmim")
     sch.write()
-    write_sym(os.path.join(HERE, "ampcal_det.sym"), "ampcal_det",
-              ["tp", "tn", "ct", "vdd", "gnd", "cmp", "hold", "rep"])
+    write_sym(os.path.join(HERE, "ampcal_det.sym"), "ampcal_det", list(ports))
     return sch
 
 
@@ -336,7 +354,7 @@ def gen_vco_top(rng, blocks):
     ncell = S2.n_bank_cells()
     top_ports = [
         "tp", "tn", "ct", "vt", "vdd", "gnd", "vbp", "vbp_tail",
-        "cmp", "tail", "hold", "rep",
+        "cmp", "tail", "hold", "rep", "en", "vthn",
     ]
     top_ports += [f"g{k}" for k in range(ncell)]
     top_ports += [f"code{b}" for b in range(5)]
@@ -379,11 +397,12 @@ def gen_vco_top(rng, blocks):
          "code3": "code3", "code4": "code4"},
         x=200, y=200)
 
-    # D22 detector + SE comparator
+    # D22 detector + SE comparator (fab: en, vthn)
     sch.subckt_inst(
         "ampcal_det.sym", "xdet",
         {"tp": "tp", "tn": "tn", "ct": "ct", "vdd": "vdd", "gnd": "gnd",
-         "cmp": "cmp", "hold": "hold", "rep": "rep"},
+         "cmp": "cmp", "hold": "hold", "rep": "rep",
+         "en": "en", "vthn": "vthn"},
         x=400, y=200)
 
     sch.write()

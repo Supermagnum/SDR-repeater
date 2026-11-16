@@ -1,57 +1,48 @@
-# P2.7.2b D22 detector + comparator — stop report (2026-11-16)
+# P2.7.2b D22 detector finish — STOP (2026-11-16)
 
-## Pass criteria (per step)
+Pushed 6d13708. decisions.md "D22 detector, first part" recorded.
 
-| step | DRC (dens. waived) | KLayout LVS | netgen | fingers | note |
-|---|---|---|---|---|---|
-| hold_caps | PASS | PASS | PASS | n/a (cmim) | 2×400 fF; w=16.27 µm [GDS extract] |
-| det_sf_pair | PASS | PASS | PASS | PASS (6× ng=1) | ABBA + dummies; ct on M3 |
-| cmp_se | FAIL (M2.b×1) | PASS | PASS | see check | rhigh l=6.96 µm [extract]; 0.0023 mm² |
-| bias_pd | — | — | — | — | Found, not done |
-| ampcal_det join | — | — | — | — | Found, not done |
+## Pass criteria, per step
 
-## Tank load (per side)
-
-- Devices on tank: mdtp @ tp, mdtn @ tn — one LV NMOS 0.5/0.13 each side [SCH].
-- Cgg ≈ 0.5–1 fF each [PDK COP / amp_common]; per side ≈ **0.5–1 fF** ≪ 10 fF budget [HAND].
-- No PEX this run. Replica gates on ct only (not tank).
-
-## Footprint
-
-| item | mm² | source |
+| step | result | notes |
 |---|---|---|
-| hold_caps | 0.0012 | [GDS] |
-| det_sf_pair | 0.0007 | [GDS] |
-| cmp_se (open DRC) | 0.0023 | [GDS] |
-| vco_var (done) | 0.0066 | [GDS] |
-| remaining pocket (0.0187−0.0066) | 0.0121 | [GDS] |
-| D22 forecast | ≈0.0013 | [HAND] |
+| 1. ampcal_det.sch → fab devices + SVG/PDF | PASS | cmim / rhigh / MOS sinks+en / pins en,vthn; no ideal I/C/V in cell [SCH] |
+| 2. Re-sim D22 corners (fab) | FAIL (stop) | quick tt/27: top Amp=1.377 V outside 1.25±0.10; hard ≤1.40/1.50 PASS. Full corners + MC not run. |
+| 3. cmp_se M2.b fix | PASS | DRC clean (density waived), KLayout LVS PASS, netgen PASS, fingers PASS; 0.0023 mm² [GDS] |
+| 4. bias_pd + ampcal_det join | not started | blocked by step 2 fail |
+| 5. footprint / tank load | partial | tank still ≈0.5–1 fF/side [HAND/PDK]; join area N/A |
+| 6. specs + commit | not done | ask owner before commit |
 
-hold_caps alone (0.0012) already ≈ forecast; cmp_se 0.0023 exceeds forecast.
-Full D22 will be > forecast; still ≪ remaining pocket 0.0121 if packed.
+## Step 2 detail [SCH]
+
+Ideal (accepted): tt/27 top code=14, Amp=1.250 V.
+Fab (layout devices): tt/27 top code=20, Amp=1.377 V, A_est=1.258, peak=1.468.
+- steady ≤1.40: PASS; transient ≤1.50: PASS; window 1.25±0.10: FAIL (+0.127 V).
+- Hold droop over settle @ code20: 2.36 mV [SCH] (benign).
+- Bias OP @ hold=0.8 V: I_hold≈12.5 µA, I_rep≈11.7 µA (target 4 µA); I_tt/ss≈22 µA (target 20 µA) [SCH].
+- en=0: sink currents < 0.1 nA [SCH] — tank-path current off PASS.
+- Root cause (likely): bias R / mirror sized ~3× high on hold/rep sinks → cmp trip late → higher SAR code.
 
 ## What failed / uncertain
 
-- cmp_se: one **M2.b** (min width/space) near n1 / PMOS-diode M2 at ≈(3.45, 25.5) [DRC].
-  KLayout + netgen uniquely PASS with rhigh l=6.96u ps=0 [extract].
-- bias_pd and ampcal_det join not built.
-- Sch still has ideal isource/capa/vsource; layout-spice uses cmim/rhigh/MOS+en/vthn.
+- Fab search misses target window on first corner; full tt/ss/ff × temps × bands and cmp MC not run.
+- Whether retuning rbias l (or sink W) to ~4 µA restores ±0.10 without layout topology change.
+- bias_pd / join not built.
 
 ## Decision needed
 
-1. Accept cmp_se with M2.b fix in next iteration (preferred), or waive? (not density — do not waive.)
-2. D22 forecast 0.0013 is too low given 2×400 fF cmim; retarget when join lands?
-3. Add `en` + `vthn` ports to ampcal_det.sch (fab mapping) before top assembly?
+1. Retune bias_pd (rbias l and/or sink W) for I_hold≈4 µA / I_tt≈20 µA, update sch+layout, re-sim; or
+2. Accept a wider window / higher Amp for fab (owner waiver); or
+3. Other topology change (owner).
 
 ## Found, not done
 
-- bias_pd (MOS sinks + en PD)
-- ampcal_det hierarchical join + cl_cmp
-- finger script on full join; tank-load PEX
-- spec/p27-floorplan.md §8 / phase2-plan final D22 line (partial notes only)
-- SVG/PDF already done in housekeeping (faceaab)
+- Full-corner fab SAR + comparator offset MC
+- bias_pd prove; ampcal_det hierarchical join + cl_cmp
+- spec/vco-amplitude-cal.md, p27-layout-notes, p27-floorplan §8, phase2-plan §3 final D22 lines
+- Commit of this job's files (awaiting ask)
 
-## Next run
+## Next run (after decision)
 
-**P2.7.2b continue — finish cmp_se M2.b; bias_pd; ampcal_det join**  
-(then P2.7.2c VCO top assembly once D22 accepted)
+Expected after D22 accepted: chip art cell (deferred Phase 5 / owner graphic), then P2.7.2c VCO top assembly.
+Immediate next if retune chosen: bias current retune → re-sim → bias_pd + join.

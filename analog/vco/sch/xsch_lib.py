@@ -23,6 +23,7 @@ PINS = {
     "mim": {"c0": (0, -30), "c1": (0, 30), "bn": (-30, 0)},
     "svaricap": {"G2": (-40, 0), "NW": (0, -30), "G1": (40, 0)},
     "res": {"p": (0, -30), "m": (0, 30)},
+    "rhigh": {"P": (0, -30), "M": (0, 30)},
     "capa": {"p": (0, -30), "m": (0, 30)},
     "ind": {"p": (0, -30), "m": (0, 30)},
     "vsource": {"p": (0, -30), "m": (0, 30)},
@@ -199,6 +200,26 @@ class Sch:
             ox, oy = PINS["res"][pin]
             self._lab(x + ox, y + oy, net)
         self.devices.append(DeviceRec("res", name, [a, b], {"r": str(r)}))
+
+    def rhigh(self, name, a, m, bn, w="0.5u", l="6.96u", bends=0):
+        """PDK rhigh (3-terminal: P, M, body)."""
+        x, y = self._slot()
+        wu = float(str(w).rstrip("u")) * 1e-6
+        lu = float(str(l).rstrip("u")) * 1e-6
+        self.lines.append(
+            f"C {{sg13g2_pr/rhigh.sym}} {x:g} {y:g} 0 0 {{name={name}\n"
+            f"w={wu:.6e}\nl={lu:.6e}\nb={int(bends)}\nm=1\n"
+            f"model=rhigh\nbody={bn}\nspiceprefix=X\nmm_ok=1\n}}\n"
+        )
+        for pin, net in (("P", a), ("M", m)):
+            ox, oy = PINS["rhigh"][pin]
+            self._lab(x + ox, y + oy, net)
+        # body not a drawn pin on the symbol; recorded for VACASK / LVS
+        self.devices.append(DeviceRec(
+            "rhigh", name, [a, m, bn],
+            {"w": f"{float(str(w).rstrip('u')):.3f}u",
+             "l": f"{float(str(l).rstrip('u')):.3f}u",
+             "b": str(int(bends))}))
 
     def capa(self, name, a, b, c):
         x, y = self._slot()

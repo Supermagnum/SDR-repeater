@@ -16,23 +16,25 @@ C {devices/iopin.sym} -200 -360 0 0 {name=cmp lab=cmp}
 C {devices/iopin.sym} -200 -400 0 0 {name=tail lab=tail}
 C {devices/iopin.sym} -200 -440 0 0 {name=hold lab=hold}
 C {devices/iopin.sym} -200 -480 0 0 {name=rep lab=rep}
-C {devices/iopin.sym} -200 -520 0 0 {name=g0 lab=g0}
-C {devices/iopin.sym} -200 -560 0 0 {name=g1 lab=g1}
-C {devices/iopin.sym} -200 -600 0 0 {name=g2 lab=g2}
-C {devices/iopin.sym} -200 -640 0 0 {name=g3 lab=g3}
-C {devices/iopin.sym} -200 -680 0 0 {name=g4 lab=g4}
-C {devices/iopin.sym} -200 -720 0 0 {name=g5 lab=g5}
-C {devices/iopin.sym} -200 -760 0 0 {name=g6 lab=g6}
-C {devices/iopin.sym} -200 -800 0 0 {name=g7 lab=g7}
-C {devices/iopin.sym} -200 -840 0 0 {name=g8 lab=g8}
-C {devices/iopin.sym} -200 -880 0 0 {name=g9 lab=g9}
-C {devices/iopin.sym} -200 -920 0 0 {name=g10 lab=g10}
-C {devices/iopin.sym} -200 -960 0 0 {name=g11 lab=g11}
-C {devices/iopin.sym} -200 -1000 0 0 {name=code0 lab=code0}
-C {devices/iopin.sym} -200 -1040 0 0 {name=code1 lab=code1}
-C {devices/iopin.sym} -200 -1080 0 0 {name=code2 lab=code2}
-C {devices/iopin.sym} -200 -1120 0 0 {name=code3 lab=code3}
-C {devices/iopin.sym} -200 -1160 0 0 {name=code4 lab=code4}
+C {devices/iopin.sym} -200 -520 0 0 {name=en lab=en}
+C {devices/iopin.sym} -200 -560 0 0 {name=vthn lab=vthn}
+C {devices/iopin.sym} -200 -600 0 0 {name=g0 lab=g0}
+C {devices/iopin.sym} -200 -640 0 0 {name=g1 lab=g1}
+C {devices/iopin.sym} -200 -680 0 0 {name=g2 lab=g2}
+C {devices/iopin.sym} -200 -720 0 0 {name=g3 lab=g3}
+C {devices/iopin.sym} -200 -760 0 0 {name=g4 lab=g4}
+C {devices/iopin.sym} -200 -800 0 0 {name=g5 lab=g5}
+C {devices/iopin.sym} -200 -840 0 0 {name=g6 lab=g6}
+C {devices/iopin.sym} -200 -880 0 0 {name=g7 lab=g7}
+C {devices/iopin.sym} -200 -920 0 0 {name=g8 lab=g8}
+C {devices/iopin.sym} -200 -960 0 0 {name=g9 lab=g9}
+C {devices/iopin.sym} -200 -1000 0 0 {name=g10 lab=g10}
+C {devices/iopin.sym} -200 -1040 0 0 {name=g11 lab=g11}
+C {devices/iopin.sym} -200 -1080 0 0 {name=code0 lab=code0}
+C {devices/iopin.sym} -200 -1120 0 0 {name=code1 lab=code1}
+C {devices/iopin.sym} -200 -1160 0 0 {name=code2 lab=code2}
+C {devices/iopin.sym} -200 -1200 0 0 {name=code3 lab=code3}
+C {devices/iopin.sym} -200 -1240 0 0 {name=code4 lab=code4}
 C {devices/title.sym} 0 40 0 0 {name=t1 author="HT13G-M P2.7.1"}
 C {devices/lab_pin.sym} 200 40 0 0 {name=ttitle lab=vco_top_P272a_hier}
 C {l2n0.sym} 0 0 0 0 {name=xl
@@ -107,4 +109,6 @@ gnd=gnd
 cmp=cmp
 hold=hold
 rep=rep
+en=en
+vthn=vthn
 }

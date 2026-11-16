@@ -1,0 +1,44 @@
+Technology SG13_dev is loaded.
+GRID : 0.01
+GRID inverse : 100.0
+EPSILON1  : 0.001
+EPSILON2  : 1e-9
+Success.
+cmp_se bbox (-9.15,-14.23;30.23,45.11) area=0.0023 mm2
+wrote cmp_se.spice rhigh_l=6.960u
+wrote /foss/designs/analog/vco/layout/p272b_det/out/cmp_se.gds bbox=(-9.15,-14.23;30.23,45.11) area=0.0023 mm2
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_det/out/cmp_se.gds --topcell=cmp_se --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_det/out/drc_cmp_se --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_det/out/drc_cmp_se.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_det/out/cmp_se.gds --netlist=/foss/designs/analog/vco/layout/p272b_det/out/cmp_se.spice --topcell=cmp_se --run_dir=/foss/designs/analog/vco/layout/p272b_det/out/lvs_cmp_se --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/lvs_klayout_cmp_se.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_det/out/netgen_cmp_se.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/netgen_cmp_se.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_det/out/_klayout_shot_cmp_se.py -rd out=/foss/designs/analog/vco/layout/p272b_det/out -rd name=cmp_se
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/render_cmp_se.log
+
+# Summary
+cell=cmp_se
+DRC clean (density waived): True  non-density=[] svaricap_M1.b=False
+KLayout LVS: PASS
+netgen: PASS
+wrote cmp_se.spice rhigh_l=6.960u
+cmp_se: spice l←extract 6.96u; re-prove
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_det/out/cmp_se.gds --topcell=cmp_se --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_det/out/drc_cmp_se --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_det/out/drc_cmp_se.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_det/out/cmp_se.gds --netlist=/foss/designs/analog/vco/layout/p272b_det/out/cmp_se.spice --topcell=cmp_se --run_dir=/foss/designs/analog/vco/layout/p272b_det/out/lvs_cmp_se --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/lvs_klayout_cmp_se.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_det/out/netgen_cmp_se.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/netgen_cmp_se.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_det/out/_klayout_shot_cmp_se.py -rd out=/foss/designs/analog/vco/layout/p272b_det/out -rd name=cmp_se
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/render_cmp_se.log
+
+# Summary
+cell=cmp_se
+DRC clean (density waived): True  non-density=[] svaricap_M1.b=False
+KLayout LVS: PASS
+netgen: PASS
+prove cmp_se: PASS
+# P2.7.2b D22 ampcal_det build summary
+
+- cmp_se: PASS
+

@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 ≤ 0.38 mm² final.** **tail_block join PASS** (0.0950 mm² [GDS]). **Island outline 0.3906 > 0.38** — finding (die-level gate at P2.7.2c). **P2.7.2b varactor join PASS** (M1.b = SVaricap PCell waived); strip area 0.0066 > 0.0062 (width OK; under full pocket 0.0187). **D22:** hold_caps + det_sf_pair PASS; cmp_se LVS/netgen PASS, DRC M2.b open; bias/join Found, not done.
+Status: **D23 ≤ 0.38 mm² final.** **tail_block join PASS** (0.0950 mm² [GDS]). **Island outline 0.3906 > 0.38** — finding (die-level gate at P2.7.2c). **P2.7.2b varactor join PASS** (M1.b = SVaricap PCell waived); strip area 0.0066 > 0.0062 (width OK; under full pocket 0.0187). **D22 not done:** hold_caps + det_sf_pair + cmp_se (M2.b fixed) PASS [GDS]; fab sch re-sim fails 1.25±0.10 (bias I_hold ≈12.5 µA); bias retune / bias_pd / join open.
 
 ---
 
@@ -464,20 +464,22 @@ pocket **0.0187 mm²**.
 Artifacts: `p272b_var/out/*.gds.gz`, `summary_cap_footprint.txt`, `summary_build.txt`,
 `summary_p272b_var_stop.txt`, `summary_svaricap_dims.txt`.
 
-#### P2.7.2b D22 detector (2026-11-16) — in progress [GDS/TOOL]
+#### P2.7.2b D22 detector (2026-11-16) — **not done** [GDS/SCH]
 `analog/vco/layout/p272b_det/`. Bottom-up:
 
 | cell | DRC (dens. waived) | KLayout | netgen | note |
 |---|---|---|---|---|
 | hold_caps | PASS | PASS | PASS | 2× cmim 400 fF; w=16.27 µm [extract]; **0.0012 mm²** |
 | det_sf_pair | PASS | PASS | PASS | 4× 0.5/0.13 ABBA + dummies; ct on M3; **0.0007 mm²** |
-| cmp_se | M2.b×1 | PASS | PASS | rhigh l=6.96 µm [extract]; **0.0023 mm²** |
-| bias_pd / ampcal_det | — | — | — | Found, not done |
+| cmp_se | PASS | PASS | PASS | M2.b fixed; rhigh l=6.96 µm; **0.0023 mm²** |
+| bias_pd / ampcal_det | — | — | — | Found, not done (blocked by fab re-sim) |
 
+**Fab sch [SCH]:** `ampcal_det.sch` uses cmim / rhigh / MOS sinks+en / vthn. Quick
+re-sim tt/27 top: code 20, Amp **1.377 V** vs ideal code 14 / 1.250 V — FAIL window
+1.25±0.10 (hard ≤1.40/1.50 PASS). Cause: I_hold ≈12.5 µA vs 4 µA. Bias retune next.
 **Tank load [HAND/PDK]:** one 0.5/0.13 gate per side → Cgg ≈ 0.5–1 fF ≪ 10 fF; no PEX.
-**Forecast:** D22 ≈0.0013 [HAND] is already met by hold_caps alone; cmp_se exceeds it.
 Remaining pocket after vco_var: **0.0121 mm²** [GDS]. Artifacts: `p272b_det/out/`,
-`summary_p272b_det_stop.txt`, `summary_finger_check.txt`.
+`summary_p272b_det_stop.txt`, `ampcal/out/summary_search_fab_quick.txt`.
 
 #### P2.7.2 lin (2026-11-12) — gate **accepted** (`decisions.md`)
 ss 0.897 V VHF spur **−102.9 dBc** [MODEL] accepted (7.9 dB inside −95); margin

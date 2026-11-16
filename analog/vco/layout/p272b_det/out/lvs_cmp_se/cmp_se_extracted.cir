@@ -1,4 +1,4 @@
-* Extracted by KLayout with SG13G2 LVS runset on : 16/11/2026 12:11
+* Extracted by KLayout with SG13G2 LVS runset on : 16/11/2026 13:09
 
 .SUBCKT cmp_se cmp co co2 gnd hold n1 ss2 ttail vdd vthn
 M$1 gnd gnd gnd gnd sg13_lv_nmos L=0.5u W=4u AS=1.36p AD=1.36p PS=9.36u
