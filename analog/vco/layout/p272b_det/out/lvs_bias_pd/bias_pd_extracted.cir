@@ -1,0 +1,17 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 16/11/2026 15:32
+
+.SUBCKT bias_pd en gnd hold nbias rep ss2 ttail vdd
+M$1 en en gnd gnd sg13_lv_nmos L=0.13u W=10u AS=3.4p AD=3.4p PS=23.4u PD=23.4u
++ rfmode=0
+M$6 nbias nbias en gnd sg13_lv_nmos L=1u W=1u AS=0.34p AD=0.34p PS=2.68u
++ PD=2.68u rfmode=0
+M$7 hold nbias en gnd sg13_lv_nmos L=1u W=1u AS=0.34p AD=0.34p PS=2.68u
++ PD=2.68u rfmode=0
+M$8 rep nbias en gnd sg13_lv_nmos L=1u W=1u AS=0.34p AD=0.34p PS=2.68u PD=2.68u
++ rfmode=0
+M$9 ttail nbias en gnd sg13_lv_nmos L=1u W=5.5u AS=1.4575p AD=1.4575p PS=9.31u
++ PD=9.31u rfmode=0
+M$11 ss2 nbias en gnd sg13_lv_nmos L=1u W=5.5u AS=1.4575p AD=1.4575p PS=9.31u
++ PD=9.31u rfmode=0
+R$13 nbias vdd gnd rhigh w=0.5u l=74.19u ps=0u b=0 m=1
+.ENDS bias_pd

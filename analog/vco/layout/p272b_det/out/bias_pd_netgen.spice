@@ -1,0 +1,14 @@
+* P2.7.2b bias_pd: MOS sinks + en PD [SCH retune I_hold=4u I_tt=20u]
+.subckt bias_pd hold rep ttail ss2 en vdd gnd nbias
+Xrbias vdd nbias gnd rhigh w=0.5u l=78.000u ps=0u b=0 m=1
+Mdiode nbias nbias pd_d gnd sg13_lv_nmos w=1.0u l=1.0u ng=1
+Men_d pd_d en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
+Mid_h hold nbias pd_h gnd sg13_lv_nmos w=1.0u l=1.0u ng=1
+Men_h pd_h en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
+Mid_r rep nbias pd_r gnd sg13_lv_nmos w=1.0u l=1.0u ng=1
+Men_r pd_r en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
+Mid_tt ttail nbias pd_tt gnd sg13_lv_nmos w=5.5u l=1.0u ng=2
+Men_tt pd_tt en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
+Mid_ss ss2 nbias pd_ss gnd sg13_lv_nmos w=5.5u l=1.0u ng=2
+Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
+.ends

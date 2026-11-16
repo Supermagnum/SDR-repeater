@@ -612,7 +612,7 @@ text {font-family: Sans-Serif;}
 <text fill="#00ddff"  xml:space="preserve" font-size="11.2601" transform="translate(28.8414, 54.6897)" >vthn</text>
 <text fill="#cccccc"  xml:space="preserve" font-size="13.6486" transform="translate(301.259, 355.011)" >         ampcal_det.sch</text>
 <text fill="#cccccc"  xml:space="preserve" font-size="13.6486" transform="translate(301.259, 335.325)" >HT13G-M P2.7.1</text>
-<text fill="#cccccc"  xml:space="preserve" font-size="13.6486" transform="translate(662.361, 335.325)" >2026-11-16  13:08:23</text>
+<text fill="#cccccc"  xml:space="preserve" font-size="13.6486" transform="translate(662.361, 335.325)" >2026-11-16  13:56:55</text>
 <text fill="#cccccc"  xml:space="preserve" font-size="34.1214" transform="translate(150.337, 353.915)" >SCHEM</text>
 <text fill="#00ddff"  xml:space="preserve" font-size="11.2601" transform="translate(125.371, 344.23)" >ampcal_det_cmp_D22_fab</text>
 <text fill="#cccccc"  xml:space="preserve" font-size="6.82429" transform="translate(132.337, 299.601)" >mdtp</text>
@@ -689,10 +689,10 @@ text {font-family: Sans-Serif;}
 <text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(878.699, 329.949)" >m=1</text>
 <text fill="#00ddff"  xml:space="preserve" font-size="11.2601" transform="translate(844.935, 298.297)" >rep</text>
 <text fill="#00ddff"  xml:space="preserve" font-size="11.2601" transform="translate(842.935, 337.668)" >gnd</text>
-<text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(156.899, 395.567)" >w/l = 5.000000e-07 / 1.923000e-05</text>
+<text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(156.899, 395.567)" >w/l = 5.000000e-07 / 7.800000e-05</text>
 <text fill="#cccccc"  xml:space="preserve" font-size="6.82429" transform="translate(156.899, 387.365)" >rhigh</text>
 <text fill="#cccccc"  xml:space="preserve" font-size="6.82429" transform="translate(156.899, 379.163)" >rbias</text>
-<text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(156.899, 417.713)" >R=57.17k</text>
+<text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(156.899, 417.713)" >R=230.9k</text>
 <text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(156.899, 402.129)" >b=0</text>
 <text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(156.899, 408.691)" >m=1</text>
 <text fill="#00ddff"  xml:space="preserve" font-size="3.41214" transform="translate(132.62, 393.617)" >gnd</text>
@@ -788,7 +788,7 @@ text {font-family: Sans-Serif;}
 <text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(311.922, 480.871)" >m=1</text>
 <text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(311.922, 475.129)" >ng=2</text>
 <text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(311.922, 466.927)" >l=1.0u</text>
-<text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(311.922, 459.545)" >w=2.0u</text>
+<text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(311.922, 459.545)" >w=5.5u</text>
 <text fill="#ff0000"  xml:space="preserve" font-size="5.11821" transform="translate(306.18, 486.704)" >S</text>
 <text fill="#ff0000"  xml:space="preserve" font-size="5.11821" transform="translate(306.18, 457.867)" >D</text>
 <text fill="#ff0000"  xml:space="preserve" font-size="5.11821" transform="translate(304.54, 468.659)" >B</text>
@@ -816,7 +816,7 @@ text {font-family: Sans-Serif;}
 <text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(600.642, 480.871)" >m=1</text>
 <text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(600.642, 475.129)" >ng=2</text>
 <text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(600.642, 466.927)" >l=1.0u</text>
-<text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(600.642, 459.545)" >w=2.0u</text>
+<text fill="#aaaa00"  xml:space="preserve" font-size="6.82429" transform="translate(600.642, 459.545)" >w=5.5u</text>
 <text fill="#ff0000"  xml:space="preserve" font-size="5.11821" transform="translate(594.9, 486.704)" >S</text>
 <text fill="#ff0000"  xml:space="preserve" font-size="5.11821" transform="translate(594.9, 457.867)" >D</text>
 <text fill="#ff0000"  xml:space="preserve" font-size="5.11821" transform="translate(593.26, 468.659)" >B</text>

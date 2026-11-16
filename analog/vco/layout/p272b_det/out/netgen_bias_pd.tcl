@@ -1,0 +1,1 @@
+lvs {/foss/designs/analog/vco/layout/p272b_det/out/bias_pd_netgen.spice bias_pd} {/foss/designs/analog/vco/layout/p272b_det/out/bias_pd_extracted_netgen.cir bias_pd} /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl /foss/designs/analog/vco/layout/p272b_det/out/netgen_bias_pd.json

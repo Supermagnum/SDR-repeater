@@ -1,0 +1,10 @@
+fine tt at l=78
+5.0u I_h=4.008 I_r=3.644 I_tt=17.965
+5.5u I_h=4.008 I_r=3.644 I_tt=19.897
+6.0u I_h=4.008 I_r=3.644 I_tt=21.845
+5.2u I_h=4.008 I_r=3.644 I_tt=18.736
+5.4u I_h=4.008 I_r=3.644 I_tt=19.509
+5.6u I_h=4.008 I_r=3.644 I_tt=20.285
+5.8u I_h=4.008 I_r=3.644 I_tt=21.064
+at det voltages hold=0.89 rep=0.48, tt=5.6u ng=2:
+I_hold=4.008 I_rep=3.644 I_tt=17.965 ratio=1.100

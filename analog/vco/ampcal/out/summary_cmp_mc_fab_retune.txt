@@ -1,0 +1,19 @@
+# D22 step 1c comparator MC (2nd-stage SE) [SCH]
+
+V_th=0.4050 V; CM=0.70 V; SE mid=0.85 V; σ_VT=2.76 mV; N=40
+
+SE sanity ±20 mV: cmp_lo=0.576 cmp_hi=1.105; diff=+0.0578/-0.0579 `[SCH]`
+SE OP swing across 0.85 V: PASS
+
+  … 10/40
+  … 20/40
+  … 30/40
+  … 40/40
+
+co−co2: N_ok=40/40 fails=0; σ_in=2.67 mV → Amp 3σ=16.0 mV (PASS ≪ 100 mV) `[SCH]`
+  mean offset=-0.07 mV
+single-ended cmp (search-usable): N_ok=40/40 fails=0; σ_in=2.67 mV → Amp 3σ=16.0 mV (PASS ≪ 100 mV) `[SCH]`
+  mean offset=5.96 mV
+
+Search SCH uses vsense>V_th (beh). On-chip SE cmp now OP-correct; MC above is the wired decision node. `[SCH]`
+Overall cmp MC: PASS `[SCH]`

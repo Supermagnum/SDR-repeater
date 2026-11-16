@@ -108,7 +108,7 @@ N 1100 30 1100 30 {lab=gnd}
 C {devices/lab_pin.sym} 1100 30 0 0 {name=p20 sig_type=std_logic lab=gnd}
 C {sg13g2_pr/rhigh.sym} 0 120 0 0 {name=rbias
 w=5.000000e-07
-l=1.923000e-05
+l=7.800000e-05
 b=0
 m=1
 model=rhigh
@@ -217,7 +217,7 @@ C {devices/lab_pin.sym} 20 270 0 0 {name=p45 sig_type=std_logic lab=gnd}
 N 20 240 20 240 {lab=gnd}
 C {devices/lab_pin.sym} 20 240 0 0 {name=p46 sig_type=std_logic lab=gnd}
 C {sg13g2_pr/sg13_lv_nmos.sym} 220 240 0 0 {name=mid_tt
-w=2.0u
+w=5.5u
 l=1.0u
 ng=2
 m=1
@@ -249,7 +249,7 @@ C {devices/lab_pin.sym} 460 270 0 0 {name=p53 sig_type=std_logic lab=gnd}
 N 460 240 460 240 {lab=gnd}
 C {devices/lab_pin.sym} 460 240 0 0 {name=p54 sig_type=std_logic lab=gnd}
 C {sg13g2_pr/sg13_lv_nmos.sym} 660 240 0 0 {name=mid_ss
-w=2.0u
+w=5.5u
 l=1.0u
 ng=2
 m=1

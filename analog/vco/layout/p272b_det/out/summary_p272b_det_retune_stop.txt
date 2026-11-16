@@ -1,0 +1,76 @@
+# P2.7.2b D22 bias retune — STOP (2026-11-16)
+
+Prior commit: 1885ffe (fab sch + cmp_se; D22 not done).
+decisions.md "D22 detector with fab devices" recorded.
+
+## Pass criteria, per step
+
+| step | result | notes |
+|---|---|---|
+| 0. Commit last run | PASS | 1885ffe; specs mark D22 not done |
+| 1. Sensitivity [SCH] | PASS | Absolute I_hold sets Amp error (span 0.169 V vs ratio 0.046 V). Best I_hold=4 µA → Amp 1.254 V |
+| 2. Bias retune + sch SVG/PDF | PASS | Shared nbias mirror; rbias l=78 µm; tt/ss W=5.5u ng=2. I_hold≈4.0 / I_tt≈19.9 µA at tt/27 [SCH OP] |
+| 3. Full corner SAR + cmp MC | PASS | All hard limits PASS; top Amps in 1.25±0.10; bottoms tnr=1 code 31; MC Amp 3σ=16 mV |
+| 4. bias_pd + ampcal_det join | FAIL (stop) | bias_pd: M1.b×11; LVS short en↔mid (extract merges en FETs). Join not started |
+| 5. Specs + commit | partial | stop report; ask before final commit |
+
+## Corner table (fab retune) [SCH]
+
+| MOS | CAP | T | band | code | Amp | tnr | peak | window/hard |
+|---|---|---|---|---|---|---|---|---|
+| tt | typ | −40 | top | 12 | 1.237 | 0 | 1.334 | PASS |
+| tt | typ | −40 | bottom | 31 | 1.036 | 1 | 1.054 | PASS |
+| tt | typ | 27 | top | 15 | 1.277 | 0 | 1.299 | PASS |
+| tt | typ | 27 | bottom | 31 | 1.001 | 1 | 1.022 | PASS |
+| tt | typ | 85 | top | 19 | 1.330 | 0 | 1.438 | PASS |
+| tt | typ | 85 | bottom | 31 | 0.967 | 1 | 0.992 | PASS |
+| ss | wcs | −40 | top | 11 | 1.212 | 0 | 1.336 | PASS |
+| ss | wcs | 27 | top | 14 | 1.255 | 0 | 1.300 | PASS |
+| ss | wcs | 85 | top | 18 | 1.304 | 0 | 1.451 | PASS |
+| ss | bcs | −40 | top | 9 | 1.206 | 0 | 1.381 | PASS |
+| ss | bcs | 27 | top | 12 | 1.252 | 0 | 1.344 | PASS |
+| ss | bcs | 85 | top | 16 | 1.304 | 0 | 1.493 | PASS |
+| ff | wcs | −40 | top | 14 | 1.226 | 0 | 1.273 | PASS |
+| ff | wcs | 27 | top | 18 | 1.276 | 0 | 1.402 | PASS |
+| ff | wcs | 85 | top | 22 | 1.333 | 0 | 1.373 | PASS |
+| ff | bcs | −40 | top | 13 | 1.244 | 0 | 1.314 | PASS |
+| ff | bcs | 27 | top | 16 | 1.275 | 0 | 1.445 | PASS |
+| ff | bcs | 85 | top | 20 | 1.335 | 0 | 1.415 | PASS |
+| * | * | * | bottom | 31 | … | 1 | … | all PASS |
+
+Worst top Amp: 1.335 V (ff/bcs/85) ≤ 1.35. Peak worst 1.493 ≤ 1.50.
+
+## Bias currents [SCH]
+
+| MOS | T | I_hold | I_rep | I_tt |
+|---|---|---|---|---|
+| tt | −40/27/85 | 3.46 / 4.01 / 4.54 | 3.10 / 3.64 / 4.18 | 17.5 / 19.9 / 22.3 |
+| ss | −40/27/85 | 3.20 / 3.72 / 4.23 | 2.86 / 3.37 / 3.89 | 17.2 / 19.4 / 21.6 |
+| ff | −40/27/85 | 3.72 / 4.29 / 4.85 | 3.34 / 3.91 / 4.47 | 17.7 / 20.3 / 22.9 |
+
+en=0 tt/27: I_hold ≈ 0.05 nA — PASS. Hold droop @ code20 settle: 1.88 mV [SCH].
+cmp MC: N=40, Amp 3σ=16.0 mV PASS [SCH].
+
+Hold/rep share one nbias mirror (track over P/T). Residual I_hold/I_rep ≈ 1.10 from VDS Early at hold vs rep [SCH].
+
+## What failed / uncertain
+
+- bias_pd layout: extract shows en FET D=G=en and sink S=`en` — mid node shorted to en gate.
+  M1.b ×11 (0.03 µm abut gaps). rhigh extract l=74.19 µm vs sch 78 µm.
+- ampcal_det join not attempted.
+
+## Decision needed
+
+1. Continue fixing bias_pd routing (en gate clear of mid/drain; M1.b merge), then join; or
+2. Other floorplan for bias_pd (owner).
+
+## Found, not done
+
+- bias_pd DRC/LVS clean; ampcal_det join; finger check on join
+- Update sch rbias l to extract 74.19 if layout wins; re-OP currents
+- Final spec lines for accepted D22; commit of this job (awaiting ask)
+
+## Next run
+
+After bias_pd + join accepted: chip art cell (Phase 5 / owner graphic), then **P2.7.2c VCO top assembly**.
+Immediate next: finish bias_pd LVS/DRC → ampcal_det join.

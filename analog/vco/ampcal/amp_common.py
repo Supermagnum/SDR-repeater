@@ -48,11 +48,17 @@ I_DET = 4e-6          # few uA (target; MOS sinks sized in layout)
 # Gate devices: W=0.5u L=0.13 -> Cgg ~ 0.5-1 fF each; 2 on tank << 10 fF
 W_DET = "0.5u"
 L_DET = "0.13u"
-# Fab geometry matching p272b_det layout [GDS extract]
+# Fab geometry matching p272b_det layout [GDS extract] + bias retune [SCH]
 CMIM_HOLD_W = "16.27u"   # 400 fF side [GDS]
 CMIM_CMP_W = "5.78u"     # 50 fF side [PDK]
 RHIGH_CMP_L = "6.96u"    # ~20 kΩ [GDS extract]
-RHIGH_BIAS_L = "19.23u"  # bias R [GDS]
+# Retuned 2026-11-16: I_hold≈4.0 µA, I_tt≈19.9 µA at tt/27 [SCH OP]
+RHIGH_BIAS_L = "78.0u"   # was 19.23u (I_hold≈12.5 µA)
+W_SINK_DET = "1.0u"      # hold/rep mirror unit (= diode)
+L_SINK = "1.0u"
+NG_SINK_DET = 1
+W_SINK_CMP = "5.5u"      # ttail/ss2; was 2.0u ng=2
+NG_SINK_CMP = 2
 
 # DAC / mirror (step 1c)
 I_MASTER = 10.5e-6    # above 10 uA so code31 stays within ±3% at ss/85 (PMOS Early into low V_DS)
@@ -225,17 +231,22 @@ def detector_snippet(en=True):
         f"mrtn (vdd ct rep 0) sg13_lv_nmos w={W_DET} l={L_DET} ng=1\n",
         f"chold (hold 0) cap_cmim w={CMIM_HOLD_W} l={CMIM_HOLD_W}\n",
         f"crep (rep 0) cap_cmim w={CMIM_HOLD_W} l={CMIM_HOLD_W}\n",
-        # Bias + PD [GDS bias_pd]
+        # Bias + PD: one nbias mirror so hold/rep track [SCH retune]
         f"rbias (vdd nbias 0) rhigh w=0.5u l={RHIGH_BIAS_L} b=0\n",
-        "mdiode (nbias nbias pd_d 0) sg13_lv_nmos w=1.0u l=1.0u ng=1\n",
+        f"mdiode (nbias nbias pd_d 0) sg13_lv_nmos "
+        f"w={W_SINK_DET} l={L_SINK} ng={NG_SINK_DET}\n",
         "men_d (pd_d en 0 0) sg13_lv_nmos w=2.0u l=0.13u ng=1\n",
-        "mid_h (hold nbias pd_h 0) sg13_lv_nmos w=1.0u l=1.0u ng=1\n",
+        f"mid_h (hold nbias pd_h 0) sg13_lv_nmos "
+        f"w={W_SINK_DET} l={L_SINK} ng={NG_SINK_DET}\n",
         "men_h (pd_h en 0 0) sg13_lv_nmos w=2.0u l=0.13u ng=1\n",
-        "mid_r (rep nbias pd_r 0) sg13_lv_nmos w=1.0u l=1.0u ng=1\n",
+        f"mid_r (rep nbias pd_r 0) sg13_lv_nmos "
+        f"w={W_SINK_DET} l={L_SINK} ng={NG_SINK_DET}\n",
         "men_r (pd_r en 0 0) sg13_lv_nmos w=2.0u l=0.13u ng=1\n",
-        "mid_tt (ttail nbias pd_tt 0) sg13_lv_nmos w=2.0u l=1.0u ng=2\n",
+        f"mid_tt (ttail nbias pd_tt 0) sg13_lv_nmos "
+        f"w={W_SINK_CMP} l={L_SINK} ng={NG_SINK_CMP}\n",
         "men_tt (pd_tt en 0 0) sg13_lv_nmos w=2.0u l=0.13u ng=1\n",
-        "mid_ss (ss2 nbias pd_ss 0) sg13_lv_nmos w=2.0u l=1.0u ng=2\n",
+        f"mid_ss (ss2 nbias pd_ss 0) sg13_lv_nmos "
+        f"w={W_SINK_CMP} l={L_SINK} ng={NG_SINK_CMP}\n",
         "men_ss (pd_ss en 0 0) sg13_lv_nmos w=2.0u l=0.13u ng=1\n",
         # Test sources (supplies / TB only)
         f"ven (en 0) vsource dc={ven}\n",

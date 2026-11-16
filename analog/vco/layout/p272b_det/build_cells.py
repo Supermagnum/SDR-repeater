@@ -32,6 +32,8 @@ FORECAST_D22 = 0.0013  # [HAND]
 CMIM_HOLD = 16.33  # µm side for 400 fF @ 1.5 fF/µm² [PDK]
 CMIM_CMP = 5.78    # µm side for 50 fF [PDK]
 RHIGH_L = 6.96     # µm for ~20 kΩ @ w=0.5, Rspec=1300 [PDK]
+RHIGH_BIAS_L = 78.0  # µm → I_hold≈4 µA [SCH OP retune 2026-11-16]
+W_SINK_CMP = "5.5u"  # ttail/ss2 ng=2 → I_tt≈20 µA [SCH]
 
 
 def um(x):
@@ -936,22 +938,22 @@ Md gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=0.5u ng=1
             "b_layer": "Metal1", "t_layer": "Metal2",
             "vn_columns": 1, "vn_rows": 1,
         })
-        # sink unit 1u/1u for ~4 µA-class; 2u/1u ng=2 for 20 µA-class [HAND]
+        # sink unit 1u/1u (hold/rep); 5.5u/1u ng=2 for ~20 µA cmp tails [SCH]
         ms = self.pcell("nmos", {
             "w": "1.0u", "l": "1.0u", "ng": 1, "m": 1,
             "guardRingType": "none",
         })
         mt = self.pcell("nmos", {
-            "w": "2.0u", "l": "1.0u", "ng": 2, "m": 1,
+            "w": W_SINK_CMP, "l": "1.0u", "ng": 2, "m": 1,
             "guardRingType": "none",
         })
         men = self.pcell("nmos", {
             "w": "2.0u", "l": "0.13u", "ng": 1, "m": 1,
             "guardRingType": "none",
         })
-        # small pmos or rhigh from vdd for bias current — use rhigh ~50k
+        # rbias l=78 µm → I_hold≈4 µA at tt/27 [SCH OP]
         rb = self.pcell("rhigh", {
-            "w": "0.5u", "l": "19.23u", "b": 0,  # ~50 kΩ
+            "R": "210k", "w": "0.5u", "b": 0,
             "Calculate": "l", "guardRingType": "none",
         })
         sloc = self.ly.cell(ms).bbox().to_dtype(self.ly.dbu)
@@ -986,11 +988,16 @@ Md gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=0.5u ng=1
         def sd_of(cid, trans):
             return self._route_mos_sd(c, self.m1_cols(cid, trans), True)
 
+        vs12 = self.pcell("via_stack", {
+            "b_layer": "Metal1", "t_layer": "Metal2",
+            "vn_columns": 1, "vn_rows": 1,
+        })
         y_drain = max(bb.top for _, _, bb, _ in devices) + 2.5
         y_mid = min(bb.bottom for _, _, bb, _ in devices) - 2.0
         y_gnd = min(bb.bottom for _, _, bb, _ in ens) - 2.5
         y_nbias = y_drain + 3.0
-        y_en_gate = max(bb.top for _, _, bb, _ in ens) + 2.0
+        # en gate bus BELOW en devices (south of gnd), clear of mid M1
+        y_en_gate = y_gnd - 3.0
         y_vdd = max(bb_rb.top, y_nbias) + 3.0
 
         # Wire each sink: drain→named pin, source→en drain, en source→gnd
@@ -1032,38 +1039,33 @@ Md gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=0.5u ng=1
             for col in esr:
                 self.box_m1(c, col.left, y_gnd, col.right, col.bottom)
             self.box_m1(c, esr[0].left, y_gnd, esr[-1].right, y_gnd + 0.40)
-            # en gate → shared en bus
+            # en gate contact SOUTH of poly (opposite mid/drain north route)
             gates = self.poly_gates(ecid, et)
-            at = self.activ_top(ecid, et)
             g0, g1 = gates[0], gates[-1]
-            y0, y1 = at + 0.08, at + 0.55
-            c.shapes(self.poly).insert(pya.DBox(g0.left, y0, g1.right, y1))
+            y_bot = min(g.bottom for g in gates)
+            y_pad0 = y_bot - 0.50
+            y_pad1 = y_pad0 - 0.50
             for g in gates:
                 gx = 0.5 * (g.left + g.right)
                 half = 0.5 * (g.right - g.left)
                 c.shapes(self.poly).insert(
-                    pya.DBox(gx - half, g.top - 0.05, gx + half, y1))
-            # contact above
-            y_pad0 = max(at + 0.50, max(g.top for g in gates) + 0.30)
-            y_pad1 = y_pad0 + 0.50
-            for g in gates:
-                gx = 0.5 * (g.left + g.right)
-                half = 0.5 * (g.right - g.left)
-                c.shapes(self.poly).insert(
-                    pya.DBox(gx - half, g.top - 0.05, gx + half, y_pad0 + 0.05))
+                    pya.DBox(gx - half, y_pad0 - 0.05, gx + half, g.bottom + 0.05))
                 c.shapes(self.cont).insert(
-                    pya.DBox(gx - 0.08, y_pad0 + 0.16, gx + 0.08, y_pad0 + 0.32))
+                    pya.DBox(gx - 0.08, y_pad0 - 0.32, gx + 0.08, y_pad0 - 0.16))
             c.shapes(self.poly).insert(
-                pya.DBox(g0.left - 0.05, y_pad0, g1.right + 0.05, y_pad1))
-            self.box_m1(c, g0.left - 0.08, y_pad0 + 0.16,
-                        g1.right + 0.08, y_pad1 + 0.16)
-            self.box_m1(c, g0.left - 0.08, y_pad1, g1.right + 0.08, y_en_gate + 0.40)
+                pya.DBox(g0.left - 0.05, y_pad1, g1.right + 0.05, y_pad0))
+            self.box_m1(c, g0.left - 0.08, y_pad1 - 0.16,
+                        g1.right + 0.08, y_pad0 - 0.16)
+            gx = 0.5 * (g0.left + g1.right)
+            self._via12(c, vs12, gx, y_pad1)
+            self.box_m2(c, gx - 0.30, y_en_gate, gx + 0.30, y_pad1 + 0.20)
 
-        self.box_m1(c, ens[0][2].left, y_en_gate,
-                    ens[-1][2].right, y_en_gate + 0.40)
+        self.box_m2(c, ens[0][2].left - 1.0, y_en_gate,
+                    ens[-1][2].right + 3.0, y_en_gate + 0.40)
         ex = ens[-1][2].right + 2.5
-        self.box_m1(c, ens[-1][2].right, y_en_gate, ex + 0.30, y_en_gate + 0.40)
-        self.pin_m1(c, ex, y_en_gate + 0.20, "en")
+        self._via12(c, vs12, ex, y_en_gate + 0.20)
+        self.box_m1(c, ex - 0.30, y_en_gate - 0.5, ex + 0.30, y_en_gate + 0.40)
+        self.pin_m1(c, ex, y_en_gate - 0.3, "en")
 
         # rhigh: bot→nbias, top→vdd
         r_m1 = []
@@ -1084,7 +1086,7 @@ Md gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=0.5u ng=1
         self.pin_m1(c, ens[0][2].left - 2.0, y_gnd - 0.2, "gnd")
         self.box_m1(c, ens[0][2].left - 2.3, y_gnd, ens[0][2].left, y_gnd + 0.40)
 
-        # non-diode sink gates → nbias (mirror)
+        # non-diode sink gates → nbias on M2 (avoid shorting drain M1 at y_drain)
         for name, cid, bb, t in devices:
             if name == "diode":
                 continue
@@ -1104,9 +1106,16 @@ Md gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=0.5u ng=1
                 pya.DBox(g0.left - 0.05, y_pad0, g1.right + 0.05, y_pad1))
             self.box_m1(c, g0.left - 0.08, y_pad0 + 0.16,
                         g1.right + 0.08, y_pad1 + 0.16)
-            self.box_m1(c, g0.left - 0.08, y_pad1, g1.right + 0.08, y_nbias + 0.40)
-        self.box_m1(c, devices[0][2].left - 2.5, y_nbias,
+            # via at gate pad → M2 up to nbias bus (clears drain M1)
+            gx = 0.5 * (g0.left + g1.right)
+            self._via12(c, vs12, gx, y_pad1)
+            self.box_m2(c, gx - 0.30, y_pad1 - 0.10, gx + 0.30, y_nbias + 0.40)
+        self.box_m2(c, devices[0][2].left - 2.5, y_nbias,
                     devices[-1][2].right, y_nbias + 0.40)
+        # diode drain/nbias already on M1 at y_nbias — via up to M2 bus
+        self._via12(c, vs12, devices[0][2].left - 2.0, y_nbias + 0.20)
+        self.box_m1(c, devices[0][2].left - 2.3, y_nbias,
+                    devices[0][2].left - 1.7, y_nbias + 0.40)
 
         abb = c.bbox().to_dtype(self.ly.dbu)
         ox0, oy0, ox1, oy1 = self._outer_ptap_gr(
@@ -1120,23 +1129,22 @@ Md gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=0.5u ng=1
 
     def write_spice_bias_pd(self):
         open(os.path.join(OUT, "bias_pd.spice"), "w").write(
-            """* P2.7.2b bias_pd: MOS sinks + en PD [SCH idet/irep/itt/iss2]
+            f"""* P2.7.2b bias_pd: MOS sinks + en PD [SCH retune I_hold=4u I_tt=20u]
 .subckt bias_pd hold rep ttail ss2 en vdd gnd nbias
-* diode ref + ~50k from vdd
-Rrbias vdd nbias gnd rhigh w=0.5u l=19.23u ps=0.18u b=0 m=1
+Rrbias vdd nbias gnd rhigh w=0.5u l={RHIGH_BIAS_L:.3f}u ps=0u b=0 m=1
 Mdiode nbias nbias pd_d gnd sg13_lv_nmos w=1.0u l=1.0u ng=1
 Men_d pd_d en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
 Mid_h hold nbias pd_h gnd sg13_lv_nmos w=1.0u l=1.0u ng=1
 Men_h pd_h en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
 Mid_r rep nbias pd_r gnd sg13_lv_nmos w=1.0u l=1.0u ng=1
 Men_r pd_r en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
-Mid_tt ttail nbias pd_tt gnd sg13_lv_nmos w=2.0u l=1.0u ng=2
+Mid_tt ttail nbias pd_tt gnd sg13_lv_nmos w={W_SINK_CMP} l=1.0u ng=2
 Men_tt pd_tt en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
-Mid_ss ss2 nbias pd_ss gnd sg13_lv_nmos w=2.0u l=1.0u ng=2
+Mid_ss ss2 nbias pd_ss gnd sg13_lv_nmos w={W_SINK_CMP} l=1.0u ng=2
 Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
 .ends
 """)
-        self.say("wrote bias_pd.spice")
+        self.say(f"wrote bias_pd.spice rbias_l={RHIGH_BIAS_L} tt={W_SINK_CMP}")
 
     # ------------------------------------------------------------------
     def build_ampcal_det(self):
@@ -1295,17 +1303,17 @@ MdR gnd gnd gnd gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
 * hold caps
 Cchold hold gnd cap_cmim w={hold_w:.3f}u l={hold_w:.3f}u m=1
 Ccrep rep gnd cap_cmim w={hold_w:.3f}u l={hold_w:.3f}u m=1
-* bias + PD
-Rrbias vdd nbias gnd rhigh w=0.5u l=19.23u ps=0.18u b=0 m=1
+* bias + PD [SCH retune]
+Rrbias vdd nbias gnd rhigh w=0.5u l={RHIGH_BIAS_L:.3f}u ps=0u b=0 m=1
 Mdiode nbias nbias pd_d gnd sg13_lv_nmos w=1.0u l=1.0u ng=1
 Men_d pd_d en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
 Mid_h hold nbias pd_h gnd sg13_lv_nmos w=1.0u l=1.0u ng=1
 Men_h pd_h en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
 Mid_r rep nbias pd_r gnd sg13_lv_nmos w=1.0u l=1.0u ng=1
 Men_r pd_r en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
-Mid_tt ttail nbias pd_tt gnd sg13_lv_nmos w=2.0u l=1.0u ng=2
+Mid_tt ttail nbias pd_tt gnd sg13_lv_nmos w={W_SINK_CMP} l=1.0u ng=2
 Men_tt pd_tt en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
-Mid_ss ss2 nbias pd_ss gnd sg13_lv_nmos w=2.0u l=1.0u ng=2
+Mid_ss ss2 nbias pd_ss gnd sg13_lv_nmos w={W_SINK_CMP} l=1.0u ng=2
 Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
 * comparator
 Mmc1 co hold ttail gnd sg13_lv_nmos w=4.0u l=0.5u ng=2

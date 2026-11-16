@@ -288,17 +288,22 @@ def gen_ampcal_det():
     # Hold caps: cmim w=l=16.27 µm → 400 fF [GDS extract / PDK]
     sch.mim("chold", "hold", "gnd", "gnd", "16.27u", "16.27u", kind="cmim")
     sch.mim("crep", "rep", "gnd", "gnd", "16.27u", "16.27u", kind="cmim")
-    # Bias + PD sinks [GDS bias_pd]
-    sch.rhigh("rbias", "vdd", "nbias", "gnd", w="0.5u", l="19.23u", bends=0)
-    sch.nmos("mdiode", "nbias", "nbias", "pd_d", "gnd", "1.0u", "1.0u", 1)
+    # Bias + PD: shared nbias mirror; retuned I_hold≈4 µA / I_tt≈20 µA [SCH]
+    sch.rhigh("rbias", "vdd", "nbias", "gnd", w="0.5u", l=A.RHIGH_BIAS_L, bends=0)
+    sch.nmos("mdiode", "nbias", "nbias", "pd_d", "gnd",
+             A.W_SINK_DET, A.L_SINK, A.NG_SINK_DET)
     sch.nmos("men_d", "pd_d", "en", "gnd", "gnd", "2.0u", "0.13u", 1)
-    sch.nmos("mid_h", "hold", "nbias", "pd_h", "gnd", "1.0u", "1.0u", 1)
+    sch.nmos("mid_h", "hold", "nbias", "pd_h", "gnd",
+             A.W_SINK_DET, A.L_SINK, A.NG_SINK_DET)
     sch.nmos("men_h", "pd_h", "en", "gnd", "gnd", "2.0u", "0.13u", 1)
-    sch.nmos("mid_r", "rep", "nbias", "pd_r", "gnd", "1.0u", "1.0u", 1)
+    sch.nmos("mid_r", "rep", "nbias", "pd_r", "gnd",
+             A.W_SINK_DET, A.L_SINK, A.NG_SINK_DET)
     sch.nmos("men_r", "pd_r", "en", "gnd", "gnd", "2.0u", "0.13u", 1)
-    sch.nmos("mid_tt", "ttail", "nbias", "pd_tt", "gnd", "2.0u", "1.0u", 2)
+    sch.nmos("mid_tt", "ttail", "nbias", "pd_tt", "gnd",
+             A.W_SINK_CMP, A.L_SINK, A.NG_SINK_CMP)
     sch.nmos("men_tt", "pd_tt", "en", "gnd", "gnd", "2.0u", "0.13u", 1)
-    sch.nmos("mid_ss", "ss2", "nbias", "pd_ss", "gnd", "2.0u", "1.0u", 2)
+    sch.nmos("mid_ss", "ss2", "nbias", "pd_ss", "gnd",
+             A.W_SINK_CMP, A.L_SINK, A.NG_SINK_CMP)
     sch.nmos("men_ss", "pd_ss", "en", "gnd", "gnd", "2.0u", "0.13u", 1)
     # SE comparator [GDS cmp_se]; rhigh l=6.96 µm [extract]
     sch.nmos("mc1", "co", "hold", "ttail", "gnd", "4u", "0.5u", 2)

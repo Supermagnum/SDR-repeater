@@ -1,0 +1,31 @@
+# D22 bias sensitivity — tt/27 top [SCH]
+
+Ideal reference: code 14, Amp 1.250 V; window 1.25±0.10.
+
+## (a) Absolute I_hold (= I_rep), I_tt=I_ss=20 µA
+
+| I_hold (µA) | code | Amp | A_est | peak | in_window |
+|---|---|---|---|---|---|
+| 2 | 12 | 1.208 | 1.248 | 1.299 | YES |
+| 4 | 14 | 1.254 | 1.251 | 1.299 | YES |
+| 6 | 16 | 1.289 | 1.255 | 1.467 | YES |
+| 8 | 17 | 1.311 | 1.253 | 1.467 | YES |
+| 12 | 19 | 1.355 | 1.258 | 1.467 | NO |
+| 16 | 20 | 1.376 | 1.249 | 1.467 | NO |
+
+## (b) I_hold/I_rep ratio at I_hold=4 µA (I_tt=20 µA)
+
+| ratio | I_rep (µA) | code | Amp | A_est | peak | in_window |
+|---|---|---|---|---|---|---|
+| 0.80 | 5.00 | 13 | 1.231 | 1.257 | 1.299 | YES |
+| 0.90 | 4.44 | 13 | 1.231 | 1.243 | 1.299 | YES |
+| 1.00 | 4.00 | 14 | 1.254 | 1.251 | 1.299 | YES |
+| 1.10 | 3.64 | 15 | 1.277 | 1.260 | 1.299 | YES |
+| 1.20 | 3.33 | 15 | 1.277 | 1.251 | 1.299 | YES |
+
+## Conclusion [SCH]
+
+- Amp span over (a) I_hold 2–16 µA: 0.169 V
+- Amp span over (b) ratio ±20 % at 4 µA: 0.046 V
+- **Absolute hold-sink current** sets the calibrated amplitude error (span 0.169 V ≫ ratio span 0.046 V).
+- Closest in (a): I_hold=4 µA → code 14, Amp=1.254 V

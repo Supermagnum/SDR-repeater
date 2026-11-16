@@ -720,3 +720,13 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - Bias is retuned so hold and replica sinks track (same mirror / reference, or a stated
   reason otherwise), then the full corner set and the comparator Monte Carlo are run before
   bias_pd and the join.
+
+## 2026-11-16 — D22 bias retune
+- Retune accepted [SCH]: absolute I_hold sets the amplitude error (span 0.169 V against 0.046 V
+  for the ratio); hold and replica sinks on one nbias mirror, rbias l = 78 µm; I_hold ≈ 4.0 µA,
+  I_tt ≈ 19.9 µA at tt 27 °C. Full corners: tops within 1.25 ± 0.10 V (worst 1.335 V, ff / bcs /
+  85 °C), bottoms at code 31 with tnr = 1, steady ≤ 1.40 V; comparator MC amplitude 3σ = 16 mV.
+- Transient peak 1.493 V against ≤ 1.50 V: confirm with Monte Carlo at the worst-peak corner
+  (peak + 3σ). A small overrun comes to the owner as a finding (process limit 1.65 V).
+- bias_pd not accepted: en transistor D = G = en short, M1.b × 11, rhigh extracted 74.19 µm
+  against 78 µm. Fixed in the same floorplan; layout and schematic resistor length must agree.

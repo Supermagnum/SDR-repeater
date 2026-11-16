@@ -1,0 +1,46 @@
+=== rbias l sweep (diode/sink 1u/1u, tt 2u ng=2) ===
+l= 50.0 I_hold=  5.78 I_rep=  5.32 I_tt= 10.09 nbias=0.430
+l= 55.0 I_hold=  5.35 I_rep=  4.91 I_tt=  9.31 nbias=0.422
+l= 60.0 I_hold=  4.98 I_rep=  4.56 I_tt=  8.64 nbias=0.414
+l= 62.0 I_hold=  4.85 I_rep=  4.44 I_tt=  8.40 nbias=0.412
+l= 65.0 I_hold=  4.66 I_rep=  4.26 I_tt=  8.07 nbias=0.408
+l= 70.0 I_hold=  4.38 I_rep=  4.00 I_tt=  7.57 nbias=0.402
+l= 80.0 I_hold=  3.92 I_rep=  3.57 I_tt=  6.75 nbias=0.392
+=== fine l for I_hold~4 ===
+l=74.0 I_h=4.186 I_tt=7.218
+l=74.5 I_h=4.163 I_tt=7.176
+l=75.0 I_h=4.140 I_tt=7.135
+l=75.5 I_h=4.117 I_tt=7.094
+l=76.0 I_h=4.095 I_tt=7.054
+l=76.5 I_h=4.073 I_tt=7.014
+l=77.0 I_h=4.051 I_tt=6.975
+l=77.5 I_h=4.029 I_tt=6.936
+l=78.0 I_h=4.008 I_tt=6.898
+l=78.5 I_h=3.986 I_tt=6.860
+l=79.0 I_h=3.965 I_tt=6.823
+l=79.5 I_h=3.945 I_tt=6.786
+l=80.0 I_h=3.924 I_tt=6.749
+l=80.5 I_h=3.904 I_tt=6.713
+l=81.0 I_h=3.884 I_tt=6.677
+l=81.5 I_h=3.864 I_tt=6.641
+l=82.0 I_h=3.845 I_tt=6.606
+l=82.5 I_h=3.825 I_tt=6.572
+l=83.0 I_h=3.806 I_tt=6.538
+best_l=78.0 err=0.008
+=== tt size at l=78.0 ===
+tt 2.0u ng=2: I_h=4.008 I_tt=6.898 I_ss=6.898
+tt 2.5u ng=2: I_h=4.008 I_tt=8.661 I_ss=8.661
+tt 3.0u ng=2: I_h=4.008 I_tt=10.463 I_ss=10.463
+tt 3.5u ng=2: I_h=4.008 I_tt=12.298 I_ss=12.298
+tt 2.0u ng=3: I_h=4.008 I_tt=6.856 I_ss=6.856
+tt 2.5u ng=3: I_h=4.008 I_tt=8.512 I_ss=8.512
+tt 3.0u ng=3: I_h=4.008 I_tt=10.193 I_ss=10.193
+tt 2.0u ng=4: I_h=4.008 I_tt=6.921 I_ss=6.921
+tt 2.5u ng=4: I_h=4.008 I_tt=8.516 I_ss=8.516
+tt 3.0u ng=4: I_h=4.008 I_tt=10.128 I_ss=10.128
+tt 4.0u ng=2: I_h=4.008 I_tt=14.162 I_ss=14.162
+tt 5.0u ng=2: I_h=4.008 I_tt=17.965 I_ss=17.965
+tt 4.0u ng=3: I_h=4.008 I_tt=13.613 I_ss=13.613
+best_tt=5.0u ng=2 I_tt=17.965
+FINAL l=78.0 tt=5.0u/2
+verify I_hold=4.008 I_rep=3.644 I_tt=17.965 I_ss=17.965 nbias=0.393
