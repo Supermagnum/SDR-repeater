@@ -1,0 +1,14 @@
+* P2.7.2b cmp_se [SCH mc*/mcs*/mpl*/rc*] itt/iss2 off-cell
+.subckt cmp_se hold vthn cmp vdd gnd ttail ss2 co co2 n1
+Mmc1 co hold ttail gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
+Mmc2 co2 vthn ttail gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
+Mmcs1 n1 co2 ss2 gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
+Mmcs2 cmp co ss2 gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
+Mmpl1 n1 n1 vdd vdd sg13_lv_pmos w=4.0u l=0.5u ng=2
+Mmpl2 cmp n1 vdd vdd sg13_lv_pmos w=4.0u l=0.5u ng=2
+* terminal order + ps match extract [TOOL]
+Xrc1 co vdd gnd rhigh w=0.5u l=6.960u ps=0u b=0 m=1
+Xrc2 co2 vdd gnd rhigh w=0.5u l=6.960u ps=0u b=0 m=1
+* two edge dummies combine to W=4 [LVS]
+Md gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=0.5u ng=1
+.ends

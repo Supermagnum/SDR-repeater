@@ -1,0 +1,1 @@
+lvs {/foss/designs/analog/vco/layout/p272b_det/out/hold_caps_netgen.spice hold_caps} {/foss/designs/analog/vco/layout/p272b_det/out/hold_caps_extracted_netgen.cir hold_caps} /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl /foss/designs/analog/vco/layout/p272b_det/out/netgen_hold_caps.json

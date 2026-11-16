@@ -1,0 +1,6 @@
+cmp_se bbox (-9.15,-14.23;30.23,45.11) area=0.0023 mm2
+wrote cmp_se.spice rhigh_l=6.960u
+wrote /foss/designs/analog/vco/layout/p272b_det/out/cmp_se.gds bbox=(-9.15,-14.23;30.23,45.11) area=0.0023 mm2
+wrote cmp_se.spice rhigh_l=6.960u
+cmp_se: spice l←extract 6.96u; re-prove
+prove cmp_se: FAIL

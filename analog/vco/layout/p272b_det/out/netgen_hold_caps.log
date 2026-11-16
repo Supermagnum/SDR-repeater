@@ -1,0 +1,37 @@
+Netgen 1.5.324 compiled on Thu Oct 15 02:24:51 PM CEST 2026
+Warning: netgen command 'format' use fully-qualified name '::netgen::format'
+Warning: netgen command 'global' use fully-qualified name '::netgen::global'
+Reading netlist file /foss/designs/analog/vco/layout/p272b_det/out/hold_caps_netgen.spice for /foss/designs/analog/vco/layout/p272b_det/out/hold_caps_netgen.spice hold_caps
+Reading netlist file /foss/designs/analog/vco/layout/p272b_det/out/hold_caps_extracted_netgen.cir for /foss/designs/analog/vco/layout/p272b_det/out/hold_caps_extracted_netgen.cir hold_caps
+
+Reading setup file /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl
+
+No property area found for device cap_cmim
+No property area found for device cap_cmim
+No property ic found for device cap_cmim
+No property ic found for device cap_cmim
+Comparison output logged to file /foss/designs/analog/vco/layout/p272b_det/out/netgen_hold_caps.json
+Logging to file "/foss/designs/analog/vco/layout/p272b_det/out/netgen_hold_caps.json" enabled
+
+Contents of circuit 1:  Circuit: 'hold_caps'
+Circuit hold_caps contains 2 device instances.
+  Class: cap_cmim              instances:   2
+Circuit contains 3 nets.
+Contents of circuit 2:  Circuit: 'hold_caps'
+Circuit hold_caps contains 2 device instances.
+  Class: cap_cmim              instances:   2
+Circuit contains 3 nets.
+
+Circuit 1 contains 2 devices, Circuit 2 contains 2 devices.
+Circuit 1 contains 3 nets,    Circuit 2 contains 3 nets.
+
+
+Final result: 
+Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ hold_caps
+
+Logging to file "/foss/designs/analog/vco/layout/p272b_det/out/netgen_hold_caps.json" disabled
+LVS Done.

@@ -699,3 +699,11 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - Varactor dimensions must be compared in LVS (netgen property or script), not a placeholder
   (today W = vt in the export).
 - Next: D22 detector + comparator.
+
+## 2026-11-16 — P2.7.2b D22 stop (partial)
+- hold_caps + det_sf_pair: DRC / KLayout / netgen PASS; fingers OK.
+- cmp_se: KLayout + netgen PASS; one M2.b open (not waived). Area 0.0023 mm² [GDS].
+- Tank load ≈ 0.5–1 fF/side [HAND/PDK] vs ≤ 10 fF; no PEX.
+- D22 forecast ≈0.0013 [HAND] already exceeded by hold_caps alone; remaining pocket 0.0121.
+- Found, not done: bias_pd, ampcal_det join.
+- Next: finish cmp_se M2.b; bias_pd; ampcal_det join (then P2.7.2c VCO top).

@@ -1,0 +1,5 @@
+* P2.7.2b hold_caps 2× cmim 400f [SCH chold/crep]
+.subckt hold_caps hold rep gnd
+Cchold hold gnd cap_cmim w=16.270u l=16.270u m=1
+Ccrep rep gnd cap_cmim w=16.270u l=16.270u m=1
+.ends

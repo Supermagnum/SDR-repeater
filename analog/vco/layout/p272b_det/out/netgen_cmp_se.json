@@ -1,0 +1,45 @@
+
+Circuit 1 cell rhigh and Circuit 2 cell rhigh are black boxes.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: rhigh                           |Circuit 2: rhigh                           
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes rhigh and rhigh are equivalent.
+
+Subcircuit summary:
+Circuit 1: cmp_se                          |Circuit 2: cmp_se                          
+-------------------------------------------|-------------------------------------------
+sg13_lv_nmos (5)                           |sg13_lv_nmos (5)                           
+sg13_lv_pmos (2)                           |sg13_lv_pmos (2)                           
+rhigh (2)                                  |rhigh (2)                                  
+Number of devices: 9                       |Number of devices: 9                       
+Number of nets: 10                         |Number of nets: 10                         
+---------------------------------------------------------------------------------------
+Netlists match uniquely.
+
+Subcircuit pins:
+Circuit 1: cmp_se                          |Circuit 2: cmp_se                          
+-------------------------------------------|-------------------------------------------
+vdd                                        |vdd                                        
+n1                                         |n1                                         
+gnd                                        |gnd                                        
+ttail                                      |ttail                                      
+ss2                                        |ss2                                        
+cmp                                        |cmp                                        
+vthn                                       |vthn                                       
+hold                                       |hold                                       
+co                                         |co                                         
+co2                                        |co2                                        
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes cmp_se and cmp_se are equivalent.
+
+Final result: Circuits match uniquely.
+.

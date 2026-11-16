@@ -1,0 +1,6 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 16/11/2026 11:46
+
+.SUBCKT hold_caps gnd hold rep
+C$1 hold gnd cap_cmim w=16.27u l=16.27u A=264.7129p P=65.08u m=1
+C$2 rep gnd cap_cmim w=16.27u l=16.27u A=264.7129p P=65.08u m=1
+.ENDS hold_caps

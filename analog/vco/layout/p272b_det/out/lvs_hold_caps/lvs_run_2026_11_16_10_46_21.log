@@ -1,0 +1,16 @@
+16-Nov-2026 11:46:22 | INFO    | Your Klayout version is: KLayout 0.30.12 (required >= 0.30.5)
+16-Nov-2026 11:46:22 | INFO    | Running SG13G2 LVS checks on design /foss/designs/analog/vco/layout/p272b_det/out/hold_caps.gds on cell hold_caps
+16-Nov-2026 11:46:24 | INFO    | ==============================================================================
+16-Nov-2026 11:46:24 | INFO    | Important Summary
+16-Nov-2026 11:46:24 | INFO    | +------------------+--------------------------------------------------------------+
+16-Nov-2026 11:46:24 | INFO    | | Status           | PASS                                                         |
+16-Nov-2026 11:46:24 | INFO    | | Mode             | COMPARE                                                      |
+16-Nov-2026 11:46:24 | INFO    | | Outcome          | Comparison mode: PASS (netlists match).                      |
+16-Nov-2026 11:46:24 | INFO    | | Layout           | hold_caps.gds                                                |
+16-Nov-2026 11:46:24 | INFO    | | Top Cell         | hold_caps                                                    |
+16-Nov-2026 11:46:24 | INFO    | | Results Dir      | /foss/designs/analog/vco/layout/p272b_det/out/lvs_hold_caps  |
+16-Nov-2026 11:46:24 | INFO    | | Warnings         | 0                                                            |
+16-Nov-2026 11:46:24 | INFO    | | Errors           | 0                                                            |
+16-Nov-2026 11:46:24 | INFO    | | Run Time (s)     | 3.037                                                        |
+16-Nov-2026 11:46:24 | INFO    | +------------------+--------------------------------------------------------------+
+16-Nov-2026 11:46:24 | INFO    | ==============================================================================

@@ -1,0 +1,1 @@
+lvs {/foss/designs/analog/vco/layout/p272b_det/out/cmp_se_netgen.spice cmp_se} {/foss/designs/analog/vco/layout/p272b_det/out/cmp_se_extracted_netgen.cir cmp_se} /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl /foss/designs/analog/vco/layout/p272b_det/out/netgen_cmp_se.json

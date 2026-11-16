@@ -1,0 +1,16 @@
+16-Nov-2026 12:11:55 | INFO    | Your Klayout version is: KLayout 0.30.12 (required >= 0.30.5)
+16-Nov-2026 12:11:55 | INFO    | Running SG13G2 LVS checks on design /foss/designs/analog/vco/layout/p272b_det/out/cmp_se.gds on cell cmp_se
+16-Nov-2026 12:11:58 | INFO    | ==============================================================================
+16-Nov-2026 12:11:58 | INFO    | Important Summary
+16-Nov-2026 12:11:58 | INFO    | +------------------+--------------------------------------------------------------+
+16-Nov-2026 12:11:58 | INFO    | | Status           | PASS                                                         |
+16-Nov-2026 12:11:58 | INFO    | | Mode             | COMPARE                                                      |
+16-Nov-2026 12:11:58 | INFO    | | Outcome          | Comparison mode: PASS (netlists match).                      |
+16-Nov-2026 12:11:58 | INFO    | | Layout           | cmp_se.gds                                                   |
+16-Nov-2026 12:11:58 | INFO    | | Top Cell         | cmp_se                                                       |
+16-Nov-2026 12:11:58 | INFO    | | Results Dir      | /foss/designs/analog/vco/layout/p272b_det/out/lvs_cmp_se     |
+16-Nov-2026 12:11:58 | INFO    | | Warnings         | 0                                                            |
+16-Nov-2026 12:11:58 | INFO    | | Errors           | 0                                                            |
+16-Nov-2026 12:11:58 | INFO    | | Run Time (s)     | 2.807                                                        |
+16-Nov-2026 12:11:58 | INFO    | +------------------+--------------------------------------------------------------+
+16-Nov-2026 12:11:58 | INFO    | ==============================================================================

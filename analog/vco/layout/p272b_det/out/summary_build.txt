@@ -1,0 +1,3 @@
+# P2.7.2b D22 ampcal_det build summary
+
+- cmp_se: FAIL

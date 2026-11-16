@@ -1,0 +1,20 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 16/11/2026 12:11
+
+.SUBCKT cmp_se cmp co co2 gnd hold n1 ss2 ttail vdd vthn
+M$1 gnd gnd gnd gnd sg13_lv_nmos L=0.5u W=4u AS=1.36p AD=1.36p PS=9.36u
++ PD=9.36u rfmode=0
+M$2 co hold ttail gnd sg13_lv_nmos L=0.5u W=4u AS=1.06p AD=1.06p PS=7.06u
++ PD=7.06u rfmode=0
+M$4 co2 vthn ttail gnd sg13_lv_nmos L=0.5u W=4u AS=1.06p AD=1.06p PS=7.06u
++ PD=7.06u rfmode=0
+M$7 n1 co2 ss2 gnd sg13_lv_nmos L=0.5u W=4u AS=1.06p AD=1.06p PS=7.06u PD=7.06u
++ rfmode=0
+M$9 cmp co ss2 gnd sg13_lv_nmos L=0.5u W=4u AS=1.06p AD=1.06p PS=7.06u PD=7.06u
++ rfmode=0
+M$11 n1 n1 vdd vdd sg13_lv_pmos L=0.5u W=4u AS=1.06p AD=1.06p PS=7.06u PD=7.06u
++ rfmode=0
+M$13 cmp n1 vdd vdd sg13_lv_pmos L=0.5u W=4u AS=1.06p AD=1.06p PS=7.06u
++ PD=7.06u rfmode=0
+R$15 co vdd gnd rhigh w=0.5u l=6.96u ps=0u b=0 m=1
+R$16 co2 vdd gnd rhigh w=0.5u l=6.96u ps=0u b=0 m=1
+.ENDS cmp_se

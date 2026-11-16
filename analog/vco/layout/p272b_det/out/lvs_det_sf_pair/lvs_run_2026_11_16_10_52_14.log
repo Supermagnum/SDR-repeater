@@ -1,0 +1,16 @@
+16-Nov-2026 11:52:14 | INFO    | Your Klayout version is: KLayout 0.30.12 (required >= 0.30.5)
+16-Nov-2026 11:52:14 | INFO    | Running SG13G2 LVS checks on design /foss/designs/analog/vco/layout/p272b_det/out/det_sf_pair.gds on cell det_sf_pair
+16-Nov-2026 11:52:17 | INFO    | ==============================================================================
+16-Nov-2026 11:52:17 | INFO    | Important Summary
+16-Nov-2026 11:52:17 | INFO    | +------------------+---------------------------------------------------------------+
+16-Nov-2026 11:52:17 | INFO    | | Status           | PASS                                                          |
+16-Nov-2026 11:52:17 | INFO    | | Mode             | COMPARE                                                       |
+16-Nov-2026 11:52:17 | INFO    | | Outcome          | Comparison mode: PASS (netlists match).                       |
+16-Nov-2026 11:52:17 | INFO    | | Layout           | det_sf_pair.gds                                               |
+16-Nov-2026 11:52:17 | INFO    | | Top Cell         | det_sf_pair                                                   |
+16-Nov-2026 11:52:17 | INFO    | | Results Dir      | /foss/designs/analog/vco/layout/p272b_det/out/lvs_det_sf_pair |
+16-Nov-2026 11:52:17 | INFO    | | Warnings         | 0                                                             |
+16-Nov-2026 11:52:17 | INFO    | | Errors           | 0                                                             |
+16-Nov-2026 11:52:17 | INFO    | | Run Time (s)     | 2.834                                                         |
+16-Nov-2026 11:52:17 | INFO    | +------------------+---------------------------------------------------------------+
+16-Nov-2026 11:52:17 | INFO    | ==============================================================================

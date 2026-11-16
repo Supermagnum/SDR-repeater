@@ -1,0 +1,29 @@
+
+Class det_sf_pair (0):  Merged 2 parallel devices.
+Subcircuit summary:
+Circuit 1: det_sf_pair                     |Circuit 2: det_sf_pair                     
+-------------------------------------------|-------------------------------------------
+sg13_lv_nmos (6->4)                        |sg13_lv_nmos (4)                           
+Number of devices: 4                       |Number of devices: 4                       
+Number of nets: 7                          |Number of nets: 7                          
+---------------------------------------------------------------------------------------
+Resolving symmetries by property value.
+Resolving symmetries by pin name.
+Netlists match uniquely.
+
+Subcircuit pins:
+Circuit 1: det_sf_pair                     |Circuit 2: det_sf_pair                     
+-------------------------------------------|-------------------------------------------
+gnd                                        |gnd                                        
+hold                                       |hold                                       
+ct                                         |ct                                         
+rep                                        |rep                                        
+tn                                         |tn                                         
+tp                                         |tp                                         
+vdd                                        |vdd                                        
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes det_sf_pair and det_sf_pair are equivalent.
+
+Final result: Circuits match uniquely.
+.

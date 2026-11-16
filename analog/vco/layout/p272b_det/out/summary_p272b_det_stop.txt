@@ -1,0 +1,57 @@
+# P2.7.2b D22 detector + comparator — stop report (2026-11-16)
+
+## Pass criteria (per step)
+
+| step | DRC (dens. waived) | KLayout LVS | netgen | fingers | note |
+|---|---|---|---|---|---|
+| hold_caps | PASS | PASS | PASS | n/a (cmim) | 2×400 fF; w=16.27 µm [GDS extract] |
+| det_sf_pair | PASS | PASS | PASS | PASS (6× ng=1) | ABBA + dummies; ct on M3 |
+| cmp_se | FAIL (M2.b×1) | PASS | PASS | see check | rhigh l=6.96 µm [extract]; 0.0023 mm² |
+| bias_pd | — | — | — | — | Found, not done |
+| ampcal_det join | — | — | — | — | Found, not done |
+
+## Tank load (per side)
+
+- Devices on tank: mdtp @ tp, mdtn @ tn — one LV NMOS 0.5/0.13 each side [SCH].
+- Cgg ≈ 0.5–1 fF each [PDK COP / amp_common]; per side ≈ **0.5–1 fF** ≪ 10 fF budget [HAND].
+- No PEX this run. Replica gates on ct only (not tank).
+
+## Footprint
+
+| item | mm² | source |
+|---|---|---|
+| hold_caps | 0.0012 | [GDS] |
+| det_sf_pair | 0.0007 | [GDS] |
+| cmp_se (open DRC) | 0.0023 | [GDS] |
+| vco_var (done) | 0.0066 | [GDS] |
+| remaining pocket (0.0187−0.0066) | 0.0121 | [GDS] |
+| D22 forecast | ≈0.0013 | [HAND] |
+
+hold_caps alone (0.0012) already ≈ forecast; cmp_se 0.0023 exceeds forecast.
+Full D22 will be > forecast; still ≪ remaining pocket 0.0121 if packed.
+
+## What failed / uncertain
+
+- cmp_se: one **M2.b** (min width/space) near n1 / PMOS-diode M2 at ≈(3.45, 25.5) [DRC].
+  KLayout + netgen uniquely PASS with rhigh l=6.96u ps=0 [extract].
+- bias_pd and ampcal_det join not built.
+- Sch still has ideal isource/capa/vsource; layout-spice uses cmim/rhigh/MOS+en/vthn.
+
+## Decision needed
+
+1. Accept cmp_se with M2.b fix in next iteration (preferred), or waive? (not density — do not waive.)
+2. D22 forecast 0.0013 is too low given 2×400 fF cmim; retarget when join lands?
+3. Add `en` + `vthn` ports to ampcal_det.sch (fab mapping) before top assembly?
+
+## Found, not done
+
+- bias_pd (MOS sinks + en PD)
+- ampcal_det hierarchical join + cl_cmp
+- finger script on full join; tank-load PEX
+- spec/p27-floorplan.md §8 / phase2-plan final D22 line (partial notes only)
+- SVG/PDF already done in housekeeping (faceaab)
+
+## Next run
+
+**P2.7.2b continue — finish cmp_se M2.b; bias_pd; ampcal_det join**  
+(then P2.7.2c VCO top assembly once D22 accepted)

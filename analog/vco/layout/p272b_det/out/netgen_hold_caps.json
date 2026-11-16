@@ -1,0 +1,35 @@
+
+Subcircuit summary:
+Circuit 1: hold_caps                       |Circuit 2: hold_caps                       
+-------------------------------------------|-------------------------------------------
+cap_cmim (2)                               |cap_cmim (2)                               
+Number of devices: 2                       |Number of devices: 2                       
+Number of nets: 3                          |Number of nets: 3                          
+---------------------------------------------------------------------------------------
+Resolving symmetries by property value.
+Resolving symmetries by pin name.
+Netlists match uniquely with property errors.
+cap_cmim:crep vs. cap_cmim:$2:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:crep vs. cap_cmim:$2:
+Property A in circuit2 has no matching property in circuit1
+cap_cmim:chold vs. cap_cmim:$1:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:chold vs. cap_cmim:$1:
+Property A in circuit2 has no matching property in circuit1
+
+Subcircuit pins:
+Circuit 1: hold_caps                       |Circuit 2: hold_caps                       
+-------------------------------------------|-------------------------------------------
+gnd                                        |gnd                                        
+hold                                       |hold                                       
+rep                                        |rep                                        
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes hold_caps and hold_caps are equivalent.
+
+Final result: Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ hold_caps

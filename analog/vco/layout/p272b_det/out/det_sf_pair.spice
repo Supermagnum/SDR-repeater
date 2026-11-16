@@ -1,0 +1,9 @@
+* P2.7.2b det_sf_pair [SCH mdtp/mdtn/mrtp/mrtn] + edge dummies
+.subckt det_sf_pair tp tn ct hold rep vdd gnd
+Mmdtp vdd tp hold gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+Mmdtn vdd tn hold gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+Mmrtp vdd ct rep gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+Mmrtn vdd ct rep gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+MdL gnd gnd gnd gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+MdR gnd gnd gnd gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+.ends
