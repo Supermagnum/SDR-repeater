@@ -730,3 +730,11 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   (peak + 3σ). A small overrun comes to the owner as a finding (process limit 1.65 V).
 - bias_pd not accepted: en transistor D = G = en short, M1.b × 11, rhigh extracted 74.19 µm
   against 78 µm. Fixed in the same floorplan; layout and schematic resistor length must agree.
+
+## 2026-11-16 — D22 transient peak and bias_pd LVS
+- Transient peak accepted: ss / bcs / 85 °C top band, peak + 3σ = 1.4935 V ≤ 1.50 V [SCH, MC];
+  peak at search bit 3 / trial code 24, not moved by comparator offset. Re-checked post-layout
+  in P2.7.3.
+- bias_pd: en short fixed (gate contact on poly only, off active), rhigh drawn l = 78 µm =
+  schematic; KLayout LVS and netgen clean. M1.b (gate-contact M1 to S/D M1) fixed in the same
+  floorplan, then the ampcal_det join.

@@ -1,0 +1,24 @@
+# D22 transient peak MC at worst-peak corner [SCH]
+
+Corner: mos_ss/cap_bcs/85°C/top; σ_VT=2.76 mV; N=5; limit ≤ 1.50 V
+
+Nominal vos=0: code=16 Amp=1.304 peak=1.493 at bit=3 trial=24 (amp_peak_run) `[SCH]`
+  [0] vos=(+0.00,+0.82) mV code=16 Amp=1.304 peak=1.493 @bit3/c24
+  [1] vos=(-0.76,-2.46) mV code=16 Amp=1.304 peak=1.493 @bit3/c24
+  [2] vos=(-1.25,-2.73) mV code=16 Amp=1.304 peak=1.493 @bit3/c24
+  [3] vos=(+0.17,+3.70) mV code=17 Amp=1.328 peak=1.493 @bit3/c24
+  [4] vos=(-1.36,-1.71) mV code=16 Amp=1.304 peak=1.493 @bit3/c24
+
+peak mean = 1.4931 V `[SCH]`
+peak σ = 0.12 mV; 3σ = 0.37 mV `[SCH]`
+peak + 3σ = 1.4935 V  (limit 1.50 V) `[SCH]`
+vs ≤1.50 V: PASS (margin 6.5 mV)
+
+Observed peak min/max = 1.493 / 1.493 V `[SCH]`
+designs/analog/vco/ampcal/run_peak_mc.py", line 86, in measure_vos
+    dt = time.time() - t0
+        ^^^^^^^^^^^^^^^^^^
+  File "/foss/tools/vacask/lib/vacask/python/vacask/rawfile.py", line 120, in rawread
+    npoints = int(plot['no. points'])
+              ^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: invalid literal for int() with base 10: b''

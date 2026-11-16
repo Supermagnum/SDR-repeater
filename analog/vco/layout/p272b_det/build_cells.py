@@ -148,6 +148,22 @@ class B:
                 top = b.top if top is None else max(top, b.top)
         return top
 
+    def activ_bottom(self, cid, trans):
+        bot = None
+        for s in self.ly.cell(cid).shapes(self.activ).each():
+            if s.is_box():
+                b = s.bbox().transformed(trans).to_dtype(self.ly.dbu)
+                bot = b.bottom if bot is None else min(bot, b.bottom)
+        return bot
+
+    def activ_left(self, cid, trans):
+        left = None
+        for s in self.ly.cell(cid).shapes(self.activ).each():
+            if s.is_box():
+                b = s.bbox().transformed(trans).to_dtype(self.ly.dbu)
+                left = b.left if left is None else min(left, b.left)
+        return left
+
     def _via12(self, c, vs12, x, y):
         self.box_m1(c, x - 0.30, y - 0.30, x + 0.30, y + 0.30)
         self.box_m2(c, x - 0.30, y - 0.30, x + 0.30, y + 0.30)
@@ -951,17 +967,20 @@ Md gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=0.5u ng=1
             "w": "2.0u", "l": "0.13u", "ng": 1, "m": 1,
             "guardRingType": "none",
         })
-        # rbias l=78 µm → I_hold≈4 µA at tt/27 [SCH OP]
+        # Explicit drawn l=78 µm (Calculate=R). Prior Calculate=l from R=210k
+        # extracted 74.19 µm; with fixed l, extract reports the drawn value
+        # [GDS bias_pd5: drawn 81.81 → extract 81.81].
+        rbias_drawn_l = RHIGH_BIAS_L
         rb = self.pcell("rhigh", {
-            "R": "210k", "w": "0.5u", "b": 0,
-            "Calculate": "l", "guardRingType": "none",
+            "w": "0.5u", "l": f"{rbias_drawn_l:.3f}u", "b": 0,
+            "Calculate": "R", "guardRingType": "none",
         })
         sloc = self.ly.cell(ms).bbox().to_dtype(self.ly.dbu)
         tloc = self.ly.cell(mt).bbox().to_dtype(self.ly.dbu)
         eloc = self.ly.cell(men).bbox().to_dtype(self.ly.dbu)
         rloc = self.ly.cell(rb).bbox().to_dtype(self.ly.dbu)
 
-        gap = 3.0
+        gap = 4.0  # keep neighbour M1 via lands ≥0.18 apart [DRC M1.b]
         # Row: diode | id_h | id_r | id_tt | id_ss   then en switches below
         x = 0.0
         devices = []
@@ -996,11 +1015,13 @@ Md gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=0.5u ng=1
         y_mid = min(bb.bottom for _, _, bb, _ in devices) - 2.0
         y_gnd = min(bb.bottom for _, _, bb, _ in ens) - 2.5
         y_nbias = y_drain + 3.0
-        # en gate bus BELOW en devices (south of gnd), clear of mid M1
-        y_en_gate = y_gnd - 3.0
         y_vdd = max(bb_rb.top, y_nbias) + 3.0
+        # en Cont SOUTH of Activ (poly-only). Cont on Activ → D=G short [GDS].
+        ab_min = min(self.activ_bottom(ecid, et) for _, ecid, _, et in ens)
+        y_en_pad0 = ab_min - 0.55
+        y_en_pad1 = y_en_pad0 - 0.50
+        y_en_m2 = y_gnd - 3.0
 
-        # Wire each sink: drain→named pin, source→en drain, en source→gnd
         pin_map = {
             "diode": "nbias", "id_h": "hold", "id_r": "rep",
             "id_tt": "ttail", "id_ss": "ss2",
@@ -1008,66 +1029,60 @@ Md gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=0.5u ng=1
         for (name, cid, bb, t), (ename, ecid, ebb, et) in zip(devices, ens):
             dr, sr = sd_of(cid, t)
             edr, esr = sd_of(ecid, et)
-            # drain up to bus / pin
             for col in dr:
                 self.box_m1(c, col.left, col.top - 0.05, col.right, y_drain)
             self.box_m1(c, dr[0].left, y_drain, dr[-1].right, y_drain + 0.40)
             if name == "diode":
-                # diode: gate shorted to drain (=nbias)
                 gates = self.poly_gates(cid, t)
                 at = self.activ_top(cid, t)
                 self._gate_bus(c, gates, at, bb.left - 2.0, y_nbias, "nbias")
-                self.box_m1(c, bb.left - 2.3, y_drain,
-                            bb.left - 1.7, y_nbias)
+                self.box_m1(c, bb.left - 2.3, y_drain, bb.left - 1.7, y_nbias)
                 self.box_m1(c, dr[0].left, y_drain, bb.left - 1.7, y_drain + 0.40)
             else:
                 px = 0.5 * (dr[0].left + dr[-1].right)
                 self.pin_m1(c, px, y_drain + 0.60, pin_map[name])
-                self.box_m1(c, px - 0.25, y_drain, px + 0.25, y_drain + 0.80)
-            # source down to mid, then to en drain
+                self.box_m1(c, px - 0.20, y_drain, px + 0.20, y_drain + 0.80)
             for col in sr:
                 self.box_m1(c, col.left, y_mid, col.right, col.bottom)
             self.box_m1(c, sr[0].left, y_mid, sr[-1].right, y_mid + 0.40)
-            # en drain up to mid
             for col in edr:
                 self.box_m1(c, col.left, col.top - 0.05, col.right, y_mid + 0.40)
             self.box_m1(c, edr[0].left, y_mid, edr[-1].right, y_mid + 0.40)
-            # join source bus to en drain
             self.box_m1(c, min(sr[0].left, edr[0].left), y_mid,
                         max(sr[-1].right, edr[-1].right), y_mid + 0.40)
-            # en source → gnd
             for col in esr:
                 self.box_m1(c, col.left, y_gnd, col.right, col.bottom)
             self.box_m1(c, esr[0].left, y_gnd, esr[-1].right, y_gnd + 0.40)
-            # en gate contact SOUTH of poly (opposite mid/drain north route)
+            # en Cont south of Activ; M1 on Cont; via→M2 (bias_pd12 LVS-clean)
             gates = self.poly_gates(ecid, et)
+            ab = self.activ_bottom(ecid, et)
             g0, g1 = gates[0], gates[-1]
-            y_bot = min(g.bottom for g in gates)
-            y_pad0 = y_bot - 0.50
-            y_pad1 = y_pad0 - 0.50
             for g in gates:
                 gx = 0.5 * (g.left + g.right)
                 half = 0.5 * (g.right - g.left)
                 c.shapes(self.poly).insert(
-                    pya.DBox(gx - half, y_pad0 - 0.05, gx + half, g.bottom + 0.05))
+                    pya.DBox(gx - half, y_en_pad0 - 0.05, gx + half, g.bottom + 0.05))
+                if y_en_pad0 - 0.16 >= ab - 0.05:
+                    raise RuntimeError(
+                        f"en Cont on Activ cont_top={y_en_pad0-0.16:.3f} ab={ab:.3f}")
                 c.shapes(self.cont).insert(
-                    pya.DBox(gx - 0.08, y_pad0 - 0.32, gx + 0.08, y_pad0 - 0.16))
+                    pya.DBox(gx - 0.08, y_en_pad0 - 0.32, gx + 0.08, y_en_pad0 - 0.16))
             c.shapes(self.poly).insert(
-                pya.DBox(g0.left - 0.05, y_pad1, g1.right + 0.05, y_pad0))
-            self.box_m1(c, g0.left - 0.08, y_pad1 - 0.16,
-                        g1.right + 0.08, y_pad0 - 0.16)
+                pya.DBox(g0.left - 0.05, y_en_pad1, g1.right + 0.05, y_en_pad0))
+            self.box_m1(c, g0.left - 0.08, y_en_pad1 - 0.05,
+                        g1.right + 0.08, y_en_pad0 - 0.05)
             gx = 0.5 * (g0.left + g1.right)
-            self._via12(c, vs12, gx, y_pad1)
-            self.box_m2(c, gx - 0.30, y_en_gate, gx + 0.30, y_pad1 + 0.20)
+            self.box_m2(c, gx - 0.30, y_en_m2, gx + 0.30, y_en_pad1 + 0.10)
+            self.place(c, vs12, gx, y_en_pad1)
 
-        self.box_m2(c, ens[0][2].left - 1.0, y_en_gate,
-                    ens[-1][2].right + 3.0, y_en_gate + 0.40)
+        self.box_m2(c, ens[0][2].left - 1.0, y_en_m2,
+                    ens[-1][2].right + 3.0, y_en_m2 + 0.40)
         ex = ens[-1][2].right + 2.5
-        self._via12(c, vs12, ex, y_en_gate + 0.20)
-        self.box_m1(c, ex - 0.30, y_en_gate - 0.5, ex + 0.30, y_en_gate + 0.40)
-        self.pin_m1(c, ex, y_en_gate - 0.3, "en")
+        self.box_m2(c, ex - 0.30, y_en_m2, ex + 0.30, y_en_m2 + 0.40)
+        self.box_m1(c, ex - 0.20, y_en_m2 - 0.2, ex + 0.20, y_en_m2 + 0.40)
+        self.place(c, vs12, ex, y_en_m2 + 0.20)
+        self.pin_m1(c, ex, y_en_m2 - 0.4, "en")
 
-        # rhigh: bot→nbias, top→vdd
         r_m1 = []
         for s in self.ly.cell(rb).shapes(self.m1).each():
             if s.is_box():
@@ -1081,12 +1096,11 @@ Md gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=0.5u ng=1
         self.box_m1(c, rtop.left, y_vdd, rtop.right + 4.0, y_vdd + 0.40)
         self.pin_m1(c, rtop.right + 2.0, y_vdd + 0.20, "vdd")
 
-        # gnd bus
         self.box_m1(c, ens[0][2].left, y_gnd, ens[-1][2].right, y_gnd + 0.40)
         self.pin_m1(c, ens[0][2].left - 2.0, y_gnd - 0.2, "gnd")
         self.box_m1(c, ens[0][2].left - 2.3, y_gnd, ens[0][2].left, y_gnd + 0.40)
 
-        # non-diode sink gates → nbias on M2 (avoid shorting drain M1 at y_drain)
+        # sink gates → Cont north of Activ, via→M2 nbias (bias_pd6 pattern)
         for name, cid, bb, t in devices:
             if name == "diode":
                 continue
@@ -1106,16 +1120,15 @@ Md gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=0.5u ng=1
                 pya.DBox(g0.left - 0.05, y_pad0, g1.right + 0.05, y_pad1))
             self.box_m1(c, g0.left - 0.08, y_pad0 + 0.16,
                         g1.right + 0.08, y_pad1 + 0.16)
-            # via at gate pad → M2 up to nbias bus (clears drain M1)
             gx = 0.5 * (g0.left + g1.right)
-            self._via12(c, vs12, gx, y_pad1)
             self.box_m2(c, gx - 0.30, y_pad1 - 0.10, gx + 0.30, y_nbias + 0.40)
+            self.place(c, vs12, gx, y_pad1)
         self.box_m2(c, devices[0][2].left - 2.5, y_nbias,
                     devices[-1][2].right, y_nbias + 0.40)
-        # diode drain/nbias already on M1 at y_nbias — via up to M2 bus
-        self._via12(c, vs12, devices[0][2].left - 2.0, y_nbias + 0.20)
-        self.box_m1(c, devices[0][2].left - 2.3, y_nbias,
-                    devices[0][2].left - 1.7, y_nbias + 0.40)
+        dx = devices[0][2].left - 2.0
+        self.box_m1(c, dx - 0.20, y_nbias, dx + 0.20, y_nbias + 0.40)
+        self.box_m2(c, dx - 0.30, y_nbias, dx + 0.30, y_nbias + 0.40)
+        self.place(c, vs12, dx, y_nbias + 0.20)
 
         abb = c.bbox().to_dtype(self.ly.dbu)
         ox0, oy0, ox1, oy1 = self._outer_ptap_gr(
@@ -1124,7 +1137,10 @@ Md gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=0.5u ng=1
 
         bb = c.bbox().to_dtype(self.ly.dbu)
         self.bias_area = bb.width() * bb.height() * 1e-6
-        self.say(f"bias_pd bbox {bb} area={self.bias_area:.4f} mm2")
+        self.say(
+            f"bias_pd bbox {bb} area={self.bias_area:.4f} mm2 "
+            f"rbias_drawn_l={rbias_drawn_l:.2f}u target_extract={RHIGH_BIAS_L}u"
+        )
         return c.cell_index()
 
     def write_spice_bias_pd(self):
@@ -1405,6 +1421,14 @@ def main():
                 writer(l)
                 b.say(f"{name}: spice l←extract {l}u; re-prove")
                 ok = prove(name)
+        if need_prove and name == "bias_pd":
+            l = extract_rhigh_l(name)
+            b.say(f"{name}: extract rbias l={l} (sch target {RHIGH_BIAS_L})")
+            if l is not None and abs(l - RHIGH_BIAS_L) > 0.05:
+                b.say(
+                    f"{name}: extract≠sch — adjust drawn length and rebuild "
+                    f"(delta {l - RHIGH_BIAS_L:+.2f} µm)"
+                )
         results[name] = ok
         b.say(f"prove {name}: {'PASS' if ok else 'FAIL'}")
         if need_prove and not ok and only is None:

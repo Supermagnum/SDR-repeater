@@ -1,0 +1,28 @@
+lyrdb: ['/foss/designs/analog/vco/layout/p272b_det/out/drc_bias_pd/bias_pd_bias_pd_full.lyrdb']
+using /foss/designs/analog/vco/layout/p272b_det/out/drc_bias_pd/bias_pd_bias_pd_full.lyrdb
+categories: ['AFil.g', 'GFil.g', 'M1.j', 'M2.j', 'M3.j', 'M4.j', 'M5.j', 'TM1.c', 'TM2.c', 'Cnt.a', 'Cnt.b', 'GFil.d', 'Gat.a', 'Gat.b', 'Gat.d', 'Act.a', 'Act.b', 'TGO.f', 'AFil.c1', 'V1.a', 'V1.b', 'M2.a', 'M2.b', 'M3.a', 'M3.b', 'M4.a', 'M4.b', 'M5.a', 'M5.b', 'V2.a', 'V2.b', 'V3.a', 'V3.b', 'V4.a', 'V4.b', 'Seal.n', 'Pas.a', 'Pas.b', 'TV2.a', 'TV2.b', 'TM1Fil.c', 'TM1.a', 'TM1.b', 'Pad.m', 'Padb.a', 'Padb.b', 'Padb.c', 'Padb.f', 'LBE.a', 'LBE.b', 'LBE.b1', 'LBE.c', 'LBE.d', 'LBE.h', 'TV1.a', 'TV1.b', 'Padc.a', 'Padc.b', 'Padc.c', 'Padc.f', 'M1Fil.c', 'M2Fil.c', 'M3Fil.c', 'M4Fil.c', 'M5Fil.c', 'M1.a', 'M1.b', 'TM2Fil.c', 'TM2.a', 'TM2.b', 'forbidden.biwind', 'forbidden.pemwind', 'forbidden.baspoly', 'forbidden.deepco', 'forbidden.pempoly', 'forbidden.empoly', 'forbidden.ldmos', 'forbidden.pbiwind', 'forbidden.nodrc', 'forbidden.flash', 'forbidden.colwind', 'Pin.a', 'Pin.b', 'Pin.e', 'Pin.f_M2', 'Pin.f_M3', 'Pin.f_M4', 'Pin.f_M5', 'Pin.g', 'Pin.h']
+CAT TM1.b: 0 items
+CAT M1.b: 21 items
+  item0: ['edge-pair: (0.58,-7.332;0.58,-6.423)|(0.55,-6.6;0.55,-7.155)']
+  item1: ['edge-pair: (0.58,-7.277;0.58,-6.423)|(0.55,-6.6;0.55,-7.1)']
+  item2: ['edge-pair: (10.2,-7.277;10.2,-6.423)|(10.17,-6.6;10.17,-7.1)']
+  item3: ['edge-pair: (5.39,-7.332;5.39,-6.423)|(5.36,-6.6;5.36,-7.155)']
+  item4: ['edge-pair: (0.58,-7.332;0.58,-6.768)|(0.55,-6.945;0.55,-7.155)']
+  item5: ['edge-pair: (19.82,-7.332;19.82,-6.768)|(19.79,-6.945;19.79,-7.155)']
+  item6: ['edge-pair: (10.2,-7.332;10.2,-6.423)|(10.17,-6.6;10.17,-7.155)']
+  item7: ['edge-pair: (15.01,-7.332;15.01,-6.768)|(14.98,-6.945;14.98,-7.155)']
+  item8: ['edge-pair: (5.39,-7.332;5.39,-6.768)|(5.36,-6.945;5.36,-7.155)']
+  item9: ['edge-pair: (24.36,3.41;24.36,3.91)|(24.33,4.087;24.33,3.233)']
+  item10: ['edge-pair: (5.94,1.66;5.94,2.16)|(5.91,2.337;5.91,1.483)']
+  item11: ['edge-pair: (19.82,-7.277;19.82,-6.423)|(19.79,-6.6;19.79,-7.1)']
+  item12: ['edge-pair: (19.82,-7.332;19.82,-6.423)|(19.79,-6.6;19.79,-7.155)']
+  item13: ['edge-pair: (15.01,-7.277;15.01,-6.423)|(14.98,-6.6;14.98,-7.1)']
+  item14: ['edge-pair: (5.39,-7.277;5.39,-6.423)|(5.36,-6.6;5.36,-7.1)']
+  item15: ['edge-pair: (10.2,-7.332;10.2,-6.768)|(10.17,-6.945;10.17,-7.155)']
+  item16: ['edge-pair: (15.01,-7.332;15.01,-6.423)|(14.98,-6.6;14.98,-7.155)']
+  item17: ['edge-pair: (26.93,3.233;26.93,4.087)|(26.9,3.91;26.9,3.41)']
+  item18: ['edge-pair: (17.3,3.41;17.3,3.91)|(17.27,4.087;17.27,3.233)']
+  item19: ['edge-pair: (19.87,3.233;19.87,4.087)|(19.84,3.91;19.84,3.41)']
+  ...
+merged M1 polygons: 22
+near-miss M1 gaps (<0.18): 0

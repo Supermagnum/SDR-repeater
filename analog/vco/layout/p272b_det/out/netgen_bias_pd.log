@@ -50,17 +50,17 @@ Circuit bias_pd contains 11 device instances.
   Class: sg13_lv_nmos          instances:  10
 Circuit contains 13 nets.
 Contents of circuit 2:  Circuit: 'bias_pd'
-Circuit bias_pd contains 7 device instances.
+Circuit bias_pd contains 11 device instances.
   Class: rhigh                 instances:   1
-  Class: sg13_lv_nmos          instances:   6
-Circuit contains 8 nets.
+  Class: sg13_lv_nmos          instances:  10
+Circuit contains 13 nets.
 
-Circuit 1 contains 11 devices, Circuit 2 contains 7 devices. *** MISMATCH ***
-Circuit 1 contains 13 nets,    Circuit 2 contains 8 nets. *** MISMATCH ***
+Circuit 1 contains 11 devices, Circuit 2 contains 11 devices.
+Circuit 1 contains 13 nets,    Circuit 2 contains 13 nets.
 
 
 Final result: 
-Netlists do not match.
-Port matching may fail to disambiguate symmetries.
+Circuits match uniquely.
+.
 Logging to file "/foss/designs/analog/vco/layout/p272b_det/out/netgen_bias_pd.json" disabled
 LVS Done.

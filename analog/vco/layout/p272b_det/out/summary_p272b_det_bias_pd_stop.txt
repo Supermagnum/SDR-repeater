@@ -1,0 +1,77 @@
+# P2.7.2b finish bias_pd / D22 join — STOP (2026-11-16)
+
+Prior commit: e9cf08e (bias retune [SCH] PASS; bias_pd open).
+decisions.md "2026-11-16 — D22 bias retune" recorded.
+
+## Pass criteria, per step
+
+| step | result | notes |
+|---|---|---|
+| 0. Commit last run | PASS | e9cf08e; D22 marked not done |
+| 1. Transient peak MC [SCH] | PASS (finding) | Worst-peak corner ss/bcs/85 top; see below |
+| 2. bias_pd DRC/LVS/netgen/fingers | FAIL (stop) | LVS+netgen PASS; rhigh extract l=78 µm = sch; **M1.b remains**; join not started |
+| 3. ampcal_det join | not started | blocked on bias_pd DRC |
+| 4. Footprint / tank load | not started | |
+| 5. Specs + commit | partial | stop report; ask before commit |
+
+## Step 1 — transient peak MC [SCH]
+
+Corner: mos_ss / cap_bcs / 85 °C / top (nominal Amp_peak = 1.493 V).
+Vos on cmp input pair (σ_VT = 2.76 mV); N=5 quick (full N=20 left running / optional).
+
+| quantity | value | tag |
+|---|---|---|
+| peak mean | 1.4931 V | [SCH] summary_peak_mc_quick.txt |
+| peak σ | 0.12 mV | [SCH] |
+| peak 3σ | 0.37 mV | [SCH] |
+| peak + 3σ | **1.4935 V** | [SCH] |
+| vs ≤ 1.50 V | PASS (margin 6.5 mV) | |
+| peak search step | bit=3, trial=24 | [SCH] all samples |
+
+Peak is set at the bit-3 trial (code 24) before the final code; cmp Vos of a few mV
+does not change that path. Amplitude MC 3σ = 16 mV does **not** add to this peak:
+peak + Amp-3σ would be a different (pessimistic) stacking, not observed here.
+
+## Step 2 — bias_pd
+
+Net-tracer cause of prior D=G=en short [GDS extract]: Cont for en gate landed on
+Activ (south of poly but still inside Activ) → Cont shorted gate to diffusion
+(drain=mid). Fix: Cont entirely south of activ_bottom on poly-only; via→M2 bus
+south of gnd (no M1 stem through the gnd bus).
+
+rhigh: prior Calculate=l from R=210k extracted l=74.19 µm (PCell length definition).
+Fix: drawn l=78 µm with Calculate=R; extract reports **78 µm** = sch [GDS].
+
+| check | result |
+|---|---|
+| KLayout LVS | PASS |
+| netgen | PASS |
+| rhigh extract | 78 µm = sch |
+| DRC (density waived) | FAIL — **M1.b** (Cont M1 vs SD column M1 ~0.03 µm) |
+| fingers | not re-run this stop |
+
+Same floorplan. M1.b: Cont M1 at gate centre is ~0.03 µm from source/drain M1 at Cont Y;
+jog attempts shorted nets. Needs Cont landed clear of SD M1 in X (or SD M1 cut with a
+safe bridge) without merging en↔gnd or drain↔nbias.
+
+## What failed / uncertain
+
+- bias_pd M1.b still open → ampcal_det join not started.
+- Full peak MC N=20 not required for the finding (N=5 already flat); optional.
+
+## Decision needed
+
+1. Accept peak + 3σ = 1.4935 V ≤ 1.50 V (no design change); and/or
+2. Continue M1.b fix on bias_pd (same floorplan), then join; or
+3. Other.
+
+## Found, not done
+
+- bias_pd M1.b clean; finger script; ampcal_det join; footprint vs 0.0121 mm²; tank load
+- Spec updates for accepted D22; commit of this job (awaiting ask)
+
+## Next run
+
+After bias_pd DRC + join accepted: chip art cell (Phase 5 / owner graphic), then
+**P2.7.2c VCO top assembly**.
+Immediate next: finish bias_pd M1.b → ampcal_det join.

@@ -17,80 +17,28 @@ Subcircuit summary:
 Circuit 1: bias_pd                         |Circuit 2: bias_pd                         
 -------------------------------------------|-------------------------------------------
 rhigh (1)                                  |rhigh (1)                                  
-sg13_lv_nmos (10)                          |sg13_lv_nmos (6) **Mismatch**              
-Number of devices: 11 **Mismatch**         |Number of devices: 7 **Mismatch**          
-Number of nets: 13 **Mismatch**            |Number of nets: 8 **Mismatch**             
+sg13_lv_nmos (10)                          |sg13_lv_nmos (10)                          
+Number of devices: 11                      |Number of devices: 11                      
+Number of nets: 13                         |Number of nets: 13                         
 ---------------------------------------------------------------------------------------
-NET mismatches: Class fragments follow (with fanout counts):
-Circuit 1: bias_pd                         |Circuit 2: bias_pd                         
-
----------------------------------------------------------------------------------------
-Net: en                                    |Net: en                                    
-  sg13_lv_nmos/gate = 5                    |  sg13_lv_nmos/gate = 1                    
-                                           |  sg13_lv_nmos/(drain|source) = 6          
-                                           |                                           
-Net: gnd                                   |Net: gnd                                   
-  rhigh/3 = 1                              |  rhigh/3 = 1                              
-  sg13_lv_nmos/bulk = 10                   |  sg13_lv_nmos/bulk = 6                    
-  sg13_lv_nmos/(drain|source) = 5          |  sg13_lv_nmos/(drain|source) = 1          
-                                           |                                           
-Net: pd_h                                  |(no matching net)                          
-  sg13_lv_nmos/(drain|source) = 2          |                                           
-                                           |                                           
-Net: pd_r                                  |(no matching net)                          
-  sg13_lv_nmos/(drain|source) = 2          |                                           
-                                           |                                           
-Net: pd_tt                                 |(no matching net)                          
-  sg13_lv_nmos/(drain|source) = 2          |                                           
-                                           |                                           
-Net: pd_ss                                 |(no matching net)                          
-  sg13_lv_nmos/(drain|source) = 2          |                                           
-                                           |                                           
-Net: pd_d                                  |(no matching net)                          
-  sg13_lv_nmos/(drain|source) = 2          |                                           
----------------------------------------------------------------------------------------
-DEVICE mismatches: Class fragments follow (with node fanout counts):
-Circuit 1: bias_pd                         |Circuit 2: bias_pd                         
-
----------------------------------------------------------------------------------------
-Instance: sg13_lv_nmos:en_d                |Instance: sg13_lv_nmos:$1                  
-  (drain,source) = (16,2)                  |  (drain,source) = (8,7)                   
-  gate = 5                                 |  gate = 7                                 
-  bulk = 16                                |  bulk = 8                                 
-                                           |                                           
-Instance: sg13_lv_nmos:en_h                |(no matching instance)                     
-  (drain,source) = (16,2)                  |                                           
-  gate = 5                                 |                                           
-  bulk = 16                                |                                           
-                                           |                                           
-                                           |                                           
-Instance: sg13_lv_nmos:en_r                |(no matching instance)                     
-  (drain,source) = (16,2)                  |                                           
-  gate = 5                                 |                                           
-  bulk = 16                                |                                           
-                                           |                                           
-                                           |                                           
-Instance: sg13_lv_nmos:en_tt               |(no matching instance)                     
-  (drain,source) = (16,2)                  |                                           
-  gate = 5                                 |                                           
-  bulk = 16                                |                                           
-                                           |                                           
-                                           |                                           
-Instance: sg13_lv_nmos:en_ss               |(no matching instance)                     
-  (drain,source) = (16,2)                  |                                           
-  gate = 5                                 |                                           
-  bulk = 16                                |                                           
-                                           |                                           
----------------------------------------------------------------------------------------
-Netlists do not match.
-Port matching may fail to disambiguate symmetries.
+Resolving symmetries by property value.
+Resolving symmetries by pin name.
+Netlists match uniquely.
 
 Subcircuit pins:
 Circuit 1: bias_pd                         |Circuit 2: bias_pd                         
 -------------------------------------------|-------------------------------------------
-gnd                                        |en **Mismatch**                            
+en                                         |en                                         
+gnd                                        |gnd                                        
+nbias                                      |nbias                                      
+ttail                                      |ttail                                      
+ss2                                        |ss2                                        
+hold                                       |hold                                       
+rep                                        |rep                                        
+vdd                                        |vdd                                        
+---------------------------------------------------------------------------------------
 Cell pin lists are equivalent.
 Device classes bias_pd and bias_pd are equivalent.
 
-Final result: Netlists do not match.
-Port matching may fail to disambiguate symmetries.
+Final result: Circuits match uniquely.
+.
