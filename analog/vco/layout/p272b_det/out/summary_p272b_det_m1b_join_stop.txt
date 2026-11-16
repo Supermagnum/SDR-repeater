@@ -1,0 +1,85 @@
+# P2.7.2b bias_pd M1.b + ampcal_det join — STOP (2026-11-16)
+
+Prior commit: 6014685 (peak MC + bias_pd LVS-clean, M1.b open).
+decisions.md "2026-11-16 — D22 transient peak and bias_pd LVS" recorded.
+
+## Pass criteria, per step
+
+| step | result | notes |
+|---|---|---|
+| 0. Commit last run | PASS | 6014685; D22 marked not done |
+| 1. bias_pd M1.b | **PASS** | DRC dens. waived; KLayout LVS; netgen; rhigh l=78 µm; fingers |
+| 2. ampcal_det join | **FAIL (stop)** | place+hold+bias DRC clean; power/ports LVS shorts; area over pocket |
+| 3. Footprint / tank load | partial | see below |
+| 4. Specs + commit | partial | stop report; ask before commit |
+
+## Step 1 — bias_pd M1.b [GDS]
+
+Cause: Cont M1 at gate centre sat ~0.03 µm from S/D column M1 [DRC M1.b].
+Fix: poly south/north of Activ, then **west** of Activ; Cont+M1 only on the west
+landing (clear of S/D M1); via→M2. Same devices, same rhigh drawn l=78 µm.
+
+| check | result | source |
+|---|---|---|
+| DRC (density waived) | PASS | summary_prove_bias_pd.txt |
+| KLayout LVS | PASS | |
+| netgen | PASS | |
+| rhigh extract | 78 µm = sch | lvs_bias_pd/*extracted* |
+| fingers | PASS — 2× ng=2 + 8× ng=1 | summary_finger_check.txt |
+| area | 0.0037 mm² | [GDS] |
+
+## Step 2 — ampcal_det join [GDS]
+
+Floorplan: edge-aware gap=6 µm (SF above hold, cmp east, bias east of cmp).
+hold_caps PLUS is TM1 — M1↔TopMetal1 via at hc pins before M1 straps [PDK cmim].
+hold/rep/ttail/ss2 routed on M1 corridors (no M1 through Activ).
+
+| net group | DRC | LVS/netgen | note |
+|---|---|---|---|
+| place | PASS | n/a (no straps) | |
+| +hold | PASS | FAIL (partial spice) | TM1 via + west corridor |
+| +bias | PASS | FAIL (partial) | |
+| +power | FAIL M1.b/M2.b/V1.b | FAIL | via/M2 at pins clash |
+| +ports | PASS w/o power | FAIL — extract `gnd\|hold\|rep` | pin labels expose short |
+| all | FAIL | FAIL — mega-short incl. vdd/en | |
+
+Root issues still open:
+1. **Power M2:** vias at child vdd/gnd pins → M1.b / M2.b / V1.b vs child metal.
+2. **LVS short gnd|hold|rep** with ports labeled (no join GR); likely hold M1 pad/via
+   vs hold_caps gnd bus proximity or corridor crossing — not closed this run.
+3. cl_cmp M1↔TM1 via added; not re-proven clean with full power.
+
+## Step 3 — footprint / tank load
+
+| quantity | value | tag |
+|---|---|---|
+| ampcal_det (place+hold+bias) | **0.0151 mm²** | [GDS] bbox (−9.55,−8.605;129.63,100.1) |
+| remaining pocket after vco_var | 0.0121 mm² | [GDS] 0.0187−0.0066 |
+| fit pocket | **NO** (+0.0030 mm²) | |
+| D22 forecast (old) | 0.0013 mm² | [HAND] — obsolete vs GDS |
+| child sum (no gap) | 0.0079 mm² | [GDS] 0.0012+0.0007+0.0023+0.0037 |
+| tank load / side | SF gate on tp/tn (0.5/0.13) | [SCH] direct gate, not series 4 fF; Cgg [HAND] ~few fF/side — **no PEX this run** |
+
+## What failed / uncertain
+
+- ampcal_det full join LVS (power + ports).
+- Pocket: joined bbox already 0.0151 > 0.0121 before power spines / ports.
+- Tank load not PEX’d; report SCH topology only.
+
+## Decision needed
+
+1. Accept bias_pd M1.b PASS (west Cont) as closed; and/or
+2. Continue join: fix gnd|hold|rep short + power vias, then compact vs pocket; or
+3. Grow D22 pocket / accept overage to die gate at P2.7.2c; or
+4. Other.
+
+## Found, not done
+
+- ampcal_det full DRC+LVS+netgen; footprint ≤ 0.0121; tank-load PEX
+- Spec acceptance of D22 layout; chip art (Phase 5 / owner graphic)
+- P2.7.2c VCO top assembly
+
+## Next run
+
+After join accepted: **chip art cell** (owner graphic), then **P2.7.2c VCO top assembly**.
+Immediate next: close ampcal_det power/ports LVS + pocket decision.

@@ -1,0 +1,29 @@
+Technology SG13_dev is loaded.
+GRID : 0.01
+GRID inverse : 100.0
+EPSILON1  : 0.001
+EPSILON2  : 1e-9
+Success.
+bias_pd bbox (-7.65,-14.88;29.71,85.22) area=0.0037 mm2 rbias_drawn_l=78.00u target_extract=78.0u
+wrote bias_pd.spice rbias_l=78.0 tt=5.5u
+wrote /foss/designs/analog/vco/layout/p272b_det/out/bias_pd.gds bbox=(-7.65,-14.88;29.71,85.22) area=0.0037 mm2
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_det/out/bias_pd.gds --topcell=bias_pd --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_det/out/drc_bias_pd --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_det/out/drc_bias_pd.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_det/out/bias_pd.gds --netlist=/foss/designs/analog/vco/layout/p272b_det/out/bias_pd.spice --topcell=bias_pd --run_dir=/foss/designs/analog/vco/layout/p272b_det/out/lvs_bias_pd --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/lvs_klayout_bias_pd.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_det/out/netgen_bias_pd.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/netgen_bias_pd.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_det/out/_klayout_shot_bias_pd.py -rd out=/foss/designs/analog/vco/layout/p272b_det/out -rd name=bias_pd
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/render_bias_pd.log
+
+# Summary
+cell=bias_pd
+DRC clean (density waived): True  non-density=[] svaricap_M1.b=False
+KLayout LVS: PASS
+netgen: PASS
+bias_pd: extract rbias l=78.0 (sch target 78.0)
+prove bias_pd: PASS
+# P2.7.2b D22 ampcal_det build summary
+
+- bias_pd: PASS
+

@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 ≤ 0.38 mm² final.** **tail_block join PASS** (0.0950 mm² [GDS]). **Island outline 0.3906 > 0.38** — finding (die-level gate at P2.7.2c). **P2.7.2b varactor join PASS** (M1.b = SVaricap PCell waived); strip area 0.0066 > 0.0062 (width OK; under full pocket 0.0187). **D22 not done:** hold_caps + det_sf_pair + cmp_se (M2.b fixed) PASS [GDS]; fab sch re-sim fails 1.25±0.10 (bias I_hold ≈12.5 µA); bias retune / bias_pd / join open.
+Status: **D23 ≤ 0.38 mm² final.** **tail_block join PASS** (0.0950 mm² [GDS]). **Island outline 0.3906 > 0.38** — finding (die-level gate at P2.7.2c). **P2.7.2b varactor join PASS** (M1.b = SVaricap PCell waived); strip area 0.0066 > 0.0062 (width OK; under full pocket 0.0187). **D22 not done:** hold+SF+cmp_se + **bias_pd M1.b PASS** [GDS]; ampcal_det join open (place+hold+bias DRC clean; power/ports LVS shorts; 0.0151 > pocket 0.0121).
 
 ---
 
@@ -465,6 +465,12 @@ Artifacts: `p272b_var/out/*.gds.gz`, `summary_cap_footprint.txt`, `summary_build
 `summary_p272b_var_stop.txt`, `summary_svaricap_dims.txt`.
 
 #### P2.7.2b D22 detector (2026-11-16) — **not done** [GDS/SCH]
+
+**Update (same day, M1.b + join attempt):** bias_pd west Cont — DRC/LVS/netgen/fingers
+PASS; rhigh extract 78 µm [GDS]. ampcal_det: edge gap=6 µm; hold TM1↔M1 via;
+place+hold+bias DRC clean; power vias → M1.b/M2.b/V1.b; ports extract `gnd|hold|rep`
+short; bbox **0.0151 mm²** > pocket **0.0121** [GDS]. Stop:
+`summary_p272b_det_m1b_join_stop.txt`.
 `analog/vco/layout/p272b_det/`. Bottom-up:
 
 | cell | DRC (dens. waived) | KLayout | netgen | note |
@@ -472,7 +478,8 @@ Artifacts: `p272b_var/out/*.gds.gz`, `summary_cap_footprint.txt`, `summary_build
 | hold_caps | PASS | PASS | PASS | 2× cmim 400 fF; w=16.27 µm [extract]; **0.0012 mm²** |
 | det_sf_pair | PASS | PASS | PASS | 4× 0.5/0.13 ABBA + dummies; ct on M3; **0.0007 mm²** |
 | cmp_se | PASS | PASS | PASS | M2.b fixed; rhigh l=6.96 µm; **0.0023 mm²** |
-| bias_pd / ampcal_det | — | — | — | Found, not done (blocked by fab re-sim) |
+| bias_pd | PASS | PASS | PASS | west Cont M1.b fix; rhigh 78 µm; **0.0037 mm²** |
+| ampcal_det join | partial | FAIL | FAIL | hold+bias DRC OK; power/ports LVS; **0.0151 > 0.0121** |
 
 **Fab sch [SCH]:** `ampcal_det.sch` uses cmim / rhigh / MOS sinks+en / vthn. Quick
 re-sim tt/27 top: code 20, Amp **1.377 V** vs ideal code 14 / 1.250 V — FAIL window

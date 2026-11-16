@@ -1,0 +1,37 @@
+* P2.7.2b ampcal_det fab netlist [SCH + en/vthn; ideals→cmim/rhigh/MOS]
+.subckt ampcal_det tp tn ct vdd gnd cmp hold rep en vthn
+* SF peak + replica + dummies
+Mmdtp vdd tp hold gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+Mmdtn vdd tn hold gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+Mmrtp vdd ct rep gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+Mmrtn vdd ct rep gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+MdL gnd gnd gnd gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+MdR gnd gnd gnd gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+* hold caps
+Cchold hold gnd cap_cmim w=16.270u l=16.270u m=1
+Ccrep rep gnd cap_cmim w=16.270u l=16.270u m=1
+* bias + PD [SCH retune]
+Xrbias vdd nbias gnd rhigh w=0.5u l=78.000u ps=0u b=0 m=1
+Mdiode nbias nbias pd_d gnd sg13_lv_nmos w=1.0u l=1.0u ng=1
+Men_d pd_d en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
+Mid_h hold nbias pd_h gnd sg13_lv_nmos w=1.0u l=1.0u ng=1
+Men_h pd_h en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
+Mid_r rep nbias pd_r gnd sg13_lv_nmos w=1.0u l=1.0u ng=1
+Men_r pd_r en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
+Mid_tt ttail nbias pd_tt gnd sg13_lv_nmos w=5.5u l=1.0u ng=2
+Men_tt pd_tt en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
+Mid_ss ss2 nbias pd_ss gnd sg13_lv_nmos w=5.5u l=1.0u ng=2
+Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
+* comparator
+Mmc1 co hold ttail gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
+Mmc2 co2 vthn ttail gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
+Mmcs1 n1 co2 ss2 gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
+Mmcs2 cmp co ss2 gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
+Mmpl1 n1 n1 vdd vdd sg13_lv_pmos w=4.0u l=0.5u ng=2
+Mmpl2 cmp n1 vdd vdd sg13_lv_pmos w=4.0u l=0.5u ng=2
+Xrc1 vdd co gnd rhigh w=0.5u l=6.960u ps=0.18u b=0 m=1
+Xrc2 vdd co2 gnd rhigh w=0.5u l=6.960u ps=0.18u b=0 m=1
+MdLc gnd gnd gnd gnd sg13_lv_nmos w=2.0u l=0.5u ng=1
+MdRc gnd gnd gnd gnd sg13_lv_nmos w=2.0u l=0.5u ng=1
+Ccl_cmp cmp gnd cap_cmim w=5.780u l=5.780u m=1
+.ends

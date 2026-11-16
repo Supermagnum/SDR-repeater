@@ -1,0 +1,1 @@
+lvs {/foss/designs/analog/vco/layout/p272b_det/out/ampcal_det_netgen.spice ampcal_det} {/foss/designs/analog/vco/layout/p272b_det/out/ampcal_det_extracted_netgen.cir ampcal_det} /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl /foss/designs/analog/vco/layout/p272b_det/out/netgen_ampcal_det.json

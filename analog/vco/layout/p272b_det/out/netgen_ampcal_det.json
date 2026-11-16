@@ -1,0 +1,141 @@
+
+Circuit 1 cell rhigh and Circuit 2 cell rhigh are black boxes.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+Warning: Equate pins:  cell rhigh is a placeholder, treated as a black box.
+
+Subcircuit pins:
+Circuit 1: rhigh                           |Circuit 2: rhigh                           
+-------------------------------------------|-------------------------------------------
+1                                          |1                                          
+2                                          |2                                          
+3                                          |3                                          
+---------------------------------------------------------------------------------------
+Cell pin lists are equivalent.
+Device classes rhigh and rhigh are equivalent.
+
+Class ampcal_det (0):  Merged 4 parallel devices.
+Class ampcal_det (1):  Merged 3 parallel devices.
+Subcircuit summary:
+Circuit 1: ampcal_det                      |Circuit 2: ampcal_det                      
+-------------------------------------------|-------------------------------------------
+sg13_lv_nmos (22->18)                      |sg13_lv_nmos (19->16) **Mismatch**         
+cap_cmim (3)                               |cap_cmim (3->2) **Mismatch**               
+rhigh (3)                                  |rhigh (3)                                  
+sg13_lv_pmos (2)                           |sg13_lv_pmos (2)                           
+Number of devices: 26 **Mismatch**         |Number of devices: 23 **Mismatch**         
+Number of nets: 21 **Mismatch**            |Number of nets: 17 **Mismatch**            
+---------------------------------------------------------------------------------------
+NET mismatches: Class fragments follow (with fanout counts):
+Circuit 1: ampcal_det                      |Circuit 2: ampcal_det                      
+
+---------------------------------------------------------------------------------------
+Net: vdd                                   |Net: \$35                                  
+  sg13_lv_nmos/(drain|source) = 3          |  sg13_lv_nmos/gate = 1                    
+  rhigh/(1|2) = 3                          |                                           
+  sg13_lv_pmos/(drain|source) = 2          |                                           
+  sg13_lv_pmos/bulk = 2                    |                                           
+                                           |                                           
+Net: tp                                    |Net: \$36                                  
+  sg13_lv_nmos/gate = 1                    |  sg13_lv_nmos/(drain|source) = 1          
+                                           |                                           
+Net: tn                                    |Net: \$52                                  
+  sg13_lv_nmos/gate = 1                    |  rhigh/(1|2) = 1                          
+                                           |                                           
+Net: ct                                    |Net: \$51                                  
+  sg13_lv_nmos/gate = 1                    |  cap_cmim/top = 1                         
+                                           |                                           
+Net: hold                                  |Net: \$50                                  
+  sg13_lv_nmos/(drain|source) = 3          |  cap_cmim/bottom = 1                      
+  cap_cmim/top = 1                         |                                           
+  sg13_lv_nmos/gate = 1                    |                                           
+                                           |                                           
+Net: gnd                                   |Net: \$32                                  
+  sg13_lv_nmos/bulk = 18                   |  sg13_lv_nmos/(drain|source) = 1          
+  sg13_lv_nmos/(drain|source) = 7          |  sg13_lv_pmos/(drain|source) = 1          
+  sg13_lv_nmos/gate = 1                    |                                           
+  cap_cmim/bottom = 3                      |                                           
+  rhigh/3 = 3                              |                                           
+                                           |                                           
+Net: rep                                   |Net: \$1                                   
+  sg13_lv_nmos/(drain|source) = 2          |  sg13_lv_nmos/(drain|source) = 17         
+  cap_cmim/top = 1                         |  sg13_lv_nmos/bulk = 16                   
+                                           |  sg13_lv_nmos/gate = 7                    
+                                           |  sg13_lv_pmos/(drain|source) = 2          
+                                           |  sg13_lv_pmos/bulk = 2                    
+                                           |  rhigh/(1|2) = 3                          
+                                           |  rhigh/3 = 3                              
+                                           |  cap_cmim/top = 1                         
+                                           |  cap_cmim/bottom = 1                      
+                                           |                                           
+Net: ttail                                 |(no matching net)                          
+  sg13_lv_nmos/(drain|source) = 3          |                                           
+                                           |                                           
+Net: ss2                                   |(no matching net)                          
+  sg13_lv_nmos/(drain|source) = 3          |                                           
+                                           |                                           
+Net: cmp                                   |(no matching net)                          
+  sg13_lv_nmos/(drain|source) = 1          |                                           
+  sg13_lv_pmos/(drain|source) = 1          |                                           
+  cap_cmim/top = 1                         |                                           
+                                           |                                           
+Net: nbias                                 |(no matching net)                          
+  rhigh/(1|2) = 1                          |                                           
+  sg13_lv_nmos/(drain|source) = 1          |                                           
+  sg13_lv_nmos/gate = 5                    |                                           
+---------------------------------------------------------------------------------------
+DEVICE mismatches: Class fragments follow (with node fanout counts):
+Circuit 1: ampcal_det                      |Circuit 2: ampcal_det                      
+
+---------------------------------------------------------------------------------------
+Instance: sg13_lv_nmos:mdtp                |Instance: sg13_lv_nmos:$9                  
+  (drain,source) = (10,5)                  |  (drain,source) = (52,52)                 
+  gate = 1                                 |  gate = 52                                
+  bulk = 32                                |  bulk = 52                                
+                                           |                                           
+Instance: sg13_lv_nmos:mdtn                |Instance: sg13_lv_nmos:$24                 
+  (drain,source) = (10,5)                  |  (drain,source) = (52,1)                  
+  gate = 1                                 |  gate = 1                                 
+  bulk = 32                                |  bulk = 52                                
+                                           |                                           
+Instance: sg13_lv_nmos:mrtp                |Instance: cap_cmim:$36                     
+  (drain,source) = (10,3)                  |  top = 52                                 
+  gate = 1                                 |  bottom = 52                              
+  bulk = 32                                |                                           
+                                           |                                           
+                                           |                                           
+Instance: sg13_lv_nmos:dL                  |Instance: cap_cmim:$38                     
+  (drain,source) = (32,32)                 |  top = 1                                  
+  gate = 32                                |  bottom = 1                               
+  bulk = 32                                |                                           
+                                           |                                           
+                                           |                                           
+Instance: cap_cmim:chold                   |(no matching instance)                     
+  top = 5                                  |                                           
+  bottom = 32                              |                                           
+                                           |                                           
+Instance: cap_cmim:crep                    |(no matching instance)                     
+  top = 3                                  |                                           
+  bottom = 32                              |                                           
+                                           |                                           
+Instance: cap_cmim:cl_cmp                  |(no matching instance)                     
+  top = 3                                  |                                           
+  bottom = 32                              |                                           
+---------------------------------------------------------------------------------------
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
+
+Subcircuit pins:
+Circuit 1: ampcal_det                      |Circuit 2: ampcal_det                      
+-------------------------------------------|-------------------------------------------
+vdd                                        |(no pin, node is \$35)                     
+tp                                         |(no pin, node is \$36)                     
+tn                                         |(no pin, node is \$52)                     
+ct                                         |(no pin, node is \$51)                     
+hold                                       |(no pin, node is \$50)                     
+gnd                                        |(no pin, node is \$32)                     
+rep                                        |(no pin, node is \$1)                      
+Cell pin lists are equivalent.
+Device classes ampcal_det and ampcal_det are equivalent.
+
+Final result: Netlists do not match.
+Port matching may fail to disambiguate symmetries.

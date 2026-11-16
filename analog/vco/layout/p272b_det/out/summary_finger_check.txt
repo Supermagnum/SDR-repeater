@@ -4,5 +4,6 @@
 |---|---|---|
 | det_sf_pair | ngs=[1, 1, 1, 1, 1, 1] expect 6× ng=1 (4 SF + 2 dum) | yes |
 | cmp_se | ngs=[1, 1, 2, 2, 2, 2] expect ≥4× ng=2 input/SE (+ dum ng=1) | yes |
+| bias_pd | ngs=[1, 1, 1, 1, 1, 1, 1, 1, 2, 2] expect 2× ng=2 (tt/ss) + ≥8× ng=1 (sinks+en+diode) | yes |
 
 All match: yes

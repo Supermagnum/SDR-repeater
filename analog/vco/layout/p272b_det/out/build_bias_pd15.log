@@ -1,0 +1,39 @@
+Technology SG13_dev is loaded.
+GRID : 0.01
+GRID inverse : 100.0
+EPSILON1  : 0.001
+EPSILON2  : 1e-9
+Success.
+bias_pd bbox (-7.65,-14.88;29.71,85.22) area=0.0037 mm2 rbias_drawn_l=78.00u target_extract=78.0u
+wrote bias_pd.spice rbias_l=78.0 tt=5.5u
+wrote /foss/designs/analog/vco/layout/p272b_det/out/bias_pd.gds bbox=(-7.65,-14.88;29.71,85.22) area=0.0037 mm2
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_det/out/bias_pd.gds --topcell=bias_pd --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_det/out/drc_bias_pd --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_det/out/drc_bias_pd.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_det/out/bias_pd.gds --netlist=/foss/designs/analog/vco/layout/p272b_det/out/bias_pd.spice --topcell=bias_pd --run_dir=/foss/designs/analog/vco/layout/p272b_det/out/lvs_bias_pd --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/lvs_klayout_bias_pd.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_det/out/netgen_bias_pd.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/netgen_bias_pd.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_det/out/_klayout_shot_bias_pd.py -rd out=/foss/designs/analog/vco/layout/p272b_det/out -rd name=bias_pd
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/render_bias_pd.log
+
+# Summary
+cell=bias_pd
+DRC clean (density waived): True  non-density=[] svaricap_M1.b=False
+KLayout LVS: PASS
+netgen: PASS
+bias_pd: extract rbias l=78.0 (sch target 78.0)
+prove bias_pd: PASS
+# P2.7.2b D22 ampcal_det build summary
+
+- bias_pd: PASS
+
+lyrdb: ['/foss/designs/analog/vco/layout/p272b_det/out/drc_bias_pd/bias_pd_bias_pd_full.lyrdb']
+using /foss/designs/analog/vco/layout/p272b_det/out/drc_bias_pd/bias_pd_bias_pd_full.lyrdb
+categories: ['AFil.g', 'GFil.g', 'M1.j', 'M2.j', 'M3.j', 'M4.j', 'M5.j', 'TM1.c', 'TM2.c', 'Cnt.a', 'Cnt.b', 'GFil.d', 'Gat.a', 'Gat.b', 'Gat.d', 'Act.a', 'Act.b', 'TGO.f', 'AFil.c1', 'V1.a', 'V1.b', 'M2.a', 'M2.b', 'M3.a', 'M3.b', 'M4.a', 'M4.b', 'M5.a', 'M5.b', 'V2.a', 'V2.b', 'V3.a', 'V3.b', 'V4.a', 'V4.b', 'Seal.n', 'Pas.a', 'Pas.b', 'TV2.a', 'TV2.b', 'TM1Fil.c', 'TM1.a', 'TM1.b', 'Pad.m', 'Padb.a', 'Padb.b', 'Padb.c', 'Padb.f', 'LBE.a', 'LBE.b', 'LBE.b1', 'LBE.c', 'LBE.d', 'LBE.h', 'TV1.a', 'TV1.b', 'Padc.a', 'Padc.b', 'Padc.c', 'Padc.f', 'M1Fil.c', 'M2Fil.c', 'M3Fil.c', 'M4Fil.c', 'M5Fil.c', 'M1.a', 'M1.b', 'TM2Fil.c', 'TM2.a', 'TM2.b', 'forbidden.biwind', 'forbidden.pemwind', 'forbidden.baspoly', 'forbidden.deepco', 'forbidden.pempoly', 'forbidden.empoly', 'forbidden.ldmos', 'forbidden.pbiwind', 'forbidden.nodrc', 'forbidden.flash', 'forbidden.colwind', 'Pin.a', 'Pin.b', 'Pin.e', 'Pin.f_M2', 'Pin.f_M3', 'Pin.f_M4', 'Pin.f_M5', 'Pin.g', 'Pin.h']
+CAT TM1.b: 0 items
+CAT M1.b: 0 items
+merged M1 polygons: 22
+near-miss M1 gaps (<0.18): 0
+det_sf_pair: PASS — [1, 1, 1, 1, 1, 1]
+cmp_se: PASS — [1, 1, 2, 2, 2, 2]
+Wrote /foss/designs/analog/vco/layout/p272b_det/out/summary_finger_check.txt

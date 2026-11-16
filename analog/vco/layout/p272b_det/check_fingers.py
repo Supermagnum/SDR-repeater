@@ -59,6 +59,8 @@ def main():
          "6× ng=1 (4 SF + 2 dum)"),
         ("cmp_se", lambda ngs: ngs.count(2) >= 4,
          "≥4× ng=2 input/SE (+ dum ng=1)"),
+        ("bias_pd", lambda ngs: ngs.count(2) == 2 and ngs.count(1) >= 8,
+         "2× ng=2 (tt/ss) + ≥8× ng=1 (sinks+en+diode)"),
     ]
     for name, pred, expect in checks:
         ly = load(name)

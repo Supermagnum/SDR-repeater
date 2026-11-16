@@ -738,3 +738,19 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - bias_pd: en short fixed (gate contact on poly only, off active), rhigh drawn l = 78 µm =
   schematic; KLayout LVS and netgen clean. M1.b (gate-contact M1 to S/D M1) fixed in the same
   floorplan, then the ampcal_det join.
+
+## 2026-11-16 — D22 bias_pd M1.b done; ampcal_det join open
+- bias_pd M1.b accepted: Cont west of Activ on poly extension; DRC (density waived), KLayout
+  LVS, netgen, fingers PASS; rhigh extract 78 µm [GDS].
+- ampcal_det join **not** accepted: place+hold+bias DRC clean; power vias M1.b/M2.b/V1.b;
+  ports extract short `gnd|hold|rep`; bbox 0.0151 mm² > pocket 0.0121 mm² [GDS]. D22 still
+  not done.
+
+## 2026-11-16 — D22 bias_pd accepted, join open
+- bias_pd accepted: gate contact off active (west), rhigh l = 78 µm extracted = schematic;
+  DRC clean (density waived), KLayout LVS, netgen, fingers; 0.0037 mm² [GDS].
+- ampcal_det join not accepted: gnd | hold | rep short (TM1 ↔ M1 via stack on hold_caps) and
+  power DRC (M1.b / M2.b / V1.b). Hold / replica nodes leave the MIM on TopMetal1; via stacks
+  only outside the MIM bottom plate.
+- D22 footprint over its pocket (0.0151 against 0.0121 mm² [GDS]): compacted where the
+  re-route allows; the rest goes to the P2.7.2c die-level gate.

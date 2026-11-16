@@ -1,6 +1,18 @@
+hold_caps bbox (-3.15,-8.605;40.89,19.42) area=0.0012 mm2
+wrote hold_caps.spice w=16.330u
+wrote /foss/designs/analog/vco/layout/p272b_det/out/hold_caps.gds bbox=(-3.15,-8.605;40.89,19.42) area=0.0012 mm2
+det_sf_pair bbox (-6.85,-12.48;25.09,10.48) area=0.0007 mm2
+wrote det_sf_pair.spice
+wrote /foss/designs/analog/vco/layout/p272b_det/out/det_sf_pair.gds bbox=(-6.85,-12.48;25.09,10.48) area=0.0007 mm2
 cmp_se bbox (-9.15,-14.23;30.23,45.11) area=0.0023 mm2
 wrote cmp_se.spice rhigh_l=6.960u
 wrote /foss/designs/analog/vco/layout/p272b_det/out/cmp_se.gds bbox=(-9.15,-14.23;30.23,45.11) area=0.0023 mm2
-wrote cmp_se.spice rhigh_l=6.960u
-cmp_se: spice l←extract 6.96u; re-prove
-prove cmp_se: PASS
+bias_pd bbox (-7.65,-14.88;29.71,85.22) area=0.0037 mm2 rbias_drawn_l=78.00u target_extract=78.0u
+wrote bias_pd.spice rbias_l=78.0 tt=5.5u
+wrote /foss/designs/analog/vco/layout/p272b_det/out/bias_pd.gds bbox=(-7.65,-14.88;29.71,85.22) area=0.0037 mm2
+ampcal_det routed=['bias', 'hold', 'place']
+ampcal_det bbox (-9.55,-8.605;129.63,100.1) area=0.0151 mm2
+wrote ampcal_det.spice
+wrote /foss/designs/analog/vco/layout/p272b_det/out/ampcal_det.gds bbox=(-9.55,-8.605;129.63,100.1) area=0.0151 mm2
+ampcal_det spice hold_w=16.27 rhigh_l=6.96
+prove ampcal_det: FAIL

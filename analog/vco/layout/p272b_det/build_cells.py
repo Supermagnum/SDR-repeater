@@ -1053,29 +1053,34 @@ Md gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=0.5u ng=1
             for col in esr:
                 self.box_m1(c, col.left, y_gnd, col.right, col.bottom)
             self.box_m1(c, esr[0].left, y_gnd, esr[-1].right, y_gnd + 0.40)
-            # en Cont south of Activ; M1 on Cont; via→M2 (bias_pd12 LVS-clean)
+            # en Cont: poly south of Activ, then WEST off Activ — Cont M1 clear
+            # of S/D M1 [DRC M1.b]; Cont on poly-only [LVS]
             gates = self.poly_gates(ecid, et)
             ab = self.activ_bottom(ecid, et)
+            al = self.activ_left(ecid, et)
             g0, g1 = gates[0], gates[-1]
+            x_en = al - 2.8
             for g in gates:
                 gx = 0.5 * (g.left + g.right)
                 half = 0.5 * (g.right - g.left)
                 c.shapes(self.poly).insert(
                     pya.DBox(gx - half, y_en_pad0 - 0.05, gx + half, g.bottom + 0.05))
-                if y_en_pad0 - 0.16 >= ab - 0.05:
-                    raise RuntimeError(
-                        f"en Cont on Activ cont_top={y_en_pad0-0.16:.3f} ab={ab:.3f}")
-                c.shapes(self.cont).insert(
-                    pya.DBox(gx - 0.08, y_en_pad0 - 0.32, gx + 0.08, y_en_pad0 - 0.16))
             c.shapes(self.poly).insert(
                 pya.DBox(g0.left - 0.05, y_en_pad1, g1.right + 0.05, y_en_pad0))
-            self.box_m1(c, g0.left - 0.08, y_en_pad1 - 0.05,
-                        g1.right + 0.08, y_en_pad0 - 0.05)
-            gx = 0.5 * (g0.left + g1.right)
-            self.box_m2(c, gx - 0.30, y_en_m2, gx + 0.30, y_en_pad1 + 0.10)
-            self.place(c, vs12, gx, y_en_pad1)
+            c.shapes(self.poly).insert(
+                pya.DBox(x_en - 0.20, y_en_pad1, g0.left + 0.05, y_en_pad0))
+            c.shapes(self.poly).insert(
+                pya.DBox(x_en - 0.25, y_en_pad1, x_en + 0.25, y_en_pad0))
+            if y_en_pad0 - 0.16 >= ab - 0.05:
+                raise RuntimeError(
+                    f"en Cont on Activ cont_top={y_en_pad0-0.16:.3f} ab={ab:.3f}")
+            c.shapes(self.cont).insert(
+                pya.DBox(x_en - 0.08, y_en_pad0 - 0.32, x_en + 0.08, y_en_pad0 - 0.16))
+            self.box_m1(c, x_en - 0.20, y_en_pad1 - 0.05, x_en + 0.20, y_en_pad0 - 0.05)
+            self.box_m2(c, x_en - 0.30, y_en_m2, x_en + 0.30, y_en_pad1 + 0.10)
+            self.place(c, vs12, x_en, y_en_pad1)
 
-        self.box_m2(c, ens[0][2].left - 1.0, y_en_m2,
+        self.box_m2(c, ens[0][2].left - 4.0, y_en_m2,
                     ens[-1][2].right + 3.0, y_en_m2 + 0.40)
         ex = ens[-1][2].right + 2.5
         self.box_m2(c, ex - 0.30, y_en_m2, ex + 0.30, y_en_m2 + 0.40)
@@ -1100,30 +1105,34 @@ Md gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=0.5u ng=1
         self.pin_m1(c, ens[0][2].left - 2.0, y_gnd - 0.2, "gnd")
         self.box_m1(c, ens[0][2].left - 2.3, y_gnd, ens[0][2].left, y_gnd + 0.40)
 
-        # sink gates → Cont north of Activ, via→M2 nbias (bias_pd6 pattern)
+        # sink gates → Cont WEST of Activ on poly north of Activ [DRC M1.b]
         for name, cid, bb, t in devices:
             if name == "diode":
                 continue
             gates = self.poly_gates(cid, t)
             at = self.activ_top(cid, t)
+            al = self.activ_left(cid, t)
             g0, g1 = gates[0], gates[-1]
-            y_pad0 = max(at + 0.50, max(g.top for g in gates) + 0.30)
+            y_pad0 = max(at + 0.55, max(g.top for g in gates) + 0.35)
             y_pad1 = y_pad0 + 0.50
+            x_g = al - 2.8
             for g in gates:
                 gx = 0.5 * (g.left + g.right)
                 half = 0.5 * (g.right - g.left)
                 c.shapes(self.poly).insert(
                     pya.DBox(gx - half, g.top - 0.05, gx + half, y_pad0 + 0.05))
-                c.shapes(self.cont).insert(
-                    pya.DBox(gx - 0.08, y_pad0 + 0.16, gx + 0.08, y_pad0 + 0.32))
             c.shapes(self.poly).insert(
                 pya.DBox(g0.left - 0.05, y_pad0, g1.right + 0.05, y_pad1))
-            self.box_m1(c, g0.left - 0.08, y_pad0 + 0.16,
-                        g1.right + 0.08, y_pad1 + 0.16)
-            gx = 0.5 * (g0.left + g1.right)
-            self.box_m2(c, gx - 0.30, y_pad1 - 0.10, gx + 0.30, y_nbias + 0.40)
-            self.place(c, vs12, gx, y_pad1)
-        self.box_m2(c, devices[0][2].left - 2.5, y_nbias,
+            c.shapes(self.poly).insert(
+                pya.DBox(x_g - 0.20, y_pad0, g0.left + 0.05, y_pad1))
+            c.shapes(self.poly).insert(
+                pya.DBox(x_g - 0.25, y_pad0, x_g + 0.25, y_pad1))
+            c.shapes(self.cont).insert(
+                pya.DBox(x_g - 0.08, y_pad0 + 0.16, x_g + 0.08, y_pad0 + 0.32))
+            self.box_m1(c, x_g - 0.20, y_pad0 + 0.10, x_g + 0.20, y_pad0 + 0.70)
+            self.box_m2(c, x_g - 0.30, y_pad0 + 0.10, x_g + 0.30, y_nbias + 0.40)
+            self.place(c, vs12, x_g, y_pad0 + 0.40)
+        self.box_m2(c, devices[0][2].left - 4.0, y_nbias,
                     devices[-1][2].right, y_nbias + 0.40)
         dx = devices[0][2].left - 2.0
         self.box_m1(c, dx - 0.20, y_nbias, dx + 0.20, y_nbias + 0.40)
@@ -1163,16 +1172,28 @@ Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
         self.say(f"wrote bias_pd.spice rbias_l={RHIGH_BIAS_L} tt={W_SINK_CMP}")
 
     # ------------------------------------------------------------------
-    def build_ampcal_det(self):
+    def build_ampcal_det(self, routed=None):
         """Join: det_sf_pair + hold_caps + cmp_se + bias_pd + cl_cmp.
 
-        Ports match island + sch: tp tn ct vdd gnd cmp hold rep en vthn
+        Net groups (--nets): place | hold | bias | power | cl | ports | all.
+        Ports match island + sch: tp tn ct vdd gnd cmp hold rep en vthn.
         Digital (cmp, en) on east, away from tank/V_tune [SCH].
         """
+        if routed is None:
+            routed = {"place", "hold", "bias", "power", "cl", "ports"}
+        else:
+            routed = set(routed)
+            routed.add("place")
+        self.say(f"ampcal_det routed={sorted(routed)}")
+
         c = self.ly.create_cell("ampcal_det")
         vs12 = self.pcell("via_stack", {
             "b_layer": "Metal1", "t_layer": "Metal2",
             "vn_columns": 1, "vn_rows": 1,
+        })
+        vs1t = self.pcell("via_stack", {
+            "b_layer": "Metal1", "t_layer": "TopMetal1",
+            "vn_columns": 2, "vn_rows": 2,
         })
         # cl_cmp 50 fF
         mim = self.pcell("cmim", {
@@ -1189,15 +1210,29 @@ Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
         cm_cid, cm_pins = self._copy_no_pin_texts("cmp_se", "cmp_se_np")
         bp_cid, bp_pins = self._copy_no_pin_texts("bias_pd", "bias_pd_np")
 
-        # Place: SF west (tank taps), caps south of SF, cmp east, bias south-east
-        sf_bb, sf_t = self.place(c, sf_cid, 0.0, 20.0)
-        hc_bb, hc_t = self.place(c, hc_cid, 0.0, -5.0)
-        cm_bb, cm_t = self.place(
-            c, cm_cid, sf_bb.right + 8.0, 10.0)
-        bp_bb, bp_t = self.place(
-            c, bp_cid, cm_bb.left, -5.0)
-        cl_bb, cl_t = self.place(
-            c, mim, cm_bb.right + 2.0, cm_bb.top - 10.0)
+        # Place with edge-to-edge gap (origins account for local bbox offsets).
+        gap = 6.0
+        sf_loc = self.ly.cell(sf_cid).bbox().to_dtype(self.ly.dbu)
+        cm_loc = self.ly.cell(cm_cid).bbox().to_dtype(self.ly.dbu)
+        bp_loc = self.ly.cell(bp_cid).bbox().to_dtype(self.ly.dbu)
+        mim_loc = self.ly.cell(mim).bbox().to_dtype(self.ly.dbu)
+
+        hc_bb, hc_t = self.place(c, hc_cid, 0.0, 0.0)
+        # SF above hold
+        sf_y = hc_bb.top + gap - sf_loc.bottom
+        sf_bb, sf_t = self.place(c, sf_cid, 0.0, sf_y)
+        # cmp east of west column
+        cm_x = max(sf_bb.right, hc_bb.right) + gap - cm_loc.left
+        cm_y = 0.0 - cm_loc.bottom
+        cm_bb, cm_t = self.place(c, cm_cid, cm_x, cm_y)
+        # bias east of cmp
+        bp_x = cm_bb.right + gap - bp_loc.left
+        bp_y = 0.0 - bp_loc.bottom
+        bp_bb, bp_t = self.place(c, bp_cid, bp_x, bp_y)
+        # cl_cmp above cmp, still west of bias
+        cl_x = cm_bb.left + 2.0 - mim_loc.left
+        cl_y = cm_bb.top + gap - mim_loc.bottom
+        cl_bb, cl_t = self.place(c, mim, cl_x, cl_y)
 
         sf_p = self._pins_abs(sf_pins, sf_t)
         hc_p = self._pins_abs(hc_pins, hc_t)
@@ -1212,90 +1247,134 @@ Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
             self.box_m1(c, ax - h, ay - h, ax + h, by + h)
             self.box_m1(c, min(ax, bx) - h, by - h, max(ax, bx) + h, by + h)
 
+        via_done = set()
+
+        def via_at(x, y):
+            key = (round(x, 3), round(y, 3))
+            if key in via_done:
+                return
+            via_done.add(key)
+            self._via12(c, vs12, x, y)
+
         def strap_m2(a, b, w=0.40):
+            """M2 Manhattan; one via per coordinate (no stacked V1.b)."""
             ax, ay = a
             bx, by = b
             h = 0.5 * w
-            self._via12(c, vs12, ax, ay)
-            self._via12(c, vs12, bx, by)
+            via_at(ax, ay)
+            via_at(bx, by)
             self.box_m2(c, ax - h, ay - h, ax + h, by + h)
             self.box_m2(c, min(ax, bx) - h, by - h, max(ax, bx) + h, by + h)
 
-        # hold: SF ↔ caps ↔ bias ↔ cmp
-        strap(sf_p["hold"], hc_p["hold"])
-        strap_m2(hc_p["hold"], bp_p["hold"])
-        strap_m2(bp_p["hold"], cm_p["hold"])
-        # rep
-        strap(sf_p["rep"], hc_p["rep"])
-        strap_m2(hc_p["rep"], bp_p["rep"])
-        # ttail / ss2: cmp ↔ bias
-        strap(cm_p["ttail"], bp_p["ttail"])
-        strap(cm_p["ss2"], bp_p["ss2"])
-        # vdd / gnd
-        strap_m2(sf_p["vdd"], cm_p["vdd"])
-        strap_m2(cm_p["vdd"], bp_p["vdd"])
-        strap_m2(sf_p["gnd"], hc_p["gnd"])
-        strap_m2(hc_p["gnd"], cm_p["gnd"])
-        strap_m2(cm_p["gnd"], bp_p["gnd"])
+        def m2_bus(pins, y_bus, w=0.50):
+            """Via on pin M1, M2-only run to spine (no M1 through cell → shorts)."""
+            h = 0.5 * w
+            xs = []
+            for px, py in pins:
+                via_at(px, py)
+                self.box_m2(c, px - h, min(py, y_bus) - h,
+                            px + h, max(py, y_bus) + h)
+                xs.append(px)
+            if len(xs) >= 2:
+                self.box_m2(c, min(xs) - h, y_bus - h, max(xs) + h, y_bus + h)
 
-        # cl_cmp: PLUS→cmp, MINUS→gnd
-        def lyr_boxes(cid, trans, layer):
-            out = []
-            for s in self.ly.cell(cid).shapes(layer).each():
-                if s.is_box():
-                    out.append(s.bbox().transformed(trans).to_dtype(self.ly.dbu))
-            return out
+        def jog_to_bus(pin, x_jog, y_bus, w=0.40):
+            """Pin → corridor X (at pin Y) → bus Y — stays outside cell body."""
+            px, py = pin
+            strap(pin, (x_jog, py), w=w)
+            strap((x_jog, py), (x_jog, y_bus), w=w)
+            return x_jog
 
-        def biggest(boxes):
-            return max(boxes, key=lambda b: (b.right - b.left) * (b.top - b.bottom))
+        if "hold" in routed:
+            # hold_caps PLUS is TM1 — drop M1↔TM1 via at hc pins [PDK cmim]
+            for nm in ("hold", "rep"):
+                hx, hy = hc_p[nm]
+                self.box_m1(c, hx - 0.50, hy - 0.50, hx + 0.50, hy + 0.50)
+                self.place(c, vs1t, hx, hy)
 
-        m5 = biggest(lyr_boxes(mim, cl_t, self.m5))
-        tm = biggest(lyr_boxes(mim, cl_t, self.tm1))
-        mx = 0.5 * (m5.left + m5.right)
-        y_vs = m5.bottom - 0.2
-        bb_vs, _ = self.place(c, vs5, mx - 0.35, y_vs - 0.5)
-        self.box_m5(c, bb_vs.left, bb_vs.top - 0.1, bb_vs.right, m5.bottom + 0.3)
-        self.box_m1(c, bb_vs.left - 0.1, bb_vs.bottom - 0.5,
-                    bb_vs.right + 0.1, bb_vs.bottom + 0.2)
-        # gnd strap
-        strap((mx, bb_vs.bottom - 0.3), cm_p["gnd"])
-        # cmp on TM1
-        tcx = 0.5 * (tm.left + tm.right)
-        y_cmp_cap = tm.bottom - 3.0
-        c.shapes(self.tm1).insert(pya.DBox(
-            tcx - 1.0, y_cmp_cap - 0.5, tcx + 1.0, tm.bottom + 1.0))
-        # drop to M1 via... TM1 pin only; strap cmp M1 from cm_p
-        # Use M1 pin at cmp and note TM1 is same net via extraction of cmim PLUS
-        # Connect: place M1 near cmp pin and rely on... actually need TopVia.
-        # Simpler: label TM1 as cmp and also M1 cmp pin from comparator.
-        self.pin_tm1(c, tcx, y_cmp_cap, "cmp")
-        # Also expose M1 cmp from comparator (same net name → LVS merge by label)
-        self.pin_m1(c, cm_p["cmp"][0], cm_p["cmp"][1], "cmp")
+            # SF → hc on west corridor (no M1 through SF Activ)
+            x_w = sf_bb.left - 2.5
+            y_hold = hc_p["hold"][1]
+            y_rep = hc_p["rep"][1]
+            jog_to_bus(sf_p["hold"], x_w, y_hold)
+            strap((x_w, y_hold), hc_p["hold"])
+            jog_to_bus(sf_p["rep"], x_w, y_rep)
+            strap((x_w, y_rep), hc_p["rep"])
 
-        # Top ports — tank west, digital east
-        for name in ("tp", "tn", "ct"):
-            self.pin_m1(c, sf_p[name][0], sf_p[name][1], name)
-        self.pin_m1(c, sf_p["hold"][0], sf_p["hold"][1] - 2.0, "hold")
-        self.box_m1(c, sf_p["hold"][0] - 0.25, sf_p["hold"][1] - 2.2,
-                    sf_p["hold"][0] + 0.25, sf_p["hold"][1])
-        self.pin_m1(c, sf_p["rep"][0], sf_p["rep"][1] - 2.0, "rep")
-        self.box_m1(c, sf_p["rep"][0] - 0.25, sf_p["rep"][1] - 2.2,
-                    sf_p["rep"][0] + 0.25, sf_p["rep"][1])
-        self.pin_m1(c, cm_p["vthn"][0], cm_p["vthn"][1], "vthn")
-        self.pin_m1(c, bp_p["en"][0] + 2.0, bp_p["en"][1], "en")
-        self.box_m1(c, bp_p["en"][0], bp_p["en"][1] - 0.25,
-                    bp_p["en"][0] + 2.3, bp_p["en"][1] + 0.25)
-        self.pin_m1(c, sf_p["vdd"][0], sf_p["vdd"][1] + 2.0, "vdd")
-        self.box_m1(c, sf_p["vdd"][0] - 0.25, sf_p["vdd"][1],
-                    sf_p["vdd"][0] + 0.25, sf_p["vdd"][1] + 2.2)
-        self.pin_m1(c, sf_p["gnd"][0], sf_p["gnd"][1] - 2.0, "gnd")
-        self.box_m1(c, sf_p["gnd"][0] - 0.25, sf_p["gnd"][1] - 2.2,
-                    sf_p["gnd"][0] + 0.25, sf_p["gnd"][1])
+            # bias/cmp hold → south bus via inter-cell corridors
+            x_cb = 0.5 * (cm_bb.right + bp_bb.left)
+            x_hc = 0.5 * (hc_bb.right + cm_bb.left)
+            jog_to_bus(bp_p["hold"], x_cb, y_hold)
+            jog_to_bus(cm_p["hold"], x_hc, y_hold)
+            strap(hc_p["hold"], (x_hc, y_hold))
+            strap((x_hc, y_hold), (x_cb, y_hold))
+            # rep: SF/hc already; bias rep → same y_rep bus
+            jog_to_bus(bp_p["rep"], x_cb, y_rep)
+            strap(hc_p["rep"], (x_cb, y_rep))
 
-        abb = c.bbox().to_dtype(self.ly.dbu)
-        ox0, oy0, ox1, oy1 = self._outer_ptap_gr(
-            c, abb.left, abb.bottom, abb.right, abb.top, ring=1.0, gap=2.0)
-        self.box_m1(c, ox0, sf_p["gnd"][1] - 0.2, sf_p["gnd"][0], sf_p["gnd"][1] + 0.2)
+        if "bias" in routed:
+            # ttail / ss2: cmp ↔ bias along corridor (pins face east/west)
+            x_cb = 0.5 * (cm_bb.right + bp_bb.left)
+            for nm in ("ttail", "ss2"):
+                jog_to_bus(cm_p[nm], x_cb, cm_p[nm][1])
+                jog_to_bus(bp_p[nm], x_cb, bp_p[nm][1])
+                strap((x_cb, cm_p[nm][1]), (x_cb, bp_p[nm][1]))
+
+        if "power" in routed:
+            y_vdd = max(sf_bb.top, cm_bb.top, bp_bb.top) + 4.0
+            y_gnd = min(sf_bb.bottom, hc_bb.bottom, cm_bb.bottom,
+                        bp_bb.bottom) - 3.0
+            m2_bus([sf_p["vdd"], cm_p["vdd"], bp_p["vdd"]], y_vdd)
+            m2_bus([sf_p["gnd"], hc_p["gnd"], cm_p["gnd"], bp_p["gnd"]],
+                   y_gnd)
+
+        if "cl" in routed:
+            # cl_cmp: PLUS→cmp, MINUS→gnd
+            def lyr_boxes(cid, trans, layer):
+                out = []
+                for s in self.ly.cell(cid).shapes(layer).each():
+                    if s.is_box():
+                        out.append(
+                            s.bbox().transformed(trans).to_dtype(self.ly.dbu))
+                return out
+
+            def biggest(boxes):
+                return max(
+                    boxes,
+                    key=lambda b: (b.right - b.left) * (b.top - b.bottom))
+
+            m5 = biggest(lyr_boxes(mim, cl_t, self.m5))
+            tm = biggest(lyr_boxes(mim, cl_t, self.tm1))
+            mx = 0.5 * (m5.left + m5.right)
+            y_vs = m5.bottom - 0.2
+            bb_vs, _ = self.place(c, vs5, mx - 0.35, y_vs - 0.5)
+            self.box_m5(c, bb_vs.left, bb_vs.top - 0.1, bb_vs.right,
+                        m5.bottom + 0.3)
+            self.box_m1(c, bb_vs.left - 0.1, bb_vs.bottom - 0.5,
+                        bb_vs.right + 0.1, bb_vs.bottom + 0.2)
+            strap((mx, bb_vs.bottom - 0.3), cm_p["gnd"])
+            tcx = 0.5 * (tm.left + tm.right)
+            y_cmp_cap = tm.bottom - 3.0
+            c.shapes(self.tm1).insert(pya.DBox(
+                tcx - 1.0, y_cmp_cap - 0.5, tcx + 1.0, tm.bottom + 1.0))
+            self.pin_tm1(c, tcx, y_cmp_cap, "cmp")
+            # M1↔TM1 so cl_cmp PLUS ties to comparator cmp [not label-only]
+            self.box_m1(c, tcx - 0.50, y_cmp_cap - 0.50,
+                        tcx + 0.50, y_cmp_cap + 0.50)
+            self.place(c, vs1t, tcx, y_cmp_cap)
+            strap((tcx, y_cmp_cap), cm_p["cmp"])
+            self.pin_m1(c, cm_p["cmp"][0], cm_p["cmp"][1], "cmp")
+
+        if "ports" in routed:
+            # Labels on existing pin metal only — no extra M1 stems / join GR
+            # (prior stems + outer GR M1 shorted en|gnd|hold|rep [LVS extract]).
+            # Child GRs stay; island GR at P2.7.2c.
+            for name in ("tp", "tn", "ct", "hold", "rep", "vdd", "gnd"):
+                self.pin_m1(c, sf_p[name][0], sf_p[name][1], name)
+            self.pin_m1(c, cm_p["vthn"][0], cm_p["vthn"][1], "vthn")
+            self.pin_m1(c, cm_p["cmp"][0], cm_p["cmp"][1], "cmp")
+            self.pin_m1(c, bp_p["en"][0], bp_p["en"][1], "en")
+            # digital east of bias (away from tank / V_tune) — already bp/cm east
 
         bb = c.bbox().to_dtype(self.ly.dbu)
         self.det_top_area = bb.width() * bb.height() * 1e-6
@@ -1379,10 +1458,48 @@ def extract_rhigh_l(cell):
     return None
 
 
-def main():
+def _parse_args(argv):
     only = None
-    if len(sys.argv) > 1 and sys.argv[1] == "--only":
-        only = sys.argv[2] if len(sys.argv) > 2 else None
+    nets = "all"
+    i = 1
+    while i < len(argv):
+        if argv[i] == "--only" and i + 1 < len(argv):
+            only = argv[i + 1]
+            i += 2
+        elif argv[i] == "--nets" and i + 1 < len(argv):
+            nets = argv[i + 1]
+            i += 2
+        else:
+            i += 1
+    return only, nets
+
+
+def _sizes_for_join():
+    """Prefer prior LVS extracts; fall back to child spice / defaults [GDS]."""
+    hold_w = extract_cmim_w("hold_caps")
+    rhigh_l = extract_rhigh_l("cmp_se")
+    if hold_w is None:
+        hc = os.path.join(OUT, "hold_caps.spice")
+        if os.path.exists(hc):
+            ms = re.findall(r"cap_cmim\s+w=([\d.]+)u", open(hc).read())
+            if ms:
+                hold_w = float(ms[0])
+    if rhigh_l is None:
+        cs = os.path.join(OUT, "cmp_se.spice")
+        if os.path.exists(cs):
+            ms = re.findall(r"rhigh\s+w=0\.5u\s+l=([\d.]+)u", open(cs).read())
+            if ms:
+                rhigh_l = float(ms[0])
+    return hold_w or CMIM_HOLD, rhigh_l or RHIGH_L
+
+
+def main():
+    only, nets_arg = _parse_args(sys.argv)
+    if nets_arg.strip() == "all":
+        routed = None
+    else:
+        routed = {p.strip() for p in nets_arg.split(",") if p.strip()}
+        routed.add("place")
 
     b = B()
     results = {}
@@ -1391,21 +1508,34 @@ def main():
         ("det_sf_pair", b.build_det_sf_pair, b.write_spice_det_sf_pair),
         ("cmp_se", b.build_cmp_se, b.write_spice_cmp_se),
         ("bias_pd", b.build_bias_pd, b.write_spice_bias_pd),
-        ("ampcal_det", b.build_ampcal_det, b.write_spice_ampcal_det),
+        ("ampcal_det", None, b.write_spice_ampcal_det),
     ]
     for name, builder, writer in steps:
         need_prove = (only is None) or (name == only)
         if only and name != only and only == "ampcal_det":
             cid = builder()
-            writer()
+            if name == "hold_caps":
+                # Keep drawn CMIM_HOLD; join spice uses extract size below
+                writer()
+            else:
+                writer()
             b.write_cell(name, cid)
             results[name] = "built"
             continue
         if only and name != only:
             continue
-        cid = builder()
-        writer()
-        b.write_cell(name, cid)
+        if name == "ampcal_det":
+            hold_w, rhigh_l = _sizes_for_join()
+            b.cmim_hold_w = hold_w
+            b.rhigh_l = rhigh_l
+            cid = b.build_ampcal_det(routed=routed)
+            writer(hold_w, rhigh_l)
+            b.write_cell(name, cid)
+            b.say(f"ampcal_det spice hold_w={hold_w} rhigh_l={rhigh_l}")
+        else:
+            cid = builder()
+            writer()
+            b.write_cell(name, cid)
         ok = prove(name) if need_prove else True
         if need_prove and name == "hold_caps":
             w = extract_cmim_w(name)

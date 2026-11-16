@@ -1,6 +1,6 @@
 # VCO amplitude control (P2.3 open point §9.3)
 
-Status: **D22 topology / step-1 (ideal parts) accepted 2026-11-02 / 2026-11-11** (§10). **P2.7.2b fab devices: not done** — bias retune [SCH] PASS; peak + 3σ = 1.4935 V ≤ 1.50 accepted [SCH MC]; hold+SF+cmp_se PASS [GDS]; bias_pd LVS/netgen/rhigh PASS, **M1.b open** → join blocked.
+Status: **D22 topology / step-1 (ideal parts) accepted 2026-11-02 / 2026-11-11** (§10). **P2.7.2b fab layout: not done** — bias retune [SCH] PASS; peak + 3σ = 1.4935 V ≤ 1.50 accepted [SCH MC]; hold+SF+cmp_se PASS [GDS]; **bias_pd M1.b PASS** (west Cont; DRC/LVS/netgen/fingers; rhigh 78 µm); **ampcal_det join open** (place+hold+bias DRC clean; power/ports LVS shorts; bbox 0.0151 > pocket 0.0121 [GDS]).
 
 Items 1–2 of `prompts/06-design-next-step.md` are closed (P2.6 accepted 2026-10-31; open points 1–3 closed). Newest status report `reports/status-2026-10-30.md`: no failed re-run; amplitude cal listed as open work, not as an unverified blocking result.
 
