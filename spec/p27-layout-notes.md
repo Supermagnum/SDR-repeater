@@ -1,8 +1,8 @@
 # P2.7 layout notes
 
-Status: **P2.7.2c STOP — band-margin gate FAIL.** Re-pack C≈59 fF/side + bank/core parasitics
-drops top margin 130 → **−29 MHz** [SCH] (`summary_p272c_route_c_range.txt`). Direct
-bank–core re-pack plan written below; awaiting owner. Chip art PASS. Blocks PASS.
+Status: **P2.7.2c** PEX + fixed-C trim PASS (bands+overlap); D20/PN deferred.
+Next: direct bank–core re-pack/join. Prior HAND gate FAIL (−29 MHz) superseded by
+extract+trim (`summary_p272c_pex_trim_stop.txt`). Chip art PASS. Blocks PASS.
 
 ---
 
@@ -736,13 +736,23 @@ north-edge pins to the tank spine (no west ring).
 | + bank wiring 40 + core 30 | ≈ 102 fF | ≈ 107 fF | [HAND] |
 | Linearised top margin vs 129.4 fF case | ≈ +5 MHz | — | [HAND] from SCH Δ |
 
-Even with direct access, **high-end bank+core alone** (~70 fF) linearises to
-≈ +44 MHz top margin; with island ≈32 fF the estimate is ≈ +5 MHz — still under
-40 MHz. Owner must decide whether to (a) accept a lower margin / re-cut HAND
-bank+core bounds, (b) require a still-tighter island (≤ ~0 fF extra → not
-realistic), or (c) change the gate.
+**Superseded 2026-11-17** by PEX + fixed-C trim (`decisions.md` Tank parasitics):
+HAND bank/core replaced by extract; fixed MIM trimmed to 14.5 µm; with direct-pack
+island 37 fF, margins ≥ 40 MHz both ends [SCH]. Proceed to place the direct pack.
 
-**Stop for owner.** Do not place this pack until decided.
+#### P2.7.2c tank PEX + fixed-C trim (2026-11-17) [PEX-RC/SCH]
+
+| Item | Result | Tag |
+|---|---|---|
+| Core added C (no spiral) | 20.6 / 23.7 fF tn/tp | [PEX-RC] |
+| Bank wiring C | 28.1 / 36.9 fF tn/tp | [PEX-RC] |
+| Island (direct) | 37 fF | [HAND] |
+| Total / side | 97.5 fF | |
+| Trim pick | 14.5 µm → cfix 157.7 fF | [SCH/PDK] |
+| Margins +par | top 102 / bot 93 MHz | [SCH] |
+| Overlap carries | PASS | [SCH] |
+| D20 / pnoise | not re-run | [TOOL] |
+| Core DRC/LVS/netgen | PASS (stage d + TM1.b in cell) | [TOOL] |
 
 ### P2.7.3 — PEX + post-layout VCO range / steps / PN bounds
 **Inputs:** P2.7.2 PEX.  

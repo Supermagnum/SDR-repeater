@@ -1,0 +1,64 @@
+# P2.7.2c trim fixed tank C for PEX + direct-pack parasitics [SCH]
+
+## Parasitic budget per side
+
+| term | C (fF) | tag |
+|---|---:|---|
+| core (max side) | 23.66 | [PEX-RC] |
+| bank wiring (max side) | 36.87 | [PEX-RC] |
+| island direct pack | 37.00 | [HAND] |
+| **total** | **97.53** | |
+| series R | 2.0 Ω | [HAND] |
+
+Fixed C today: **192 fF** differential (16 µm square ×2) [SCH/PDK].
+
+- baseline top cfix=192 +par: f=4.209 GHz margin=8.6 MHz Amp=1.42 [SCH]
+- baseline bot cfix=192 +par: f=3.000 GHz margin=120.2 MHz Amp=1.08 [SCH]
+
+Baseline top margin 8.6 MHz < 40 MHz — trim must raise top [SCH].
+
+First-order target cfix ≈ 94.5 fF (192 − 97.5) [HAND].
+
+## Sweep (with parasitics) [SCH]
+
+| side (µm) | cfix (fF) | top mar (MHz) | bot mar (MHz) | |Δ| (MHz) | Amp top/bot | both≥40 |
+|---:|---:|---:|---:|---:|---|---|
+| 11.0 | 90.8 | 304.7 | 36.9 | 267.7 | 1.49/1.11 | no |
+| 11.5 | 99.2 | 277.4 | 43.9 | 233.4 | 1.48/1.11 | yes |
+| 12.0 | 108.0 | 249.6 | 51.4 | 198.1 | 1.48/1.11 | yes |
+| 12.5 | 117.2 | 221.3 | 59.3 | 162.0 | 1.47/1.11 | yes |
+| 13.0 | 126.8 | 192.2 | 67.3 | 124.9 | 1.46/1.10 | yes |
+| 13.5 | 136.7 | 162.9 | 75.4 | 87.5 | 1.46/1.10 | yes |
+| 14.0 | 147.0 | 132.7 | 83.9 | 48.8 | 1.45/1.10 | yes |
+| 14.5 | 157.7 | 102.0 | 92.7 | 9.3 | 1.44/1.09 | yes |
+| 15.0 | 168.8 | 71.2 | 101.6 | 30.3 | 1.43/1.09 | yes |
+| 15.5 | 180.2 | 39.7 | 110.8 | 71.1 | 1.43/1.08 | no |
+| 16.0 | 192.0 | 8.6 | 120.2 | 111.6 | 1.42/1.08 | no |
+
+## Selection
+
+**PASS pick:** side=**14.5 µm**, cfix=**157.7 fF** (was 192), top margin 102.0 MHz, bot 92.7 MHz, |Δ|=9.3 MHz [SCH].
+
+## Band overlap spot (neighbouring codes) [SCH]
+
+| corner | pair | f0 | f1 | step (MHz) | ok |
+|---|---|---:|---:|---:|---|
+| mos_ss/cap_wcs/-40 | 0→1 | 4.2800 | 4.2683 | 11.61 | yes |
+| mos_ss/cap_wcs/-40 | 31→32 | 3.9626 | 3.9541 | 8.53 | yes |
+| mos_ss/cap_wcs/-40 | 127→128 | 3.2978 | 3.2928 | 5.04 | yes |
+| mos_ss/cap_wcs/-40 | 254→255 | 2.7753 | 2.7721 | 3.21 | yes |
+| mos_ss/cap_bcs/-40 | 0→1 | 4.4410 | 4.4313 | 9.75 | yes |
+| mos_ss/cap_bcs/-40 | 31→32 | 4.1620 | 4.1546 | 7.35 | yes |
+| mos_ss/cap_bcs/-40 | 127→128 | 3.5469 | 3.5426 | 4.36 | yes |
+| mos_ss/cap_bcs/-40 | 254→255 | 3.0358 | 3.0327 | 3.18 | yes |
+
+Overlap monotonicity at Vtune=0.65: PASS [SCH].
+D20 V_tune landing (0.25–0.95) and worst-corner pnoise are re-run next if bands+overlap pass (separate invocations).
+
+## Gate
+
+- Band margins ≥ 40 MHz both ends: PASS [SCH]
+- Overlap monotonic: PASS [SCH]
+- D20 0.25–0.95 landing: **not re-run this job** [TOOL]
+- Worst-corner pnoise: **not re-run this job** [TOOL]
+- Overall step-3 trim gate (bands+overlap): PASS

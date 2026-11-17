@@ -1,6 +1,6 @@
 # VCO topology memo (P2.3)
 
-Status: **topology accepted (D8–D11; D24 2026-11-12).** P2.3 open items closed. **Layout:** blocks through D22 PASS; chip art PASS. **P2.7.2c STOP** — island+bank+core parasitics: top margin 130 → **−29 MHz** [SCH] (`summary_p272c_route_c_range.txt`); direct bank–core re-pack plan awaiting owner. See §9.
+Status: **topology accepted (D8–D11; D24 2026-11-12).** P2.3 open items closed. **Layout:** blocks through D22 PASS; chip art PASS. **P2.7.2c** tank PEX + fixed-C trim PASS (bands+overlap); D20/PN not re-run this job. Next: direct bank–core re-pack/join. See §9.
 
 ---
 
@@ -241,6 +241,27 @@ Slow MOS corner, 85 °C, 4 mA cap: 3.12 / 3.65 / 4.20 GHz at 1 MHz −122.8 / �
 **D20 landing [MODEL]** (`summary_p272c_gate.txt`): **PASS** all corners — tt 0.361–0.936 V; ss 0.244–0.897 V; ff 0.457–0.970 V. No cal-target bias, no K=512. Spread parts (½ largest step / counting / curvature asym / hold−mid) in that summary.
 
 **15-corner [SCH]** (`summary_p272c_cover.txt`): all 15 cover; worst top margin **130 MHz**; worst bottom **76 MHz**; peak V_GS/V_GD ≤ 1.49 V (ss cap_bcs −40 °C). **D22** tt/27: top code 14 / bottom 31 PASS. Next: **P2.7.2 VCO layout**.
+
+### P2.7.2c (2026-11-17) — band plan with parasitics (PEX + trim)
+
+**PEX [PEX-RC]** (`layout/p272b/out/summary_pex_core_tank.txt`,
+`layout/p272b_bank/out/summary_pex_bank.txt`):
+
+| term | C/side (fF) | vs HAND used |
+|---|---:|---|
+| core (max; spiral omitted) | 23.66 | ≤ 30 |
+| bank wiring (coupling-only) | 36.87 | ≤ 40 |
+| island direct pack | 37.00 | [HAND] use 37 |
+| **total** | **97.53** | was 129.4 HAND |
+
+**Fixed C trim [SCH]** (`step3/out/summary_p272c_trim_fixed_c.txt`):
+2× `rfcmim` **14.5 µm** → `cfix` **157.7 fF** (was 192 / 16 µm).
+With parasitics: top margin **102 MHz**, bot **93 MHz** (both ≥ 40) [SCH].
+Overlap monotonic at carries: PASS [SCH].
+D20 landing and worst-corner pnoise: **not re-run** this job [TOOL].
+
+**Core layout:** stage d rebuild; TM1.b notches in cell; DRC / KLayout LVS /
+netgen PASS (`summary_assemble_trim.txt`). Next: **direct bank–core re-pack**.
 
 ### D9 filter capacitor notes (2026-11-13) — MIM kept; MOS swing cause
 

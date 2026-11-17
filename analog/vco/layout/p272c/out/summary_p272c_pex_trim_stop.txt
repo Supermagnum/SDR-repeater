@@ -1,0 +1,37 @@
+# P2.7.2c tank parasitics: extract, trim fixed C — STOP (2026-11-17)
+
+## Pass criteria per step
+
+| Step | Criterion | Result |
+|---|---|---|
+| 1 PEX-RC core | C/R vs HAND 30 fF | **PASS** added C 20.6/23.7 fF ≤ 30 [PEX-RC]; series R not extracted [TOOL] |
+| 1 PEX-RC bank | C vs HAND 40 fF | **PASS** wiring 28.1/36.9 fF ≤ 40 [PEX-RC]; off/on = one GDS [PEX-RC] |
+| 2 Parasitic total | state fixed C today | **97.53 fF**/side + island 37 [PEX-RC/HAND]; fixed **192 fF** → 16 µm [SCH] |
+| 3 Trim + bands | both margins ≥ 40 MHz | **PASS** 14.5 µm / cfix 157.7; top 102 / bot 93 MHz [SCH] |
+| 3 Overlap | neighbouring codes | **PASS** monotonic steps at carries [SCH] |
+| 3 D20 window | 0.25–0.95 V corners | **not re-run** [TOOL] |
+| 3 PN / swing | worst corner | Amp in trim ~1.43/1.08 V [SCH]; **pnoise not re-run** [TOOL] |
+| 4 Core update | sch+layout, TM1.b, prove | **PASS** DRC / KLayout LVS / netgen [TOOL]; SVG/PDF exported |
+| 5 Specs | §9 / notes / plan | updated |
+
+## What failed or is uncertain
+- Magic shorts `tn`/`tp` through the spiral; core PEX used no-L GDS (inductor pad C omitted) [PEX-RC].
+- Bank full-net substrate C includes MIM tops; wiring = all − substrate [PEX-RC].
+- `extresist` not run — series R still [HAND].
+- D20 landing and worst-corner pnoise not re-run with new cfix [TOOL].
+- netgen reported “Property errors” with unique match (W/L) — accepted as PASS with note [TOOL].
+
+## Decision needed
+1. Accept band+overlap as enough to start **direct bank–core re-pack**, with D20/PN as a follow-up gate; or
+2. Require D20 + worst-corner pnoise **before** re-pack.
+
+## Found, not done
+- Island routing (explicitly out of this run).
+- Direct bank–core re-pack / join (next).
+- Full 15-corner re-cover with trimmed cfix.
+- Regenerating hierarchical `vco_top` / bank xschem from `gen_xschem.py` (only `vco_core.sch` + exports updated).
+- `extresist` series R extract.
+- Removing obsolete p272c assembler TM1.b patch (core now owns fills).
+
+## Next run
+**P2.7.2c — direct bank–core re-pack and join** (island ≈ 32–37 fF/side [HAND], after this trim).

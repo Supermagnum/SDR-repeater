@@ -202,7 +202,7 @@ class Asm:
             # PCell has solid M1 shield = TIE/gnd over full bbox (−5.6..21.6).
             # Any M5→M1 via on MINUS shorts fx to TIE. Route fx on M2, drop to
             # M1 only outside the shield [probe LVS PASS].
-            mim = self.pcell("rfcmim", {"w": "16.0u", "l": "16.0u", "wfeed": "5.0u"})
+            mim = self.pcell("rfcmim", {"w": "14.5u", "l": "14.5u", "wfeed": "5.0u"})
             mloc = self.ly.cell(mim).bbox().to_dtype(self.ly.dbu)
             vs52 = self.pcell("via_stack", {
                 "b_layer": "Metal2", "t_layer": "Metal5",
@@ -351,6 +351,11 @@ class Asm:
             self.box(top, self.m1, x_tail - 0.5, y_tail - 6.0, x_tail + 0.5, y_tail)
             top.shapes(text).insert(pya.DText("tail_dac", pya.DTrans(x_tail, y_tail - 5.5)))
             self.say("port stubs bank/var/det/LO/tail_dac metal-only [stage d]")
+            # Six TM1.b notch fills between stub tips (1.30 → ≥ 1.64 µm) [DRC/decisions]
+            for y0, y1 in ((-86.79, -85.49), (-89.79, -88.49), (-92.79, -91.49)):
+                for x0, x1 in ((-25.23, -16.38), (16.38, 25.23)):
+                    self.box(top, self.tm1, x0, y0, x1, y1)
+            self.say("TM1.b notch fills (6) in core cell [GDS/DRC]")
 
         bb = top.bbox().to_dtype(self.ly.dbu)
         area = bb.width() * bb.height() * 1e-6
@@ -401,8 +406,8 @@ class Asm:
         if self.stage >= "b":
             # LVS device name is rfcmim (extract); sch lvs_model=rfcmim [SCH]
             lines += [
-                "Cxf1 tp fx gnd rfcmim w=16u l=16u wfeed=5u m=1",
-                "Cxf2 tn fx gnd rfcmim w=16u l=16u wfeed=5u m=1",
+                "Cxf1 tp fx gnd rfcmim w=14.5u l=14.5u wfeed=5u m=1",
+                "Cxf2 tn fx gnd rfcmim w=14.5u l=14.5u wfeed=5u m=1",
                 "Rrfx fx gnd gnd rhigh w=2u l=15.2u m=1",
             ]
         lines += [".ends", ".end", ""]

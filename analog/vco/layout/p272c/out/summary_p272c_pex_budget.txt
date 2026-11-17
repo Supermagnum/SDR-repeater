@@ -1,0 +1,31 @@
+# P2.7.2c parasitic budget after PEX (pre-trim) [PEX-RC/HAND]
+
+## Step 1 — extract vs hand bounds
+
+| cell | quantity | extracted | hand (used) | unit | tag |
+|---|---|---:|---:|---|---|
+| core+tank (no L) | added C tn/tp | 20.59 / 23.66 | 15–30 (30) | fF | [PEX-RC] / [HAND] |
+| core+tank | tn−tp mismatch | 3.06 | — | fF | [PEX-RC] |
+| core+tank | series R | not run | 0.2–0.4 | Ω | [TOOL] / [HAND] |
+| bank | wiring C tn/tp | 28.09 / 36.87 | 20–40 (40) | fF | [PEX-RC] / [HAND] |
+| bank | tn−tp mismatch (wiring) | 8.78 | — | fF | [PEX-RC] |
+| bank | series R | not run | — | Ω | [TOOL] |
+
+Notes:
+- Core extract omits spiral (Magic DC-shorts `tn`/`tp` through coil) [PEX-RC].
+- Bank “wiring” = (all partners + substrate) − substrate node C, so MIM top-plate
+  area C is not double-counted against SCH devices [PEX-RC].
+- Code off/on: layout unchanged; one extract [PEX-RC].
+
+## Step 2 — parasitic total for trim
+
+| term | C (fF) | tag |
+|---|---:|---|
+| core (max side) | 23.66 | [PEX-RC] |
+| bank wiring (max side) | 36.87 | [PEX-RC] |
+| island direct pack | 37.00 | [HAND] decisions 2026-11-17 |
+| **total / side** | **97.53** | |
+| series R (model) | 2.0 Ω | [HAND] shorter pack vs prior 3.4 |
+
+Fixed tank capacitance today: **192 fF** differential (2×16 µm rfcmim) [SCH/PDK].
+First-order trim target: 192 − 97.5 ≈ **94.5 fF** differential [HAND].

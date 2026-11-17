@@ -1,0 +1,27 @@
+# P2.7.2c Magic RC extract — vco_bank tn/tp [PEX-RC]
+
+## Method
+- Tool: Magic 8.3.685 + `ihp-sg13g2.magicrc`, hierarchical extract on accepted
+  `vco_bank.gds` [TOOL].
+- Layout geometry is independent of code; “all off / all on” is a SCH device state,
+  not a second GDS. One extract covers wiring parasitics for both [PEX-RC].
+- Full-net substrate node C (~120–129 fF) includes MIM top-plate metal area merged
+  onto `tn`/`tp`. Device `cap_rfcmim` / `cmim` models already carry plate C in SCH,
+  so that area term is **not** used as “added wiring”.
+- **Wiring add** = (C all partners + substrate) − substrate node C
+  (= coupling to other nets, including half of C(tn−tp) attribution per side).
+- Series R: `extresist` not run [TOOL].
+
+## Results
+
+| quantity | tn | tp | unit | tag |
+|---|---:|---:|---|---|
+| substrate node C (incl. MIM tops) | 119.27 | 128.97 | fF | [PEX-RC] |
+| C all partners + substrate | 147.36 | 165.84 | fF | [PEX-RC] |
+| **wiring add (all − substrate)** | **28.09** | **36.87** | fF | [PEX-RC] |
+| tn−tp mismatch (wiring) | 8.78 | | fF | [PEX-RC] |
+| C(tn−tp) coupling | 23.19 | | fF | [PEX-RC] |
+
+- **Headline used (conservative max side wiring): 36.87 fF** [PEX-RC]
+- Hand bound was 20–40 fF (used 40) [HAND summary_rc_bank]: **extracted ≤ hand high** [PEX-RC].
+- Top-level spice C(tn/tp to gnd): 11.57 / 18.82 fF [PEX-RC] (subset of coupling).

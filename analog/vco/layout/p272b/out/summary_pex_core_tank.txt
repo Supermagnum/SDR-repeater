@@ -1,0 +1,30 @@
+# P2.7.2c Magic RC extract — vco_core_tank tn/tp [PEX-RC]
+
+## Method
+- Tool: Magic 8.3.685 + `ihp-sg13g2.magicrc`, hierarchical `extract all`,
+  `ext2spice hierarchy on`, `cthresh 0` [TOOL].
+- Spiral inductor `l2n0` / `l2n0_em` removed for extract: Magic treats the coil as a
+  DC short (continuous metal), which merges `tn` and `tp`. Extract GDS:
+  `out/pex_core/vco_core_tank_noL.gds` [PEX-RC]. Inductor pad C therefore not included.
+- Intentional `cap_rfcmim` / MOSFET models are devices (not in parasitic `cap` lines).
+- Units: Magic `.ext` aF / 1000 = fF.
+- Series R: `extresist` not run this job [TOOL].
+
+## Results (interconnect + area parasitics)
+
+| quantity | tn | tp | unit | tag |
+|---|---:|---:|---|---|
+| substrate node C | 19.56 | 21.69 | fF | [PEX-RC] |
+| C all partners + substrate | 20.59 | 23.66 | fF | [PEX-RC] |
+| tn−tp mismatch (|all|) | 3.06 | | fF | [PEX-RC] |
+| C(tn−tp) coupling | ≈ 0 | | fF | [PEX-RC] |
+
+- **Added C per side (mean): 22.13 fF** [PEX-RC]
+- **Headline used (conservative max side): 23.66 fF** [PEX-RC]
+- Hand bound was 15–30 fF (used 30) [HAND summary_rc_tank]: **extracted ≤ hand high** [PEX-RC].
+- Series R hand bound 0.2–0.4 Ω/side [HAND]: **not replaced** (extresist not run).
+
+## Fixed tank capacitance today [SCH/PDK]
+- `range.json` `cfix` = **192 fF** differential [SCH]
+- Layout: 2 × `rfcmim` 16×16 µm (`side(2·cfix)`, CAP_AREA 1.5 fF/µm²) [PDK/SCH]
+- Plate C each = 16×16×1.5 = **384 fF**; series pair → 192 fF differential [PDK]

@@ -12,40 +12,42 @@ NET mismatches: Class fragments follow (with fanout counts):
 Circuit 1: vco_core_tank                   |Circuit 2: vco_core_tank                   
 
 ---------------------------------------------------------------------------------------
-Net: tp                                    |Net: tp                                    
-  sg13_lv_nmos/(drain|source) = 1          |  sg13_lv_nmos/(drain|source) = 1          
-  sg13_lv_nmos/gate = 1                    |  sg13_lv_nmos/gate = 1                    
-  gnd/top = 1                              |  gnd/(end_a|end_b) = 1                    
-                                           |                                           
-Net: tn                                    |Net: tn                                    
-  sg13_lv_nmos/gate = 1                    |  sg13_lv_nmos/gate = 1                    
-  sg13_lv_nmos/(drain|source) = 1          |  sg13_lv_nmos/(drain|source) = 1          
-  gnd/top = 1                              |                                           
-                                           |                                           
 Net: gnd                                   |Net: gnd                                   
   sg13_lv_nmos/bulk = 3                    |  sg13_lv_nmos/bulk = 3                    
   sg13_lv_nmos/(drain|source) = 2          |  sg13_lv_nmos/(drain|source) = 2          
   sg13_lv_nmos/gate = 1                    |  sg13_lv_nmos/gate = 1                    
-  gnd/bottom = 1                           |  gnd/(end_a|end_b) = 4                    
-                                           |                                           
-Net: fx                                    |Net: \$8                                   
-  gnd/bottom = 2                           |  gnd/(end_a|end_b) = 1                    
+  gnd/bottom = 1                           |  gnd/(end_a|end_b) = 1                    
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+Net: fx                                    |Net: \$11                                  
+  gnd/bottom = 2                           |  gnd/(end_a|end_b) = 3                    
   gnd/top = 1                              |                                           
+                                           |                                           
+Net: tn                                    |Net: tn                                    
+  sg13_lv_nmos/gate = 1                    |  sg13_lv_nmos/gate = 1                    
+  sg13_lv_nmos/(drain|source) = 1          |  sg13_lv_nmos/(drain|source) = 1          
+  gnd/top = 1                              |  gnd/(end_a|end_b) = 1                    
+                                           |                                           
+Net: tp                                    |Net: tp                                    
+  sg13_lv_nmos/(drain|source) = 1          |  sg13_lv_nmos/(drain|source) = 1          
+  sg13_lv_nmos/gate = 1                    |  sg13_lv_nmos/gate = 1                    
+  gnd/top = 1                              |  gnd/(end_a|end_b) = 1                    
 ---------------------------------------------------------------------------------------
 DEVICE mismatches: Class fragments follow (with node fanout counts):
 Circuit 1: vco_core_tank                   |Circuit 2: vco_core_tank                   
 
 ---------------------------------------------------------------------------------------
 Instance: gnd:rfx                          |Instance: gnd:$21                          
-  top = 3                                  |  (end_a,end_b) = (10,1)                   
+  top = 3                                  |  (end_a,end_b) = (3,3)                    
   bottom = 7                               |                                           
                                            |                                           
 Instance: gnd:xf2                          |Instance: gnd:$20                          
-  top = 3                                  |  (end_a,end_b) = (10,3)                   
+  top = 3                                  |  (end_a,end_b) = (3,3)                    
   bottom = 3                               |                                           
                                            |                                           
 Instance: gnd:xf1                          |Instance: gnd:$19                          
-  top = 3                                  |  (end_a,end_b) = (10,10)                  
+  top = 3                                  |  (end_a,end_b) = (7,3)                    
   bottom = 3                               |                                           
 ---------------------------------------------------------------------------------------
 Netlists do not match.
@@ -54,14 +56,14 @@ Port matching may fail to disambiguate symmetries.
 Subcircuit pins:
 Circuit 1: vco_core_tank                   |Circuit 2: vco_core_tank                   
 -------------------------------------------|-------------------------------------------
-tp                                         |tp                                         
-tn                                         |tn                                         
-gnd                                        |(no pin, node is \$8)                      
+gnd                                        |gnd                                        
 tail                                       |tail                                       
-(no pin, node is gnd)                      |gnd                                        
+tn                                         |tn                                         
+tp                                         |tp                                         
 ct                                         |(no matching pin)                          
 ---------------------------------------------------------------------------------------
-Cell pin lists for vco_core_tank and vco_core_tank altered to match.
+Cell pin lists are equivalent.
 Device classes vco_core_tank and vco_core_tank are equivalent.
 
-Final result: Top level cell failed pin matching.
+Final result: Netlists do not match.
+Port matching may fail to disambiguate symmetries.

@@ -327,7 +327,8 @@ class B:
                  f"(limit {EM_TM1}); CT {w_ct} µm → J={j_ct:.2f} (limit {EM_TM1})")
 
         # --- fixed MIMs + rfx (outboard: TM1 plate must not touch CT) ---
-        mim = self.pcell("rfcmim", {"w": "16.0u", "l": "16.0u", "wfeed": "5.0u"})
+        # Trimmed 2026-11-17 for PEX+island parasitics: 14.5 µm → cfix≈157.7 fF [SCH]
+        mim = self.pcell("rfcmim", {"w": "14.5u", "l": "14.5u", "wfeed": "5.0u"})
         mloc = self.ly.cell(mim).bbox().to_dtype(self.ly.dbu)
         y_mim = y_port_ext - (mloc.top - mloc.bottom) - 8.0
         # place origin so plate right edge of left MIM ≤ -w_ct/2 - 2.0
@@ -375,6 +376,13 @@ class B:
         self.box(top, self.m1, ring_x0, y_gnd_d, 0.4, y_gnd_d + 0.40)
         self.box(top, self.m1, -0.4, y_gnd_d, ring_x1, y_gnd_d + 0.40)
 
+        # Six TM1.b notch fills south of tank stubs (1.30 µm → ≥ 1.64 µm) [TOOL/DRC].
+        # Was patched only in p272c assembler; now owned by the core cell [decisions].
+        for y0, y1 in ((-86.79, -85.49), (-89.79, -88.49), (-92.79, -91.49)):
+            for x0, x1 in ((-25.23, -16.38), (16.38, 25.23)):
+                self.box(top, self.tm1, x0, y0, x1, y1)
+        self.say("TM1.b notch fills (6) in core cell [GDS/DRC]")
+
         bb = top.bbox().to_dtype(self.ly.dbu)
         area = bb.width() * bb.height() * 1e-6
         share = 100.0 * area / 0.30
@@ -398,8 +406,8 @@ class B:
 .subckt vco_core_tank tp tn tail ct vdd gnd
 Xm1 tp tn tail gnd sg13_lv_nmos w=32u l=0.13u ng=8 m=1
 Xm2 tn tp tail gnd sg13_lv_nmos w=32u l=0.13u ng=8 m=1
-Xxf1 tp fx gnd cap_rfcmim w=1.600000e-05 l=1.600000e-05 wfeed=5.0e-6 m=1
-Xxf2 tn fx gnd cap_rfcmim w=1.600000e-05 l=1.600000e-05 wfeed=5.0e-6 m=1
+Xxf1 tp fx gnd cap_rfcmim w=1.450000e-05 l=1.450000e-05 wfeed=5.0e-6 m=1
+Xxf2 tn fx gnd cap_rfcmim w=1.450000e-05 l=1.450000e-05 wfeed=5.0e-6 m=1
 rfx fx gnd 200000.0
 xl tp tn ct l2n0
 * ct ≡ vdd (centre-tap supply)

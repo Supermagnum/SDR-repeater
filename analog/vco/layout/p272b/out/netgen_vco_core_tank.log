@@ -2,7 +2,7 @@ Netgen 1.5.324 compiled on Thu Oct 15 02:24:51 PM CEST 2026
 Warning: netgen command 'format' use fully-qualified name '::netgen::format'
 Warning: netgen command 'global' use fully-qualified name '::netgen::global'
 Reading netlist file /foss/designs/analog/vco/layout/p272b/out/vco_core_tank.spice for /foss/designs/analog/vco/layout/p272b/out/vco_core_tank.spice vco_core_tank
-Reading netlist file /foss/designs/analog/vco/layout/p272b/out/lvs_vco_core_tank/vco_core_tank_lvs_extracted.cir for /foss/designs/analog/vco/layout/p272b/out/lvs_vco_core_tank/vco_core_tank_lvs_extracted.cir vco_core_tank
+Reading netlist file /foss/designs/analog/vco/layout/p272b/out/lvs_vco_core_tank_b/vco_core_tank_lvs_extracted.cir for /foss/designs/analog/vco/layout/p272b/out/lvs_vco_core_tank_b/vco_core_tank_lvs_extracted.cir vco_core_tank
 
 Reading setup file /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl
 
@@ -55,7 +55,7 @@ Circuit 1 contains 5 nets,    Circuit 2 contains 5 nets.
 
 
 Final result: 
-Top level cell failed pin matching.
-
+Netlists do not match.
+Port matching may fail to disambiguate symmetries.
 Logging to file "/foss/designs/analog/vco/layout/p272b/out/netgen_vco_core_tank.json" disabled
 LVS Done.
