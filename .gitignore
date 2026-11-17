@@ -49,6 +49,9 @@
 **/layout/p272*/out/*.gds
 **/layout/p272*/out/_*.py
 **/layout/p272*/out/drc_*/
+# KLayout LVS databases are bulky; keep text reports only
+**/*.lvsdb
+!**/*.lvsdb.keep
 sim/em/**/output/
 sim/em/**/palace_model/
 sim/em/**/vendor/

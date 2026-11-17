@@ -807,3 +807,15 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   keeps a TM2-free region of ≈ 0.9 × 1.0 mm (no TM2 power straps, inductors or RF below). If
   no such region exists, the text-only version (≈ 0.17 mm² [HAND]) is used.
 - Pin 1: the top-left dot; in Phase 5 the art is placed so the dot is nearest the pin-1 corner.
+
+## 2026-11-17 — P2.7.2c first assembly
+- First vco_top assembly (57a9232, outline 0.5029 mm² [GDS]) not accepted: DRC (M2.b, M3.b,
+  TM1.a / b, V1.b) and both LVS fail.
+- Re-pack before the join, with tank routing as the target: bank, varactor and detector placed
+  around the tank ports; tn / tp short and symmetric. Target added routing C ≤ 30 fF / side
+  [HAND] (first pack ≈ 90 fF / side).
+- Join one net group at a time with both LVS tools; full-assembly unique LVS is the gate.
+- Die still fits at 0.5029 mm² (≈ 2.3 mm² slack [HAND]). The chip-art TM2-free region is
+  reserved in the chip floorplan and checked at the synthesizer top / Phase 5, not in the VCO
+  island. AFE control buses connect at the synthesizer top; the island exports ports.
+- vco_top.lvsdb is git-ignored; text DRC / LVS reports stay in git.
