@@ -1,0 +1,21 @@
+# Chip art build summary
+
+Source: /foss/designs/graphic/graphic.svg → /foss/designs/graphic/graphic_outlines.svg (text→paths, Inkscape CLI) [TOOL]
+Raster: /foss/designs/analog/chipart/out/art_raster.png (882×972, rsvg-convert -w 882) [TOOL]
+Layer: TopMetal2 134/0 [DS SG13G2_os_layout_rules]
+TM2.a=2.0 µm TM2.b=2.0 µm TM2.c–d=25%–70% [DS]
+Thinnest stroke (medial ridge×2, after open2): 4.47 px = 2.236 SVG-units (raw before open2: 2.00 px) [TOOL]
+Narrowest gap (gap-ridge×2): 2.00 px = 1.000 SVG-units (raw: 2.00 px) [TOOL]
+Scale primary: 1.1500 µm/raster-px (= 2.3000 µm/SVG-unit); margin×1.15; GDS morph close/open r=2.30 µm for pixel stairs [HAND]
+Option smaller: drop face, re-pack text+circle (~400×80 SVG-units) at same 2.3000 µm/SVG-unit → ~920.0×184.0 µm / 0.1693 mm² [HAND]
+Option larger (no morph dependency): 2.3000 µm/raster-px → ~1768.7×1968.8 µm / 3.4822 mm² [HAND]
+Cell bbox: 884.35 × 984.40 µm  area=0.8706 mm² [GDS]
+Metal area: 267323.5 µm²  density=30.7% (ok) [GDS]
+Art-only density (pre-fill): 30.7% [GDS]
+Density fill: no fill needed [HAND]
+Post-scale min_width=2.571 µm min_space=6.900 µm [TOOL]
+TM2.a @ 2.0: PASS [TOOL]
+TM2.b @ 2.0: PASS [TOOL]
+Pin-1 dot centre: (52.00, 1063.50) µm r=4.0 [HAND]
+DRC exit=256; rules=['AFil.g', 'AFil.g2', 'GFil.g', 'M1.j', 'M1Fil.h', 'M2.j', 'M2Fil.h', 'M3.j', 'M3Fil.h', 'M4.j', 'M4Fil.h', 'M5.j', 'M5Fil.h', 'TM1.c']; clean_all=False; clean_tm2_geom_dens=True; non_density=none; empty-layer Fil/j/c waived for TM2-only cell (same class as block dens. waive) [TOOL] log=/foss/designs/analog/chipart/out/drc_chip_art.log
+Render: /foss/designs/analog/chipart/out/chip_art.png; side-by-side: /foss/designs/analog/chipart/out/chip_art_side_by_side.html

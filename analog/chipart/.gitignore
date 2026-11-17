@@ -1,0 +1,8 @@
+_pydeps/
+*.gds
+!out/*.gds.gz
+out/_render*.py
+out/_render*.ly
+out/drc_chip_art/
+out/drc_chip_art.log
+out/render_art.log

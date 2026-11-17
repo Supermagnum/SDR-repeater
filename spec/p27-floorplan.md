@@ -167,4 +167,6 @@ Rough Phase-5 squeeze check against the SX1255-compatible **MLPQ-W 5 × 5 mm** p
 
 **P2.7.2b D22 (2026-11-17) [GDS] — layout PASS:** ampcal_det join DRC dens. waived; KLayout Congrats; netgen uniquely; fingers OK; bbox **0.0186** > pocket **0.0121** after vco_var [GDS]. Footprint carried to P2.7.2c die-level gate. Peak MC accepted.
 
+**Chip art (2026-11-17) [GDS] — Phase 5 item:** standalone TopMetal2 cell `chip_art` **0.8706 mm²** (884.35 × 984.40 µm); TM2 dens. **30.7 %**; not placed until Phase 5 (`decisions.md` 2026-11-16; `spec/chip-art.md`). Add to die re-total at P2.7.2c / Phase 5 placement (not over inductor EM keep-out or VCO/LO/RF routing). Smaller option (drop face, re-pack text) ~0.169 mm² [HAND] if the owner wants less area.
+
 **Flag:** the §1 sketch of a **1.6 × 1.6 mm** active core **does not fit** the Phase 3/4 RX+TX + synth + digital + pads tally. Before Phase 5, plan on a die closer to **≥ ~2.2 × 2.2 mm** (≈ 4.8 mm²) or tighten RX/TX area after topology.

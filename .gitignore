@@ -2,6 +2,15 @@
 **/out/*
 # Keep the short text summaries of each run (owner rule 2026-10-25: all design files on GitHub)
 !**/out/summary_*.txt
+# Chip art cell deliverables
+!**/chipart/out/
+!**/chipart/out/*.gds.gz
+!**/chipart/out/*.png
+!**/chipart/out/*.html
+!**/chipart/out/summary_*.txt
+**/chipart/out/*.gds
+**/chipart/out/_*.py
+**/chipart/out/drc_*/
 # P2.7+ layout deliverables (gds, renders, LVS spice, run logs — not raw .lyrdb)
 # Parent dir must be re-included or git will not see children.
 !**/layout/out/
