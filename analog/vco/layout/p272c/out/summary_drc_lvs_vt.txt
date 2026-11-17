@@ -1,0 +1,14 @@
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272c/out/vco_top.gds --topcell=vco_top --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272c/out/drc_vco_top --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272c/out/drc_vco_top.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272c/out/vco_top.gds --netlist=/foss/designs/analog/vco/layout/p272c/out/vco_top.spice --topcell=vco_top --run_dir=/foss/designs/analog/vco/layout/p272c/out/lvs_vco_top --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272c/out/lvs_klayout_vco_top.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272c/out/netgen_vco_top.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272c/out/netgen_vco_top.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272c/out/_klayout_shot_vco_top.py -rd out=/foss/designs/analog/vco/layout/p272c/out -rd name=vco_top
+  exit 0; log /foss/designs/analog/vco/layout/p272c/out/render_vco_top.log
+
+# Summary
+cell=vco_top
+DRC clean (density waived): True  non-density=['M1.b'] svaricap_M1.b=True
+KLayout LVS: FAIL
+netgen: FAIL

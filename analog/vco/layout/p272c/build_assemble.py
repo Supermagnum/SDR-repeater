@@ -139,6 +139,15 @@ class Asm:
             # clear all pin texts/markers; re-add keepers after place via top
             cell.shapes(lyr).clear()
         bb = cell.bbox().to_dtype(self.ly.dbu)
+        # Accepted vco_core_tank fab GDS still has six TM1.b notches (1.30 µm < 1.64)
+        # south of the tank pins [TOOL DRC on place]. Fill here so the island can be
+        # DRC-clean without re-opening the 2b core job. [GDS]
+        if name == "vco_core_tank":
+            tm1 = self.ly.layer(126, 0)
+            for y0, y1 in ((-86.79, -85.49), (-89.79, -88.49), (-92.79, -91.49)):
+                for x0, x1 in ((-25.23, -16.38), (16.38, 25.23)):
+                    cell.shapes(tm1).insert(pya.DBox(x0, y0, x1, y1))
+            self.say("patched vco_core_tank TM1.b notches (6 fills) [GDS]")
         return cell.cell_index(), pins, bb, keep
 
     def pin_tm1(self, cell, x, y, name):
@@ -209,24 +218,53 @@ class Asm:
             cid, pins, bb, keep = self.load_child(name)
             kids[name] = {"cid": cid, "pins": pins, "bb0": bb, "keep": keep}
 
-        # Floor place per routing plan
-        gap_ct = 8.0
-        bank_ll = (0.0, 0.0)
+        # Re-pack: bank south X-aligned to tank; var/det east Y-aligned; tail NE
+        # (spec/p27-layout-notes.md P2.7.2c re-pack plan) [HAND]
+        gap = 8.0
+        core_pins0 = kids["vco_core_tank"]["pins"]
+        bank_pins0 = kids["vco_bank"]["pins"]
+        var_pins0 = kids["vco_var"]["pins"]
+        det_pins0 = kids["ampcal_det"]["pins"]
+        core_bb0 = kids["vco_core_tank"]["bb0"]
+        bank_bb0 = kids["vco_bank"]["bb0"]
+        var_bb0 = kids["vco_var"]["bb0"]
+        det_bb0 = kids["ampcal_det"]["bb0"]
+        tail_bb0 = kids["tail_block"]["bb0"]
+
+        bank_h = bank_bb0.top - bank_bb0.bottom
+        core_ll = (0.0, bank_h + gap)
+        # core.tp island x before bank place (core at x=0)
+        core_tp_x = core_pins0["tp"][0] + (core_ll[0] - core_bb0.left)
+        bank_ll = (
+            core_tp_x - bank_pins0["tp"][0] + bank_bb0.left,
+            0.0,
+        )
         bank_bb, bank_tr = self.place_ll(
             c, kids["vco_bank"]["cid"], bank_ll[0], bank_ll[1])
-        core_ll = (0.0, bank_bb.top)
         core_bb, core_tr = self.place_ll(
             c, kids["vco_core_tank"]["cid"], core_ll[0], core_ll[1])
-        tail_ll = (core_bb.right + gap_ct, bank_bb.top)
-        tail_bb, tail_tr = self.place_ll(
-            c, kids["tail_block"]["cid"], tail_ll[0], tail_ll[1])
-        x_e = max(bank_bb.right, tail_bb.right) + 8.0
-        var_ll = (x_e, bank_bb.top + 8.0)
+        core_tn_y = (
+            core_pins0["tn"][1] + (core_ll[1] - core_bb0.bottom)
+        )
+        var_ll = (
+            core_bb.right + 4.0,
+            core_tn_y - var_pins0["tn"][1] + var_bb0.bottom,
+        )
         var_bb, var_tr = self.place_ll(
             c, kids["vco_var"]["cid"], var_ll[0], var_ll[1])
-        det_ll = (x_e, var_bb.top + 8.0)
+        det_ll = (
+            var_bb.right + 4.0,
+            core_tn_y - det_pins0["tn"][1] + det_bb0.bottom,
+        )
         det_bb, det_tr = self.place_ll(
             c, kids["ampcal_det"]["cid"], det_ll[0], det_ll[1])
+        tail_ll = (core_bb.right + 4.0, var_bb.top + 4.0)
+        tail_bb, tail_tr = self.place_ll(
+            c, kids["tail_block"]["cid"], tail_ll[0], tail_ll[1])
+        self.say(
+            f"re-pack LL bank={bank_ll} core={core_ll} var={var_ll} "
+            f"det={det_ll} tail={tail_ll} [HAND]"
+        )
 
         def island_pins(name, tr):
             out = {}
@@ -261,14 +299,12 @@ class Asm:
             f"{outline.width()*outline.height()*1e-6:.4f} mm2 [GDS]"
         )
 
-        # Export top pins at block pin locations (label only; metal already in child)
         def export_pin(net, x, y, layer="m1"):
             if layer == "tm1":
                 self.pin_tm1(c, x, y, net)
             else:
                 self.pin_m1(c, x, y, net)
 
-        # Prefer core tank / ct on TM1; var W as vt; etc.
         cp = self.place_info["vco_core_tank"]["pins"]
         bp = self.place_info["vco_bank"]["pins"]
         tpins = self.place_info["tail_block"]["pins"]
@@ -276,7 +312,6 @@ class Asm:
         dp = self.place_info["ampcal_det"]["pins"]
 
         if "place" in routed or True:
-            # Always label sch ports for LVS pin extract
             if "tp" in cp:
                 export_pin("tp", *cp["tp"], "tm1")
             if "tn" in cp:
@@ -324,126 +359,263 @@ class Asm:
             self.say(f"power spines y_vdd={y_vdd:.2f} y_gnd={y_gnd:.2f} "
                      f"x=[{x0:.1f},{x1:.1f}] w={w_pwr} [HAND]")
 
-            def drop_power(px, py, rail_y, net):
-                # M3 vertical from pin to rail; via12 at pin if M1; via23 at rail
-                c.shapes(self.m3).insert(
-                    pya.DBox(px - 1.0, min(py, rail_y), px + 1.0, max(py, rail_y)))
-                c.insert(pya.DCellInstArray(
-                    vs23, pya.DTrans(pya.DVector(px, rail_y))))
-                c.insert(pya.DCellInstArray(
-                    vs12, pya.DTrans(pya.DVector(px, py))))
+            # Fixed unique M3 columns (avoid tail@256 shorting gnd@256) [TOOL LVS]
+            x_col = {
+                ("tail_block", "vdd"): tail_bb.right + 3.0,
+                ("tail_block", "gnd"): tail_bb.left - 4.0,
+                ("ampcal_det", "vdd"): det_bb.right + 3.0,
+                ("ampcal_det", "gnd"): det_bb.left - 4.0,
+                ("vco_core_tank", "gnd"): core_bb.left - 10.0,
+                ("vco_bank", "gnd"): bank_bb.right + 3.0,
+                ("vco_var", "gnd"): var_bb.right + 3.0,
+            }
+            m2_ready = {
+                ("ampcal_det", "vdd"), ("ampcal_det", "gnd"),
+                ("tail_block", "gnd"),
+            }
 
-            # vdd drops: tail + det
-            for src in (tpins, dp):
+            def drop_power(px, py, rail_y, block, net):
+                xc = x_col[(block, net)]
+                m3w = 2.0
+                c.shapes(self.m2).insert(
+                    pya.DBox(min(px, xc) - 2.0, py - 2.0,
+                             max(px, xc) + 2.0, py + 2.0))
+                c.shapes(self.m3).insert(
+                    pya.DBox(xc - m3w / 2, min(py, rail_y),
+                             xc + m3w / 2, max(py, rail_y)))
+                c.shapes(self.m2).insert(
+                    pya.DBox(xc - 1.5, rail_y - 1.5, xc + 1.5, rail_y + 1.5))
+                if (block, net) not in m2_ready:
+                    c.shapes(self.m1).insert(
+                        pya.DBox(min(px, xc) - 0.2, py - 0.8,
+                                 max(px, xc) + 0.2, py + 0.8))
+                    c.insert(pya.DCellInstArray(
+                        vs12, pya.DTrans(pya.DVector(xc, py))))
+                c.insert(pya.DCellInstArray(
+                    vs23, pya.DTrans(pya.DVector(xc, py))))
+                c.insert(pya.DCellInstArray(
+                    vs23, pya.DTrans(pya.DVector(xc, rail_y))))
+                self.say(f"power {block}.{net} col x={xc:.1f}")
+
+            for src, blk in (
+                (tpins, "tail_block"),
+                (dp, "ampcal_det"),
+            ):
                 if "vdd" in src:
-                    drop_power(src["vdd"][0], src["vdd"][1], y_vdd, "vdd")
-            # gnd drops: core, bank, tail, var, det
-            for src in (cp, bp, tpins, vp, dp):
+                    drop_power(src["vdd"][0], src["vdd"][1], y_vdd, blk, "vdd")
+            for src, blk in (
+                (cp, "vco_core_tank"),
+                (bp, "vco_bank"),
+                (tpins, "tail_block"),
+                (vp, "vco_var"),
+                (dp, "ampcal_det"),
+            ):
                 if "gnd" in src:
-                    drop_power(src["gnd"][0], src["gnd"][1], y_gnd, "gnd")
+                    drop_power(src["gnd"][0], src["gnd"][1], y_gnd, blk, "gnd")
             export_pin("vdd", x1 - 2.0, y_vdd, "m1")
             c.insert(pya.DCellInstArray(
                 vs12, pya.DTrans(pya.DVector(x1 - 2.0, y_vdd))))
 
-        # ---- ct: TM1 short from core ct toward vdd rail column ----
+        # ---- ct: labelled TM1 port + stub to det.ct (clear of tn/tp tracks) ----
         if "ct" in routed and "ct" in cp:
             cx, cy = cp["ct"]
-            # horizontal TM1 to east of core, then note: full ct↔vdd via in later refine
-            x_ct_end = core_bb.right + 3.0
-            self.strap_tm1(c, cx, cy, x_ct_end, cy, w=4.0)
-            export_pin("ct", x_ct_end, cy, "tm1")
-            self.say(f"ct TM1 spine ({cx:.1f},{cy:.1f})→({x_ct_end:.1f},{cy:.1f})")
+            w_ct = 2.0
+            tank_y = cp["tn"][1]
+            y_ct = tank_y + 10.0
+            # East of det so CT TM1 does not sit in the core–tail M3 corridor
+            x_ct_end = det_bb.right + 3.0
+            self.strap_tm1(c, cx, cy, cx, y_ct, w=w_ct)
+            self.strap_tm1(c, cx, y_ct, x_ct_end, y_ct, w=w_ct)
+            export_pin("ct", x_ct_end, y_ct, "tm1")
+            if "ct" in dp:
+                dx, dy = dp["ct"]
+                self.strap_tm1(c, x_ct_end, y_ct, dx, y_ct, w=w_ct)
+                c.shapes(self.tm1).insert(
+                    pya.DBox(dx - 1.5, min(dy, y_ct) - 0.5,
+                             dx + 1.5, max(dy, y_ct) + 0.5))
+                c.insert(pya.DCellInstArray(
+                    vs1t, pya.DTrans(pya.DVector(dx, dy))))
+                self.say(f"ct→det.ct ({dx:.1f},{dy:.1f})")
+            self.say(f"ct TM1 port y={y_ct:.2f} → ({x_ct_end:.1f},{y_ct:.1f})")
 
         # ---- tail ----
         if "tail" in routed and "tail" in cp and "tail" in tpins:
             x0, y0 = cp["tail"]
             x1, y1 = tpins["tail"]
-            # M2 H at y0 to x mid, M3 V to y1, M2 H to x1
-            xm = 0.5 * (core_bb.right + tail_bb.left)
+            # Ring north of island: west M3 → north M2 → drop to pin (no east corridor)
+            xm = min(core_bb.left, bank_bb.left) - 14.0
+            y_north = max(
+                core_bb.top, bank_bb.top, tail_bb.top, var_bb.top, det_bb.top
+            ) + 2.0
+            # keep below vdd rail if power already placed
+            y_north = min(y_north, max(
+                core_bb.top, bank_bb.top, tail_bb.top, var_bb.top, det_bb.top
+            ) + 2.0)
             c.shapes(self.m2).insert(
                 pya.DBox(min(x0, xm), y0 - 1.0, max(x0, xm), y0 + 1.0))
             c.shapes(self.m3).insert(
-                pya.DBox(xm - 1.0, min(y0, y1), xm + 1.0, max(y0, y1)))
+                pya.DBox(xm - 1.0, min(y0, y_north), xm + 1.0, max(y0, y_north)))
             c.shapes(self.m2).insert(
-                pya.DBox(min(xm, x1), y1 - 1.0, max(xm, x1), y1 + 1.0))
+                pya.DBox(min(xm, x1), y_north - 1.0, max(xm, x1), y_north + 1.0))
+            c.shapes(self.m3).insert(
+                pya.DBox(x1 - 1.0, min(y_north, y1), x1 + 1.0, max(y_north, y1)))
+            c.shapes(self.m2).insert(
+                pya.DBox(x0 - 0.5, y0 - 0.5, x0 + 0.5, y0 + 0.5))
+            c.shapes(self.m2).insert(
+                pya.DBox(x1 - 0.5, y1 - 0.5, x1 + 0.5, y1 + 0.5))
             c.insert(pya.DCellInstArray(vs12, pya.DTrans(pya.DVector(x0, y0))))
             c.insert(pya.DCellInstArray(vs23, pya.DTrans(pya.DVector(xm, y0))))
-            c.insert(pya.DCellInstArray(vs23, pya.DTrans(pya.DVector(xm, y1))))
+            c.insert(pya.DCellInstArray(vs23, pya.DTrans(pya.DVector(xm, y_north))))
+            c.insert(pya.DCellInstArray(vs23, pya.DTrans(pya.DVector(x1, y_north))))
             c.insert(pya.DCellInstArray(vs12, pya.DTrans(pya.DVector(x1, y1))))
-            self.say(f"tail route core→tail via x={xm:.1f}")
+            self.say(f"tail route ring x={xm:.1f} y_north={y_north:.1f}")
 
-        # ---- tn / tp (symmetric TM1) ----
+        # ---- tn / tp (solid TM1 Manhattan pours; pitch 8 → edge gap 6 ≥ 1.64) ----
         if "tn_tp" in routed:
-            for net in ("tn", "tp"):
-                pts = []
-                if net in cp:
-                    pts.append(cp[net])
-                if net in bp:
-                    pts.append(bp[net])
-                if net in vp:
-                    pts.append(vp[net])
-                if net in dp:
-                    pts.append(dp[net])
-                if len(pts) < 2:
-                    self.say(f"{net}: need ≥2 pins, have {len(pts)}")
-                    continue
-                # Sort by y descending; TM1 Manhattan through a common y
-                ys = [p[1] for p in pts]
-                y_sp = 0.5 * (min(ys) + max(ys))
-                xs = [p[0] for p in pts]
-                # horizontal spine
-                self.strap_tm1(c, min(xs), y_sp, max(xs), y_sp, w=4.0)
-                for px, py in pts:
-                    self.strap_tm1(c, px, py, px, y_sp, w=4.0)
-                # via TM1→M1 at var/det pins (M1 stubs)
-                for block, pp in (("vco_var", vp), ("ampcal_det", dp)):
-                    if net in pp:
-                        px, py = pp[net]
-                        c.insert(pya.DCellInstArray(
-                            vs1t, pya.DTrans(pya.DVector(px, py))))
-                self.say(f"{net} TM1 spine y={y_sp:.2f} x=[{min(xs):.1f},"
-                         f"{max(xs):.1f}] n_pins={len(pts)}")
+            tank_y = cp["tn"][1]
+            # tn top edge must stay ≤ det.ct.y − 1.64 − pour margin [DS/TOOL]
+            track = {"tn": tank_y + 2.5, "tp": tank_y - 5.0}
+            w_tank = 2.0
+            hw = w_tank / 2
 
-        # ---- vt shielded ----
+            def tm1_pour(x0, y0, x1, y1):
+                c.shapes(self.tm1).insert(
+                    pya.DBox(min(x0, x1) - hw, min(y0, y1) - hw,
+                             max(x0, x1) + hw, max(y0, y1) + hw))
+
+            lengths = {}
+            # Separate west escapes for tn/tp (shared column shorted them) [TOOL LVS]
+            x_esc = {"tn": core_bb.left - 3.0, "tp": core_bb.left - 7.0}
+            for net in ("tn", "tp"):
+                pins = {}
+                for label, pp in (
+                    ("core", cp), ("bank", bp), ("var", vp), ("det", dp),
+                ):
+                    if net in pp:
+                        pins[label] = pp[net]
+                if len(pins) < 2:
+                    self.say(f"{net}: need ≥2 pins, have {len(pins)}")
+                    continue
+                y_sp = track[net]
+                xe = x_esc[net]
+                L = 0.0
+                spine_pts = [pins[k] for k in ("core", "var", "det") if k in pins]
+                spine_pts.append((xe, y_sp))
+                xs = [p[0] for p in spine_pts]
+                tm1_pour(min(xs), y_sp, max(xs), y_sp)
+                L += max(xs) - min(xs)
+                if "core" in pins:
+                    px, py = pins["core"]
+                    tm1_pour(px, py, px, y_sp)
+                    L += abs(py - y_sp)
+                if "bank" in pins:
+                    px, py = pins["bank"]
+                    tm1_pour(px, py, xe, py)
+                    tm1_pour(xe, py, xe, y_sp)
+                    L += abs(xe - px) + abs(y_sp - py)
+                for src in ("var", "det"):
+                    if src not in pins:
+                        continue
+                    px, py = pins[src]
+                    tm1_pour(px, py, px, y_sp)
+                    L += abs(py - y_sp)
+                    for lyr in (self.m1, self.m2, self.tm1):
+                        c.shapes(lyr).insert(
+                            pya.DBox(px - 0.8, py - 0.8, px + 0.8, py + 0.8))
+                    c.insert(pya.DCellInstArray(
+                        vs1t, pya.DTrans(pya.DVector(px, py))))
+                lengths[net] = L
+                self.say(
+                    f"{net} TM1 spine y={y_sp:.2f} x=[{min(xs):.1f},{max(xs):.1f}] "
+                    f"L={L:.1f} um w={w_tank} via_esc={xe:.1f} [GDS/HAND]"
+                )
+            if "tn" in lengths and "tp" in lengths:
+                Cp = 0.10  # fF/µm @ w=2 [HAND]
+                self.say(
+                    f"tn/tp added C≈{lengths['tn']*Cp:.1f}/"
+                    f"{lengths['tp']*Cp:.1f} fF (C'={Cp}) "
+                    f"dL={abs(lengths['tn']-lengths['tp']):.1f} um [HAND]"
+                )
+            # Surgical TM1.b notch fills at known spine/core/det junctions [TOOL]
+            for box in (
+                (121.0, 385.4, 133.0, 386.4),   # core tn stub ↔ child TM1
+                (314.0, 382.8, 320.0, 384.0),   # det tp via landing
+            ):
+                c.shapes(self.tm1).insert(pya.DBox(*box))
+
+        # ---- vt shielded (south of bank; M3 column west of var, clear of tank stubs) ----
         if "vt" in routed and "W" in vp:
             vx, vy = vp["W"]
             y_vt = bank_bb.bottom - 6.0
-            x_west = bank_bb.left - 10.0
-            # M3 vertical drop from pin to y_vt, M2 H west
-            c.shapes(self.m3).insert(
-                pya.DBox(vx - 1.0, min(vy, y_vt), vx + 1.0, max(vy, y_vt)))
+            x_west = min(bank_bb.left, var_bb.left) - 10.0
+            x_col = var_bb.left - 6.0  # 252: clear of tail M3 @ 260 and stubs
+            # M2 H from W pin to column, M3 V on column, M2 H west on y_vt
             c.shapes(self.m2).insert(
-                pya.DBox(min(x_west, vx), y_vt - 1.0, max(x_west, vx), y_vt + 1.0))
+                pya.DBox(min(vx, x_col) - 0.2, vy - 1.0,
+                         max(vx, x_col) + 0.2, vy + 1.0))
+            c.shapes(self.m3).insert(
+                pya.DBox(x_col - 1.0, min(vy, y_vt), x_col + 1.0, max(vy, y_vt)))
+            c.shapes(self.m2).insert(
+                pya.DBox(min(x_west, x_col), y_vt - 1.0,
+                         max(x_west, x_col), y_vt + 1.0))
             for dy in (-2.5, 2.5):
                 c.shapes(self.m2).insert(
-                    pya.DBox(min(x_west, vx), y_vt + dy - 0.7,
-                             max(x_west, vx), y_vt + dy + 0.7))
+                    pya.DBox(min(x_west, x_col), y_vt + dy - 0.7,
+                             max(x_west, x_col), y_vt + dy + 0.7))
+            c.shapes(self.m2).insert(
+                pya.DBox(vx - 1.0, vy - 1.0, vx + 1.0, vy + 1.0))
             c.insert(pya.DCellInstArray(vs12, pya.DTrans(pya.DVector(vx, vy))))
             c.insert(pya.DCellInstArray(vs23, pya.DTrans(pya.DVector(vx, vy))))
-            c.insert(pya.DCellInstArray(vs23, pya.DTrans(pya.DVector(vx, y_vt))))
+            c.insert(pya.DCellInstArray(vs23, pya.DTrans(pya.DVector(x_col, vy))))
+            c.insert(pya.DCellInstArray(vs23, pya.DTrans(pya.DVector(x_col, y_vt))))
             export_pin("vt", x_west, y_vt, "m1")
             c.insert(pya.DCellInstArray(
                 vs12, pya.DTrans(pya.DVector(x_west, y_vt))))
-            self.say(f"vt shielded escape y={y_vt:.2f}")
+            self.say(f"vt shielded escape y={y_vt:.2f} x_col={x_col:.1f}")
 
-        # ---- controls (minimal: vbp bank↔var; codes/gates labelled only) ----
+        # ---- controls: vbp only on island; gates/codes exported ----
         if "controls" in routed:
             if "vbp" in bp and "vbp" in vp:
                 x0, y0 = bp["vbp"]
                 x1, y1 = vp["vbp"]
-                ym = y0
+                # Stay south of tank: use bank mid Y, columns outside cells
+                y_ctrl = min(y0, 80.0)
+                x_col0 = bank_bb.left - 3.0
+                x_col1 = var_bb.right + 3.0
+                # pin → south/west column → H → east column → pin
                 c.shapes(self.m2).insert(
-                    pya.DBox(min(x0, x1), ym - 1.0, max(x0, x1), ym + 1.0))
+                    pya.DBox(min(x0, x_col0) - 0.2, y0 - 1.0,
+                             max(x0, x_col0) + 0.2, y0 + 1.0))
                 c.shapes(self.m3).insert(
-                    pya.DBox(x1 - 1.0, min(ym, y1), x1 + 1.0, max(ym, y1)))
+                    pya.DBox(x_col0 - 1.0, min(y0, y_ctrl),
+                             x_col0 + 1.0, max(y0, y_ctrl)))
+                c.shapes(self.m2).insert(
+                    pya.DBox(min(x_col0, x_col1), y_ctrl - 1.0,
+                             max(x_col0, x_col1), y_ctrl + 1.0))
+                c.shapes(self.m3).insert(
+                    pya.DBox(x_col1 - 1.0, min(y_ctrl, y1),
+                             x_col1 + 1.0, max(y_ctrl, y1)))
+                c.shapes(self.m2).insert(
+                    pya.DBox(min(x_col1, x1) - 0.2, y1 - 1.0,
+                             max(x_col1, x1) + 0.2, y1 + 1.0))
+                c.shapes(self.m2).insert(
+                    pya.DBox(x0 - 1.0, y0 - 1.0, x0 + 1.0, y0 + 1.0))
+                c.shapes(self.m2).insert(
+                    pya.DBox(x1 - 1.0, y1 - 1.0, x1 + 1.0, y1 + 1.0))
                 c.insert(pya.DCellInstArray(
                     vs12, pya.DTrans(pya.DVector(x0, y0))))
                 c.insert(pya.DCellInstArray(
-                    vs23, pya.DTrans(pya.DVector(x1, ym))))
+                    vs23, pya.DTrans(pya.DVector(x_col0, y0))))
+                c.insert(pya.DCellInstArray(
+                    vs23, pya.DTrans(pya.DVector(x_col0, y_ctrl))))
+                c.insert(pya.DCellInstArray(
+                    vs23, pya.DTrans(pya.DVector(x_col1, y_ctrl))))
+                c.insert(pya.DCellInstArray(
+                    vs23, pya.DTrans(pya.DVector(x_col1, y1))))
                 c.insert(pya.DCellInstArray(
                     vs12, pya.DTrans(pya.DVector(x1, y1))))
-                self.say("vbp bank↔var routed")
-            self.say("controls: gate/code pins exported; full bus straps TBD if LVS needs")
+                self.say(f"vbp bank↔var via y_ctrl={y_ctrl:.1f}")
+            self.say("controls: gate/code pins exported; AFE buses at synthesizer top")
 
         # write GDS
         gds = os.path.join(OUT, "vco_top.gds")

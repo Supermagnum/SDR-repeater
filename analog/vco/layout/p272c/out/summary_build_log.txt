@@ -1,62 +1,73 @@
-place vco_bank bb=(0,0;551.08,274.77)
-  pin g0 @ (34.32,212.94)
-  pin g1 @ (113.70,212.84)
-  pin g10 @ (303.20,125.45)
-  pin g11 @ (437.67,125.45)
-  pin g2 @ (195.12,212.81)
-  pin g3 @ (280.56,212.86)
-  pin g4 @ (373.59,212.85)
-  pin g5 @ (34.26,34.66)
-  pin g6 @ (168.73,34.66)
-  pin g7 @ (303.20,34.66)
-  pin g8 @ (34.26,125.45)
-  pin g9 @ (168.73,125.45)
-  pin gnd @ (550.73,0.25)
-  pin tn @ (282.79,273.77)
-  pin tp @ (262.79,273.77)
-  pin vbp @ (1.00,86.29)
-place vco_core_tank bb=(0,274.77;254,708.76)
-  pin ct @ (127.00,379.15)
-  pin gnd @ (127.00,341.77)
-  pin tail @ (127.00,363.27)
-  pin tn @ (141.38,374.15)
-  pin tp @ (112.62,374.15)
-  pin vdd @ (127.00,382.15)
-place tail_block bb=(262,274.77;515.92,649.06)
-  pin code0 @ (375.29,370.04)
-  pin code1 @ (375.29,370.94)
-  pin code2 @ (375.29,371.84)
-  pin code3 @ (375.29,372.74)
-  pin code4 @ (375.29,373.64)
-  pin gnd @ (262.30,279.02)
-  pin tail @ (494.64,384.23)
-  pin vbp_tail @ (421.08,302.38)
-  pin vdd @ (505.42,379.38)
-place vco_var bb=(559.08,282.77;600.38,443.24)
-  pin W @ (561.08,283.02)
-  pin gnd @ (600.13,318.07)
-  pin tn @ (560.08,336.34)
-  pin tp @ (560.08,299.79)
-  pin vbp @ (571.37,440.89)
-place ampcal_det bb=(559.08,451.24;709.58,574.665)
-  pin cmp @ (643.10,513.22)
-  pin ct @ (582.51,514.83)
-  pin en @ (709.26,481.25)
-  pin gnd @ (567.33,497.47)
-  pin hold @ (573.72,503.47)
-  pin rep @ (587.50,500.47)
-  pin tn @ (592.38,508.57)
-  pin tp @ (572.64,508.57)
-  pin vdd @ (582.25,510.73)
-  pin vthn @ (644.67,495.66)
-outline bbox=(0,0;709.58,708.76) area=0.5029 mm2 [GDS]
-power spines y_vdd=712.76 y_gnd=-4.00 x=[-2.0,711.6] w=4.0 [HAND]
-ct TM1 spine (127.0,379.1)→(257.0,379.1)
-tail route core→tail via x=258.0
-tn TM1 spine y=391.17 x=[141.4,592.4] n_pins=4
-tp TM1 spine y=391.17 x=[112.6,572.6] n_pins=4
-vt shielded escape y=-6.00
-vbp bank↔var routed
-controls: gate/code pins exported; full bus straps TBD if LVS needs
+patched vco_core_tank TM1.b notches (6 fills) [GDS]
+re-pack LL bank=(-150.17, 0.0) core=(0.0, 282.77) var=(258.0, 328.575) det=(303.3, 324.815) tail=(258.0, 493.04499999999996) [HAND]
+place vco_bank bb=(-150.17,0;400.91,274.77)
+  pin g0 @ (-115.85,212.94)
+  pin g1 @ (-36.47,212.84)
+  pin g10 @ (153.03,125.45)
+  pin g11 @ (287.50,125.45)
+  pin g2 @ (44.95,212.81)
+  pin g3 @ (130.39,212.86)
+  pin g4 @ (223.42,212.85)
+  pin g5 @ (-115.91,34.66)
+  pin g6 @ (18.56,34.66)
+  pin g7 @ (153.03,34.66)
+  pin g8 @ (-115.91,125.45)
+  pin g9 @ (18.56,125.45)
+  pin gnd @ (400.56,0.25)
+  pin tn @ (132.62,273.77)
+  pin tp @ (112.62,273.77)
+  pin vbp @ (-149.17,86.29)
+place vco_core_tank bb=(0,282.77;254,716.76)
+  pin ct @ (127.00,387.15)
+  pin gnd @ (127.00,349.77)
+  pin tail @ (127.00,371.27)
+  pin tn @ (141.38,382.15)
+  pin tp @ (112.62,382.15)
+  pin vdd @ (127.00,390.15)
+place tail_block bb=(258,493.045;511.92,867.335)
+  pin code0 @ (371.29,588.31)
+  pin code1 @ (371.29,589.21)
+  pin code2 @ (371.29,590.11)
+  pin code3 @ (371.29,591.01)
+  pin code4 @ (371.29,591.91)
+  pin gnd @ (258.30,497.29)
+  pin tail @ (490.64,602.50)
+  pin vbp_tail @ (417.08,520.65)
+  pin vdd @ (501.42,597.66)
+place vco_var bb=(258,328.575;299.3,489.045)
+  pin W @ (260.00,328.82)
+  pin gnd @ (299.05,363.88)
+  pin tn @ (259.00,382.15)
+  pin tp @ (259.00,345.60)
+  pin vbp @ (270.29,486.69)
+place ampcal_det bb=(303.3,324.815;453.8,448.24)
+  pin cmp @ (387.32,386.79)
+  pin ct @ (326.73,388.40)
+  pin en @ (453.48,354.82)
+  pin gnd @ (311.55,371.04)
+  pin hold @ (317.94,377.04)
+  pin rep @ (331.72,374.04)
+  pin tn @ (336.60,382.15)
+  pin tp @ (316.86,382.15)
+  pin vdd @ (326.48,384.30)
+  pin vthn @ (388.89,369.23)
+outline bbox=(-150.17,0;511.92,867.335) area=0.5743 mm2 [GDS]
+power spines y_vdd=871.33 y_gnd=-4.00 x=[-152.2,513.9] w=4.0 [HAND]
+power tail_block.vdd col x=514.9
+power ampcal_det.vdd col x=456.8
+power vco_core_tank.gnd col x=-10.0
+power vco_bank.gnd col x=403.9
+power tail_block.gnd col x=254.0
+power vco_var.gnd col x=302.3
+power ampcal_det.gnd col x=299.3
+ct→det.ct (326.7,388.4)
+ct TM1 port y=392.15 → (456.8,392.1)
+tail route ring x=-164.2 y_north=869.3
+tn TM1 spine y=384.65 x=[-3.0,336.6] L=593.6 um w=2.0 via_esc=-3.0 [GDS/HAND]
+tp TM1 spine y=377.15 x=[-7.0,316.9] L=588.4 um w=2.0 via_esc=-7.0 [GDS/HAND]
+tn/tp added C≈59.4/58.8 fF (C'=0.1) dL=5.2 um [HAND]
+vt shielded escape y=-6.00 x_col=252.0
+vbp bank↔var via y_ctrl=80.0
+controls: gate/code pins exported; AFE buses at synthesizer top
 wrote /foss/designs/analog/vco/layout/p272c/out/vco_top.gds.gz
 wrote /foss/designs/analog/vco/layout/p272c/out/vco_top.spice

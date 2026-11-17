@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **P2.7.2c WIP — not accepted.** Routing plan written; first `vco_top` join outline **0.5029 mm²** [GDS]. DRC non-density FAIL; both LVS FAIL. Stop: `p272c/out/summary_p272c_stop.txt`. Chip art accepted (overlay). Blocks PASS.
+Status: **P2.7.2c WIP — not accepted.** Re-pack plan + join in progress. Outline **0.5743 mm²** [GDS]. Per-group DRC reached clean; full LVS FAIL (mega-short). tn/tp C≈59 fF/side [HAND]. Stop: `p272c/out/summary_p272c_stop.txt`. Chip art accepted (overlay). Blocks PASS.
 
 ---
 
@@ -589,8 +589,9 @@ target −105 retired. Post-layout re-check target ≤ −100 dBc at that point.
 
 #### P2.7.2c VCO top assembly — routing plan (2026-11-17) [HAND/GDS] — before join
 
-Written per D22 join method (`decisions.md`). Join follows this plan; amend here if a
-merge forces a change. Cell: `vco_top`. Dir: `analog/vco/layout/p272c/`.
+Written per D22 join method (`decisions.md`). First pack (57a9232, outline
+0.5029 mm² [GDS]) not accepted — see `decisions.md` "P2.7.2c first assembly".
+**Re-pack** below is the join plan. Cell: `vco_top`. Dir: `analog/vco/layout/p272c/`.
 Sch: `analog/vco/sch/vco_top.sch` (ports `tp tn ct vt vdd gnd vbp vbp_tail cmp tail hold
 rep en vthn g0..g11 code0..code4`). Layout name map: `vco_core_tank` ← l2n0+core;
 `tail_block` ← vco_tail_dac; var pin **`W`** ↔ sch **`vt`**.
@@ -604,73 +605,94 @@ rep en vthn g0..g11 code0..code4`). Layout name map: `vco_core_tank` ← l2n0+co
 | M3 | **vertical only** | Drops / risers between M2 tracks and pins; power columns. |
 | M4 | **horizontal only** | Optional second H tier if M2 is full (controls only; not tn/tp). |
 | M5 | — | Not for island straps (MIM plates inside blocks). |
-| TM1 | **tank + ct** | tn / tp / ct spines (core+bank stubs are already TM1) [GDS]. |
+| TM1 | **tank + ct** | tn / tp / ct spines (core+bank stubs are already TM1) [GDS]. **w = 2.0 µm** (TM1.a ≥ 1.7 [DS]). |
 | TM2 | — | **Not** on the island (chip-art keep-out: no TM2 straps / RF under art) [decisions 2026-11-17]. |
 
-Via rule: PDK `via_stack` 1×1 only. No hand via arrays. Via TM1↔M1 / TM1↔M2 only at
-var/det drops outside child bboxes.
+Via rule: PDK `via_stack` 1×1 only. No hand via arrays. Via TM1↔M1 only at var/det
+drops. Power pin drops: via12 + via23 at the pin (M1→M2→M3) and via23 at the M2 rail.
 
-**Floor place (island origin = bank LL after place)** — expands the 2b outline so
-var + det fit (2b east pocket was only ≈ 43 µm wide [GDS]; det needs ≈ 150 µm).
+**Re-pack plan [HAND] — written before placing (tank routing target)**
 
-| Block | LL (µm) | Notes |
+Goal: bank, varactor and detector around the tank ports; tn / tp short and symmetric;
+tail on the ct / tail side; controls on the far side from tn / tp. Target added routing
+C ≤ 30 fF / side [HAND].
+
+| Block | Place rule | Why |
 |---|---|---|
-| `vco_bank` | (0, 0) | Widest; south [outline] |
-| `vco_core_tank` | (0, bank.top) | Inductor NW |
-| `tail_block` | (core.right + 8, bank.top) | 8 µm corridor [HAND] |
-| `vco_var` | (max(bank.right, tail.right) + 8, bank.top + 8) | East column; tank west |
-| `ampcal_det` | (var.left, var.top + 8) | Stacked above var; tank west/north |
+| `vco_bank` | South of core; **X-align** `bank.tp.x` to `core.tp.x` | Bank tn/tp sit on the north edge — face the tank. |
+| `vco_core_tank` | `(0, bank.top + 8)` | 8 µm corridor [HAND]. |
+| `vco_var` | East of core; **Y-align** `var.tn.y` to `core.tn.y` | West-edge tn/tp face the tank; H ≈ 118 µm [HAND]. |
+| `ampcal_det` | East of var; **Y-align** `det.tn.y` to `core.tn.y` | Same tank Y; H ≈ 195 µm [HAND]. |
+| `tail_block` | East of core, north of var (ct / tail side) | Clear of tn/tp spines. |
+| Controls | Bank south / east escapes only | Far from tn / tp and V_tune. |
 
-Strip child pin **texts** on non-exported nets after place (same as tail/var joins).
-Keep top-level pin texts for sch ports.
+Structural floor: core tank pins are ≈ 99 µm above the core south edge [GDS]; bank ports
+are at the bank north edge. Abutted bank→core therefore needs ≈ 108 µm of vertical
+stub (99 + gap) that cannot be removed without invading cells [GDS/HAND].
 
-**Approximate island pin targets after place** (local → island; verify in build log) [GDS]
+| Pack | tn route L [HAND] | w TM1 | C′ [HAND] | Added C / side [HAND] | Series R / side [HAND] |
+|---|---|---|---|---|---|
+| First (57a9232) | ≈ 758 µm | 4.0 µm | 0.20 fF/µm | ≈ 90–152 fF | ≈ 1.9 Ω (R□≈0.01 Ω/sq) |
+| Re-pack (this) | ≈ 320–350 µm | 2.0 µm | 0.10 fF/µm | ≈ 32–35 fF | ≈ 1.6–1.7 Ω |
+
+Target ≤ 30 fF / side is **not met** at the structural minimum (bank V + var H alone ≈
+226 µm → ≈ 23 fF; with det ≈ 32–35 fF). Continue with this best plan. tn−tp length
+mismatch ≈ 29 µm [HAND] (var.tp sits ≈ 36 µm below var.tn inside the cell [GDS]).
+
+**Floor place (island; verify LL in build log)**
+
+| Block | LL (µm) [HAND] | Notes |
+|---|---|---|
+| `vco_bank` | ≈ (−150.2, 0) | X-aligned to core.tp |
+| `vco_core_tank` | (0, ≈ 282.8) | bank.top + 8 |
+| `vco_var` | (≈ 258.0, ≈ 328.6) | east; tn Y-aligned |
+| `ampcal_det` | (≈ 303.3, ≈ 324.8) | east of var |
+| `tail_block` | (≈ 258.0, ≈ 493.0) | east of core, north of var |
+
+Expected outline ≈ 0.57 mm² [HAND] (die slack still ≫ 0; art TM2 keep-out is a chip-
+floorplan item, not in this island — `spec/p27-floorplan.md` §8).
+
+Strip child pin **texts** on non-exported nets after place. Keep top-level pin texts
+for sch ports.
+
+**Approximate island pin targets after re-pack** [HAND]
 
 | Net | Core (TM1) | Bank (TM1) | Var (M1) | Det (M1) | Tail (M1) |
 |---|---|---|---|---|---|
-| tp | ≈ (112.6, 374.2) | ≈ (262.8, 273.8) | west side | west | — |
-| tn | ≈ (141.4, 374.2) | ≈ (282.8, 273.8) | west side | west | — |
-| ct | ≈ (127.0, 379.2) | — | — | west | — |
-| tail | M1 south of core | — | — | — | east/center |
+| tp | ≈ (112.6, 382.2) | ≈ (112.6, 273.8) | ≈ (259, 345.6) | ≈ (316.9, 382.2) | — |
+| tn | ≈ (141.4, 382.2) | ≈ (132.6, 273.8) | ≈ (259, 382.2) | ≈ (336.6, 382.2) | — |
+| ct | ≈ (127, 387.2) | — | — | det.ct Y-align | — |
+| tail | south of tank in core | — | — | — | NE of core |
 | vt (W) | — | — | SW pin | — | — |
-| vdd / gnd | TM1/M1 | M1 | M1 | M1 | M1 |
-| g0..g11 | — | M1 (binary row) | — | — | — |
-| code0..4 | — | — | — | — | M1 cluster |
-| en / cmp / vthn | — | — | — | E / mid | — |
 
 **Fixed tracks (island µm; refine ±1 µm to clear DRC — log amendments)**
 
 | Net / group | Track | Layer | Notes |
 |---|---|---|---|
-| **vdd** (VR_ANA1) | y_vdd = max(block tops) + 4 | M2 H | M3 drops in corridors; width ≥ 4 µm [HAND] |
-| **gnd** | y_gnd = min(block bottoms) − 4 | M2 H | Guard ring later; width ≥ 4 µm |
-| **ct** | y_ct = core_ct.y; spine to east vdd column | **TM1** then via to M2/M3 at vdd | **Labelled top port**; LVS must see ct↔VR_ANA1 (not pin-only drop) [decisions] |
-| **tail** | x_tail = mid core–tail gap | M3 V + M2 H | Core tail pin ↔ tail_block.tail; clear of tn/tp |
-| **tn** | x_tn spine + y_tn = midpoint(core_tn.y, bank_tn.y) | **TM1** | Fully **symmetric** with tp; width ≥ 4 µm; shortest Manhattan to bank / var / det stubs |
-| **tp** | mirror of tn about ct.x | **TM1** | Same width / length budget; mismatch → report |
-| **tn/tp → var** | TM1 west of var → via_stack to M1 at var tn/tp | TM1→M1 | Outside var bbox |
-| **tn/tp/ct → det** | TM1 west/north of det → via to M1 | TM1→M1 | Away from hold/rep inside det |
-| **vt** (V_tune) | y_vt south of bank / west of var.W | M2 H, **shielded** | Parallel gnd M2 at y_vt±2.5; no cross tn/tp; exit west to pad |
-| **vbp** | y_vbp = bank.vbp.y band | M2 H | Bank ↔ var.vbp; away from tank |
-| **vbp_tail** | east M3 then M2 | M3/M2 | Tail only until top |
-| **g0..g11** | y_g = bank south of tank pins − 6 | M2 H + M3 | AFE south/east; **away from tn/tp and vt** |
-| **code0..4** | x_code east of tail | M3 V + M2 | Away from tank |
-| **en, cmp, vthn, hold, rep** | east of det | M2/M3 | Own columns; same isolation lesson as D22 |
+| **vdd** (VR_ANA1) | y_vdd = max(block tops) + 4 | M2 H | M3 drops; via12+via23 at pin, via23 at rail; w ≥ 4 µm [HAND] |
+| **gnd** | y_gnd = min(block bottoms) − 4 | M2 H | Same via rule; w ≥ 4 µm |
+| **ct** | y_ct = core_ct.y; TM1 east + stub to det.ct | **TM1** | **Labelled LVS-checked top port** (not a pin-only drop). Sch exports `ct`; do not hard-tie to vdd in the island. |
+| **tail** | x_tail = mid core–tail gap | M3 V + M2 H | Core.tail ↔ tail_block.tail; clear of tn/tp |
+| **tn** | y_tn = tank_y + 2.0 | **TM1 w=2** | H spine + V stubs to core/bank/var/det; pitch 4 µm vs tp (TM1.b ≥ 1.64 [DS]) |
+| **tp** | y_tp = tank_y − 2.0 | **TM1 w=2** | Mirror track; report L and C mismatch |
+| **tn/tp → var/det** | stub to pin + via_stack TM1→M1 | TM1→M1 | At pin; cover via for V1.b |
+| **vt** (V_tune) | y_vt south of bank, west escape | M2 H, **shielded** | Parallel gnd M2 at y_vt±2.5; **no cross tn/tp**; exit west |
+| **vbp** | south/east of tank band | M2 H + M3 | Bank ↔ var; away from tn/tp |
+| **g0..g11 / code0..4 / en..rep** | south of bank / east of det | M2/M3 | **Away from tn/tp and V_tune**; AFE buses at synthesizer top |
 
 **Join order** (DRC + KLayout LVS + netgen after each; full unique LVS = sign-off):
 
 1. `place` — instances + outline; no straps
-2. `power` — vdd / gnd spines + guard stubs
-3. `ct` — centre-tap to VR_ANA1; export labelled `ct` port
+2. `power` — vdd / gnd spines
+3. `ct` — labelled `ct` port + det.ct stub
 4. `tail` — core ↔ tail_block
 5. `tn_tp` — tank differential (core ↔ bank ↔ var ↔ det)
 6. `vt` — V_tune shielded
-7. `controls` — g0..g11, code0..4, vbp / vbp_tail, en / cmp / vthn / hold / rep
+7. `controls` — vbp, exported gates/codes (buses at synth top)
 
 **Pass:** DRC clean (density + SVaricap M1.b waived); both LVS uniquely match
 `vco_top` hierarchy; inductor fab/LVS GDS diff still PASS; var W/L/Nx script compare;
-`ct` port present; fingers by script. Then die §8 re-total + TM2-free ≈ 0.9×1.0 mm
-region for chip art (`decisions.md` 2026-11-17).
+`ct` port present; fingers by script. Then die §8 re-total.
 
 **Artifacts:** `p272c/build_assemble.py`, `out/vco_top.gds.gz`, per-group
 `summary_drc_lvs_*.txt`, `summary_p272c_stop.txt`.

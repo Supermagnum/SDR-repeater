@@ -1,51 +1,58 @@
-# P2.7.2c VCO top assembly — stop report (2026-11-17)
+# P2.7.2c VCO top re-pack / join — stop report (2026-11-17)
 
 ## Done this run
-1. Decision recorded: `decisions.md` "2026-11-17 — Chip art cell".
-2. Routing plan written **before** join: `spec/p27-layout-notes.md` § P2.7.2c.
-3. Assembler: `analog/vco/layout/p272c/build_assemble.py` + `run_drc_lvs.py`.
-4. First full `--nets all` place+route attempt of `vco_top`.
+0. Housekeeping commit `13e0012`: ignore `*.lvsdb` (removed from index); decision
+   "P2.7.2c first assembly"; TM2-free art region reserved in `spec/p27-floorplan.md` §8.
+1. Re-pack plan [HAND] written in `spec/p27-layout-notes.md` before place: bank south
+   X-aligned to tank; var+det east Y-aligned; tail NE; controls south. Target added C
+   ≤ 30 fF/side **not met** at structural minimum — continued with best plan.
+2. Routing plan updated (layer / tracks / ct port / shielded vt / controls away).
+3. Join by net group with DRC + both LVS after each. Patched six pre-existing core
+   TM1.b notches in the assembler (accepted `vco_core_tank` fab GDS still has them).
 
 ## Island outline [GDS]
 | Item | Value | Tag |
 |---|---|---|
-| Bbox | (0,0;709.58,708.76) µm | [GDS] |
-| Area | **0.5029 mm²** | [GDS] |
-| vs prior outline | 0.3906 → 0.5029 (+0.1123) | [GDS] |
-| Cause | East column for var+det (2b pocket ≈43 µm too narrow for det) | [HAND] |
+| Bbox | (−150.17, 0; 511.92, 867.335) µm | [GDS] |
+| Area | **0.5743 mm²** | [GDS] |
+| vs first pack | 0.5029 → 0.5743 | [GDS] |
 
-## Pass criteria (sign-off) — not met
+## tn / tp added C (PEX not run)
+| Pack | L tn / tp [HAND] | w | C′ [HAND] | C / side [HAND] | dL [HAND] | Series R [HAND] |
+|---|---|---|---|---|---|---|
+| First (57a9232) | ≈ 758 µm | 4 µm | 0.20 fF/µm | ≈ 90–152 fF | — | ≈ 1.9 Ω |
+| Re-pack plan (pre-join) | ≈ 320–350 µm | 2 µm | 0.10 fF/µm | ≈ 32–35 fF | ≈ 29 µm | ≈ 1.6–1.7 Ω |
+| As built (west bank escape) | **593.6 / 588.4 µm** | 2 µm | 0.10 fF/µm | **≈ 59.4 / 58.8 fF** | 5.2 µm | ≈ 3.0 Ω |
+
+Bank stubs cannot pierce the core on TM1; west corridor escape length dominates C.
+Extracted RC: **not run**.
+
+## Pass criteria — not met
 | Check | Result |
 |---|---|
-| DRC (dens. + SVaricap M1.b waived) | **FAIL** non-density: M2.b, M3.b, TM1.a, TM1.b, V1.b (+ M1.b = SVaricap) [TOOL] |
-| KLayout LVS unique | **FAIL** [TOOL] |
-| netgen unique | **FAIL** [TOOL] |
-| Inductor fab/LVS diff | not re-run this stop (prior PASS at core) |
+| DRC (dens. + SVaricap M1.b waived) | **Was clean** through place→power→ct→tail→tn_tp→vt→controls once; **last tail-ring change** re-introduced M2.b / TM1.a [TOOL]. Current prove: FAIL non-density M2.b, TM1.a (+ waived M1.b). |
+| KLayout LVS unique | **FAIL** — extracted top ports show mega-short `W\|cmp\|ct\|gnd\|tail\|tn\|tp\|vbp\|vdd\|vt` [TOOL] |
+| netgen unique | **FAIL** (device/net count mismatch) [TOOL] |
+| Inductor fab/LVS GDS diff | not re-run this stop |
 | Var W/L/Nx compare | not re-run this stop |
-| ct labelled port | exported on TM1 [GDS]; LVS connectivity unproven |
-| Fingers script | not run this stop |
+| ct labelled port | exported on TM1 [GDS]; LVS connectivity unproven (in mega-short) |
+| Fingers script | not run |
 
-## tn / tp routing C
-PEX / extracted RC **not run** this stop. Hand bound only: TM1 spines ≈ 450 µm × 4 µm
-× 2 sides; with CMIMA-class ~1.5 fF/µm² plate estimate is not applicable to TM1 line —
-use PDK TM1 capacitance ~0.2 fF/µm [HAND/PDK order] → ≈ **90 fF/side** added, mismatch
-from asymmetric stub lengths to var/det **TBD** after clean route + P2.7.3 PEX.
-Spare bank range: not compared (no clean extract).
+## LVS short root causes found [TOOL]
+1. Shared M3 column at x≈256 for `tail` signal and `tail_block.gnd` (and nearby vt).
+2. Separate tn/tp west escapes required (shared column shorted tn↔tp).
+3. Tail “north ring” M2 at y≈869 overlapped the vdd M2 rail at y=871.33 (w=4) →
+   shorted `tail` into `vdd` and the mega-net.
 
-## Die-level gate [HAND/GDS]
-- Island **0.5029 mm²** into §8: synth island rises ~+0.11 vs 0.3906 case; total die
-  estimate still **fits ≈ 2.5 × 2.5 mm** with pad ring (~2.3 mm² slack remains) [HAND].
-- Chip art: overlay on TM2, not added area. Need **≈ 0.9 × 1.0 mm TM2-free** region
-  (no TM2 straps / inductor / RF under). VCO island uses TM1 tank + inductor top-metal —
-  art must sit **outside** the island. Drawn keep-out on the full die floorplan is
-  **not** done this run → **uncertain** whether a qualifying region exists; if not, use
-  text-only art ≈ 0.17 mm² [HAND] (`decisions.md` 2026-11-17).
+## Die re-total [HAND/GDS]
+Island **0.5743 mm²** into §8: still fits ≈ 2.5 × 2.5 mm (~2.2 mm² slack) [HAND].
+Art TM2 keep-out remains a chip-floorplan / Phase 5 item (not in this island).
 
 ## Finding
-P2.7.2c first join is **not accepted**. Fix DRC (M2.b/M3.b/TM1.a/b/V1.b) and LVS per
-net group (power → ct → tail → tn_tp → vt → controls) before sign-off. Amend routing
-plan in `p27-layout-notes.md` when merges force track moves.
+P2.7.2c re-pack join is **not accepted**. DRC was achieved per group before the last
+tail-ring edit; full-assembly unique LVS is blocked by inter-block M2/M3 shorts.
+Target C ≤ 30 fF/side is not met with the west-escape bank path (≈ 59 fF/side [HAND]).
 
 ## Artifacts
-`p272c/out/vco_top.gds.gz`, `.png`, `.spice`, `drc_vco_top.log`, LVS/netgen logs,
-`summary_build_log.txt`, this stop.
+`p272c/build_assemble.py`, `out/vco_top.gds.gz`, `.png`, `.spice`, per-group
+`summary_build_*.txt` / `summary_drc_lvs_*.txt`, this stop.

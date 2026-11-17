@@ -1,6 +1,6 @@
 # VCO topology memo (P2.3)
 
-Status: **topology accepted (D8–D11; D24 2026-11-12).** P2.3 open items closed. **Layout:** blocks through D22 PASS; chip art cell PASS (overlay). **P2.7.2c VCO top assemble WIP** — outline 0.5029 mm² [GDS], DRC/LVS FAIL on first join (`summary_p272c_stop.txt`). See §9.
+Status: **topology accepted (D8–D11; D24 2026-11-12).** P2.3 open items closed. **Layout:** blocks through D22 PASS; chip art cell PASS (overlay). **P2.7.2c VCO top WIP** — re-pack outline 0.5743 mm² [GDS]; full-assembly LVS FAIL (inter-block shorts); tn/tp C≈59 fF/side [HAND] (`summary_p272c_stop.txt`). See §9.
 
 ---
 

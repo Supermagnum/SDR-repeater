@@ -1,0 +1,66 @@
+routed groups: ['ct', 'place', 'power']
+Technology SG13_dev is loaded.
+GRID : 0.01
+GRID inverse : 100.0
+EPSILON1  : 0.001
+EPSILON2  : 1e-9
+Success.
+patched vco_core_tank TM1.b notches (6 fills) [GDS]
+re-pack LL bank=(-150.17, 0.0) core=(0.0, 282.77) var=(258.0, 328.575) det=(303.3, 324.815) tail=(258.0, 493.04499999999996) [HAND]
+place vco_bank bb=(-150.17,0;400.91,274.77)
+  pin g0 @ (-115.85,212.94)
+  pin g1 @ (-36.47,212.84)
+  pin g10 @ (153.03,125.45)
+  pin g11 @ (287.50,125.45)
+  pin g2 @ (44.95,212.81)
+  pin g3 @ (130.39,212.86)
+  pin g4 @ (223.42,212.85)
+  pin g5 @ (-115.91,34.66)
+  pin g6 @ (18.56,34.66)
+  pin g7 @ (153.03,34.66)
+  pin g8 @ (-115.91,125.45)
+  pin g9 @ (18.56,125.45)
+  pin gnd @ (400.56,0.25)
+  pin tn @ (132.62,273.77)
+  pin tp @ (112.62,273.77)
+  pin vbp @ (-149.17,86.29)
+place vco_core_tank bb=(0,282.77;254,716.76)
+  pin ct @ (127.00,387.15)
+  pin gnd @ (127.00,349.77)
+  pin tail @ (127.00,371.27)
+  pin tn @ (141.38,382.15)
+  pin tp @ (112.62,382.15)
+  pin vdd @ (127.00,390.15)
+place tail_block bb=(258,493.045;511.92,867.335)
+  pin code0 @ (371.29,588.31)
+  pin code1 @ (371.29,589.21)
+  pin code2 @ (371.29,590.11)
+  pin code3 @ (371.29,591.01)
+  pin code4 @ (371.29,591.91)
+  pin gnd @ (258.30,497.29)
+  pin tail @ (490.64,602.50)
+  pin vbp_tail @ (417.08,520.65)
+  pin vdd @ (501.42,597.66)
+place vco_var bb=(258,328.575;299.3,489.045)
+  pin W @ (260.00,328.82)
+  pin gnd @ (299.05,363.88)
+  pin tn @ (259.00,382.15)
+  pin tp @ (259.00,345.60)
+  pin vbp @ (270.29,486.69)
+place ampcal_det bb=(303.3,324.815;453.8,448.24)
+  pin cmp @ (387.32,386.79)
+  pin ct @ (326.73,388.40)
+  pin en @ (453.48,354.82)
+  pin gnd @ (311.55,371.04)
+  pin hold @ (317.94,377.04)
+  pin rep @ (331.72,374.04)
+  pin tn @ (336.60,382.15)
+  pin tp @ (316.86,382.15)
+  pin vdd @ (326.48,384.30)
+  pin vthn @ (388.89,369.23)
+outline bbox=(-150.17,0;511.92,867.335) area=0.5743 mm2 [GDS]
+power spines y_vdd=871.33 y_gnd=-4.00 x=[-152.2,513.9] w=4.0 [HAND]
+ct→det.ct (326.7,388.4)
+ct TM1 port y=392.15 → (257.0,392.1)
+wrote /foss/designs/analog/vco/layout/p272c/out/vco_top.gds.gz
+wrote /foss/designs/analog/vco/layout/p272c/out/vco_top.spice

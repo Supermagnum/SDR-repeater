@@ -1,0 +1,243 @@
+* P2.7.2b re-spin stage d — vco_core_tank
+* Inductor: LVS GDS pin-only l2n0; fab GDS adds l2n0_em spiral.
+.subckt vco_core_tank tp tn tail ct gnd
+Mm1 tp tn tail gnd sg13_lv_nmos w=32u l=0.13u
+Mm2 tn tp tail gnd sg13_lv_nmos w=32u l=0.13u
+Mdum gnd gnd gnd gnd sg13_lv_nmos w=8u l=0.13u
+Xxf1 tp fx gnd cap_rfcmim w=16u l=16u wfeed=5u m=1
+Xxf2 tn fx gnd cap_rfcmim w=16u l=16u wfeed=5u m=1
+Xrfx fx gnd gnd rhigh w=2u l=15.2u m=1
+
+* P2.7.2b D24 vco_bank [SCH sizes; layout kind per cell]
+.subckt vco_bank tp tn vbp gnd g0 bb0 g1 bb1 g2 bb2 g3 bb3 g4 bb4 g5 bb5 g6 bb6 g7 bb7 g8 bb8 g9 bb9 g10 bb10 g11 bb11
+Cxb0p tp a0 cap_cmim w=2.81u l=2.81u m=1
+Cxb0n tn b0 cap_cmim w=2.81u l=2.81u m=1
+Mms0 a0 g0 b0 gnd sg13_lv_nmos w=10.32u l=0.13u
+Xrba0 a0 bb0 gnd rhigh w=5.0u l=60.8u m=1
+Xrbb0 b0 bb0 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a0 a0 vbp bb0 gnd sg13_lv_nmos w=0.15u l=0.13u
+Mbp_b0 b0 vbp bb0 gnd sg13_lv_nmos w=0.15u l=0.13u
+Cxb1p tp a1 cap_cmim w=3.92u l=3.92u m=1
+Cxb1n tn b1 cap_cmim w=3.92u l=3.92u m=1
+Mms1 a1 g1 b1 gnd sg13_lv_nmos w=19.8u l=0.13u
+Xrba1 a1 bb1 gnd rhigh w=5.0u l=60.8u m=1
+Xrbb1 b1 bb1 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a1 a1 vbp bb1 gnd sg13_lv_nmos w=0.15u l=0.13u
+Mbp_b1 b1 vbp bb1 gnd sg13_lv_nmos w=0.15u l=0.13u
+Cxb2p tp a2 cap_cmim w=5.53u l=5.53u m=1
+Cxb2n tn b2 cap_cmim w=5.53u l=5.53u m=1
+Mms2 a2 g2 b2 gnd sg13_lv_nmos w=39.12u l=0.13u
+Xrba2 a2 bb2 gnd rhigh w=5.0u l=60.8u m=1
+Xrbb2 b2 bb2 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a2 a2 vbp bb2 gnd sg13_lv_nmos w=0.15u l=0.13u
+Mbp_b2 b2 vbp bb2 gnd sg13_lv_nmos w=0.15u l=0.13u
+Xxb3p tp a3 gnd cap_rfcmim w=7.87u l=7.87u wfeed=5u m=1
+Xxb3n tn b3 gnd cap_rfcmim w=7.87u l=7.87u wfeed=5u m=1
+Mms3 a3 g3 b3 gnd sg13_lv_nmos w=77.5u l=0.13u
+Xrba3 a3 bb3 gnd rhigh w=5.0u l=60.8u m=1
+Xrbb3 b3 bb3 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a3 a3 vbp bb3 gnd sg13_lv_nmos w=0.31u l=0.13u
+Mbp_b3 b3 vbp bb3 gnd sg13_lv_nmos w=0.31u l=0.13u
+Xxb4p tp a4 gnd cap_rfcmim w=11.12u l=11.12u wfeed=5u m=1
+Xxb4n tn b4 gnd cap_rfcmim w=11.12u l=11.12u wfeed=5u m=1
+Mms4 a4 g4 b4 gnd sg13_lv_nmos w=154.38u l=0.13u
+Xrba4 a4 bb4 gnd rhigh w=5.0u l=60.8u m=1
+Xrbb4 b4 bb4 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a4 a4 vbp bb4 gnd sg13_lv_nmos w=0.62u l=0.13u
+Mbp_b4 b4 vbp bb4 gnd sg13_lv_nmos w=0.62u l=0.13u
+Xxb5p tp a5 gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Xxb5n tn b5 gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms5 a5 g5 b5 gnd sg13_lv_nmos w=308.5u l=0.13u
+Xrba5 a5 bb5 gnd rhigh w=5.0u l=60.8u m=1
+Xrbb5 b5 bb5 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a5 a5 vbp bb5 gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b5 b5 vbp bb5 gnd sg13_lv_nmos w=1.25u l=0.13u
+Xxb6p tp a6 gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Xxb6n tn b6 gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms6 a6 g6 b6 gnd sg13_lv_nmos w=308.5u l=0.13u
+Xrba6 a6 bb6 gnd rhigh w=5.0u l=60.8u m=1
+Xrbb6 b6 bb6 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a6 a6 vbp bb6 gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b6 b6 vbp bb6 gnd sg13_lv_nmos w=1.25u l=0.13u
+Xxb7p tp a7 gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Xxb7n tn b7 gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms7 a7 g7 b7 gnd sg13_lv_nmos w=308.5u l=0.13u
+Xrba7 a7 bb7 gnd rhigh w=5.0u l=60.8u m=1
+Xrbb7 b7 bb7 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a7 a7 vbp bb7 gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b7 b7 vbp bb7 gnd sg13_lv_nmos w=1.25u l=0.13u
+Xxb8p tp a8 gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Xxb8n tn b8 gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms8 a8 g8 b8 gnd sg13_lv_nmos w=308.5u l=0.13u
+Xrba8 a8 bb8 gnd rhigh w=5.0u l=60.8u m=1
+Xrbb8 b8 bb8 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a8 a8 vbp bb8 gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b8 b8 vbp bb8 gnd sg13_lv_nmos w=1.25u l=0.13u
+Xxb9p tp a9 gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Xxb9n tn b9 gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms9 a9 g9 b9 gnd sg13_lv_nmos w=308.5u l=0.13u
+Xrba9 a9 bb9 gnd rhigh w=5.0u l=60.8u m=1
+Xrbb9 b9 bb9 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a9 a9 vbp bb9 gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b9 b9 vbp bb9 gnd sg13_lv_nmos w=1.25u l=0.13u
+Xxb10p tp a10 gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Xxb10n tn b10 gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms10 a10 g10 b10 gnd sg13_lv_nmos w=308.5u l=0.13u
+Xrba10 a10 bb10 gnd rhigh w=5.0u l=60.8u m=1
+Xrbb10 b10 bb10 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a10 a10 vbp bb10 gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b10 b10 vbp bb10 gnd sg13_lv_nmos w=1.25u l=0.13u
+Xxb11p tp a11 gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Xxb11n tn b11 gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mms11 a11 g11 b11 gnd sg13_lv_nmos w=308.5u l=0.13u
+Xrba11 a11 bb11 gnd rhigh w=5.0u l=60.8u m=1
+Xrbb11 b11 bb11 gnd rhigh w=5.0u l=60.8u m=1
+Mbp_a11 a11 vbp bb11 gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_b11 b11 vbp bb11 gnd sg13_lv_nmos w=1.25u l=0.13u
+Xxbdump gnd adum gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Xxbdumn gnd bdum gnd cap_rfcmim w=15.71u l=15.71u wfeed=5u m=1
+Mmsdum adum gnd bdum gnd sg13_lv_nmos w=308.5u l=0.13u
+Xrbadum adum gnd gnd rhigh w=5.0u l=60.8u m=1
+Xbbdum bdum gnd gnd rhigh w=5.0u l=60.8u m=1
+Mbp_adum adum gnd gnd gnd sg13_lv_nmos w=1.25u l=0.13u
+Mbp_bdum bdum gnd gnd gnd sg13_lv_nmos w=1.25u l=0.13u
+
+* P2.7.2b tail_block: dac_array+tail_mt+ota_vds+d9_rc+cbf [SCH]
+.subckt dac_unit vdd pbias xd code xraw
+Mmdb xd pbias vdd vdd sg13_lv_pmos w=2.0u l=2.0u
+Mmsw xraw code xd vdd sg13_lv_pmos w=2.0u l=0.13u
+.subckt dac_array vdd pbias xraw code_gnd code0 code1 code2 code3 code4 code_vdd
+Xb0 vdd pbias xd_b0 code_gnd xraw dac_unit
+Xb1 vdd pbias xd_b1 code_gnd xraw dac_unit
+Xb2 vdd pbias xd_b2 code_gnd xraw dac_unit
+Xb3 vdd pbias xd_b3 code_gnd xraw dac_unit
+Xb4 vdd pbias xd_b4 code_gnd xraw dac_unit
+Xb5 vdd pbias xd_b5 code_gnd xraw dac_unit
+Xb6 vdd pbias xd_b6 code_gnd xraw dac_unit
+Xb7 vdd pbias xd_b7 code_gnd xraw dac_unit
+Xb8 vdd pbias xd_b8 code_gnd xraw dac_unit
+Xb9 vdd pbias xd_b9 code_gnd xraw dac_unit
+Xb10 vdd pbias xd_b10 code_gnd xraw dac_unit
+Xb11 vdd pbias xd_b11 code_gnd xraw dac_unit
+Xb12 vdd pbias xd_b12 code_gnd xraw dac_unit
+Xb13 vdd pbias xd_b13 code_gnd xraw dac_unit
+Xb14 vdd pbias xd_b14 code_gnd xraw dac_unit
+Xb15 vdd pbias xd_b15 code_gnd xraw dac_unit
+Xb16 vdd pbias xd_b16 code_gnd xraw dac_unit
+Xb17 vdd pbias xd_b17 code_gnd xraw dac_unit
+Xb18 vdd pbias xd_b18 code_gnd xraw dac_unit
+Xb4_0 vdd pbias xd_b4_0 code4 xraw dac_unit
+Xb3_0 vdd pbias xd_b3_0 code3 xraw dac_unit
+Xb2_0 vdd pbias xd_b2_0 code2 xraw dac_unit
+Xb4_1 vdd pbias xd_b4_1 code4 xraw dac_unit
+Xb3_1 vdd pbias xd_b3_1 code3 xraw dac_unit
+Xb4_2 vdd pbias xd_b4_2 code4 xraw dac_unit
+Xb1_0 vdd pbias xd_b1_0 code1 xraw dac_unit
+Xb4_3 vdd pbias xd_b4_3 code4 xraw dac_unit
+Xb4_4 vdd pbias xd_b4_4 code4 xraw dac_unit
+Xb0_0 vdd pbias xd_b0_0 code0 xraw dac_unit
+Xb4_5 vdd pbias xd_b4_5 code4 xraw dac_unit
+Xb3_2 vdd pbias xd_b3_2 code3 xraw dac_unit
+Xb4_6 vdd pbias xd_b4_6 code4 xraw dac_unit
+Xb2_1 vdd pbias xd_b2_1 code2 xraw dac_unit
+Xb3_3 vdd pbias xd_b3_3 code3 xraw dac_unit
+Xb4_7 vdd pbias xd_b4_7 code4 xraw dac_unit
+Xb4_8 vdd pbias xd_b4_8 code4 xraw dac_unit
+Xb3_4 vdd pbias xd_b3_4 code3 xraw dac_unit
+Xb2_2 vdd pbias xd_b2_2 code2 xraw dac_unit
+Xb4_9 vdd pbias xd_b4_9 code4 xraw dac_unit
+Xb3_5 vdd pbias xd_b3_5 code3 xraw dac_unit
+Xb4_10 vdd pbias xd_b4_10 code4 xraw dac_unit
+Xb1_1 vdd pbias xd_b1_1 code1 xraw dac_unit
+Xb4_11 vdd pbias xd_b4_11 code4 xraw dac_unit
+Xb4_12 vdd pbias xd_b4_12 code4 xraw dac_unit
+Xdmy vdd pbias xd_dmy code_vdd xraw dac_unit
+Xb3_6 vdd pbias xd_b3_6 code3 xraw dac_unit
+Xb4_13 vdd pbias xd_b4_13 code4 xraw dac_unit
+Xb4_14 vdd pbias xd_b4_14 code4 xraw dac_unit
+Xb2_3 vdd pbias xd_b2_3 code2 xraw dac_unit
+Xb3_7 vdd pbias xd_b3_7 code3 xraw dac_unit
+Xb4_15 vdd pbias xd_b4_15 code4 xraw dac_unit
+.subckt tail_mt tail nbf gnd
+Mmt0 tail nbf gnd gnd sg13_lv_nmos w=120.0u l=4.0u ng=24
+Mmt1 tail nbf gnd gnd sg13_lv_nmos w=120.0u l=4.0u ng=24
+Mmt2 tail nbf gnd gnd sg13_lv_nmos w=120.0u l=4.0u ng=24
+Mmt3 tail nbf gnd gnd sg13_lv_nmos w=120.0u l=4.0u ng=24
+.subckt ota_vds xref tail_f out vdd gnd ss
+Mmo1 d1 xref ss gnd sg13_lv_nmos w=8.0u l=2.0u ng=2
+Mmo2 out tail_f ss gnd sg13_lv_nmos w=8.0u l=2.0u ng=2
+Mmp1 d1 d1 vdd vdd sg13_lv_pmos w=4.0u l=2.0u ng=2
+Mmp2 out d1 vdd vdd sg13_lv_pmos w=4.0u l=2.0u ng=2
+MdL gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
+MdR gnd gnd gnd gnd sg13_lv_nmos w=4.0u l=2.0u ng=1
+.subckt d9_rc nb nbf en_vco_bias_bp gnd
+Xrbf nb nbf gnd rhigh w=0.5u l=21.285u ps=0.18u b=16 m=1
+Mmbp_rbf nb en_vco_bias_bp nbf gnd sg13_lv_nmos w=20.0u l=0.13u ng=4
+.subckt cbf nbf gnd
+Ccbf nbf gnd cap_cmim w=68.94u l=68.94u m=7
+.subckt tail_block tail vdd gnd vbp_tail nb nbf pbias xraw code_gnd code0 code1 code2 code3 code4 code_vdd ss tail_f
+* vsense: xraw≡xref [SCH]; vbp_tail≡en_vco_bias_bp [SCH]
+Xdac vdd pbias xraw code_gnd code0 code1 code2 code3 code4 code_vdd dac_array
+Xmt tail nbf gnd tail_mt
+Xota xraw tail_f nb vdd gnd ss ota_vds
+Xd9 nb nbf vbp_tail gnd d9_rc
+Xcbf nbf gnd cbf
+
+* P2.7.2b vco_var [SCH vco_var D11]; G1=vgp G2=vgn W=vt
+.subckt vco_var tp tn W vbp gnd G1 G2
+Xxcp tp G1 gnd cap_rfcmim w=21.29u l=21.29u wfeed=5u m=1
+Xxcn tn G2 gnd cap_rfcmim w=21.29u l=21.29u wfeed=5u m=1
+Xrvp G1 vvb gnd rhigh w=0.5u l=42.095u ps=0.18u b=16 m=1
+Xrvn G2 vvb gnd rhigh w=0.5u l=42.095u ps=0.18u b=16 m=1
+Xxv1 G1 W G2 gnd sg13_hv_svaricap w=3.74u l=0.3u Nx=10
+Xxv2 G1 W G2 gnd sg13_hv_svaricap w=3.74u l=0.3u Nx=10
+Mmbp_rvp G1 vbp vvb gnd sg13_lv_nmos w=5.0u l=0.13u ng=2
+Mmbp_rvn G2 vbp vvb gnd sg13_lv_nmos w=5.0u l=0.13u ng=2
+
+* P2.7.2b ampcal_det fab netlist [SCH + en/vthn; ideals→cmim/rhigh/MOS]
+.subckt ampcal_det tp tn ct vdd gnd cmp hold rep en vthn
+* SF peak + replica + dummies
+Mmdtp vdd tp hold gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+Mmdtn vdd tn hold gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+Mmrtp vdd ct rep gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+Mmrtn vdd ct rep gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+MdL gnd gnd gnd gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+MdR gnd gnd gnd gnd sg13_lv_nmos w=0.5u l=0.13u ng=1
+* hold caps
+Cchold hold gnd cap_cmim w=16.270u l=16.270u m=1
+Ccrep rep gnd cap_cmim w=16.270u l=16.270u m=1
+* bias + PD [SCH retune]
+Xrbias vdd nbias gnd rhigh w=0.5u l=78.000u ps=0u b=0 m=1
+Mdiode nbias nbias pd_d gnd sg13_lv_nmos w=1.0u l=1.0u ng=1
+Men_d pd_d en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
+Mid_h hold nbias pd_h gnd sg13_lv_nmos w=1.0u l=1.0u ng=1
+Men_h pd_h en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
+Mid_r rep nbias pd_r gnd sg13_lv_nmos w=1.0u l=1.0u ng=1
+Men_r pd_r en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
+Mid_tt ttail nbias pd_tt gnd sg13_lv_nmos w=5.5u l=1.0u ng=2
+Men_tt pd_tt en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
+Mid_ss ss2 nbias pd_ss gnd sg13_lv_nmos w=5.5u l=1.0u ng=2
+Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
+* comparator
+Mmc1 co hold ttail gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
+Mmc2 co2 vthn ttail gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
+Mmcs1 n1 co2 ss2 gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
+Mmcs2 cmp co ss2 gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
+Mmpl1 n1 n1 vdd vdd sg13_lv_pmos w=4.0u l=0.5u ng=2
+Mmpl2 cmp n1 vdd vdd sg13_lv_pmos w=4.0u l=0.5u ng=2
+* rhigh pin order co/co2,vdd,gnd — match extract / cmp_se [TOOL LVS]
+Xrc1 co vdd gnd rhigh w=0.5u l=6.960u ps=0u b=0 m=1
+Xrc2 co2 vdd gnd rhigh w=0.5u l=6.960u ps=0u b=0 m=1
+MdLc gnd gnd gnd gnd sg13_lv_nmos w=2.0u l=0.5u ng=1
+MdRc gnd gnd gnd gnd sg13_lv_nmos w=2.0u l=0.5u ng=1
+Ccl_cmp cmp gnd cap_cmim w=5.710u l=5.710u m=1
+
+* P2.7.2c vco_top hierarchical LVS netlist [layout leaf spices]
+.subckt vco_top tp tn ct vt vdd gnd vbp vbp_tail cmp tail hold rep en vthn g0 g1 g2 g3 g4 g5 g6 g7 g8 g9 g10 g11 code0 code1 code2 code3 code4
+Xc tp tn tail ct gnd vco_core_tank
+Xb tp tn vbp gnd g0 bb0 g1 bb1 g2 bb2 g3 bb3 g4 bb4 g5 bb5 g6 bb6 g7 bb7 g8 bb8 g9 bb9 g10 bb10 g11 bb11 vco_bank
+Xv tp tn vt vbp gnd G1 G2 vco_var
+Xt tail vdd gnd vbp_tail nb nbf pbias xraw code_gnd code0 code1 code2 code3 code4 code_vdd ss tail_f tail_block
+Xd tp tn ct vdd gnd cmp hold rep en vthn ampcal_det
+.ends
+.end
