@@ -798,3 +798,12 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - cl_cmp: design and layout values compared, and the D22 result confirmed, before P2.7.2c.
 - Order: chip art cell next (its size feeds the P2.7.2c die re-total), then P2.7.2c.
   prompts/06 is updated to follow the 2026-11-16 chip art decision.
+
+## 2026-11-17 — Chip art cell
+- Art cell accepted (8e89130): TopMetal2 only, 1.150 µm / px, 884.35 × 984.40 µm (0.8706 mm²),
+  TM2 density 30.7 %, TM2.a / b clean; empty-layer fill rules waived on the art cell (chip-level
+  fill in Phase 5).
+- Full graphic kept. The art is an overlay on TopMetal2, not added die area: the floorplan
+  keeps a TM2-free region of ≈ 0.9 × 1.0 mm (no TM2 power straps, inductors or RF below). If
+  no such region exists, the text-only version (≈ 0.17 mm² [HAND]) is used.
+- Pin 1: the top-left dot; in Phase 5 the art is placed so the dot is nearest the pin-1 corner.

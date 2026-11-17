@@ -1,0 +1,51 @@
+# P2.7.2c VCO top assembly — stop report (2026-11-17)
+
+## Done this run
+1. Decision recorded: `decisions.md` "2026-11-17 — Chip art cell".
+2. Routing plan written **before** join: `spec/p27-layout-notes.md` § P2.7.2c.
+3. Assembler: `analog/vco/layout/p272c/build_assemble.py` + `run_drc_lvs.py`.
+4. First full `--nets all` place+route attempt of `vco_top`.
+
+## Island outline [GDS]
+| Item | Value | Tag |
+|---|---|---|
+| Bbox | (0,0;709.58,708.76) µm | [GDS] |
+| Area | **0.5029 mm²** | [GDS] |
+| vs prior outline | 0.3906 → 0.5029 (+0.1123) | [GDS] |
+| Cause | East column for var+det (2b pocket ≈43 µm too narrow for det) | [HAND] |
+
+## Pass criteria (sign-off) — not met
+| Check | Result |
+|---|---|
+| DRC (dens. + SVaricap M1.b waived) | **FAIL** non-density: M2.b, M3.b, TM1.a, TM1.b, V1.b (+ M1.b = SVaricap) [TOOL] |
+| KLayout LVS unique | **FAIL** [TOOL] |
+| netgen unique | **FAIL** [TOOL] |
+| Inductor fab/LVS diff | not re-run this stop (prior PASS at core) |
+| Var W/L/Nx compare | not re-run this stop |
+| ct labelled port | exported on TM1 [GDS]; LVS connectivity unproven |
+| Fingers script | not run this stop |
+
+## tn / tp routing C
+PEX / extracted RC **not run** this stop. Hand bound only: TM1 spines ≈ 450 µm × 4 µm
+× 2 sides; with CMIMA-class ~1.5 fF/µm² plate estimate is not applicable to TM1 line —
+use PDK TM1 capacitance ~0.2 fF/µm [HAND/PDK order] → ≈ **90 fF/side** added, mismatch
+from asymmetric stub lengths to var/det **TBD** after clean route + P2.7.3 PEX.
+Spare bank range: not compared (no clean extract).
+
+## Die-level gate [HAND/GDS]
+- Island **0.5029 mm²** into §8: synth island rises ~+0.11 vs 0.3906 case; total die
+  estimate still **fits ≈ 2.5 × 2.5 mm** with pad ring (~2.3 mm² slack remains) [HAND].
+- Chip art: overlay on TM2, not added area. Need **≈ 0.9 × 1.0 mm TM2-free** region
+  (no TM2 straps / inductor / RF under). VCO island uses TM1 tank + inductor top-metal —
+  art must sit **outside** the island. Drawn keep-out on the full die floorplan is
+  **not** done this run → **uncertain** whether a qualifying region exists; if not, use
+  text-only art ≈ 0.17 mm² [HAND] (`decisions.md` 2026-11-17).
+
+## Finding
+P2.7.2c first join is **not accepted**. Fix DRC (M2.b/M3.b/TM1.a/b/V1.b) and LVS per
+net group (power → ct → tail → tn_tp → vt → controls) before sign-off. Amend routing
+plan in `p27-layout-notes.md` when merges force track moves.
+
+## Artifacts
+`p272c/out/vco_top.gds.gz`, `.png`, `.spice`, `drc_vco_top.log`, LVS/netgen logs,
+`summary_build_log.txt`, this stop.

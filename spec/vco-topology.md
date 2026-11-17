@@ -1,6 +1,6 @@
 # VCO topology memo (P2.3)
 
-Status: **topology accepted (D8–D11; D24 2026-11-12).** P2.3 open items closed. **D24:** 8-bit bank = 5 binary LSB + 7 thermometer units (32 LSB); D18 offset off in hold. **P2.7.2c gate PASS** (VR_ANA1 pad supplies). See §9.
+Status: **topology accepted (D8–D11; D24 2026-11-12).** P2.3 open items closed. **Layout:** blocks through D22 PASS; chip art cell PASS (overlay). **P2.7.2c VCO top assemble WIP** — outline 0.5029 mm² [GDS], DRC/LVS FAIL on first join (`summary_p272c_stop.txt`). See §9.
 
 ---
 

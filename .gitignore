@@ -26,7 +26,7 @@
 !**/layout/out/lvs_klayout/
 !**/layout/out/lvs_klayout/*.cir
 !**/layout/out/lvs_klayout/*.log
-# P2.7.2 lettered sub-runs (p272a, p272b, …)
+# P2.7.2 lettered sub-runs (p272a, p272b, p272c, …)
 !**/layout/p272*/out/
 !**/layout/p272*/out/*.gds.gz
 !**/layout/p272*/out/*.png
@@ -40,6 +40,7 @@
 !**/layout/p272*/out/lvs_*/
 !**/layout/p272*/out/lvs_*/*.cir
 !**/layout/p272*/out/lvs_*/*.log
+!**/layout/p272*/out/summary_*.txt
 # keep ignoring bulky DRC databases and intermediate cell GDS
 **/layout/out/drc/
 **/layout/out/*.gds
