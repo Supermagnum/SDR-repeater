@@ -1,25 +1,25 @@
-* Extracted by KLayout with SG13G2 LVS runset on : 16/11/2026 17:35
+* Extracted by KLayout with SG13G2 LVS runset on : 17/11/2026 01:30
 
 .SUBCKT bias_pd en gnd hold nbias rep ss2 ttail vdd
-M$1 \$3 en gnd gnd sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
+M$1 \$4 en gnd gnd sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
 + PD=4.68u rfmode=0
-M$2 \$4 en gnd gnd sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
+M$2 \$5 en gnd gnd sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
 + PD=4.68u rfmode=0
-M$3 \$5 en gnd gnd sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
+M$3 \$6 en gnd gnd sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
 + PD=4.68u rfmode=0
-M$4 \$6 en gnd gnd sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
+M$4 \$7 en gnd gnd sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
 + PD=4.68u rfmode=0
-M$5 \$7 en gnd gnd sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
+M$5 \$8 en gnd gnd sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
 + PD=4.68u rfmode=0
-M$6 nbias nbias \$3 gnd sg13_lv_nmos L=1u W=1u AS=0.34p AD=0.34p PS=2.68u
+M$6 nbias nbias \$4 gnd sg13_lv_nmos L=1u W=1u AS=0.34p AD=0.34p PS=2.68u
 + PD=2.68u rfmode=0
-M$7 hold nbias \$4 gnd sg13_lv_nmos L=1u W=1u AS=0.34p AD=0.34p PS=2.68u
+M$7 hold nbias \$5 gnd sg13_lv_nmos L=1u W=1u AS=0.34p AD=0.34p PS=2.68u
 + PD=2.68u rfmode=0
-M$8 rep nbias \$5 gnd sg13_lv_nmos L=1u W=1u AS=0.34p AD=0.34p PS=2.68u
+M$8 rep nbias \$6 gnd sg13_lv_nmos L=1u W=1u AS=0.34p AD=0.34p PS=2.68u
 + PD=2.68u rfmode=0
-M$9 ttail nbias \$6 gnd sg13_lv_nmos L=1u W=5.5u AS=1.4575p AD=1.4575p PS=9.31u
+M$9 ttail nbias \$7 gnd sg13_lv_nmos L=1u W=5.5u AS=1.4575p AD=1.4575p PS=9.31u
 + PD=9.31u rfmode=0
-M$11 ss2 nbias \$7 gnd sg13_lv_nmos L=1u W=5.5u AS=1.4575p AD=1.4575p PS=9.31u
+M$11 ss2 nbias \$8 gnd sg13_lv_nmos L=1u W=5.5u AS=1.4575p AD=1.4575p PS=9.31u
 + PD=9.31u rfmode=0
 R$13 nbias vdd gnd rhigh w=0.5u l=78u ps=0u b=0 m=1
 .ENDS bias_pd

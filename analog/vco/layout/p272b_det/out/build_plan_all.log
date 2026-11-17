@@ -1,0 +1,51 @@
+Technology SG13_dev is loaded.
+GRID : 0.01
+GRID inverse : 100.0
+EPSILON1  : 0.001
+EPSILON2  : 1e-9
+Success.
+hold_caps bbox (-3.15,-8.605;40.89,19.42) area=0.0012 mm2
+wrote hold_caps.spice w=16.330u
+wrote /foss/designs/analog/vco/layout/p272b_det/out/hold_caps.gds bbox=(-3.15,-8.605;40.89,19.42) area=0.0012 mm2
+det_sf_pair bbox (-6.85,-12.48;25.09,10.48) area=0.0007 mm2
+wrote det_sf_pair.spice
+wrote /foss/designs/analog/vco/layout/p272b_det/out/det_sf_pair.gds bbox=(-6.85,-12.48;25.09,10.48) area=0.0007 mm2
+cmp_se bbox (-9.15,-14.23;30.23,45.11) area=0.0023 mm2
+wrote cmp_se.spice rhigh_l=6.960u
+wrote /foss/designs/analog/vco/layout/p272b_det/out/cmp_se.gds bbox=(-9.15,-14.23;30.23,45.11) area=0.0023 mm2
+bias_pd bbox (-7.65,-14.88;33.51,85.22) area=0.0041 mm2 rbias_drawn_l=78.00u target_extract=78.0u
+wrote bias_pd.spice rbias_l=78.0 tt=5.5u
+wrote /foss/designs/analog/vco/layout/p272b_det/out/bias_pd.gds bbox=(-7.65,-14.88;33.51,85.22) area=0.0041 mm2
+ampcal_det routed=['bias', 'cmp', 'en', 'hold', 'place', 'power', 'taps']
+ampcal_det bbox (-12.25,-20.005;133.33,103.42) area=0.0180 mm2 gap=4.0
+wrote ampcal_det.spice
+wrote /foss/designs/analog/vco/layout/p272b_det/out/ampcal_det.gds bbox=(-12.25,-20.005;133.33,103.42) area=0.0180 mm2
+ampcal_det spice hold_w=16.27 rhigh_l=6.96
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_det/out/ampcal_det.gds --topcell=ampcal_det --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_det/out/drc_ampcal_det --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_det/out/drc_ampcal_det.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_det/out/ampcal_det.gds --netlist=/foss/designs/analog/vco/layout/p272b_det/out/ampcal_det.spice --topcell=ampcal_det --run_dir=/foss/designs/analog/vco/layout/p272b_det/out/lvs_ampcal_det --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/lvs_klayout_ampcal_det.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_det/out/netgen_ampcal_det.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/netgen_ampcal_det.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_det/out/_klayout_shot_ampcal_det.py -rd out=/foss/designs/analog/vco/layout/p272b_det/out -rd name=ampcal_det
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/render_ampcal_det.log
+
+# Summary
+cell=ampcal_det
+DRC clean (density waived): False  non-density=['M3.a', 'V1.b', 'V2.b'] svaricap_M1.b=False
+KLayout LVS: FAIL
+netgen: FAIL
+prove ampcal_det: FAIL
+# P2.7.2b D22 ampcal_det build summary
+
+- hold_caps: built
+- det_sf_pair: built
+- cmp_se: built
+- bias_pd: built
+- ampcal_det: FAIL
+
+ampcal_det area=0.0180 mm2 bbox=(-12.25,-20.005;133.33,103.42) [GDS]
+remaining pocket after vco_var=0.0121 mm2 (0.0187-0.0066) [GDS]
+fit remaining: NO
+D22 forecast≈0.0013 mm2 [HAND]; vs GDS: NO
+

@@ -6,7 +6,7 @@
 - bias_pd: built
 - ampcal_det: FAIL
 
-ampcal_det area=0.0167 mm2 bbox=(-12.25,-17.505;129.53,100.1) [GDS]
+ampcal_det area=0.0180 mm2 bbox=(-12.25,-20.005;133.33,103.42) [GDS]
 remaining pocket after vco_var=0.0121 mm2 (0.0187-0.0066) [GDS]
 fit remaining: NO
 D22 forecast≈0.0013 mm2 [HAND]; vs GDS: NO

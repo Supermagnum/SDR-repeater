@@ -1,0 +1,53 @@
+# P2.7.2b Prompt 06 — ampcal_det join with routing plan — STOP
+
+Date: 2026-11-17
+Decision recorded: decisions.md "2026-11-17 — D22 join method" (D22 not done).
+Prior join-stop commit: 434929f.
+
+## Pass criteria vs results
+
+| Step | Criteria | Result |
+|---|---|---|
+| 0 Prior commit | Last run files; D22 not done | DONE [git 434929f] |
+| 1 Routing plan | Written before join in p27-layout-notes | DONE; amended during power/hold DRC (corridor M3, TM1 Y, via-rail attach) [HAND/GDS] |
+| 2 Cell ports | bias_pd hold W / rep E; re-prove | DONE: bias_pd DRC+LVS+netgen PASS; rhigh 78 µm; 0.0041 mm² [GDS/TOOL] |
+| 3a Join power | DRC + LVS + netgen | DRC PASS (density waived). LVS/netgen FAIL expected (incomplete nets) [TOOL] |
+| 3b Join nbias/ttail/ss2 | DRC + LVS + netgen | DRC PASS with power [TOOL] |
+| 3c Join hold/rep | DRC + LVS + netgen | DRC PASS (place+power+bias+hold) [TOOL]. LVS FAIL (no top pins until taps) [TOOL] |
+| 3d taps + cmp + en (full) | DRC + both LVS clean | **FAIL** DRC non-density M3.a / V1.b / V2.b; extract `cmp\|en\|gnd\|hold\|rep` [TOOL] |
+| 4 Report footprint / tank | Joined footprint; tank load/side | Footprint **0.0180 mm²** [GDS] (pocket 0.0121; prior ~0.0166). Tank load/side: **not computed** this run (PEX/tank tool not run) |
+| 5 Specs + commit | Update specs; commit job files | Specs partially updated (plan amends). **Commit not made** (ask first) |
+
+## What failed or is uncertain
+
+1. Full join short: extracted top ports `cmp|en|gnd|hold|rep` plus separate `ct tn tp vdd vthn` [TOOL extract]. cmp/cl_cmp M2–M3/via1t path merges into gnd and hold/rep TM1 landings.
+2. Full-join DRC: M3.a, V1.b, V2.b on cmp routing [TOOL].
+3. Area 0.0180 > remaining pocket 0.0121 and > carried 0.0166 [GDS] — die-level gate at P2.7.2c still required; join grew with corridor power + TM1 spacing.
+4. Tank C load per side: uncertain (not measured this run).
+5. Power/hold alone were DRC-clean; LVS cannot pass until ports exist and shorts clear.
+
+## Decision needed
+
+How to finish ampcal_det join without `cmp|en|gnd|hold|rep`:
+- (A) Keep plan; isolate cmp/cl_cmp on dedicated M3 columns east of bias, via1t only south of cl_cmp M5, no shared X with hold/rep landings or gnd spines; re-prove cmp then en.
+- (B) Defer cl_cmp metal to P2.7.2c; join ampcal_det without on-block cl_cmp (schematic/port change).
+- (C) Accept 0.0180 mm² over pocket and treat fit as P2.7.2c die-level only after LVS clean.
+
+Recommend (A).
+
+## Found, not done
+
+ampcal_det join under the written M2-H / M3-V plan is **not done**: power+bias+hold DRC clean; full route shorts cmp/en/gnd/hold/rep and fails DRC; footprint 0.0180 mm² [GDS].
+
+## Next run (expected)
+
+1. Fix cmp/cl_cmp (+ en) isolation per (A); prove full join DRC + KLayout LVS + netgen.
+2. Then: chip art cell, then P2.7.2c VCO top assembly.
+
+## Key artifacts
+
+- `analog/vco/layout/p272b_det/build_cells.py` (plan join)
+- `spec/p27-layout-notes.md` (plan + amends)
+- `out/ampcal_det.gds` area 0.0180 mm²
+- `out/prove_plan_hold4.log` (power+bias+hold DRC clean)
+- `out/prove_plan_all.log` / extract `cmp|en|gnd|hold|rep`

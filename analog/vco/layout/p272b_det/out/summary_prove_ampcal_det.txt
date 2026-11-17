@@ -1,2 +1,2 @@
-drc_clean=False non_density=['TM1.b'] svaricap_M1.b=False
+drc_clean=False non_density=['M3.a', 'V1.b', 'V2.b'] svaricap_M1.b=False
 klayout=False netgen=False

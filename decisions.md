@@ -763,3 +763,12 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - bias_pd ports may be moved (hold and rep leaving on different sides or layers) so the dual
   tap needs no crossing; bias_pd is re-proven after the change.
 - Footprint ≈ 0.0166 mm² [GDS] carried to the P2.7.2c die-level gate.
+
+## 2026-11-17 — D22 join, comparator isolation
+- bias_pd with moved ports accepted (hold W / rep E; DRC, KLayout LVS, netgen, rhigh 78 µm;
+  0.0041 mm² [GDS]). Join power → nbias → hold DRC clean.
+- Full join not accepted (M3.a / V1.b / V2.b; cmp | en | gnd | hold | rep merged). cmp / en get
+  their own east M3 columns clear of hold landings and gnd spines (option A). cl_cmp is not
+  deferred to P2.7.2c.
+- Every net group is checked with DRC and both LVS tools before the next is added.
+- D22 footprint (0.0180 mm² [GDS]) counted at the P2.7.2c die-level gate once LVS is clean.

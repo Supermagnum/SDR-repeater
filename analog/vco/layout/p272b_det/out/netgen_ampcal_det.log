@@ -89,7 +89,7 @@ Circuit ampcal_det contains 26 device instances.
   Class: sg13_lv_pmos          instances:   2
   Class: sg13_lv_nmos          instances:  19
   Class: cap_cmim              instances:   2
-Circuit contains 28 nets.
+Circuit contains 16 nets.
 
 Circuit was modified by parallel/series device merging.
 New circuit summary:
@@ -102,15 +102,15 @@ Circuit ampcal_det contains 26 device instances.
   Class: cap_cmim              instances:   3
 Circuit contains 21 nets.
 Contents of circuit 2:  Circuit: 'ampcal_det'
-Circuit ampcal_det contains 25 device instances.
+Circuit ampcal_det contains 22 device instances.
   Class: rhigh                 instances:   3
   Class: sg13_lv_pmos          instances:   2
-  Class: sg13_lv_nmos          instances:  18
+  Class: sg13_lv_nmos          instances:  15
   Class: cap_cmim              instances:   2
-Circuit contains 28 nets.
+Circuit contains 16 nets.
 
-Circuit 1 contains 26 devices, Circuit 2 contains 25 devices. *** MISMATCH ***
-Circuit 1 contains 21 nets,    Circuit 2 contains 28 nets. *** MISMATCH ***
+Circuit 1 contains 26 devices, Circuit 2 contains 22 devices. *** MISMATCH ***
+Circuit 1 contains 21 nets,    Circuit 2 contains 16 nets. *** MISMATCH ***
 
 
 Final result: 

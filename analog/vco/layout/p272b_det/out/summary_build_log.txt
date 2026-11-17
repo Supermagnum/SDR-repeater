@@ -7,12 +7,12 @@ wrote /foss/designs/analog/vco/layout/p272b_det/out/det_sf_pair.gds bbox=(-6.85,
 cmp_se bbox (-9.15,-14.23;30.23,45.11) area=0.0023 mm2
 wrote cmp_se.spice rhigh_l=6.960u
 wrote /foss/designs/analog/vco/layout/p272b_det/out/cmp_se.gds bbox=(-9.15,-14.23;30.23,45.11) area=0.0023 mm2
-bias_pd bbox (-7.65,-14.88;29.71,85.22) area=0.0037 mm2 rbias_drawn_l=78.00u target_extract=78.0u
+bias_pd bbox (-7.65,-14.88;33.51,85.22) area=0.0041 mm2 rbias_drawn_l=78.00u target_extract=78.0u
 wrote bias_pd.spice rbias_l=78.0 tt=5.5u
-wrote /foss/designs/analog/vco/layout/p272b_det/out/bias_pd.gds bbox=(-7.65,-14.88;29.71,85.22) area=0.0037 mm2
-ampcal_det routed=['hold', 'place', 'taps']
-ampcal_det bbox (-12.25,-17.505;129.53,100.1) area=0.0167 mm2 gap=4.0
+wrote /foss/designs/analog/vco/layout/p272b_det/out/bias_pd.gds bbox=(-7.65,-14.88;33.51,85.22) area=0.0041 mm2
+ampcal_det routed=['bias', 'cmp', 'en', 'hold', 'place', 'power', 'taps']
+ampcal_det bbox (-12.25,-20.005;133.33,103.42) area=0.0180 mm2 gap=4.0
 wrote ampcal_det.spice
-wrote /foss/designs/analog/vco/layout/p272b_det/out/ampcal_det.gds bbox=(-12.25,-17.505;129.53,100.1) area=0.0167 mm2
+wrote /foss/designs/analog/vco/layout/p272b_det/out/ampcal_det.gds bbox=(-12.25,-20.005;133.33,103.42) area=0.0180 mm2
 ampcal_det spice hold_w=16.27 rhigh_l=6.96
 prove ampcal_det: FAIL

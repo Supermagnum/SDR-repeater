@@ -1,0 +1,14 @@
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/drc/run_drc.py --path=/foss/designs/analog/vco/layout/p272b_det/out/ampcal_det.gds --topcell=ampcal_det --minimum_drc --run_dir=/foss/designs/analog/vco/layout/p272b_det/out/drc_ampcal_det --mp=2
+  exit 1; log /foss/designs/analog/vco/layout/p272b_det/out/drc_ampcal_det.log
++ python3 /foss/pdks/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/foss/designs/analog/vco/layout/p272b_det/out/ampcal_det.gds --netlist=/foss/designs/analog/vco/layout/p272b_det/out/ampcal_det.spice --topcell=ampcal_det --run_dir=/foss/designs/analog/vco/layout/p272b_det/out/lvs_ampcal_det --disable_tap_extraction --ignore_top_ports_mismatch --combine_devices --top_lvl_pins
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/lvs_klayout_ampcal_det.log
++ netgen -batch source /foss/designs/analog/vco/layout/p272b_det/out/netgen_ampcal_det.tcl
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/netgen_ampcal_det.log
++ klayout -b -r /foss/designs/analog/vco/layout/p272b_det/out/_klayout_shot_ampcal_det.py -rd out=/foss/designs/analog/vco/layout/p272b_det/out -rd name=ampcal_det
+  exit 0; log /foss/designs/analog/vco/layout/p272b_det/out/render_ampcal_det.log
+
+# Summary
+cell=ampcal_det
+DRC clean (density waived): False  non-density=['M3.a'] svaricap_M1.b=False
+KLayout LVS: FAIL
+netgen: FAIL
