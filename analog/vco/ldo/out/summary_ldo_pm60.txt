@@ -1,0 +1,172 @@
+# Sweep ib × Cg × Rz for PM≥60 on RLC and noC
+
+| cfg | RLC hold/PM/UGF | noC hold/PM/UGF | both≥60 |
+|---|---|---|---|
+| ib40_cg50_rz0 | H PM=71° @0.45M | H PM=4° @6.67M |  |
+| ib40_cg50_rz200 | H PM=73° @0.45M | H PM=24° @6.95M |  |
+| ib40_cg50_rz500 | H PM=75° @0.45M | H PM=41° @8.50M |  |
+| ib40_cg50_rz1000 | H PM=79° @0.45M | H PM=40° @12.26M |  |
+| ib40_cg50_rz2000 | H PM=87° @0.46M | H PM=25° @17.73M |  |
+| ib40_cg50_rz5000 | H PM=115° @0.58M | H PM=1° @25.58M |  |
+| ib40_cg50_rz10000 | H PM=120° @7.64M | FAIL |  |
+| ib40_cg100_rz0 | H PM=60° @0.25M | H PM=25° @4.50M |  |
+| ib40_cg100_rz200 | H PM=62° @0.25M | H PM=51° @4.96M |  |
+| ib40_cg100_rz500 | H PM=64° @0.25M | H PM=61° @7.53M | YES |
+| ib40_cg100_rz1000 | H PM=69° @0.25M | H PM=47° @12.12M |  |
+| ib40_cg100_rz2000 | H PM=78° @0.26M | H PM=27° @17.75M |  |
+| ib40_cg100_rz5000 | H PM=111° @0.33M | H PM=0° @25.61M |  |
+| ib40_cg100_rz10000 | H PM=121° @7.72M | FAIL |  |
+| ib40_cg150_rz0 | H PM=52° @0.19M | H PM=38° @3.43M |  |
+| ib40_cg150_rz200 | H PM=54° @0.19M | H PM=67° @3.99M |  |
+| ib40_cg150_rz500 | H PM=57° @0.19M | H PM=70° @7.26M |  |
+| ib40_cg150_rz1000 | H PM=62° @0.19M | H PM=49° @12.10M |  |
+| ib40_cg150_rz2000 | H PM=73° @0.19M | H PM=28° @17.76M |  |
+| ib40_cg150_rz5000 | H PM=109° @0.25M | H PM=0° @25.62M |  |
+| ib40_cg150_rz10000 | H PM=121° @7.74M | FAIL |  |
+| ib40_cg200_rz0 | H PM=47° @0.15M | H PM=47° @2.77M |  |
+| ib40_cg200_rz200 | H PM=49° @0.15M | H PM=78° @3.39M |  |
+| ib40_cg200_rz500 | H PM=53° @0.15M | H PM=74° @7.15M |  |
+| ib40_cg200_rz1000 | H PM=58° @0.16M | H PM=51° @12.09M |  |
+| ib40_cg200_rz2000 | H PM=70° @0.16M | H PM=28° @17.76M |  |
+| ib40_cg200_rz5000 | H PM=109° @0.22M | H PM=0° @25.63M |  |
+| ib40_cg200_rz10000 | H PM=121° @7.76M | FAIL |  |
+| ib40_cg300_rz0 | H PM=40° @0.12M | H PM=58° @1.99M |  |
+| ib40_cg300_rz200 | H PM=43° @0.12M | H PM=93° @2.63M |  |
+| ib40_cg300_rz500 | H PM=47° @0.12M | H PM=79° @7.07M |  |
+| ib40_cg300_rz1000 | H PM=53° @0.12M | H PM=52° @12.09M |  |
+| ib40_cg300_rz2000 | H PM=67° @0.13M | H PM=28° @17.77M |  |
+| ib40_cg300_rz5000 | H PM=110° @0.18M | H PM=0° @25.63M |  |
+| ib40_cg300_rz10000 | H PM=121° @7.77M | FAIL |  |
+| ib40_cg500_rz0 | H PM=33° @0.09M | H PM=69° @1.26M |  |
+| ib40_cg500_rz200 | H PM=36° @0.09M | H PM=109° @1.85M |  |
+| ib40_cg500_rz500 | H PM=41° @0.09M | H PM=83° @7.03M |  |
+| ib40_cg500_rz1000 | H PM=49° @0.09M | H PM=53° @12.10M |  |
+| ib40_cg500_rz2000 | H PM=66° @0.10M | H PM=29° @17.78M |  |
+| ib40_cg500_rz5000 | H PM=114° @0.16M | H PM=0° @25.64M |  |
+| ib40_cg500_rz10000 | H PM=121° @7.78M | FAIL |  |
+| ib40_cg800_rz0 | H PM=28° @0.07M | H PM=77° @0.80M |  |
+| ib40_cg800_rz200 | H PM=32° @0.07M | H PM=121° @1.28M |  |
+| ib40_cg800_rz500 | H PM=38° @0.07M | H PM=85° @7.02M |  |
+| ib40_cg800_rz1000 | H PM=48° @0.07M | H PM=53° @12.10M |  |
+| ib40_cg800_rz2000 | H PM=68° @0.08M | H PM=29° @17.78M |  |
+| ib40_cg800_rz5000 | H PM=119° @0.15M | H PM=0° @25.64M |  |
+| ib40_cg800_rz10000 | H PM=121° @7.79M | FAIL |  |
+| ib40_cg1000_rz0 | H PM=26° @0.06M | H PM=79° @0.65M |  |
+| ib40_cg1000_rz200 | H PM=31° @0.06M | H PM=125° @1.05M |  |
+| ib40_cg1000_rz500 | H PM=37° @0.06M | H PM=85° @7.01M |  |
+| ib40_cg1000_rz1000 | H PM=48° @0.06M | H PM=53° @12.10M |  |
+| ib40_cg1000_rz2000 | H PM=70° @0.07M | H PM=29° @17.78M |  |
+| ib40_cg1000_rz5000 | FAIL | H PM=0° @25.64M |  |
+| ib40_cg1000_rz10000 | FAIL | FAIL |  |
+| ib20_cg50_rz0 | H PM=65° @0.32M | H PM=17° @5.46M |  |
+| ib20_cg50_rz200 | H PM=67° @0.32M | H PM=35° @5.61M |  |
+| ib20_cg50_rz500 | H PM=68° @0.32M | H PM=51° @6.63M |  |
+| ib20_cg50_rz1000 | H PM=71° @0.32M | H PM=52° @9.69M |  |
+| ib20_cg50_rz2000 | H PM=77° @0.33M | H PM=36° @14.71M |  |
+| ib20_cg50_rz5000 | H PM=96° @0.36M | H PM=9° @21.89M |  |
+| ib20_cg50_rz10000 | H PM=137° @0.65M | FAIL |  |
+| ib20_cg100_rz0 | H PM=53° @0.19M | H PM=39° @3.49M |  |
+| ib20_cg100_rz200 | H PM=54° @0.19M | H PM=60° @3.73M |  |
+| ib20_cg100_rz500 | H PM=56° @0.19M | H PM=75° @5.37M |  |
+| ib20_cg100_rz1000 | H PM=60° @0.19M | H PM=62° @9.46M |  |
+| ib20_cg100_rz2000 | H PM=67° @0.19M | H PM=39° @14.72M |  |
+| ib20_cg100_rz5000 | H PM=89° @0.21M | H PM=9° @21.92M |  |
+| ib20_cg100_rz10000 | H PM=137° @0.42M | FAIL |  |
+| ib20_cg150_rz0 | H PM=45° @0.14M | H PM=51° @2.57M |  |
+| ib20_cg150_rz200 | H PM=47° @0.14M | H PM=75° @2.83M |  |
+| ib20_cg150_rz500 | H PM=49° @0.14M | H PM=87° @4.90M |  |
+| ib20_cg150_rz1000 | H PM=53° @0.14M | H PM=65° @9.43M |  |
+| ib20_cg150_rz2000 | H PM=61° @0.15M | H PM=39° @14.73M |  |
+| ib20_cg150_rz5000 | H PM=87° @0.17M | H PM=9° @21.93M |  |
+| ib20_cg150_rz10000 | H PM=139° @0.36M | FAIL |  |
+| ib20_cg200_rz0 | H PM=41° @0.12M | H PM=58° @2.03M |  |
+| ib20_cg200_rz200 | H PM=42° @0.12M | H PM=84° @2.28M |  |
+| ib20_cg200_rz500 | H PM=45° @0.12M | H PM=94° @4.68M |  |
+| ib20_cg200_rz1000 | H PM=49° @0.12M | H PM=67° @9.42M |  |
+| ib20_cg200_rz2000 | FAIL | H PM=40° @14.74M |  |
+| ib20_cg200_rz5000 | H PM=87° @0.14M | H PM=9° @21.93M |  |
+| ib20_cg200_rz10000 | H PM=140° @0.33M | FAIL |  |
+| ib20_cg300_rz0 | H PM=35° @0.09M | H PM=68° @1.41M |  |
+| ib20_cg300_rz200 | H PM=37° @0.09M | H PM=95° @1.63M |  |
+| ib20_cg300_rz500 | H PM=40° @0.09M | H PM=102° @4.48M |  |
+| ib20_cg300_rz1000 | H PM=45° @0.10M | H PM=68° @9.42M |  |
+| ib20_cg300_rz2000 | FAIL | H PM=40° @14.74M |  |
+| ib20_cg300_rz5000 | H PM=88° @0.12M | H PM=9° @21.94M |  |
+| ib20_cg300_rz10000 | H PM=143° @0.31M | FAIL |  |
+| ib20_cg500_rz0 | H PM=29° @0.07M | H PM=76° @0.87M |  |
+| ib20_cg500_rz200 | H PM=32° @0.07M | H PM=106° @1.03M |  |
+| ib20_cg500_rz500 | FAIL | H PM=108° @4.37M |  |
+| ib20_cg500_rz1000 | H PM=42° @0.07M | H PM=69° @9.42M |  |
+| ib20_cg500_rz2000 | H PM=55° @0.07M | H PM=41° @14.75M |  |
+| ib20_cg500_rz5000 | H PM=93° @0.10M | H PM=9° @21.94M |  |
+| ib20_cg500_rz10000 | H PM=145° @0.30M | FAIL |  |
+| ib20_cg800_rz0 | H PM=25° @0.06M | H PM=81° @0.55M |  |
+| ib20_cg800_rz200 | H PM=28° @0.06M | H PM=113° @0.66M |  |
+| ib20_cg800_rz500 | H PM=33° @0.06M | H PM=111° @4.33M |  |
+| ib20_cg800_rz1000 | H PM=41° @0.06M | H PM=70° @9.42M |  |
+| ib20_cg800_rz2000 | H PM=57° @0.06M | H PM=41° @14.75M |  |
+| ib20_cg800_rz5000 | H PM=99° @0.09M | H PM=10° @21.94M |  |
+| ib20_cg800_rz10000 | H PM=147° @0.30M | FAIL |  |
+| ib20_cg1000_rz0 | H PM=24° @0.05M | H PM=83° @0.44M |  |
+| ib20_cg1000_rz200 | H PM=27° @0.05M | H PM=115° @0.53M |  |
+| ib20_cg1000_rz500 | H PM=33° @0.05M | H PM=112° @4.32M |  |
+| ib20_cg1000_rz1000 | FAIL | H PM=70° @9.42M |  |
+| ib20_cg1000_rz2000 | H PM=59° @0.05M | H PM=41° @14.76M |  |
+| ib20_cg1000_rz5000 | H PM=102° @0.09M | H PM=10° @21.95M |  |
+| ib20_cg1000_rz10000 | H PM=148° @0.30M | FAIL |  |
+| ib10_cg50_rz0 | H PM=58° @0.23M | H PM=31° @4.24M |  |
+| ib10_cg50_rz200 | H PM=59° @0.23M | H PM=45° @4.33M |  |
+| ib10_cg50_rz500 | FAIL | H PM=60° @4.88M |  |
+| ib10_cg50_rz1000 | FAIL | H PM=67° @7.03M |  |
+| ib10_cg50_rz2000 | FAIL | H PM=50° @11.51M |  |
+| ib10_cg50_rz5000 | H PM=80° @0.24M | H PM=20° @18.08M |  |
+| ib10_cg50_rz10000 | FAIL | H PM=0° @22.16M |  |
+| ib10_cg100_rz0 | H PM=45° @0.14M | H PM=52° @2.56M |  |
+| ib10_cg100_rz200 | H PM=46° @0.14M | H PM=68° @2.67M |  |
+| ib10_cg100_rz500 | H PM=48° @0.14M | H PM=86° @3.43M |  |
+| ib10_cg100_rz1000 | FAIL | H PM=81° @6.61M |  |
+| ib10_cg100_rz2000 | H PM=56° @0.15M | H PM=54° @11.51M |  |
+| ib10_cg100_rz5000 | H PM=72° @0.15M | H PM=21° @18.11M |  |
+| ib10_cg100_rz10000 | H PM=102° @0.19M | H PM=0° @22.18M |  |
+| ib10_cg150_rz0 | H PM=39° @0.11M | H PM=62° @1.83M |  |
+| ib10_cg150_rz200 | H PM=40° @0.11M | H PM=80° @1.92M |  |
+| ib10_cg150_rz500 | H PM=42° @0.11M | H PM=100° @2.74M |  |
+| ib10_cg150_rz1000 | H PM=45° @0.11M | H PM=85° @6.53M |  |
+| ib10_cg150_rz2000 | FAIL | H PM=55° @11.52M |  |
+| ib10_cg150_rz5000 | H PM=70° @0.12M | H PM=21° @18.12M |  |
+| ib10_cg150_rz10000 | FAIL | H PM=1° @22.18M |  |
+| ib10_cg200_rz0 | H PM=35° @0.09M | H PM=68° @1.41M |  |
+| ib10_cg200_rz200 | H PM=36° @0.09M | H PM=87° @1.50M |  |
+| ib10_cg200_rz500 | FAIL | H PM=109° @2.33M |  |
+| ib10_cg200_rz1000 | FAIL | H PM=88° @6.50M |  |
+| ib10_cg200_rz2000 | H PM=49° @0.10M | H PM=56° @11.53M |  |
+| ib10_cg200_rz5000 | FAIL | H PM=21° @18.12M |  |
+| ib10_cg200_rz10000 | H PM=106° @0.15M | H PM=1° @22.18M |  |
+| ib10_cg300_rz0 | H PM=30° @0.08M | H PM=75° @0.97M |  |
+| ib10_cg300_rz200 | H PM=32° @0.08M | H PM=95° @1.03M |  |
+| ib10_cg300_rz500 | H PM=34° @0.08M | H PM=121° @1.81M |  |
+| ib10_cg300_rz1000 | H PM=38° @0.08M | H PM=90° @6.49M |  |
+| ib10_cg300_rz2000 | FAIL | H PM=56° @11.53M |  |
+| ib10_cg300_rz5000 | H PM=72° @0.09M | H PM=21° @18.13M |  |
+| ib10_cg300_rz10000 | FAIL | H PM=1° @22.19M |  |
+| ib10_cg500_rz0 | H PM=26° @0.06M | H PM=81° @0.59M |  |
+| ib10_cg500_rz200 | H PM=28° @0.06M | H PM=102° @0.63M |  |
+| ib10_cg500_rz500 | H PM=31° @0.06M | H PM=133° @1.28M |  |
+| ib10_cg500_rz1000 | H PM=36° @0.06M | H PM=92° @6.49M |  |
+| ib10_cg500_rz2000 | H PM=46° @0.06M | H PM=56° @11.54M |  |
+| ib10_cg500_rz5000 | H PM=76° @0.07M | H PM=22° @18.13M |  |
+| ib10_cg500_rz10000 | H PM=116° @0.12M | H PM=1° @22.19M |  |
+| ib10_cg800_rz0 | H PM=23° @0.04M | H PM=84° @0.37M |  |
+| ib10_cg800_rz200 | H PM=25° @0.04M | H PM=105° @0.40M |  |
+| ib10_cg800_rz500 | H PM=29° @0.04M | H PM=141° @0.90M |  |
+| ib10_cg800_rz1000 | H PM=36° @0.05M | H PM=93° @6.49M |  |
+| ib10_cg800_rz2000 | H PM=49° @0.05M | H PM=57° @11.54M |  |
+| ib10_cg800_rz5000 | H PM=83° @0.06M | H PM=22° @18.14M |  |
+| ib10_cg800_rz10000 | H PM=120° @0.12M | H PM=1° @22.19M |  |
+| ib10_cg1000_rz0 | H PM=22° @0.04M | H PM=85° @0.30M |  |
+| ib10_cg1000_rz200 | H PM=25° @0.04M | H PM=107° @0.32M |  |
+| ib10_cg1000_rz500 | H PM=29° @0.04M | H PM=145° @0.75M |  |
+| ib10_cg1000_rz1000 | H PM=36° @0.04M | H PM=93° @6.49M |  |
+| ib10_cg1000_rz2000 | H PM=50° @0.04M | H PM=57° @11.55M |  |
+| ib10_cg1000_rz5000 | H PM=87° @0.06M | H PM=22° @18.14M |  |
+| ib10_cg1000_rz10000 | H PM=121° @0.12M | H PM=1° @22.19M |  |

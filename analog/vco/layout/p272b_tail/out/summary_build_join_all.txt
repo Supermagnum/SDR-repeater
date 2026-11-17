@@ -1,0 +1,16 @@
+# P2.7.2b DAC build stage=g nets=all
+
+CENTROID_31 counts: {'b4': 16, 'b3': 8, 'b2': 4, 'b1': 2, 'b0': 1, 'D': 1}
+Technology SG13_dev is loaded.
+GRID : 0.01
+GRID inverse : 100.0
+EPSILON1  : 0.001
+EPSILON2  : 1e-9
+Success.
+tail_block place d9@(0.0,0.0) dac@(30.47,0.0) ota@(30.47,-60.5) cbf@(30.47,89.8) mt@(30.47,-94.1); routed=['bypass', 'codes', 'filter', 'place', 'power', 'tail']
+tail_block bbox (-16.25,-111.58;473.46,355.71) area=0.2288 mm2
+parts sum dac+mt+ota+d9+cbf=0.0073+0.0058+0.0017+0.0039+0.0431=0.0618 mm2 [GDS]
+island sum core+bank+parts=0.3234 mm2 (limit 0.34) [GDS]; join bbox=0.2288
+headroom for varactor+D22+top route ≈ 0.0166 mm2 [HAND]
+wrote /foss/designs/analog/vco/layout/p272b_tail/out/tail_block.gds (+.gz)
+wrote tail_block.spice

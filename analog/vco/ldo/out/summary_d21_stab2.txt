@@ -1,0 +1,7 @@
+Vref=0.6482 V_LDO_target=1.2965
+
+bare_step: OP vout=1.2976  tran pre=0.4829 post=-0.9520 dlt=-1434.8mV vout_std=3881.2mV
+rc_noL: OP vout=1.2976  tran pre=1.6671 post=1.5780 dlt=-89.2mV vout_std=405.7mV
+rlc_esr50: OP vout=1.2976  tran pre=1.6653 post=1.5575 dlt=-107.9mV vout_std=391.5mV
+rlc_heavy: OP=1.2976 pre=2.0462 post=1.3974 dlt=-648.8mV std=475.5mV
+miss_heavy: pre=1.7271 post=-0.2783 dlt=-2005.4mV std=4257.6mV min=-8.483 max=2.636

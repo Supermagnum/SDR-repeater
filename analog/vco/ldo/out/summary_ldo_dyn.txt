@@ -1,0 +1,26 @@
+# A) Hold tests (orig polarity — DC sign is correct for PMOS)
+
+| tag | OP | tran | |
+|---|---|---|---|
+| h_cc5_co100 | OP=1.298 | t1=2.686 drift=1388.4mV std=3296.7 zc=21 | FAIL |
+| h_nocc_co100 | OP=1.298 | t1=2.572 drift=1274.3mV std=794.2 zc=323 | FAIL |
+| h_cc5_co1n | OP=1.298 | t1=-0.078 drift=-1375.2mV std=1387.1 zc=14 | FAIL |
+| h_cc50_co10n | OP=1.298 | t1=1.948 drift=650.7mV std=859.4 zc=1 | FAIL |
+| h_cc5_co100_rc | OP=1.298 | t1=1.889 drift=591.9mV std=498.7 zc=1 | FAIL |
+
+# B) stb probe orientation (expect NEG-FB ∠≈±180° for correct return ratio)
+
+| tag | W_DC | UGF/PM |
+|---|---|---|
+| stb_fwd probe=fwd | |W|=635 ∠=1° | UGF=2.968MHz PM=-110.3° |
+| stb_rev probe=rev | |W|=635 ∠=1° | UGF=2.968MHz PM=-110.3° |
+
+# C) Nulling R + Cout sweep for HOLD
+
+| tag | | |
+|---|---|---|
+| (none held) | | |
+
+# D) Lower OTA gain (ibias 10u, pair ng=1)
+
+| gm_ib10_ng1 | OP=1.294 t1=2.639 | FAIL |

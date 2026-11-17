@@ -1,0 +1,31 @@
+# P2.7.2b tail / DAC re-spin — stop report (2026-11-13)
+
+## Pass criteria per stage
+
+| Stage | Criterion | Result |
+|-------|-----------|--------|
+| 1 Schematic cbf | 16× rfcmim tiles, 50 pF total | PASS [SCH]. side=45.644 µm/tile; gen_xschem + vacask netlist updated. |
+| 2 Pelgrom unit size | min W·L from PDK; D22 law | PASS [PDK/HAND]. A_Vt=0.0022 V·µm, A_β=0.0033 [PDK sg13g2_moslv_mismatch.lib]. Target σ_u≤0.0299 (3σ·√31 DNL<0.5 LSB). WL_min≈0.36 µm² (gm/Id fallback 8 1/V — vacask OP parse UNAVAILABLE). Current W·L=4 µm² → KEEP W=2u L=2u. D22 search unchanged. |
+| 3a dac_unit | DRC (density waived) + KLayout LVS + netgen | PASS [TOOL]. area≈0.00003 mm². |
+| 3b dac_array area | ≤0.015 mm² [GDS] | PASS [GDS]. bbox area **0.0064 mm²** (compact vs first-attempt 0.112). Centroid order KEPT. |
+| 3b dac_array DRC/LVS | DRC clean; KLayout+netgen; net count match | FAIL [TOOL]. DRC non-density: M2.b, M3.a/b, V1.a, V2.b. LVS: code buses shorted together; vdd fragmented (vdd$1..); pbias\|xraw / code\|vdd\|xraw merges in extract. |
+| 4 Tail / OTA / RC / cbf | bottom-up DRC+LVS each | NOT STARTED (stopped on array LVS). |
+| 5 Island ≤0.34 mm² | forecast | NOT RUN. |
+| 6 Specs + commit | | NOT RUN (ask before commit). |
+
+## What failed or is uncertain
+- Compact array routing: M3/M2 spine + jog scheme still produces extracted shorts between code bits and power/xraw. Root cause class: shared-column risers and/or jog/spine layer crossings under abutment.
+- gm/Id OP for Pelgrom used HAND fallback (vacask OP deck did not yield gm); conclusion KEEP is robust even at gm/Id≈20.
+- Finger-count script not run on array (LVS not clean).
+
+## Decision needed
+1. Accept area win (0.0064 ≤ 0.015) and **continue a dedicated DAC-array LVS routing fix** before OTA/tail/RC; or
+2. Relax abutment / grow pitch further (still under 0.015) with a proven open routing pattern; or
+3. Other.
+
+## Found, not done
+- dac_array DRC+LVS clean
+- stages 4–6 (tail, OTA, RC, 16 cbf tiles, island area, specs, commit)
+
+## Next run
+**P2.7.2b DAC array LVS fix** (then resume OTA / RC / cbf; varactor+bias only after array PASS).

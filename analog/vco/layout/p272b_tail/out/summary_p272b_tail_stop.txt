@@ -1,0 +1,43 @@
+# P2.7.2b tail / DAC / OTA / RC — stop report (2026-11-13)
+
+## Stage results vs pass
+
+| Stage | Pass criteria | Result |
+|-------|---------------|--------|
+| 1 Schematic cbf → PDK MIM | rfcmim/cmim stated; PN ΔL < 0.1 dB; swing Δ < 2 % | **PASS.** Sch: `cbf` = **rfcmim** W=L=182.574 µm [PDK/SCH]. PN gate: 16× parallel rfcmim (same 50 pF; single plate breaks PSS) vs ideal — ΔL −0.014 / 0.000 dB; swing +0.02 % [SCH `summary_mim_vs_ideal.txt`]. |
+| 2 MOS swing-drop cause | Record in `spec/vco-topology.md` | **PASS (finding).** DC Ig×1 MΩ **rejected** (OP ΔItail −0.1 %, OTA holds nbf) [SCH]. Retained: moscap C(V)/conductance under large-signal filter (bias Sid +3.2 dB, ΔL +0.516 dB, amp 1.20→0.93) [SCH]. Short PSS re-measure aborted (timestep) [TOOL]. |
+| 3 Layout DAC / tail / OTA / RC | Bottom-up, DRC+LVS each step | **PARTIAL.** `dac_unit` W=2u: DRC clean (density waived), KLayout LVS PASS, netgen PASS [TOOL]. `dac_array` (19 base + 31 CC + 1 dummy): DRC M2.b/M3.b; LVS FAIL (vdd fragmented; code buses not merging — 51 code nets vs 7) [TOOL]. OTA / RC / MIM / assemble **not started**. |
+| 4 DRC/LVS/fingers | Clean + properties | Only `dac_unit` clean. Array not. Finger script not run on array. |
+| 5 Area vs ≤ 0.34 mm² | Sub-block + island | `dac_unit` 0.0006 mm²; `dac_array` bbox **0.112 mm²** [GDS] (too open — pitch for code tracks). Core+tank 0.1102 + bank 0.1514 = 0.2616 [GDS]. Island headroom before OTA/MIM tight if array stays 0.11. |
+| 6 Specs + commit | notes / floorplan §8 / phase2 §3 | `decisions.md` D9/D23 recorded; `vco-topology.md` D9 cause note written. floorplan/layout-notes/phase2 **not** updated; **no commit** (array LVS open; ask before commit). |
+
+## Centroid order (stated)
+
+4×8, odd rows R→L [HAND/TOOL `centroid_order.json`]:
+`b4 b3 b2 b4 b3 b4 b1 b4 || b4 b0 b4 b3 b4 b2 b3 b4 || b4 b3 b2 b4 b3 b4 b1 b4 || b4 D b3 b4 b4 b2 b3 b4`
+Counts: b0=1 b1=2 b2=4 b3=8 b4=16 D=1. Base 19 below in 7+7+5.
+
+## What failed / uncertain
+
+- Ideal vs rfcmim PN/swing: PSS fail (16000); 8000 in flight or flaky under load [TOOL].
+- `dac_array` LVS: FET topology looks right (mdb: xd/pbias/vdd; msw: xraw/code/xd/vdd) but **vdd not fully strapped** and **per-bit code M3 buses not merging** [TOOL extract].
+- DRC M2.b / M3.b on array [TOOL].
+- MIM-over-DAC/OTA, OTA, RC, island total, forecast: **not done**.
+
+## Decision needed
+
+None for D9/D23 (already accepted). For this run: continue array LVS (vdd strap + code bus merge) before OTA/RC, or accept stop and resume next session.
+
+## Found, not done
+
+- Ideal↔rfcmim PN/swing numbers (pass gate)
+- `dac_array` DRC+LVS clean
+- Tail transistor + OTA layout
+- D9 RC + bypasses + cbf MIM (over vs beside; area saved)
+- Island total vs 0.34; varactor/D22/routing forecast
+- `spec/p27-layout-notes.md`, `p27-floorplan.md` §8 (0.34), `phase2-plan.md` §3
+- Commit of this job’s files (ask first)
+
+## Next run
+
+**P2.7.2b, next sub-block — varactor and bias** (after tail array LVS + OTA/RC/MIM close, or as scheduled if tail deferred).

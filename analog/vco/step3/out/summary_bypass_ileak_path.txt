@@ -1,0 +1,36 @@
+# Off bank-bypass leakage path [SCH]
+
+Device: sg13_lv_nmos w=5u l=0.13u ng=2, V_GS=0.
+
+## Terminal currents at V_D=1.2 V, V_S=V_B=0, V_G=0 (bound extract bias)
+
+ff125: I_D=-4.0026e-08 A  I_S=3.9976e-08 A  I_B=4.0811e-12 A
+       |I_B|/|I_D|=0.000  |I_S|/|I_D|=0.999
+ss85:  I_D=-2.2210e-10 A  I_S=2.1826e-10 A  I_B=1.4823e-12 A
+       |I_B|/|I_D|=0.007  |I_S|/|I_D|=0.983
+tt27:  I_D=-1.7541e-10 A  I_S=1.6875e-10 A  I_B=1.2229e-12 A
+       |I_B|/|I_D|=0.007  |I_S|/|I_D|=0.962
+
+## Circuit-like off bit: V_D=V_S=1.2 V, V_B=0, V_G=0
+
+ff125: I_D=-4.98e-11  I_S=-5.05e-11  I_B=8.65e-12 A (both junctions)
+
+## Path verdict
+
+The **40 nA at ff / 125 °C is not junction leakage to substrate.** It is
+**channel (D→S) subthreshold** current (|I_S|/|I_D| ≈ 1.00, |I_B|/|I_D| ≈ 0.000).
+True drain/source–bulk junction current in the circuit-like off bias (D=S=1.2 V,
+B=0) is only ~9 pA total.
+
+## Plate DC shift through 2 MΩ [HAND]
+
+- If the bound-bias channel current (40 nA) flowed through R_bias: ΔV = 80 mV.
+  That bias (V_DS=1.2 V) is **not** the stand-alone off-bit DC (V_DS≈0); it is the
+  pessimistic extract used for the noise bound.
+- Circuit-like substrate junction on one plate: ΔV ≈ 0.01 mV (negligible).
+
+## Off switches under tank swing (ff hot, top band)
+
+Off-bit: bb hard-tied to 1.2 V, bypass gate vbp=0 → **V_GS = −1.2 V** independent
+of plate voltage / IR drop. An LV NMOS cannot turn on. Plate swing only changes
+V_DS / V_GD. Bank switch gate is 0 on off bits. **Stay off — no STOP.**

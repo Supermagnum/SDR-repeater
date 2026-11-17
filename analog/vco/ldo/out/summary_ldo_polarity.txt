@@ -1,0 +1,24 @@
+# 1) Polarity: OP hold + stb gain sign
+
+| case | OP | tran | |
+|---|---|---|---|
+| hold_orig | OP=1.298 vg=2.147 | t0=1.298 t1=2.686 drift=1388.4mV | DRIFT |
+| hold_swap | OP=-7.247 vg=2.632 | t0=-7.247 t1=-7.247 drift=0.0mV | HOLD |
+
+| stb | OP | W_DC | UGF/PM |
+|---|---|---|---|
+| stb_orig | OP=1.298 | |W_DC|=625 ∠=10° POS-FB | UGF=3.46MHz PM=-91.2° |
+| stb_swap | OP=-7.247 | |W_DC|=0 ∠=-0° POS-FB | UGF=0.00MHz PM=nan° |
+
+# 2) Soft-start from 0 and from Vin (vref ramp)
+
+| case | | settle |
+|---|---|---|
+| start0_orig | start≈0.0 | final=1.012 std=3016.9mV min=-10.04 max=2.69 |
+| startVin_orig | start≈2.7 | final=0.821 std=2916.7mV min=-7.37 max=2.69 |
+| start0_swap | start≈0.0 | final=-7.247 std=0.0mV min=-10.06 max=-7.11 |
+| startVin_swap | start≈2.7 | final=2.685 std=0.0mV min=2.69 max=2.69 |
+
+# Verdict
+  orig: POS-FB, PM=-91.20923149991074
+  swap: POS-FB, PM=None

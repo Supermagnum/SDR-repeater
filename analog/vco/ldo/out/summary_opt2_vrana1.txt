@@ -1,0 +1,98 @@
+# Option (2) through VR_ANA1 — noise at full LO current [SCH]
+
+## R=5 Ω, I and L sweep
+| I_load | L_bond | Vout | Vpad | IR (mV) | S_v @ 1 MHz | vs 11 nV |
+|---|---|---|---|---|---|---|
+| 5 mA | 1.5 nH | 1.098 | 1.073 | 25.0 | 8.80 nV/√Hz | PASS |
+| 10 mA | 1.0 nH | 1.093 | 1.043 | 50.0 | 11.54 nV/√Hz | MISS |
+| 10 mA | 1.5 nH | 1.093 | 1.043 | 50.0 | 11.52 nV/√Hz | MISS |
+| 10 mA | 2.0 nH | 1.093 | 1.043 | 50.0 | 11.50 nV/√Hz | MISS |
+
+## R sweep at I=10 mA, L=1.5 nH (no option-1)
+| R | IR @ 10 mA | S_v @ 1 MHz | vs 11 nV |
+|---|---|---|---|
+| 5 Ω | 50 mV | 11.52 nV/√Hz | MISS |
+| 6 Ω | 60 mV | 11.02 nV/√Hz | MISS |
+| 7 Ω | 70 mV | 10.51 nV/√Hz | PASS |
+| 8 Ω | 80 mV | 10.02 nV/√Hz | PASS |
+| 10 Ω | 100 mV | 9.09 nV/√Hz | PASS |
+
+# |Z_pad| at divider frequencies [HAND]
+Looking into pad: Cpad+ESD=3 pF || (jωL_bond to board C ≈ AC ground).
+
+| f | what | L | |Z_pad| | ΔV @ 1 mA | Δf_ss (K=50 MHz/V) |
+|---|---|---|---|---|---|
+| 1 MHz | duplex-band noise | 1 nH | 0.01 Ω | 0.01 mV | 0.3 kHz |
+| 1 MHz | duplex-band noise | 2 nH | 0.01 Ω | 0.01 mV | 0.6 kHz |
+| 36 MHz | f_ref / CP | 1 nH | 0.23 Ω | 0.23 mV | 11.3 kHz |
+| 36 MHz | f_ref / CP | 2 nH | 0.45 Ω | 0.45 mV | 22.6 kHz |
+| 175 MHz | VHF LO out | 1 nH | 1.10 Ω | 1.10 mV | 55.2 kHz |
+| 175 MHz | VHF LO out | 2 nH | 2.22 Ω | 2.22 mV | 110.8 kHz |
+| 525 MHz | UHF LO out | 1 nH | 3.41 Ω | 3.41 mV | 170.5 kHz |
+| 525 MHz | UHF LO out | 2 nH | 7.06 Ω | 7.06 mV | 352.9 kHz |
+| 1400 MHz | VHF CML÷3 clk | 1 nH | 11.46 Ω | 11.46 mV | 572.8 kHz |
+| 1400 MHz | VHF CML÷3 clk | 2 nH | 32.84 Ω | 32.84 mV | 1641.9 kHz |
+| 2100 MHz | UHF CML÷2 clk | 1 nH | 27.62 Ω | 27.62 mV | 1381.1 kHz |
+| 2100 MHz | UHF CML÷2 clk | 2 nH | 591.70 Ω | 591.70 mV | 29585.2 kHz |
+| 4200 MHz | VCO rate | 1 nH | 24.23 Ω | 24.23 mV | 1211.4 kHz |
+| 4200 MHz | VCO rate | 2 nH | 16.61 Ω | 16.61 mV | 830.3 kHz |
+
+Discrete-spur L at f_m (β = K·Vpk/f_m, L≈20log(β/2)), Vpk from 1 mA:
+
+  VHF LO out @ 175 MHz: |Z|=1.66 Ω → Vpk=1.66 mV → L≈-72.5 dBc (offset = f_m, not duplex)
+  UHF LO out @ 525 MHz: |Z|=5.20 Ω → Vpk=5.20 mV → L≈-72.1 dBc (offset = f_m, not duplex)
+  VHF CML÷3 clk @ 1400 MHz: |Z|=20.24 Ω → Vpk=20.24 mV → L≈-68.8 dBc (offset = f_m, not duplex)
+  UHF CML÷2 clk @ 2100 MHz: |Z|=91.40 Ω → Vpk=91.40 mV → L≈-59.3 dBc (offset = f_m, not duplex)
+  VCO rate @ 4200 MHz: |Z|=18.55 Ω → Vpk=18.55 mV → L≈-79.1 dBc (offset = f_m, not duplex)
+
+# Study notes — option (2) through VR_ANA1 (STOP)
+
+## Why VR_ANA1 was ~1.5 V
+- LDO deck used Vin=1.5 V as the *input* to the VCO sub-LDO (dropout to 1.1 V), not as the LO/CP rail.
+- LO chain and charge pump are designed for ~1.2 V (corners 1.08–1.32 V). VCO centre-tap ~1.1 V.
+- No accepted block requires 1.5 V on VR_ANA1 itself. RX LNA headroom is Phase 3 TBD (often ≥1.2–1.8 V).
+
+## Blocks vs voltage
+| Block | Designed V | Can sit on filtered 1.1–1.2 V VR_ANA1? |
+|---|---|---|
+| VCO | ~1.1 V | Yes (D10) |
+| LO CML/TSPC | ~1.2 V | Yes (already sim'd at 1.08–1.32) |
+| Charge pump / PFD | ~1.2 V | Yes; ss already weak at 1.08 V / V_tune=0.95 — keep pad ≥~1.15 V after IR |
+| RX LNA/TIA/ADC | TBD Phase 3 | Prefer **off** this pin (PSRR / headroom) → VR_ANA2 or internal LDO |
+
+## Proposed repartition (drop-in: pin 3 stays VR_ANA1, pins 12/14 stay n.c.)
+VBAT → one LDO → R → **VR_ANA1 pad** → bond → board 100 nF
+VCO + LO + CP fed from the pad (chip side).
+RX → VR_ANA2 (pin 25) with TX/DAC, or own internal LDO + on-chip decoupling.
+Do not fight a second regulator on pin 3.
+
+## IR @ ~10 mA
+5 Ω × 10 mA = 50 mV (matches owner). Prefer Kelvin sense at the pad so VCO/LO/CP see the target voltage; LDO out sits IR higher.
+
+## Noise of RX's new supply
+- On VR_ANA2 + 100 nF: LinHT half-duplex and repeater (separate RX/TX RFICs) never run TX DAC and RX together on one die → board node quiet in RX. Residual: VR_ANA2 regulator noise; LNA PSRR typically makes tens of nV/√Hz acceptable [HAND] until Phase 3 budgets it.
+- Internal RX LDO: isolates from TX; needs own on-chip C (area) — same class of problem as A/B/D but RX PSRR is far looser than VCO K_push.
+
+## rf-frontend.md rows (proposed wording, not applied)
+- Pin 3 VR_ANA1: "LO/VCO/CP quiet rail ~1.1–1.2 V (on-chip series R to LDO; 100 nF)"
+- Pin 25 VR_ANA2: "TX/DAC (+ RX if moved off VR_ANA1); 100 nF"
+- §7 Regulators: note VR_ANA1 = LO domain, VR_ANA2 = TX (+RX)
+
+## Push at divider frequencies (not just f_ref)
+Board 100 nF is behind bond L: at 175 MHz–2 GHz |Z_pad| ≈ 1–90 Ω, not 1/ωC.
+1 mA spikes → mV-level bounce → discrete FM spurs at f_div offsets (L ≈ −60 to −80 dBc for 1 mA) — **not** at duplex 600 kHz / 2 MHz.
+Duplex-band white S_v still set by LDO→R→C (1 MHz |Z|≈0.01 Ω).
+On-chip local bypass at LO/CML supplies still wise for GHz bounce (separate from this study).
+
+## Gate vs ≤ 11 nV/√Hz through VR_ANA1 (no option 1)
+| Case | S_v(pad) @ 1 MHz |
+|---|---|
+| R=5 Ω, 5 mA | 8.8 nV PASS |
+| R=5 Ω, 10 mA | **11.5 nV MISS** |
+| R=7 Ω, 10 mA | 10.5 nV PASS (IR 70 mV) |
+| R=10 Ω, 10 mA | 9.1 nV PASS (IR 100 mV) |
+
+**R=5 Ω at full LO current does not meet 11 nV.** Still inside option (2): raise R to ≥7 Ω, or keep R=5 and add option (1) / quieter LDO.
+Option (1) not required if R≥7 Ω is accepted.
+
+STOP for owner: confirm VR_ANA1 = filtered LO/VCO/CP rail; RX move; R=5 vs R≥7 at 10 mA.

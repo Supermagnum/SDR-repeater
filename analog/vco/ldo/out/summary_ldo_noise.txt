@@ -1,0 +1,21 @@
+# D10 / D21 VCO–LO supply LDO noise vs ≤ 11 nV/√Hz @ 1 MHz [SCH]
+
+## Baseline (pre-D21)
+PMOS-pass LDO, Vref=0.55 V, Vin=1.5 V → Vout≈1.1 V, I_load=5 mA: S_v ≈ **86.5 nV/√Hz** bare (MISS). Dominated by feedback rf1/rf2. Options A/B/D (large on-chip C) rejected for area.
+
+## D21 (owner 2026-11-01) — adopted
+VR_ANA1 (pin 3): LDO → **R = 10 Ω** → pad → bond → board **100 nF**.
+VCO + LO + CP from pad. No Kelvin (LDO senses vout). RX → VR_ANA2. No option (1).
+
+Setpoint: V_pad ≈ 1.20 V at I_typ = 9.65 mA → V_LDO ≈ **1.297 V** (Vref ≈ 0.648 V).
+
+| Case | S_v(pad) @ 1 MHz | vs 11 nV |
+|---|---|---|
+| R=10 Ω, I=9.65 mA | 9.44 nV/√Hz | PASS |
+| R=10 Ω, I=10 mA | **9.52 nV/√Hz** | **PASS** |
+
+Pad voltage [HAND]: ΔV UHF→VHF ≈ 13.5 mV; worst-case (±5% LDO, ±20% R, 10.3 mA) ≈ **1.108 V** ≥ 1.08 V.
+
+Stability: OP regulates with/without board C. Transient does **not** hold the OP with the present first-cut LDO (compensation follow-up). Board 100 nF still required for the noise filter. Local on-chip decoupling: `spec/p27-layout-notes.md`.
+
+Logs: `summary_d21_vrana1.txt`, `summary_opt2_vrana1.txt`, `run_d21_vrana1.py`.

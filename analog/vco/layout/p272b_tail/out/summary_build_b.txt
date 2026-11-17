@@ -1,0 +1,16 @@
+# P2.7.2b tail build stage=b
+
+CENTROID_31 counts: {'b4': 16, 'b3': 8, 'b2': 4, 'b1': 2, 'b0': 1, 'D': 1}  (expect b0=1 b1=2 b2=4 b3=8 b4=16 D=1)
+Technology SG13_dev is loaded.
+GRID : 0.01
+GRID inverse : 100.0
+EPSILON1  : 0.001
+EPSILON2  : 1e-9
+Success.
+dac_unit bbox (-8.56,-3.36;28.36,12.45)  area=0.0006 mm2
+  pins {'vdd': (2.5300000000000002, 7.51), 'xraw': (16.23, 12.200000000000001), 'pbias': (-8.31, 12.0), 'code': (28.11, 12.0), 'xd': (9.9, -3.11)}
+dac_unit pitch 46.92 x 33.81 µm
+dac_array bbox (-18.56,-7.56;411.4,253.91)  area=0.1124 mm2
+CENTROID rows (odd R->L): b4 b3 b2 b4 b3 b4 b1 b4 || b4 b0 b4 b3 b4 b2 b3 b4 || b4 b3 b2 b4 b3 b4 b1 b4 || b4 D b3 b4 b4 b2 b3 b4
+wrote /foss/designs/analog/vco/layout/p272b_tail/out/dac_array.gds (+.gz)
+wrote dac_array.spice (hierarchical)

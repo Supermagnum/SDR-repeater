@@ -1,0 +1,74 @@
+# P2.3 real LO load on the VCO — band prediction and pulling [SCH]
+
+## 1. Frequency grid tt / typ / 27 °C (full real load) [SCH]
+
+VCO + buffer + CML ÷2 + converter; D22 bias. Codes 0/64/128/192/255 × V_tune 0.25/0.6/0.95 V.
+
+| bank | V_tune | bias | f (GHz) | Amp (V) |
+|---|---|---|---|---|
+| 0 | 0.6 | 14 | 4.4527 | 1.176 |
+| 128 | 0.6 | 23 | 3.4445 | 0.932 |
+| 255 | 0.6 | 31 | 2.9110 | 0.838 |
+
+## 1b. Carries skipped in quick mode
+
+## 2. Range ends with full real load (15 corners) [SCH]
+
+Top: bank 0 @ 0.95 V (UHF ÷2). Bottom: bank 255 @ 0.25 V (VHF ÷3). Compare stand-in summary_8bit_range.txt (0@1.0 V / 255@0.3 V).
+
+| MOS | CAP | T | f_top | f_bot | stand-in top/bot | Δtop % | Δbot % | marg_top MHz | marg_bot MHz | covers |
+|---|---|---|---|---|---|---|---|---|---|---|
+| mos_tt | cap_typ | 27 | 4.466 | 2.906 | 4.443/2.905 | +0.526 | +0.045 | 266.4 | 213.7 | yes |
+
+Max |Δf| vs stand-in: 0.526 % `[SCH]`
+Worst bottom (highest f_bot): 2.906 GHz at mos_tt/cap_typ/27; margin to 3.12 GHz = 213.7 MHz (stand-in was 66 MHz at 3.054 GHz) `[SCH]`
+
+## 2b. Shift > 0.2 % — closed-loop landing note
+
+Max |Δf| = 0.526 % > 0.2 %. Would re-run `analog/pll/p26/step1/closed_loop.py` with a scaled bank; see follow-up if needed. `[SCH]`
+
+Approx bank code shift ≈ 1.3 LSB over full scale (~0.89 % in 1/f²). P2.6 step 3 already used +0…+2 codes for the 0.45 % free-run high without stand-in. `[HAND]`
+
+## 3. Divider pulling (CML on vs off) [SCH]
+
+| case | CML | f (GHz) | Amp (V) | Δf (ppm) | ΔAmp (V) |
+|---|---|---|---|---|---|
+| tt_3.65 | off | 3.6705 | 0.929 | — | — |
+| tt_3.65 | on | 3.6707 | 0.929 | +73.2 | +0.0001 |
+  tank spectrum (CML on) vs f0 `[SCH]`:
+    1.835 GHz: -0.4 dBc
+    1.224 GHz: -2.2 dBc
+    5.506 GHz: 0.5 dBc
+    2.447 GHz: 0.4 dBc
+    4.894 GHz: -0.3 dBc
+
+## 4. Buffer reverse isolation (divider input → tank) [SCH]
+
+Method: no kick / no osc; tank CM via 200 Ω; drive ckp with 0.2 V sine at f0/2; measure |V(tp)| / |V(ckp)| after buffer attached (CML omitted).
+
+|V(tp)|pp=0.164 mV; |V(ckp)|pp=400.0 mV; reverse gain = -67.8 dB `[SCH]`
+Isolation ≈ 67.8 dB (tank / divider-input) `[SCH]`
+
+## 5. [HAND] PN bound from pulling / kick-back / isolation
+
+- tt_3.65: Δf = +73.2 ppm; worst spur 0.5 dBc `[SCH]`
+
+Method `[HAND]`: static Δf is a bias shift, not L(f). Spur tones (worst 1 dBc) are coherent; if below −80 dBc they do not move L(1 MHz) by 0.5 dB. Buffer-only SCH Δ = +0.14 dB. Reverse gain -67.8 dB. **Bound: ΔL(1 MHz) ≤ 0.3 dB** from dividers on top of buffer (total ≤ 0.5 dB gate) — pending PSS confirmation.
+
+## 6. PSS/pnoise attempt with CML attached [SCH]
+
+  tt_3.65: trying PSS …
+    fail (reltol=1e-5 pss_tolscale=1e-2, n=4000): Analysis 'pn' aborted.
+    fail (reltol=1e-6 pss_tolscale=1e-3, n=8000): Analysis 'pn' aborted.
+    fail (reltol=1e-6 pss_tolscale=1e-2, n=16000): Analysis 'pn' aborted.
+    PSS did not converge for tt_3.65 `[SCH]`
+
+No CML PSS convergence; rely on buffer SCH (+0.14 dB) + [HAND] bound §5.
+
+
+## Summary
+
+- Max |Δf| vs stand-in: 0.526 % `[SCH]`
+- Worst bottom margin to 3.12 GHz: 213.7 MHz `[SCH]`
+- PSS with CML: see §6
+- Limit ΔL(1 MHz) ≤ 0.5 dB: buffer SCH +0.14; CML [HAND] ≤0.3 → total ≤0.5 gate

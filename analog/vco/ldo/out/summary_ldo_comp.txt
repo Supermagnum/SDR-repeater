@@ -1,0 +1,63 @@
+# 0) Confirm tiny still holds; scale to full pass
+
+| tag | | |
+|---|---|---|
+| h_cg50 | OP=1.298 t1=1.298 d=0.01mV std=0.006mV | HOLD |
+| h_cg200 | OP=1.298 t1=1.298 d=0.00mV std=0.000mV | HOLD |
+| h_cg500 | OP=1.298 t1=1.298 d=0.00mV std=0.000mV | HOLD |
+| h_cg1n | OP=1.298 t1=1.298 d=0.00mV std=0.000mV | HOLD |
+| h_miller5 | OP=1.298 t1=2.686 d=1388.36mV std=3322.702mV | FAIL |
+| h_miller50 | OP=1.298 t1=2.686 d=1388.42mV std=3474.070mV | FAIL |
+| h_rnull | OP=1.298 t1=-7.056 d=-8353.34mV std=3007.317mV | FAIL |
+| h_cg50_co1n | OP=1.298 t1=1.298 d=0.00mV std=0.000mV | HOLD |
+
+Held configs: 5
+
+# Best hold: cg50
+
+| tag | W | UGF/PM |
+|---|---|---|
+| stb_cg50_bare | |W|=635 ∠=-0° NEG-FB | UGF=5.969MHz PM=0.5° |
+| stb_cg50_rlc | |W|=625 ∠=-1° NEG-FB | UGF=0.451MHz PM=71.1° |
+| stb_cg50_noc | |W|=625 ∠=-0° NEG-FB | UGF=6.673MHz PM=3.8° |
+
+# Soft-start / dual attractor
+
+| tag | | |
+|---|---|---|
+| ss_cg50 | final=1.302 std=92.06mV | FAIL |
+| hold_rlc_cg50 | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+| hold_noc_cg50 | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+
+# PM sweep on RLC / noC
+
+| tag | | |
+|---|---|---|
+| h_pm_cg50_rlc | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+| pm_cg50_rlc | |W|=625 ∠=-1° NEG-FB | UGF=0.451MHz PM=71.1° |
+| h_pm_cg50_noc | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+| pm_cg50_noc | |W|=625 ∠=-0° NEG-FB | UGF=6.673MHz PM=3.8° |
+| h_pm_cg100_rlc | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+| pm_cg100_rlc | |W|=625 ∠=-2° NEG-FB | UGF=0.252MHz PM=59.9° |
+| h_pm_cg100_noc | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+| pm_cg100_noc | |W|=625 ∠=-1° NEG-FB | UGF=4.498MHz PM=24.8° |
+| h_pm_cg200_rlc | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+| pm_cg200_rlc | |W|=625 ∠=-2° NEG-FB | UGF=0.154MHz PM=47.1° |
+| h_pm_cg200_noc | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+| pm_cg200_noc | |W|=625 ∠=-1° NEG-FB | UGF=2.770MHz PM=46.5° |
+| h_pm_cg500_rlc | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+| pm_cg500_rlc | |W|=624 ∠=-4° NEG-FB | UGF=0.088MHz PM=33.3° |
+| h_pm_cg500_noc | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+| pm_cg500_noc | |W|=624 ∠=-3° NEG-FB | UGF=1.257MHz PM=69.3° |
+| h_pm_cg1000_rlc | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+| pm_cg1000_rlc | |W|=622 ∠=-7° NEG-FB | UGF=0.060MHz PM=26.4° |
+| h_pm_cg1000_noc | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+| pm_cg1000_noc | |W|=622 ∠=-5° NEG-FB | UGF=0.647MHz PM=79.3° |
+| h_pm_cg2000_rlc | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+| pm_cg2000_rlc | |W|=614 ∠=-12° NEG-FB | UGF=0.042MHz PM=22.4° |
+| h_pm_cg2000_noc | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+| pm_cg2000_noc | |W|=614 ∠=-11° NEG-FB | UGF=0.326MHz PM=84.6° |
+| h_pm_cg5000_rlc | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+| pm_cg5000_rlc | |W|=564 ∠=-27° NEG-FB | UGF=0.026MHz PM=21.0° |
+| h_pm_cg5000_noc | OP=1.295 t1=1.295 d=-0.00mV std=0.000mV | HOLD |
+| pm_cg5000_noc | |W|=564 ∠=-26° NEG-FB | UGF=0.131MHz PM=87.9° |

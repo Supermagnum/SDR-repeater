@@ -1,0 +1,1 @@
+lvs {/foss/designs/analog/vco/layout/p272a/out/bank_unit.spice bank_unit} {/foss/designs/analog/vco/layout/p272a/out/lvs_bank_unit/bank_unit_extracted.cir bank_unit} /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl /foss/designs/analog/vco/layout/p272a/out/netgen_bank_unit.json

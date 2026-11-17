@@ -1,0 +1,25 @@
+# Bare LDO compensation sweep
+
+| tag | Cc/Cout | OP/pre/dlt/std | verdict |
+|---|---|---|---|
+| b_c0_o50 | Cc=0p Cout=50p | OP=1.298 pre=1.677 dlt=176.1 std=1380.6 | OSC |
+| b_c0_o200 | Cc=0p Cout=200p | OP=1.298 pre=2.211 dlt=-358.0 std=1119.0 | OSC |
+| b_c0_o1000 | Cc=0p Cout=1000p | OP=1.298 pre=2.356 dlt=-170.6 std=499.6 | OSC |
+| b_c0_o5000 | Cc=0p Cout=5000p | OP=1.298 pre=2.288 dlt=-29.8 std=262.5 | OSC |
+| b_c5_o50 | Cc=5p Cout=50p | OP=1.298 pre=0.341 dlt=-280.6 std=3490.4 | OSC |
+| b_c5_o200 | Cc=5p Cout=200p | OP=1.298 pre=0.005 dlt=-962.4 std=3995.0 | OSC |
+| b_c5_o1000 | Cc=5p Cout=1000p | OP=1.298 pre=1.585 dlt=-468.4 std=2037.2 | OSC |
+| b_c5_o5000 | Cc=5p Cout=5000p | OP=1.298 pre=2.243 dlt=-223.3 std=767.9 | OSC |
+| b_c20_o50 | Cc=20p Cout=50p | OP=1.298 pre=1.177 dlt=-948.4 std=3903.0 | OSC |
+| b_c20_o200 | Cc=20p Cout=200p | OP=1.298 pre=0.423 dlt=-463.2 std=4078.0 | OSC |
+| b_c20_o1000 | Cc=20p Cout=1000p | OP=1.298 pre=-0.900 dlt=-626.7 std=4457.2 | OSC |
+| b_c20_o5000 | Cc=20p Cout=5000p | OP=1.298 pre=0.593 dlt=768.0 std=1843.3 | OSC |
+| b_c50_o50 | Cc=50p Cout=50p | OP=1.298 pre=0.285 dlt=-415.6 std=4105.9 | OSC |
+| b_c50_o200 | Cc=50p Cout=200p | OP=1.298 pre=-1.133 dlt=1583.0 std=3586.4 | OSC |
+| b_c50_o1000 | Cc=50p Cout=1000p | OP=1.298 pre=2.370 dlt=-3344.4 std=4628.5 | OSC |
+| b_c50_o5000 | Cc=50p Cout=5000p | OP=1.298 pre=2.628 dlt=-1872.1 std=2848.0 | OSC |
+
+No bare STABLE — try even larger Cout / Cc
+
+| b_c100_o10n | Cc=100p Cout=10000p | OP=1.298 pre=2.686 dlt=-14.2 std=0.4 | CHECK |
+| b_c200_o22n | Cc=200p Cout=22000p | OP=1.298 pre=0.752 dlt=1783.4 std=82.9 | OSC |

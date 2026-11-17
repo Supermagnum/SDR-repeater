@@ -1,0 +1,9 @@
+# ampcal_det join group replay 2026-11-17T02:27:31Z
+
+## step 1 nets=place,power
+
+
+
+ports: * Extracted by KLayout with SG13G2 LVS runset on : 17/11/2026 03:28  .SUBCKT ampcal_det 
+STEP FAIL (need both LVS unique match)
+fail=1

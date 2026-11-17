@@ -1,0 +1,75 @@
+# Bare LDO: hold OP for 10 µs?
+
+| tag | comps | OP/t0/t1/drift/std | |
+|---|---|---|---|
+| c5_r0k_o100 | Cc=5p Rc=0 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=3210.9 | DRIFT |
+| c5_r0k_o500 | Cc=5p Rc=0 Cout=500p | OP=1.298 t0=1.298 t1=2.686 drift=1388.3mV std=1945.3 | DRIFT |
+| c5_r0k_o2000 | Cc=5p Rc=0 Cout=2000p | OP=1.298 t0=1.298 t1=1.626 drift=328.3mV std=956.3 | DRIFT |
+| c5_r0k_o10000 | Cc=5p Rc=0 Cout=10000p | OP=1.298 t0=1.298 t1=1.661 drift=363.0mV std=560.7 | DRIFT |
+| c5_r1k_o100 | Cc=5p Rc=1000 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.1mV std=3473.8 | DRIFT |
+| c5_r1k_o500 | Cc=5p Rc=1000 Cout=500p | OP=1.298 t0=1.298 t1=2.686 drift=1388.3mV std=1941.2 | DRIFT |
+| c5_r1k_o2000 | Cc=5p Rc=1000 Cout=2000p | OP=1.298 t0=1.298 t1=1.645 drift=347.0mV std=907.3 | DRIFT |
+| c5_r1k_o10000 | Cc=5p Rc=1000 Cout=10000p | OP=1.298 t0=1.298 t1=1.669 drift=371.6mV std=554.2 | DRIFT |
+| c5_r5k_o100 | Cc=5p Rc=5000 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.3mV std=3346.6 | DRIFT |
+| c5_r5k_o500 | Cc=5p Rc=5000 Cout=500p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=1868.1 | DRIFT |
+| c5_r5k_o2000 | Cc=5p Rc=5000 Cout=2000p | OP=1.298 t0=1.298 t1=1.686 drift=388.4mV std=886.4 | DRIFT |
+| c5_r5k_o10000 | Cc=5p Rc=5000 Cout=10000p | OP=1.298 t0=1.298 t1=1.699 drift=401.6mV std=531.1 | DRIFT |
+| c5_r20k_o100 | Cc=5p Rc=20000 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=2411.8 | DRIFT |
+| c5_r20k_o500 | Cc=5p Rc=20000 Cout=500p | OP=1.298 t0=1.298 t1=0.751 drift=546.4mV std=1562.0 | DRIFT |
+| c5_r20k_o2000 | Cc=5p Rc=20000 Cout=2000p | OP=1.298 t0=1.298 t1=1.654 drift=356.1mV std=857.7 | DRIFT |
+| c5_r20k_o10000 | Cc=5p Rc=20000 Cout=10000p | OP=1.298 t0=1.298 t1=1.786 drift=488.7mV std=571.0 | DRIFT |
+| c20_r0k_o100 | Cc=20p Rc=0 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.3mV std=3366.7 | DRIFT |
+| c20_r0k_o500 | Cc=20p Rc=0 Cout=500p | OP=1.298 t0=1.298 t1=2.025 drift=727.8mV std=2963.5 | DRIFT |
+| c20_r0k_o2000 | Cc=20p Rc=0 Cout=2000p | OP=1.298 t0=1.298 t1=-2.709 drift=4006.5mV std=1558.9 | DRIFT |
+| c20_r0k_o10000 | Cc=20p Rc=0 Cout=10000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=797.4 | DRIFT |
+| c20_r1k_o100 | Cc=20p Rc=1000 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.3mV std=3537.8 | DRIFT |
+| c20_r1k_o500 | Cc=20p Rc=1000 Cout=500p | OP=1.298 t0=1.298 t1=1.161 drift=136.7mV std=2938.7 | DRIFT |
+| c20_r1k_o2000 | Cc=20p Rc=1000 Cout=2000p | OP=1.298 t0=1.298 t1=-1.783 drift=3080.8mV std=1833.0 | DRIFT |
+| c20_r1k_o10000 | Cc=20p Rc=1000 Cout=10000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=794.0 | DRIFT |
+| c20_r5k_o100 | Cc=20p Rc=5000 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=3237.2 | DRIFT |
+| c20_r5k_o500 | Cc=20p Rc=5000 Cout=500p | OP=1.298 t0=1.298 t1=-2.469 drift=3766.8mV std=2749.7 | DRIFT |
+| c20_r5k_o2000 | Cc=20p Rc=5000 Cout=2000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.2mV std=1703.9 | DRIFT |
+| c20_r5k_o10000 | Cc=20p Rc=5000 Cout=10000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=767.4 | DRIFT |
+| c20_r20k_o100 | Cc=20p Rc=20000 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=2632.9 | DRIFT |
+| c20_r20k_o500 | Cc=20p Rc=20000 Cout=500p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=2363.8 | DRIFT |
+| c20_r20k_o2000 | Cc=20p Rc=20000 Cout=2000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=1476.8 | DRIFT |
+| c20_r20k_o10000 | Cc=20p Rc=20000 Cout=10000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=741.2 | DRIFT |
+| c50_r0k_o100 | Cc=50p Rc=0 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.3mV std=3445.3 | DRIFT |
+| c50_r0k_o500 | Cc=50p Rc=0 Cout=500p | OP=1.298 t0=1.298 t1=2.686 drift=1388.3mV std=3346.4 | DRIFT |
+| c50_r0k_o2000 | Cc=50p Rc=0 Cout=2000p | OP=1.298 t0=1.298 t1=-4.067 drift=5364.4mV std=1584.1 | DRIFT |
+| c50_r0k_o10000 | Cc=50p Rc=0 Cout=10000p | OP=1.298 t0=1.298 t1=1.949 drift=651.7mV std=870.3 | DRIFT |
+| c50_r1k_o100 | Cc=50p Rc=1000 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=3281.0 | DRIFT |
+| c50_r1k_o500 | Cc=50p Rc=1000 Cout=500p | OP=1.298 t0=1.298 t1=2.686 drift=1388.3mV std=3289.4 | DRIFT |
+| c50_r1k_o2000 | Cc=50p Rc=1000 Cout=2000p | OP=1.298 t0=1.298 t1=-4.163 drift=5460.4mV std=1543.4 | DRIFT |
+| c50_r1k_o10000 | Cc=50p Rc=1000 Cout=10000p | OP=1.298 t0=1.298 t1=1.936 drift=638.5mV std=861.8 | DRIFT |
+| c50_r5k_o100 | Cc=50p Rc=5000 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=3147.5 | DRIFT |
+| c50_r5k_o500 | Cc=50p Rc=5000 Cout=500p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=2942.8 | DRIFT |
+| c50_r5k_o2000 | Cc=50p Rc=5000 Cout=2000p | OP=1.298 t0=1.298 t1=-4.513 drift=5810.2mV std=1454.4 | DRIFT |
+| c50_r5k_o10000 | Cc=50p Rc=5000 Cout=10000p | OP=1.298 t0=1.298 t1=1.895 drift=597.2mV std=853.7 | DRIFT |
+| c50_r20k_o100 | Cc=50p Rc=20000 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=2777.0 | DRIFT |
+| c50_r20k_o500 | Cc=50p Rc=20000 Cout=500p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=2389.4 | DRIFT |
+| c50_r20k_o2000 | Cc=50p Rc=20000 Cout=2000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=1931.5 | DRIFT |
+| c50_r20k_o10000 | Cc=50p Rc=20000 Cout=10000p | OP=1.298 t0=1.298 t1=1.720 drift=422.1mV std=795.6 | DRIFT |
+| c100_r0k_o100 | Cc=100p Rc=0 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=3311.7 | DRIFT |
+| c100_r0k_o500 | Cc=100p Rc=0 Cout=500p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=3091.0 | DRIFT |
+| c100_r0k_o2000 | Cc=100p Rc=0 Cout=2000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=1999.5 | DRIFT |
+| c100_r0k_o10000 | Cc=100p Rc=0 Cout=10000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=1019.9 | DRIFT |
+| c100_r1k_o100 | Cc=100p Rc=1000 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=3269.4 | DRIFT |
+| c100_r1k_o500 | Cc=100p Rc=1000 Cout=500p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=2942.2 | DRIFT |
+| c100_r1k_o2000 | Cc=100p Rc=1000 Cout=2000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=1973.5 | DRIFT |
+| c100_r1k_o10000 | Cc=100p Rc=1000 Cout=10000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=985.1 | DRIFT |
+| c100_r5k_o100 | Cc=100p Rc=5000 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=2867.0 | DRIFT |
+| c100_r5k_o500 | Cc=100p Rc=5000 Cout=500p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=2567.7 | DRIFT |
+| c100_r5k_o2000 | Cc=100p Rc=5000 Cout=2000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=1694.2 | DRIFT |
+| c100_r5k_o10000 | Cc=100p Rc=5000 Cout=10000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=940.1 | DRIFT |
+| c100_r20k_o100 | Cc=100p Rc=20000 Cout=100p | OP=1.298 t0=1.298 t1=2.686 drift=1388.3mV std=1628.2 | DRIFT |
+| c100_r20k_o500 | Cc=100p Rc=20000 Cout=500p | OP=1.298 t0=1.298 t1=2.686 drift=1388.3mV std=1453.2 | DRIFT |
+| c100_r20k_o2000 | Cc=100p Rc=20000 Cout=2000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=1210.6 | DRIFT |
+| c100_r20k_o10000 | Cc=100p Rc=20000 Cout=10000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.4mV std=839.5 | DRIFT |
+
+# Try smaller pass / more Cc
+
+| big_c200 | Cc=200p Rc=10000 Cout=22000p | OP=1.298 t0=1.298 t1=2.686 drift=1388.0mV std=819.4 | DRIFT |
+| big_c500 | Cc=500p Rc=5000 Cout=47000p | OP=1.298 t0=1.298 t1=0.144 drift=1153.5mV std=308.2 | DRIFT |
+
+No HOLD found in sweep — LDO needs topology fix (follow-up).

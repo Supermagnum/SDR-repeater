@@ -1,0 +1,15 @@
+# P2.7.2b DAC build stage=g nets=power,tail,filter,nb,xraw,bypass
+
+CENTROID_31 counts: {'b4': 16, 'b3': 8, 'b2': 4, 'b1': 2, 'b0': 1, 'D': 1}
+Technology SG13_dev is loaded.
+GRID : 0.01
+GRID inverse : 100.0
+EPSILON1  : 0.001
+EPSILON2  : 1e-9
+Success.
+floorplan HAND cells-only 227.1x341.7 um = 0.0776 mm2 (target ≈ 0.08)
+tail_block place d9@(158.48,0.0) dac@(0.0,0.0) ota@(110.3,0.0) cbf@(0.0,120.8) mt@(0.0,81.8); routed=['bypass', 'filter', 'nb', 'place', 'power', 'tail', 'xraw']
+tail_block bbox (-8.3,-35.65;245.62,338.64) area=0.0950 mm2
+join footprint=0.0950 mm2 [GDS]; island outline forecast sum=0.1102+0.1514+0.0950+0.017=0.3736 (≤0.38 final) [GDS/HAND]
+wrote /foss/designs/analog/vco/layout/p272b_tail/out/tail_block.gds (+.gz)
+wrote tail_block.spice
