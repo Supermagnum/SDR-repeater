@@ -89,7 +89,7 @@ Circuit ampcal_det contains 27 device instances.
   Class: sg13_lv_pmos          instances:   2
   Class: sg13_lv_nmos          instances:  19
   Class: cap_cmim              instances:   3
-Circuit contains 20 nets.
+Circuit contains 21 nets.
 
 Circuit was modified by parallel/series device merging.
 New circuit summary:
@@ -107,14 +107,19 @@ Circuit ampcal_det contains 26 device instances.
   Class: sg13_lv_pmos          instances:   2
   Class: sg13_lv_nmos          instances:  18
   Class: cap_cmim              instances:   3
-Circuit contains 20 nets.
+Circuit contains 21 nets.
 
 Circuit 1 contains 26 devices, Circuit 2 contains 26 devices.
-Circuit 1 contains 21 nets,    Circuit 2 contains 20 nets. *** MISMATCH ***
+Circuit 1 contains 21 nets,    Circuit 2 contains 21 nets.
 
+No more changes can be made to series/parallel networks.
 
 Final result: 
-Top level cell failed pin matching.
+Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ ampcal_det
 
 Logging to file "/foss/designs/analog/vco/layout/p272b_det/out/netgen_ampcal_det.json" disabled
 LVS Done.

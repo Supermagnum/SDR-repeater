@@ -29,9 +29,10 @@ Mmcs1 n1 co2 ss2 gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
 Mmcs2 cmp co ss2 gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
 Mmpl1 n1 n1 vdd vdd sg13_lv_pmos w=4.0u l=0.5u ng=2
 Mmpl2 cmp n1 vdd vdd sg13_lv_pmos w=4.0u l=0.5u ng=2
-Rrc1 vdd co gnd rhigh w=0.5u l=6.960u ps=0.18u b=0 m=1
-Rrc2 vdd co2 gnd rhigh w=0.5u l=6.960u ps=0.18u b=0 m=1
+* rhigh pin order co/co2,vdd,gnd — match extract / cmp_se [TOOL LVS]
+Rrc1 co vdd gnd rhigh w=0.5u l=6.960u ps=0u b=0 m=1
+Rrc2 co2 vdd gnd rhigh w=0.5u l=6.960u ps=0u b=0 m=1
 MdLc gnd gnd gnd gnd sg13_lv_nmos w=2.0u l=0.5u ng=1
 MdRc gnd gnd gnd gnd sg13_lv_nmos w=2.0u l=0.5u ng=1
-Ccl_cmp cmp gnd cap_cmim w=5.780u l=5.780u m=1
+Ccl_cmp cmp gnd cap_cmim w=5.710u l=5.710u m=1
 .ends

@@ -23,56 +23,43 @@ cap_cmim (3)                               |cap_cmim (3)
 rhigh (3)                                  |rhigh (3)                                  
 sg13_lv_pmos (2)                           |sg13_lv_pmos (2)                           
 Number of devices: 26                      |Number of devices: 26                      
-Number of nets: 21 **Mismatch**            |Number of nets: 20 **Mismatch**            
+Number of nets: 21                         |Number of nets: 21                         
 ---------------------------------------------------------------------------------------
-NET mismatches: Class fragments follow (with fanout counts):
-Circuit 1: ampcal_det                      |Circuit 2: ampcal_det                      
-
----------------------------------------------------------------------------------------
-Net: nbias                                 |Net: \$22                                  
-  rhigh/(1|2) = 1                          |  sg13_lv_nmos/(drain|source) = 1          
-  sg13_lv_nmos/(drain|source) = 1          |                                           
-  sg13_lv_nmos/gate = 5                    |                                           
-                                           |                                           
-Net: ttail                                 |Net: \$23                                  
-  sg13_lv_nmos/(drain|source) = 3          |  sg13_lv_nmos/(drain|source) = 1          
-                                           |                                           
-Net: ss2                                   |Net: \$19                                  
-  sg13_lv_nmos/(drain|source) = 3          |  sg13_lv_nmos/(drain|source) = 5          
-                                           |  sg13_lv_nmos/gate = 5                    
-                                           |  rhigh/(1|2) = 1                          
-                                           |                                           
-Net: vdd                                   |Net: vdd                                   
-  sg13_lv_nmos/(drain|source) = 3          |  sg13_lv_nmos/(drain|source) = 4          
-  rhigh/(1|2) = 3                          |  rhigh/(1|2) = 3                          
-  sg13_lv_pmos/(drain|source) = 2          |  sg13_lv_pmos/(drain|source) = 3          
-  sg13_lv_pmos/bulk = 2                    |  sg13_lv_pmos/bulk = 2                    
-                                           |  sg13_lv_pmos/gate = 2                    
-                                           |                                           
-Net: n1                                    |(no matching net)                          
-  sg13_lv_nmos/(drain|source) = 1          |                                           
-  sg13_lv_pmos/(drain|source) = 1          |                                           
-  sg13_lv_pmos/gate = 2                    |                                           
----------------------------------------------------------------------------------------
-Netlists do not match.
-Port matching may fail to disambiguate symmetries.
+Resolving symmetries by property value.
+Resolving symmetries by pin name.
+Netlists match uniquely with property errors.
+cap_cmim:chold vs. cap_cmim:$36:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:chold vs. cap_cmim:$36:
+Property A in circuit2 has no matching property in circuit1
+cap_cmim:cl_cmp vs. cap_cmim:$38:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:cl_cmp vs. cap_cmim:$38:
+Property A in circuit2 has no matching property in circuit1
+cap_cmim:crep vs. cap_cmim:$37:
+Property P in circuit2 has no matching property in circuit1
+cap_cmim:crep vs. cap_cmim:$37:
+Property A in circuit2 has no matching property in circuit1
 
 Subcircuit pins:
 Circuit 1: ampcal_det                      |Circuit 2: ampcal_det                      
 -------------------------------------------|-------------------------------------------
-vdd                                        |(no pin, node is \$22)                     
-cmp                                        |cmp                                        
 rep                                        |rep                                        
+cmp                                        |cmp                                        
+gnd                                        |gnd                                        
+en                                         |en                                         
+hold                                       |hold                                       
 vthn                                       |vthn                                       
 ct                                         |ct                                         
 tn                                         |tn                                         
 tp                                         |tp                                         
-gnd                                        |gnd                                        
-en                                         |en                                         
-hold                                       |hold                                       
-(no pin, node is n1)                       |vdd                                        
+vdd                                        |vdd                                        
 ---------------------------------------------------------------------------------------
-Cell pin lists for ampcal_det and ampcal_det altered to match.
+Cell pin lists are equivalent.
 Device classes ampcal_det and ampcal_det are equivalent.
 
-Final result: Top level cell failed pin matching.
+Final result: Circuits match uniquely.
+Property errors were found.
+
+The following cells had property errors:
+ ampcal_det

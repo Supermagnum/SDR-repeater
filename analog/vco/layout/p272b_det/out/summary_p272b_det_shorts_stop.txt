@@ -1,0 +1,55 @@
+# P2.7.2b Prompt 06 — ampcal_det internal-net shorts — STOP
+
+Date: 2026-11-17
+Decision recorded: decisions.md "2026-11-17 — D22 join, internal-net shorts" (prior; D22 not done then).
+Prior commit: 6c4c80b (cmp/en isolation join; LVS open).
+
+## Pass criteria vs results (per step)
+
+| Step | Criteria | Result |
+|---|---|---|
+| 0 Prior commit | Last run files; D22 not done | DONE [git 6c4c80b] |
+| 1 n1 ↔ vdd | Find joining shapes; fix; record cause | DONE [TOOL BFS]. Cause: join cmp vdd M3 at cell.right+1.5 forced M2 H across cmp_se x_pg2 (n1 diode strap). Fix: M3 at cmp vdd pin X. |
+| 2 ttail/ss2 ↔ nbias | Same | DONE [TOOL extract/GDS]. Cause: bias_pd M2 dense — join M2 H at drain Y crossed nbias gate straps; south tracks hit hold/rep then en straps. Fix (plan amend): bias side via12+via23 → M3 V through nbias band → M2 H above nbias bus → x_cb=cmp.right+1.0; nbias col=bias.left−1.5. |
+| 3 Group replay | DRC + both LVS unique after each group | Full join PASS (below). Intermediate unique LVS vs full sch: not run to completion — partial layout cannot uniquely match full spice without per-step spice [HAND]. See Found. |
+| 3 Full join | DRC dens. waived; KLayout + netgen unique; fingers | PASS [TOOL]: DRC clean (density waived); KLayout Congrats; netgen Circuits match uniquely; fingers script all yes. |
+| 4 Footprint / tank | [GDS]; tank load/side | Footprint **0.0186 mm²** [GDS] bbox (−12.25,−20.005;138.25,103.42). Pocket 0.0121. Tank load/side: **PEX not run**; [PDK/HAND] one 0.5/0.13 SF gate/side → Cgg ≈ 0.5–1 fF ≪ 10 fF. |
+| 5 Specs + commit | Update specs; commit job files | Specs updated. Commit: ask / this stop. |
+
+## Property noise [TOOL]
+
+- Spice: rhigh `ps=0u` (was 0.18 → MatchWithWarning / net Mismatch on co/co2/vdd); pin order `co vdd gnd` (match extract / cmp_se); cl_cmp w←extract **5.71** (pcell 5.78).
+- Netgen: "Property errors were found" (as/ad/ps/pd/rfmode etc. absent on sch side) — connectivity unique; same class as prior cells.
+- KLayout: Congratulations! Netlists match (no device MatchWithWarning after spice align).
+
+## What failed or is uncertain
+
+1. Intermediate per-group unique LVS against the full retuned schematic was not proven (needs per-step spice or equivalent). Full join unique LVS PASS.
+2. Tank C per side: PEX / Cgg extract not run — [PDK/HAND] only.
+3. Area 0.0186 > pocket 0.0121 [GDS] — already carried to P2.7.2c die-level gate.
+4. Owner decisions.md entry for D22 layout acceptance not written here (specs mark layout PASS).
+
+## Decision needed
+
+- Record D22 ampcal_det layout acceptance in `decisions.md` (criteria met: DRC + both LVS unique + fingers).
+- Whether intermediate join steps require per-step spice for unique LVS, or full-join unique LVS is the gate (with DRC + no `|` merges on partials).
+
+## Found, not done
+
+- Per-step unique LVS replay with reduced spice.
+- Tank-side PEX / PDK Cgg table extract.
+- Chip art (deferred Phase 5 per prompts/06).
+- P2.7.2c VCO top assembly.
+- Die re-total with 0.0186 D22 footprint.
+
+## Artifacts
+
+- `out/ampcal_det.gds.gz`, `.png`, `.svg`, `.spice`
+- `out/drc_ampcal_det.log`, `out/lvs_klayout_ampcal_det.log`, `out/netgen_ampcal_det.log`
+- `out/lvs_ampcal_det/ampcal_det_extracted.cir`
+- `out/summary_finger_check.txt`, `out/prove_shorts_final.log`
+- Specs: `vco-amplitude-cal.md`, `p27-layout-notes.md`, `p27-floorplan.md` §8, `phase2-plan.md` §3
+
+## Next run
+
+P2.7.2c VCO top assembly (chip art deferred to Phase 5 per prompts/06 hard rules).

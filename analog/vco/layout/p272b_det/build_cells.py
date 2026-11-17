@@ -1377,7 +1377,10 @@ Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
         # via_stack M3 (≈28.9) — +3.5 sat at 0.065 µm → M3.b [TOOL DRC]
         x_e_sf = sf_bb.right + 2.8
         x_hc = hc_bb.right + 0.8          # NOT mid-gap (was ≈ cm gnd lane)
-        x_cb = 0.5 * (cm_bb.right + bp_bb.left)
+        # ttail/ss2 column: west of gap. Mid-gap sat on nbias (bp.left−1.5)
+        # and formerly on cmp vdd (cm.right+1.5) → ttail|ss2|nbias|vdd [TOOL].
+        x_cb = cm_bb.right + 1.0
+        x_nbias_col = bp_bb.left - 1.5
         x_bh = max(cm_bb.right + 3.0, bp_bb.left - 3.5)  # bias hold; clear cm vdd
         x_br = bp_bb.right + 3.5          # bias rep; clear bp vdd/gnd at +1.5
         x_e = bp_bb.right + 3.0
@@ -1394,9 +1397,11 @@ Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
         # the cell via rail Y, not pin-text Y. hold_caps gnd: M1-only → via12.
         if "power" in routed:
             # (pin, x_col, m2_y, add_via12)
+            # cmp vdd: M3 at pin X — cell.right+1.5 forced M2 H across
+            # cmp_se x_pg2 (n1 diode strap) → n1|vdd [TOOL extract/BFS].
             vdd_spec = [
                 (sf_p["vdd"], sf_bb.right + 1.5, sf_p["vdd"][1] - 0.20, False),
-                (cm_p["vdd"], cm_bb.right + 1.5, cm_p["vdd"][1] - 0.20, False),
+                (cm_p["vdd"], cm_p["vdd"][0], cm_p["vdd"][1] - 0.20, False),
                 # bias_pd vdd is M1-only (no cell via) [GDS]
                 (bp_p["vdd"], bp_bb.right + 1.5, bp_p["vdd"][1], True),
             ]
@@ -1424,17 +1429,33 @@ Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
 
         # ---- nbias / ttail / ss2: M2 H + M3 at x_cb [plan] ----
         if "bias" in routed:
+            # bias_pd M2 is dense: nbias gate straps (drain band), hold/rep
+            # drops, en straps (rep→en). No clear M2 H channel through the
+            # cell [TOOL extract ttail|nbias, hold|rep|ttail, en|rep|ttail].
+            # Amend: M3 V at pin X through the nbias band (M3∤M2), then M2 H
+            # ABOVE the nbias bus (no bias M2 above it [GDS]), west to x_cb.
+            y_tt_hi = bp_p["nbias"][1] + 1.20
+            y_ss_hi = bp_p["nbias"][1] + 2.40
+            bias_tt_y = {"ttail": y_tt_hi, "ss2": y_ss_hi}
             for nm in ("ttail", "ss2"):
-                # Pin is south of M2 bus (pin_y = y_bus−1); via at y_bus+0.20
-                # → attach at pin_y+1.20. No via12 (child already has Via1).
-                py_c, py_b = cm_p[nm][1], bp_p[nm][1]
-                my_c, my_b = py_c + 1.20, py_b + 1.20
+                # cmp_se: pin south of M2 bus; Via1 in child → attach pin_y+1.20
+                py_c = cm_p[nm][1]
+                my_c = py_c + 1.20
                 pin_to_m2_track(cm_p[nm], x_cb, my_c, add_via12=False, m2_y=my_c)
-                pin_to_m2_track(bp_p[nm], x_cb, my_b, add_via12=False, m2_y=my_b)
-                m3v(x_cb, my_c, my_b)
+                # bias_pd: M1 pin → via12 → via23 → M3 V → M2 H above nbias
+                px_b, py_b = bp_p[nm]
+                y_hi = bias_tt_y[nm]
+                via12_at(px_b, py_b)
+                via23_at(px_b, py_b)
+                m3v(px_b, py_b, y_hi)
+                via23_at(px_b, y_hi)
+                self.box_m2(c, px_b - 0.50, y_hi - 0.50, px_b + 0.50, y_hi + 0.50)
+                m2h(px_b, y_hi, x_cb, w=0.60)
+                via23_at(x_cb, y_hi)
+                m3v(x_cb, my_c, y_hi)
             if "nbias" in bp_p:
-                # nbias pin already on M2 bus + via12 in cell
-                pin_to_m2_track(bp_p["nbias"], bp_bb.left - 1.5,
+                # nbias pin already on M2 bus + via12 in cell; column ≠ x_cb
+                pin_to_m2_track(bp_p["nbias"], x_nbias_col,
                                 bp_p["nbias"][1], add_via12=False,
                                 m2_y=bp_p["nbias"][1])
 
@@ -1580,9 +1601,11 @@ Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
         self.say(f"ampcal_det bbox {bb} area={self.det_top_area:.4f} mm2 gap={gap}")
         return c.cell_index()
 
-    def write_spice_ampcal_det(self, hold_w=None, rhigh_l=None):
+    def write_spice_ampcal_det(self, hold_w=None, rhigh_l=None, cmim_cmp_w=None):
         hold_w = hold_w or self.cmim_hold_w
         rhigh_l = rhigh_l or self.rhigh_l
+        # cl_cmp extract side (pcell w=CMIM_CMP → extract shrink, like hold) [TOOL]
+        cmim_cmp_w = cmim_cmp_w or getattr(self, "cmim_cmp_w", None) or CMIM_CMP
         open(os.path.join(OUT, "ampcal_det.spice"), "w").write(
             f"""* P2.7.2b ampcal_det fab netlist [SCH + en/vthn; ideals→cmim/rhigh/MOS]
 .subckt ampcal_det tp tn ct vdd gnd cmp hold rep en vthn
@@ -1615,14 +1638,17 @@ Mmcs1 n1 co2 ss2 gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
 Mmcs2 cmp co ss2 gnd sg13_lv_nmos w=4.0u l=0.5u ng=2
 Mmpl1 n1 n1 vdd vdd sg13_lv_pmos w=4.0u l=0.5u ng=2
 Mmpl2 cmp n1 vdd vdd sg13_lv_pmos w=4.0u l=0.5u ng=2
-Rrc1 vdd co gnd rhigh w=0.5u l={rhigh_l:.3f}u ps=0.18u b=0 m=1
-Rrc2 vdd co2 gnd rhigh w=0.5u l={rhigh_l:.3f}u ps=0.18u b=0 m=1
+* rhigh pin order co/co2,vdd,gnd — match extract / cmp_se [TOOL LVS]
+Rrc1 co vdd gnd rhigh w=0.5u l={rhigh_l:.3f}u ps=0u b=0 m=1
+Rrc2 co2 vdd gnd rhigh w=0.5u l={rhigh_l:.3f}u ps=0u b=0 m=1
 MdLc gnd gnd gnd gnd sg13_lv_nmos w=2.0u l=0.5u ng=1
 MdRc gnd gnd gnd gnd sg13_lv_nmos w=2.0u l=0.5u ng=1
-Ccl_cmp cmp gnd cap_cmim w={CMIM_CMP:.3f}u l={CMIM_CMP:.3f}u m=1
+Ccl_cmp cmp gnd cap_cmim w={cmim_cmp_w:.3f}u l={cmim_cmp_w:.3f}u m=1
 .ends
 """)
-        self.say("wrote ampcal_det.spice")
+        self.say(
+            f"wrote ampcal_det.spice hold_w={hold_w} rhigh_l={rhigh_l} "
+            f"cl_cmp_w={cmim_cmp_w}")
 
 
 def prove(cell):
@@ -1632,14 +1658,19 @@ def prove(cell):
     return r.returncode == 0
 
 
-def extract_cmim_w(cell):
+def extract_cmim_w(cell, near=None):
+    """Return a cap_cmim w from extract. If near= is set, pick closest side."""
     for root, _, files in os.walk(os.path.join(OUT, f"lvs_{cell}")):
         for f in files:
             if f.endswith("_extracted.cir"):
                 txt = open(os.path.join(root, f), errors="ignore").read()
-                ms = re.findall(r"cap_cmim\s+w=([\d.]+)u\s+l=([\d.]+)u", txt)
-                if ms:
-                    return float(ms[0][0])
+                ms = [float(a) for a, _ in re.findall(
+                    r"cap_cmim\s+w=([\d.]+)u\s+l=([\d.]+)u", txt)]
+                if not ms:
+                    continue
+                if near is None:
+                    return ms[0]
+                return min(ms, key=lambda w: abs(w - near))
     return None
 
 
@@ -1726,10 +1757,15 @@ def main():
             hold_w, rhigh_l = _sizes_for_join()
             b.cmim_hold_w = hold_w
             b.rhigh_l = rhigh_l
+            # prior join extract for cl_cmp shrink; else pcell nominal [TOOL]
+            cl_w = extract_cmim_w("ampcal_det", near=CMIM_CMP) or CMIM_CMP
+            b.cmim_cmp_w = cl_w
             cid = b.build_ampcal_det(routed=routed)
-            writer(hold_w, rhigh_l)
+            writer(hold_w, rhigh_l, cl_w)
             b.write_cell(name, cid)
-            b.say(f"ampcal_det spice hold_w={hold_w} rhigh_l={rhigh_l}")
+            b.say(
+                f"ampcal_det spice hold_w={hold_w} rhigh_l={rhigh_l} "
+                f"cl_cmp_w={cl_w}")
         else:
             cid = builder()
             writer()

@@ -4,7 +4,7 @@
 - det_sf_pair: built
 - cmp_se: built
 - bias_pd: built
-- ampcal_det: FAIL
+- ampcal_det: PASS
 
 ampcal_det area=0.0186 mm2 bbox=(-12.25,-20.005;138.25,103.42) [GDS]
 remaining pocket after vco_var=0.0121 mm2 (0.0187-0.0066) [GDS]

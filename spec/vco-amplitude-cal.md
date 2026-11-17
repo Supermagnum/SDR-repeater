@@ -1,6 +1,6 @@
 # VCO amplitude control (P2.3 open point §9.3)
 
-Status: **D22 topology / step-1 (ideal parts) accepted 2026-11-02 / 2026-11-11** (§10). **P2.7.2b fab layout: not done** — cells PASS; bias_pd ports PASS; **ampcal_det cmp/en isolation** — full-join DRC clean; top ports distinct; KLayout LVS + netgen FAIL; bbox **0.0186** > pocket 0.0121 [GDS]. See `summary_p272b_det_cmp_iso_stop.txt`.
+Status: **D22 topology / step-1 (ideal parts) accepted 2026-11-02 / 2026-11-11** (§10). **P2.7.2b fab layout: accepted** — ampcal_det full join DRC clean (density waived); KLayout LVS Congrats; netgen uniquely; fingers by script; bbox **0.0186** > pocket 0.0121 [GDS] (P2.7.2c die gate). See `summary_p272b_det_shorts_stop.txt`.
 
 Items 1–2 of `prompts/06-design-next-step.md` are closed (P2.6 accepted 2026-10-31; open points 1–3 closed). Newest status report `reports/status-2026-10-30.md`: no failed re-run; amplitude cal listed as open work, not as an unverified blocking result.
 
