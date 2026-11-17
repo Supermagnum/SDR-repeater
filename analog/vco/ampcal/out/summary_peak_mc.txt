@@ -12,10 +12,21 @@ Nominal vos=0: code=16 Amp=1.304 peak=1.493 at bit=3 trial=24 (amp_peak_run) `[S
   [6] vos=(+0.29,-2.57) mV code=16 Amp=1.304 peak=1.493 @bit3/c24
   [7] vos=(-0.08,+1.92) mV code=16 Amp=1.304 peak=1.493 @bit3/c24
   [8] vos=(-3.71,-1.26) mV code=16 Amp=1.304 peak=1.493 @bit3/c24
-os
-    dt = time.time() - t0
-        ^^^^^^^^^^^^^^^^^^
-  File "/foss/tools/vacask/lib/vacask/python/vacask/rawfile.py", line 120, in rawread
-    npoints = int(plot['no. points'])
-              ^^^^^^^^^^^^^^^^^^^^^^^
-ValueError: invalid literal for int() with base 10: b''
+  [9] vos=(-5.24,-3.56) mV code=16 Amp=1.304 peak=1.493 @bit3/c24
+  [10] vos=(-5.08,-0.65) mV code=17 Amp=1.328 peak=1.493 @bit3/c24
+  [11] vos=(-3.50,+0.75) mV code=17 Amp=1.328 peak=1.493 @bit3/c24
+  [12] vos=(+0.43,-0.52) mV code=16 Amp=1.305 peak=1.493 @bit3/c24
+  [13] vos=(-6.94,-1.49) mV code=17 Amp=1.328 peak=1.493 @bit3/c24
+  [14] vos=(-0.13,+0.31) mV code=16 Amp=1.304 peak=1.493 @bit3/c24
+  [15] vos=(-4.22,-1.32) mV code=16 Amp=1.304 peak=1.493 @bit3/c24
+  [16] vos=(-2.70,-2.23) mV code=16 Amp=1.304 peak=1.493 @bit3/c24
+  [17] vos=(+2.93,-2.23) mV code=16 Amp=1.304 peak=1.493 @bit3/c24
+  [18] vos=(-0.09,+2.44) mV code=16 Amp=1.304 peak=1.493 @bit3/c24
+  [19] vos=(-1.61,-0.31) mV code=16 Amp=1.304 peak=1.493 @bit3/c24
+
+peak mean = 1.4931 V `[SCH]`
+peak σ = 0.11 mV; 3σ = 0.32 mV `[SCH]`
+peak + 3σ = 1.4934 V  (limit 1.50 V) `[SCH]`
+vs ≤1.50 V: PASS (margin 6.6 mV)
+
+Observed peak min/max = 1.493 / 1.493 V `[SCH]`
