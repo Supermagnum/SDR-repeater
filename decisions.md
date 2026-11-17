@@ -819,3 +819,14 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   reserved in the chip floorplan and checked at the synthesizer top / Phase 5, not in the VCO
   island. AFE control buses connect at the synthesizer top; the island exports ports.
 - vco_top.lvsdb is git-ignored; text DRC / LVS reports stay in git.
+
+## 2026-11-17 — P2.7.2c re-pack result
+- Re-pack (97cfc1e, outline 0.5743 mm² [GDS]) not accepted: full LVS mega-short (shared M3
+  columns, tail ring on the vdd rail); DRC M2.b / TM1.a.
+- Tank routing C ≈ 59 / 59 fF per side, ΔL 5.2 µm, R ≈ 3 Ω [HAND]. Accepted as the routing
+  budget only if band coverage at the least-margin top corners, with island routing + bank
+  wiring + core-internal parasitics added, keeps ≥ 1 % (≈ 40 MHz) margin [SCH]. Otherwise
+  re-pack with direct bank–core pin access.
+- The core + tank TM1.b notches are fixed in the core cell and re-proven, not in the
+  assembler; the fab GDS is exactly the verified cells.
+- Hierarchical spice and the inductor black-box LVS path are reconciled before sign-off.
