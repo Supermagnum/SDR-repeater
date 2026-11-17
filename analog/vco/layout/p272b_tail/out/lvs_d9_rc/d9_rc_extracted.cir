@@ -1,4 +1,4 @@
-* Extracted by KLayout with SG13G2 LVS runset on : 14/11/2026 16:23
+* Extracted by KLayout with SG13G2 LVS runset on : 14/11/2026 18:55
 
 .SUBCKT d9_rc en_vco_bias_bp gnd nb nbf
 M$1 nb en_vco_bias_bp nbf gnd sg13_lv_nmos L=0.13u W=20u AS=4.55p AD=4.55p

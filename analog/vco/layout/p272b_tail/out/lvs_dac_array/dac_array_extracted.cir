@@ -1,4 +1,4 @@
-* Extracted by KLayout with SG13G2 LVS runset on : 13/11/2026 06:59
+* Extracted by KLayout with SG13G2 LVS runset on : 14/11/2026 16:07
 
 .SUBCKT dac_array code0 code1 code2 code3 code4 code_gnd code_vdd pbias vdd xraw
 M$1 \$4 pbias vdd vdd sg13_lv_pmos L=2u W=2u AS=0.68p AD=0.68p PS=4.68u

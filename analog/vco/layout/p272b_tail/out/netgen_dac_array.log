@@ -1,8 +1,8 @@
 Netgen 1.5.324 compiled on Thu Oct 15 02:24:51 PM CEST 2026
 Warning: netgen command 'format' use fully-qualified name '::netgen::format'
 Warning: netgen command 'global' use fully-qualified name '::netgen::global'
-Reading netlist file /foss/designs/analog/vco/layout/p272b_tail/out/dac_array.spice for /foss/designs/analog/vco/layout/p272b_tail/out/dac_array.spice dac_array
-Reading netlist file /foss/designs/analog/vco/layout/p272b_tail/out/lvs_dac_array/dac_array_extracted.cir for /foss/designs/analog/vco/layout/p272b_tail/out/lvs_dac_array/dac_array_extracted.cir dac_array
+Reading netlist file /foss/designs/analog/vco/layout/p272b_tail/out/dac_array_netgen.spice for /foss/designs/analog/vco/layout/p272b_tail/out/dac_array_netgen.spice dac_array
+Reading netlist file /foss/designs/analog/vco/layout/p272b_tail/out/dac_array_extracted_netgen.cir for /foss/designs/analog/vco/layout/p272b_tail/out/dac_array_extracted_netgen.cir dac_array
 
 Reading setup file /foss/pdks/ihp-sg13g2/libs.tech/netgen/ihp-sg13g2_setup.tcl
 

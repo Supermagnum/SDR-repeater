@@ -1,4 +1,4 @@
-** sch_path: /work/analog/vco/sch/vrana1_ldo.sch
+** sch_path: /foss/designs/analog/vco/sch/vrana1_ldo.sch
 **.subckt vrana1_ldo vin vout vref gnd
 *.iopin vin
 *.iopin vout
