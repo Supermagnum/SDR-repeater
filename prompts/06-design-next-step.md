@@ -22,7 +22,7 @@ You are working in the SDR multiband repeater repository (https://github.com/Sup
   - DRC/LVS reports;
   - rendered chip pictures (PNG/SVG from the GDS with KLayout).
 
-  Regenerable bulk output stays out: waveforms, raw data, build directories. Follow `.gitignore`. A full-chip GDS too large for a normal commit goes to a GitHub Release. **Chip art on the die is deferred to Phase 5** until the owner has chosen the graphic; do not design or pick one.
+  Regenerable bulk output stays out: waveforms, raw data, build directories. Follow `.gitignore`. A full-chip GDS too large for a normal commit goes to a GitHub Release. **Chip art:** build a standalone art cell when the graphic is chosen (`decisions.md` 2026-11-16); do not place it on the die until Phase 5. Placement rules are in that decision and `spec/chip-art.md`.
 - **Do not invent results.** Every number in a report carries its source tag: `[DS]` datasheet / PDK documentation, `[HAND]` hand estimate, `[MODEL]` Python system model, `[SCH]` schematic simulation, `[EM]` EM simulation, `[PEX-RC]` post-layout extraction. If a simulation did not run or did not converge, say so; do not replace it with an estimate without saying so.
 - Use the pinned tools: container `hpretl/iic-osic-tools:2026.10`, PDK commit **`a49358cc`** (check it is what the scripts actually load). Simulator settings and the validated phase-noise method: `analog/pn-validation/README.md`. Do not upgrade the PDK or container without asking.
 - Keep the existing writing style of the specs: short sentences, tables, plain English, numbers with units and tags.
@@ -69,7 +69,8 @@ State on 2026-10-31 (check the files, they win over this line): P2.0–P2.6 are 
    - TX chain: Σ-Δ DAC, reconstruction filter, IQ modulator, attenuator, PA driver at −5 dBm;
    - chip top: SX1255 pad map, POR, level shifters, supplies.
 
-   Chip art waits for the owner's choice of graphic (Phase 5).
+   Chip art: standalone cell may be built before Phase 5 once the graphic is chosen
+   (`decisions.md` 2026-11-16); placement on the die is Phase 5 only.
 
 Out of scope for you: building or measuring the board filter, choosing parts for purchase, anything for 23 cm.
 

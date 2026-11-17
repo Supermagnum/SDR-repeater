@@ -690,6 +690,14 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - d9_rc schematic carries the layout resistor geometry (serpentine l / b) so LVS compares it.
 - Next: varactor and bias.
 
+## 2026-11-16 — Chip art
+- Graphic: `graphic/graphic.svg` (text “HEIMDALL X1”). Build a **standalone** art cell on
+  TopMetal2 before Phase 5; its area feeds the P2.7.2c die re-total. Do **not** place the
+  cell on the die until Phase 5.
+- Phase 5 placement: not over the inductor EM keep-out, and not over VCO / LO / RF routing.
+- Pin-1 orientation: a filled TopMetal2 dot in the art cell marks the pin-1 corner of the die
+  when the cell is placed.
+
 ## 2026-11-16 — P2.7.2b varactor and bias
 - vco_var accepted: DRC clean (density and SVaricap M1.b waived), KLayout LVS and netgen clean,
   fingers checked; 0.0066 mm² [GDS], 0.0004 mm² over its pocket strip, within the full pocket.
@@ -779,3 +787,14 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - Port checks do not replace LVS: each net group passes only when both LVS tools match,
   including internal nets.
 - Footprint 0.0186 mm² [GDS] carried to the P2.7.2c die-level gate.
+
+## 2026-11-17 — D22 detector layout accepted
+- ampcal_det accepted (576e048): DRC clean (density waived), KLayout LVS and netgen uniquely
+  match the retuned schematic, fingers checked [TOOL]. n1 ↔ vdd and ttail / ss2 ↔ nbias fixed
+  (routing plan amended).
+- The full-join unique LVS is the sign-off gate; per-group LVS is a debug aid only.
+- Footprint 0.0186 mm² [GDS] goes to the P2.7.2c die-level gate. Tank load ≈ 0.5–1 fF / side
+  [PDK / HAND]; extracted in P2.7.3.
+- cl_cmp: design and layout values compared, and the D22 result confirmed, before P2.7.2c.
+- Order: chip art cell next (its size feeds the P2.7.2c die re-total), then P2.7.2c.
+  prompts/06 is updated to follow the 2026-11-16 chip art decision.

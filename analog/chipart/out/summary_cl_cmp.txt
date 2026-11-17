@@ -1,0 +1,20 @@
+# cl_cmp design vs layout (before P2.7.2c)
+
+Date: 2026-11-17
+Decision: decisions.md "2026-11-17 — D22 detector layout accepted"
+
+## Values
+
+| Item | Value | Source |
+|---|---|---|
+| Design side (pcell / target 50 fF) | 5.78 µm | `CMIM_CMP` in `build_cells.py`; C = side² × 1.5 fF/µm² [DS CMIMA target] |
+| Design C | 5.78² × 1.5 = **50.05 fF** | [DS] SG13G2_os_process_spec Rev 1.2 §2.12 CMIMA = 1.5 fF/µm² |
+| Layout / extract side | **5.71 µm** | [TOOL] `ampcal_det_extracted.cir` Ccl_cmp w=l=5.71 |
+| Layout C (same density) | 5.71² × 1.5 = **48.89 fF** | [DS] same CMIMA |
+| Extract A | 32.6041 µm² | [TOOL] = 5.71² |
+| |ΔC| / C_design | **2.32 %** | [HAND] |
+
+## Gate
+
+Difference ≤ 5 % → **no** D22 comparator re-sim at tt 27 °C / worst-peak corner this run.
+D22 layout result (576e048) stands.
