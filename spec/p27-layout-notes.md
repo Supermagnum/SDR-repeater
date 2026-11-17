@@ -471,6 +471,13 @@ PASS; rhigh extract 78 µm [GDS]. ampcal_det: edge gap=6 µm; hold TM1↔M1 via;
 place+hold+bias DRC clean; power vias → M1.b/M2.b/V1.b; ports extract `gnd|hold|rep`
 short; bbox **0.0151 mm²** > pocket **0.0121** [GDS]. Stop:
 `summary_p272b_det_m1b_join_stop.txt`.
+
+**Update (join resume, same day):** TM1 long-haul + local via1t; SF gnd is a full M1
+ring — escape M2-H at pin Y then M1-V west of bbox [LVS]. hold spine below rep
+(no TM1 H/V cross). SF+cmp fanouts can show separate `hold`/`rep` ports [LVS];
+**bias hold+rep both on M2 still merge `hold|rep`** [LVS HOLD_FAN=4]. Power not
+re-routed. Latest bbox ~**0.0166 mm²** > **0.0121** [GDS]. Stop:
+`summary_p272b_det_join_stop.txt`. cbf lesson: via stacks only outside MIM M5.
 `analog/vco/layout/p272b_det/`. Bottom-up:
 
 | cell | DRC (dens. waived) | KLayout | netgen | note |
@@ -479,7 +486,7 @@ short; bbox **0.0151 mm²** > pocket **0.0121** [GDS]. Stop:
 | det_sf_pair | PASS | PASS | PASS | 4× 0.5/0.13 ABBA + dummies; ct on M3; **0.0007 mm²** |
 | cmp_se | PASS | PASS | PASS | M2.b fixed; rhigh l=6.96 µm; **0.0023 mm²** |
 | bias_pd | PASS | PASS | PASS | west Cont M1.b fix; rhigh 78 µm; **0.0037 mm²** |
-| ampcal_det join | partial | FAIL | FAIL | hold+bias DRC OK; power/ports LVS; **0.0151 > 0.0121** |
+| ampcal_det join | partial | FAIL | FAIL | SF/cmp hold OK-ish; bias dual M2 → hold\|rep; **~0.0166 > 0.0121** |
 
 **Fab sch [SCH]:** `ampcal_det.sch` uses cmim / rhigh / MOS sinks+en / vthn. Quick
 re-sim tt/27 top: code 20, Amp **1.377 V** vs ideal code 14 / 1.250 V — FAIL window

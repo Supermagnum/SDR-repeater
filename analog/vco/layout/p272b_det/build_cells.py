@@ -1175,15 +1175,20 @@ Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
     def build_ampcal_det(self, routed=None):
         """Join: det_sf_pair + hold_caps + cmp_se + bias_pd + cl_cmp.
 
-        Net groups (--nets): place | hold | bias | power | cl | ports | all.
-        Ports match island + sch: tp tn ct vdd gnd cmp hold rep en vthn.
-        Digital (cmp, en) on east, away from tank/V_tune [SCH].
+        Net groups (--nets): place | power | bias | hold | taps | cmp | en | all.
+        (aliases: cl→cmp, ports→taps+en). cbf lesson [p27-layout-notes]: cmim M5
+        bottom=gnd / TM1 top=signal — no via stack over M5 plate; signal leaves on TM1.
         """
         if routed is None:
-            routed = {"place", "hold", "bias", "power", "cl", "ports"}
+            routed = {"place", "power", "bias", "hold", "taps", "cmp", "en"}
         else:
             routed = set(routed)
             routed.add("place")
+            # aliases from earlier runs
+            if "cl" in routed:
+                routed.add("cmp")
+            if "ports" in routed:
+                routed.update({"taps", "en"})
         self.say(f"ampcal_det routed={sorted(routed)}")
 
         c = self.ly.create_cell("ampcal_det")
@@ -1193,9 +1198,8 @@ Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
         })
         vs1t = self.pcell("via_stack", {
             "b_layer": "Metal1", "t_layer": "TopMetal1",
-            "vn_columns": 2, "vn_rows": 2,
+            "vn_columns": 1, "vn_rows": 1,
         })
-        # cl_cmp 50 fF
         mim = self.pcell("cmim", {
             "w": f"{CMIM_CMP:.3f}u", "l": f"{CMIM_CMP:.3f}u",
             "C": "50f", "Calculate": "w&l", "guardRingType": "none",
@@ -1210,27 +1214,26 @@ Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
         cm_cid, cm_pins = self._copy_no_pin_texts("cmp_se", "cmp_se_np")
         bp_cid, bp_pins = self._copy_no_pin_texts("bias_pd", "bias_pd_np")
 
-        # Place with edge-to-edge gap (origins account for local bbox offsets).
-        gap = 6.0
+        # Edge-aware gap; start 4 µm (was 6) — widen only if DRC needs it.
+        gap = 4.0
         sf_loc = self.ly.cell(sf_cid).bbox().to_dtype(self.ly.dbu)
         cm_loc = self.ly.cell(cm_cid).bbox().to_dtype(self.ly.dbu)
         bp_loc = self.ly.cell(bp_cid).bbox().to_dtype(self.ly.dbu)
         mim_loc = self.ly.cell(mim).bbox().to_dtype(self.ly.dbu)
 
         hc_bb, hc_t = self.place(c, hc_cid, 0.0, 0.0)
-        # SF above hold
         sf_y = hc_bb.top + gap - sf_loc.bottom
         sf_bb, sf_t = self.place(c, sf_cid, 0.0, sf_y)
-        # cmp east of west column
         cm_x = max(sf_bb.right, hc_bb.right) + gap - cm_loc.left
         cm_y = 0.0 - cm_loc.bottom
         cm_bb, cm_t = self.place(c, cm_cid, cm_x, cm_y)
-        # bias east of cmp
         bp_x = cm_bb.right + gap - bp_loc.left
         bp_y = 0.0 - bp_loc.bottom
         bp_bb, bp_t = self.place(c, bp_cid, bp_x, bp_y)
-        # cl_cmp above cmp, still west of bias
-        cl_x = cm_bb.left + 2.0 - mim_loc.left
+        # cl_cmp east of cmp, clear of bias; above cmp top
+        cl_x = cm_bb.right + 1.0 - mim_loc.left
+        if cl_x + mim_loc.right > bp_bb.left - 2.0:
+            cl_x = cm_bb.left + 2.0 - mim_loc.left
         cl_y = cm_bb.top + gap - mim_loc.bottom
         cl_bb, cl_t = self.place(c, mim, cl_x, cl_y)
 
@@ -1240,96 +1243,197 @@ Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
         bp_p = self._pins_abs(bp_pins, bp_t)
 
         def strap(a, b, w=0.40):
-            """M1 Manhattan a→b."""
             ax, ay = a
             bx, by = b
             h = 0.5 * w
             self.box_m1(c, ax - h, ay - h, ax + h, by + h)
             self.box_m1(c, min(ax, bx) - h, by - h, max(ax, bx) + h, by + h)
 
+        def strap_tm1(a, b, w=0.80):
+            ax, ay = a
+            bx, by = b
+            h = 0.5 * w
+            c.shapes(self.tm1).insert(pya.DBox(
+                ax - h, min(ay, by) - h, ax + h, max(ay, by) + h))
+            c.shapes(self.tm1).insert(pya.DBox(
+                min(ax, bx) - h, by - h, max(ax, bx) + h, by + h))
+
         via_done = set()
 
-        def via_at(x, y):
-            key = (round(x, 3), round(y, 3))
+        def via12_at(x, y):
+            key = ("12", round(x, 3), round(y, 3))
             if key in via_done:
                 return
             via_done.add(key)
             self._via12(c, vs12, x, y)
 
-        def strap_m2(a, b, w=0.40):
-            """M2 Manhattan; one via per coordinate (no stacked V1.b)."""
-            ax, ay = a
-            bx, by = b
-            h = 0.5 * w
-            via_at(ax, ay)
-            via_at(bx, by)
-            self.box_m2(c, ax - h, ay - h, ax + h, by + h)
-            self.box_m2(c, min(ax, bx) - h, by - h, max(ax, bx) + h, by + h)
+        def via1t_at(x, y):
+            """M1↔TM1 via — only call outside cmim M5 plates [cbf lesson]."""
+            key = ("1t", round(x, 3), round(y, 3))
+            if key in via_done:
+                return
+            via_done.add(key)
+            self.box_m1(c, x - 0.35, y - 0.35, x + 0.35, y + 0.35)
+            c.shapes(self.tm1).insert(pya.DBox(x - 0.50, y - 0.50, x + 0.50, y + 0.50))
+            self.place(c, vs1t, x, y)
 
         def m2_bus(pins, y_bus, w=0.50):
-            """Via on pin M1, M2-only run to spine (no M1 through cell → shorts)."""
             h = 0.5 * w
             xs = []
             for px, py in pins:
-                via_at(px, py)
+                via12_at(px, py)
                 self.box_m2(c, px - h, min(py, y_bus) - h,
                             px + h, max(py, y_bus) + h)
                 xs.append(px)
             if len(xs) >= 2:
                 self.box_m2(c, min(xs) - h, y_bus - h, max(xs) + h, y_bus + h)
 
-        def jog_to_bus(pin, x_jog, y_bus, w=0.40):
-            """Pin → corridor X (at pin Y) → bus Y — stays outside cell body."""
+        def jog_m1(pin, x_jog, y_bus, w=0.40):
             px, py = pin
             strap(pin, (x_jog, py), w=w)
             strap((x_jog, py), (x_jog, y_bus), w=w)
             return x_jog
 
-        if "hold" in routed:
-            # hold_caps PLUS is TM1 — drop M1↔TM1 via at hc pins [PDK cmim]
-            for nm in ("hold", "rep"):
-                hx, hy = hc_p[nm]
-                self.box_m1(c, hx - 0.50, hy - 0.50, hx + 0.50, hy + 0.50)
-                self.place(c, vs1t, hx, hy)
+        # Corridors — hold further west than rep so rep spine at y_esc_r
+        # does not cross hold's deep-south TM1/M1 vertical [LVS hold|rep]
+        x_w_h = sf_bb.left - 4.5
+        x_w_r = sf_bb.left - 2.5
+        x_hc = 0.5 * (hc_bb.right + cm_bb.left)
+        x_cb = 0.5 * (cm_bb.right + bp_bb.left)
+        x_e = bp_bb.right + 2.5
 
-            # SF → hc on west corridor (no M1 through SF Activ)
-            x_w = sf_bb.left - 2.5
-            y_hold = hc_p["hold"][1]
-            y_rep = hc_p["rep"][1]
-            jog_to_bus(sf_p["hold"], x_w, y_hold)
-            strap((x_w, y_hold), hc_p["hold"])
-            jog_to_bus(sf_p["rep"], x_w, y_rep)
-            strap((x_w, y_rep), hc_p["rep"])
-
-            # bias/cmp hold → south bus via inter-cell corridors
-            x_cb = 0.5 * (cm_bb.right + bp_bb.left)
-            x_hc = 0.5 * (hc_bb.right + cm_bb.left)
-            jog_to_bus(bp_p["hold"], x_cb, y_hold)
-            jog_to_bus(cm_p["hold"], x_hc, y_hold)
-            strap(hc_p["hold"], (x_hc, y_hold))
-            strap((x_hc, y_hold), (x_cb, y_hold))
-            # rep: SF/hc already; bias rep → same y_rep bus
-            jog_to_bus(bp_p["rep"], x_cb, y_rep)
-            strap(hc_p["rep"], (x_cb, y_rep))
-
-        if "bias" in routed:
-            # ttail / ss2: cmp ↔ bias along corridor (pins face east/west)
-            x_cb = 0.5 * (cm_bb.right + bp_bb.left)
-            for nm in ("ttail", "ss2"):
-                jog_to_bus(cm_p[nm], x_cb, cm_p[nm][1])
-                jog_to_bus(bp_p[nm], x_cb, bp_p[nm][1])
-                strap((x_cb, cm_p[nm][1]), (x_cb, bp_p[nm][1]))
-
+        # ---- power (M2 spines; cells use M1/M2; avoid MIM plates) ----
         if "power" in routed:
-            y_vdd = max(sf_bb.top, cm_bb.top, bp_bb.top) + 4.0
+            y_vdd = max(sf_bb.top, cm_bb.top, bp_bb.top, cl_bb.top) + 3.0
             y_gnd = min(sf_bb.bottom, hc_bb.bottom, cm_bb.bottom,
                         bp_bb.bottom) - 3.0
             m2_bus([sf_p["vdd"], cm_p["vdd"], bp_p["vdd"]], y_vdd)
             m2_bus([sf_p["gnd"], hc_p["gnd"], cm_p["gnd"], bp_p["gnd"]],
                    y_gnd)
 
-        if "cl" in routed:
-            # cl_cmp: PLUS→cmp, MINUS→gnd
+        # ---- bias: ttail / ss2 (M1 corridors, no nbias pin — internal) ----
+        if "bias" in routed:
+            for nm in ("ttail", "ss2"):
+                jog_m1(cm_p[nm], x_cb, cm_p[nm][1])
+                jog_m1(bp_p[nm], x_cb, bp_p[nm][1])
+                strap((x_cb, cm_p[nm][1]), (x_cb, bp_p[nm][1]))
+
+        # ---- hold / rep: TM1 long-haul; local via1t per fanout [cbf] ----
+        # Causes [LVS]: TM1 H/V cross → hold|rep; M1 through gnd rings;
+        # SF+bias long M1 spine at y_esc → gnd|hold|rep [HOLD_FAN=5].
+        if "hold" in routed:
+            hx_h, hy_h = hc_p["hold"]
+            hx_r, hy_r = hc_p["rep"]
+            y_esc_r = hc_bb.bottom - 4.0
+            y_esc_h = y_esc_r - 4.0  # hold below rep; ≥TM1.b space
+            y_rep_jog = hc_bb.bottom - 1.5
+            x_tm_e = bp_bb.right + 3.0
+            x_gap = 0.5 * (hx_h + hx_r)
+            x_rep_col = hc_bb.right + 3.0
+            # rep: south → east jog → south → spine (x_w_r..x_tm_e).
+            # Spine west edge is x_w_r (> x_w_h) so it never crosses hold V.
+            c.shapes(self.tm1).insert(pya.DBox(
+                hx_r - 0.9, min(hy_r, y_rep_jog) - 0.9,
+                hx_r + 0.9, max(hy_r, y_rep_jog) + 0.9))
+            c.shapes(self.tm1).insert(pya.DBox(
+                min(hx_r, x_rep_col) - 0.9, y_rep_jog - 0.9,
+                max(hx_r, x_rep_col) + 0.9, y_rep_jog + 0.9))
+            c.shapes(self.tm1).insert(pya.DBox(
+                x_rep_col - 0.9, min(y_rep_jog, y_esc_r) - 0.9,
+                x_rep_col + 0.9, max(y_rep_jog, y_esc_r) + 0.9))
+            c.shapes(self.tm1).insert(pya.DBox(
+                min(x_w_r, x_tm_e) - 0.9, y_esc_r - 0.9,
+                max(x_w_r, x_tm_e) + 0.9, y_esc_r + 0.9))
+            # hold: south to jog → west to x_w_h → south below rep → east
+            c.shapes(self.tm1).insert(pya.DBox(
+                hx_h - 0.9, min(hy_h, y_rep_jog) - 0.9,
+                hx_h + 0.9, max(hy_h, y_rep_jog) + 0.9))
+            c.shapes(self.tm1).insert(pya.DBox(
+                min(hx_h, x_w_h) - 0.9, y_rep_jog - 0.9,
+                max(hx_h, x_w_h) + 0.9, y_rep_jog + 0.9))
+            c.shapes(self.tm1).insert(pya.DBox(
+                x_w_h - 0.9, min(y_rep_jog, y_esc_h) - 0.9,
+                x_w_h + 0.9, max(y_rep_jog, y_esc_h) + 0.9))
+            c.shapes(self.tm1).insert(pya.DBox(
+                min(x_w_h, x_tm_e) - 0.9, y_esc_h - 0.9,
+                max(x_w_h, x_tm_e) + 0.9, y_esc_h + 0.9))
+
+            def tap_sf(pin, x_corridor, y_tm):
+                """SF: M2 H at pin Y; M1 V at corridor; via1t at corridor
+                (no M1 east — that crossed the other net's vertical)."""
+                px, py = pin
+                via12_at(px, py)
+                self.box_m2(c, min(px, x_corridor) - 0.25, py - 0.25,
+                            max(px, x_corridor) + 0.25, py + 0.25)
+                via12_at(x_corridor, py)
+                strap((x_corridor, py), (x_corridor, y_tm))
+                via1t_at(x_corridor, y_tm)
+
+            def tap_east(pin, x_corridor, y_tm, x_via, y_track=None):
+                """cmp/bias: M2 to corridor. If y_track set, jog N/S first so
+                same-Y pins (bias hold/rep) do not share an M2 horizontal."""
+                px, py = pin
+                via12_at(px, py)
+                yt = py if y_track is None else y_track
+                if y_track is not None:
+                    self.box_m2(c, px - 0.25, min(py, yt) - 0.25,
+                                px + 0.25, max(py, yt) + 0.25)
+                self.box_m2(c, min(px, x_corridor) - 0.25, yt - 0.25,
+                            max(px, x_corridor) + 0.25, yt + 0.25)
+                self.box_m2(c, x_corridor - 0.25, min(yt, y_tm) - 0.25,
+                            x_corridor + 0.25, max(yt, y_tm) + 0.25)
+                via12_at(x_corridor, y_tm)
+                strap((x_corridor, y_tm), (x_via, y_tm))
+                via1t_at(x_via, y_tm)
+
+            HOLD_FAN = int(__import__("os").environ.get("HOLD_FAN", "7"))
+            if HOLD_FAN & 1:
+                tap_sf(sf_p["hold"], x_w_h, y_esc_h)
+                tap_sf(sf_p["rep"], x_w_r, y_esc_r)
+            if HOLD_FAN & 2:
+                tap_east(cm_p["hold"], x_hc, y_esc_h, x_hc)
+            if HOLD_FAN & 4:
+                # bias hold/rep share Y — stagger M2; via X ≥5 µm
+                # HOLD_BIAS: 1=hold only 2=rep only 3=both (default)
+                HOLD_BIAS = int(__import__("os").environ.get("HOLD_BIAS", "3"))
+                if HOLD_BIAS & 1:
+                    tap_east(bp_p["hold"], x_cb, y_esc_h, x_cb,
+                             y_track=bp_p["hold"][1] + 2.5)
+                if HOLD_BIAS & 2:
+                    tap_east(bp_p["rep"], x_cb + 5.0, y_esc_r, x_cb + 5.0,
+                             y_track=bp_p["rep"][1] - 2.5)
+            if HOLD_FAN == 0:
+                via1t_at(x_gap, y_esc_h)
+                via1t_at(x_rep_col, y_esc_r)
+            self._hold_via = (x_gap, y_esc_h)
+            self._rep_via = (x_rep_col, y_esc_r)
+
+        # ---- detector taps (tank west labels) ----
+        if "taps" in routed:
+            for name in ("tp", "tn", "ct"):
+                self.pin_m1(c, sf_p[name][0], sf_p[name][1], name)
+            HOLD_FAN = int(__import__("os").environ.get("HOLD_FAN", "7"))
+            if HOLD_FAN & 1:
+                self.pin_m1(c, sf_p["hold"][0], sf_p["hold"][1], "hold")
+                self.pin_m1(c, sf_p["rep"][0], sf_p["rep"][1], "rep")
+            elif HOLD_FAN & 4:
+                self.pin_m1(c, bp_p["hold"][0], bp_p["hold"][1], "hold")
+                self.pin_m1(c, bp_p["rep"][0], bp_p["rep"][1], "rep")
+            elif HOLD_FAN & 2:
+                self.pin_m1(c, cm_p["hold"][0], cm_p["hold"][1], "hold")
+                hx, hy = getattr(self, "_hold_via", cm_p["hold"])
+                rx, ry = getattr(self, "_rep_via", (hx, hy))
+                self.pin_m1(c, rx, ry, "rep")
+            else:
+                hx, hy = getattr(self, "_hold_via", (0, 0))
+                rx, ry = getattr(self, "_rep_via", (0, 0))
+                self.pin_m1(c, hx, hy, "hold")
+                self.pin_m1(c, rx, ry, "rep")
+            self.pin_m1(c, sf_p["vdd"][0], sf_p["vdd"][1], "vdd")
+            self.pin_m1(c, sf_p["gnd"][0], sf_p["gnd"][1], "gnd")
+
+        # ---- comparator: cl_cmp + vthn; CMP out east ----
+        if "cmp" in routed:
             def lyr_boxes(cid, trans, layer):
                 out = []
                 for s in self.ly.cell(cid).shapes(layer).each():
@@ -1345,41 +1449,33 @@ Men_ss pd_ss en gnd gnd sg13_lv_nmos w=2.0u l=0.13u ng=1
 
             m5 = biggest(lyr_boxes(mim, cl_t, self.m5))
             tm = biggest(lyr_boxes(mim, cl_t, self.tm1))
+            # MINUS (M5) → gnd: via south of M5 plate only
             mx = 0.5 * (m5.left + m5.right)
-            y_vs = m5.bottom - 0.2
-            bb_vs, _ = self.place(c, vs5, mx - 0.35, y_vs - 0.5)
-            self.box_m5(c, bb_vs.left, bb_vs.top - 0.1, bb_vs.right,
-                        m5.bottom + 0.3)
-            self.box_m1(c, bb_vs.left - 0.1, bb_vs.bottom - 0.5,
-                        bb_vs.right + 0.1, bb_vs.bottom + 0.2)
-            strap((mx, bb_vs.bottom - 0.3), cm_p["gnd"])
+            y_vs = m5.bottom - 1.5
+            bb_vs, _ = self.place(c, vs5, mx, y_vs)
+            self.box_m5(c, min(bb_vs.left, m5.left), m5.bottom - 0.2,
+                        max(bb_vs.right, m5.right), m5.bottom + 0.3)
+            self.box_m1(c, bb_vs.left - 0.1, bb_vs.bottom - 0.3,
+                        bb_vs.right + 0.1, bb_vs.top + 0.1)
+            strap((mx, bb_vs.bottom), cm_p["gnd"])
+            # PLUS (TM1) escape south of M5, then via → M1 → cmp pin
             tcx = 0.5 * (tm.left + tm.right)
-            y_cmp_cap = tm.bottom - 3.0
+            y_esc = m5.bottom - 3.0
             c.shapes(self.tm1).insert(pya.DBox(
-                tcx - 1.0, y_cmp_cap - 0.5, tcx + 1.0, tm.bottom + 1.0))
-            self.pin_tm1(c, tcx, y_cmp_cap, "cmp")
-            # M1↔TM1 so cl_cmp PLUS ties to comparator cmp [not label-only]
-            self.box_m1(c, tcx - 0.50, y_cmp_cap - 0.50,
-                        tcx + 0.50, y_cmp_cap + 0.50)
-            self.place(c, vs1t, tcx, y_cmp_cap)
-            strap((tcx, y_cmp_cap), cm_p["cmp"])
+                tcx - 1.0, y_esc - 0.5, tcx + 1.0, tm.bottom + 0.5))
+            via1t_at(tcx, y_esc)
+            strap((tcx, y_esc), cm_p["cmp"])
             self.pin_m1(c, cm_p["cmp"][0], cm_p["cmp"][1], "cmp")
-
-        if "ports" in routed:
-            # Labels on existing pin metal only — no extra M1 stems / join GR
-            # (prior stems + outer GR M1 shorted en|gnd|hold|rep [LVS extract]).
-            # Child GRs stay; island GR at P2.7.2c.
-            for name in ("tp", "tn", "ct", "hold", "rep", "vdd", "gnd"):
-                self.pin_m1(c, sf_p[name][0], sf_p[name][1], name)
             self.pin_m1(c, cm_p["vthn"][0], cm_p["vthn"][1], "vthn")
-            self.pin_m1(c, cm_p["cmp"][0], cm_p["cmp"][1], "cmp")
+
+        # ---- en (east of bias, away from tank / V_tune) ----
+        if "en" in routed:
             self.pin_m1(c, bp_p["en"][0], bp_p["en"][1], "en")
-            # digital east of bias (away from tank / V_tune) — already bp/cm east
 
         bb = c.bbox().to_dtype(self.ly.dbu)
         self.det_top_area = bb.width() * bb.height() * 1e-6
         self.det_top_bb = bb
-        self.say(f"ampcal_det bbox {bb} area={self.det_top_area:.4f} mm2")
+        self.say(f"ampcal_det bbox {bb} area={self.det_top_area:.4f} mm2 gap={gap}")
         return c.cell_index()
 
     def write_spice_ampcal_det(self, hold_w=None, rhigh_l=None):

@@ -1,4 +1,4 @@
-* Extracted by KLayout with SG13G2 LVS runset on : 16/11/2026 11:52
+* Extracted by KLayout with SG13G2 LVS runset on : 16/11/2026 15:26
 
 .SUBCKT det_sf_pair ct gnd hold rep tn tp vdd
 M$1 gnd gnd gnd gnd sg13_lv_nmos L=0.13u W=1u AS=0.34p AD=0.34p PS=3.36u

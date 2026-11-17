@@ -10,9 +10,9 @@ wrote /foss/designs/analog/vco/layout/p272b_det/out/cmp_se.gds bbox=(-9.15,-14.2
 bias_pd bbox (-7.65,-14.88;29.71,85.22) area=0.0037 mm2 rbias_drawn_l=78.00u target_extract=78.0u
 wrote bias_pd.spice rbias_l=78.0 tt=5.5u
 wrote /foss/designs/analog/vco/layout/p272b_det/out/bias_pd.gds bbox=(-7.65,-14.88;29.71,85.22) area=0.0037 mm2
-ampcal_det routed=['bias', 'hold', 'place']
-ampcal_det bbox (-9.55,-8.605;129.63,100.1) area=0.0151 mm2
+ampcal_det routed=['hold', 'place', 'taps']
+ampcal_det bbox (-12.25,-17.505;129.53,100.1) area=0.0167 mm2 gap=4.0
 wrote ampcal_det.spice
-wrote /foss/designs/analog/vco/layout/p272b_det/out/ampcal_det.gds bbox=(-9.55,-8.605;129.63,100.1) area=0.0151 mm2
+wrote /foss/designs/analog/vco/layout/p272b_det/out/ampcal_det.gds bbox=(-12.25,-17.505;129.53,100.1) area=0.0167 mm2
 ampcal_det spice hold_w=16.27 rhigh_l=6.96
 prove ampcal_det: FAIL

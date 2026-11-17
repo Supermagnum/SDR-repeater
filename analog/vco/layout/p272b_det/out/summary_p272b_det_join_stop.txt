@@ -1,0 +1,74 @@
+P2.7.2b ampcal_det join — stop report (2026-11-16)
+====================================================
+Prompt: finish ampcal_det join after decisions.md "D22 bias_pd accepted, join open".
+Docker: hpretl/iic-osic-tools:2026.10 [TOOL].
+
+Pass criteria (prompt)
+----------------------
+1. gnd|hold|rep cleared; TM1 out; vias outside MIM M5; cause recorded
+2. Power spines planned + routed
+3. Net groups joined with DRC + KLayout LVS + netgen; gaps narrowed
+4. Footprint [GDS] vs pocket 0.0121 mm²; tank load
+5. Specs updated; job files committed
+
+Results per step
+----------------
+1. gnd|hold|rep — PARTIAL (causes found; not fully cleared for all fanouts)
+   Recorded causes [LVS / GDS net-trace]:
+   a) hold+rep TM1 east at shared pin Y (−5.05) → one TM1 island.
+   b) hold TM1 east spine crossed rep TM1 south vertical at rep pin X.
+   c) M1 jog through det_sf_pair / cmp / bias hit full gnd M1 rings
+      (SF gnd M1 ≈ entire bbox [GDS]).
+   d) SF M2-H at pin Y then M2-V: rep H crossed hold V → hold|rep.
+   e) Long M1 spine at y_esc under join (SF↔bias) → gnd|hold|rep
+      [HOLD_FAN=5].
+   f) SF M1 east from west corridor to shared via crossed other vertical.
+   g) bias hold+rep M2 escapes together → hold|rep even without SF
+      [HOLD_FAN=4 with labels on bias pins]. Single bias tap + SF is OK
+      [HOLD_BIAS=1|2].
+
+   Working subset [TOOL]: HOLD_FAN=1 (SF only) or HOLD_FAN=3 (SF+cmp):
+   ports `ct gnd hold rep tn tp vdd` separate; DRC may show TM1.b when
+   spines tight. HOLD_FAN=7 (all): hold|rep returns (bias dual tap).
+
+   Fix direction in tree: TM1 long-haul spines (hold below rep); local
+   via1t; SF escape M2-H + M1-V at corridor (hold corridor west of rep);
+   cmp/bias tap_east on M2. Bias dual-tap still open.
+
+2. Power — NOT STARTED (blocked on hold/rep).
+
+3. Full net-group join — NOT DONE (hold/rep + power open).
+   place+hold+taps only exercised. gap=4.0 µm [GDS].
+
+4. Footprint [GDS] latest full-fan build ≈ 0.0166 mm²
+   bbox ≈ (−11.65,−17.5;129.53,100.1); pocket rem 0.0121 mm².
+   Overage ≈ +0.0045 mm² → P2.7.2c die-level gate.
+   Tank load: not extracted this run (join not accepted).
+
+5. Specs: decisions.md entry present; p27-layout-notes / floorplan /
+   phase2-plan / vco-amplitude-cal not fully refreshed this stop
+   (join not accepted). Stop report written here.
+
+What failed / uncertain
+-----------------------
+- FAIL: bias_pd hold+rep both tapped on M2 → hold|rep [LVS]. Root
+  joining shapes not fully closed (likely M2/via interaction with
+  bias_pd internal M2 at shared pin Y); M3 escape not yet proven.
+- FAIL / intermittent: TM1.b when both spines run full east-west.
+- Uncertain: Magical vs pure geometry on via1t near dual spines.
+- Power DRC (M1.b/M2.b/V1.b) from prior run not re-hit this stop.
+
+Decision needed
+---------------
+Accept partial cause list + SF/cmp hold routing lessons into the next
+layout pass, and prioritize bias dual-tap (try M3 corridor / separate
+Y exits south of bias_pd only) before power spines; OR waive bias
+hold/rep join to a later sub-step and freeze SF+cmp routing.
+
+Found, not done.
+
+Next run (expected)
+-------------------
+1) ampcal_det join resume — bias hold|rep M2 dual-tap, then power,
+   then remaining net groups; OR
+2) After join accept: chip art cell, then P2.7.2c VCO top assembly.

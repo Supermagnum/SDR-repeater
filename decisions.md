@@ -754,3 +754,12 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   only outside the MIM bottom plate.
 - D22 footprint over its pocket (0.0151 against 0.0121 mm² [GDS]): compacted where the
   re-route allows; the rest goes to the P2.7.2c die-level gate.
+
+## 2026-11-17 — D22 join method
+- ampcal_det join stays open. Recorded causes (same-layer H / V crossings on TM1 and M2, M1
+  through the SF gnd ring and across cells, bias hold + rep both on M2) are fixed by a written
+  routing plan first: one direction per layer, no inter-cell M1, TopMetal1 only for MIM
+  top-plate nodes, a fixed track per net.
+- bias_pd ports may be moved (hold and rep leaving on different sides or layers) so the dual
+  tap needs no crossing; bias_pd is re-proven after the change.
+- Footprint ≈ 0.0166 mm² [GDS] carried to the P2.7.2c die-level gate.
