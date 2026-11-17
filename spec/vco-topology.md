@@ -1,6 +1,6 @@
 # VCO topology memo (P2.3)
 
-Status: **topology accepted (D8–D11; D24 2026-11-12).** P2.3 open items closed. **Layout:** blocks through D22 PASS; chip art cell PASS (overlay). **P2.7.2c VCO top WIP** — re-pack outline 0.5743 mm² [GDS]; full-assembly LVS FAIL (inter-block shorts); tn/tp C≈59 fF/side [HAND] (`summary_p272c_stop.txt`). See §9.
+Status: **topology accepted (D8–D11; D24 2026-11-12).** P2.3 open items closed. **Layout:** blocks through D22 PASS; chip art PASS. **P2.7.2c STOP** — island+bank+core parasitics: top margin 130 → **−29 MHz** [SCH] (`summary_p272c_route_c_range.txt`); direct bank–core re-pack plan awaiting owner. See §9.
 
 ---
 

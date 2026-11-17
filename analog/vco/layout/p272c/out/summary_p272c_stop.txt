@@ -1,58 +1,42 @@
-# P2.7.2c VCO top re-pack / join — stop report (2026-11-17)
+# P2.7.2c — band-margin gate on routing C — stop (2026-11-17)
 
 ## Done this run
-0. Housekeeping commit `13e0012`: ignore `*.lvsdb` (removed from index); decision
-   "P2.7.2c first assembly"; TM2-free art region reserved in `spec/p27-floorplan.md` §8.
-1. Re-pack plan [HAND] written in `spec/p27-layout-notes.md` before place: bank south
-   X-aligned to tank; var+det east Y-aligned; tail NE; controls south. Target added C
-   ≤ 30 fF/side **not met** at structural minimum — continued with best plan.
-2. Routing plan updated (layer / tracks / ct port / shielded vt / controls away).
-3. Join by net group with DRC + both LVS after each. Patched six pre-existing core
-   TM1.b notches in the assembler (accepted `vco_core_tank` fab GDS still has them).
+1. Decision recorded: `decisions.md` "2026-11-17 — P2.7.2c re-pack result"
+   (commit `1b33049`).
+2. Band coverage with parasitics [SCH]:
+   `analog/vco/step3/run_p272c_route_c_range.py` →
+   `summary_p272c_route_c_range.txt` (also under `p272c/out/`).
 
-## Island outline [GDS]
-| Item | Value | Tag |
+## Parasitics used (high end of each range)
+| Source | C / side | Tag |
 |---|---|---|
-| Bbox | (−150.17, 0; 511.92, 867.335) µm | [GDS] |
-| Area | **0.5743 mm²** | [GDS] |
-| vs first pack | 0.5029 → 0.5743 | [GDS] |
+| Island routing (re-pack as built) | 59.4 fF | [HAND] p272c build log |
+| Bank wiring | 40 fF | [HAND] p272b_bank summary_rc_bank |
+| Core-internal TM1 spurs | 30 fF | [HAND] p272b summary_rc_tank |
+| **Total C** | **129.4 fF** | [HAND] |
+| Series R (island 3 + core 0.4) | 3.4 Ω | [HAND] |
 
-## tn / tp added C (PEX not run)
-| Pack | L tn / tp [HAND] | w | C′ [HAND] | C / side [HAND] | dL [HAND] | Series R [HAND] |
-|---|---|---|---|---|---|---|
-| First (57a9232) | ≈ 758 µm | 4 µm | 0.20 fF/µm | ≈ 90–152 fF | — | ≈ 1.9 Ω |
-| Re-pack plan (pre-join) | ≈ 320–350 µm | 2 µm | 0.10 fF/µm | ≈ 32–35 fF | ≈ 29 µm | ≈ 1.6–1.7 Ω |
-| As built (west bank escape) | **593.6 / 588.4 µm** | 2 µm | 0.10 fF/µm | **≈ 59.4 / 58.8 fF** | 5.2 µm | ≈ 3.0 Ω |
+Model: Rseries from tp/tn into C to gnd (stub RC). PEX not run.
 
-Bank stubs cannot pierce the core on TM1; west corridor escape length dominates C.
-Extracted RC: **not run**.
+## Margins [SCH]
+| case | before | after | Δ |
+|---|---|---|---|
+| top ss/wcs/−40 code 0 | +130 MHz | **−29 MHz** | −159 MHz |
+| bot ss/bcs/−40 code 255 | +76 MHz | +134 MHz | +58 MHz |
 
-## Pass criteria — not met
-| Check | Result |
-|---|---|
-| DRC (dens. + SVaricap M1.b waived) | **Was clean** through place→power→ct→tail→tn_tp→vt→controls once; **last tail-ring change** re-introduced M2.b / TM1.a [TOOL]. Current prove: FAIL non-density M2.b, TM1.a (+ waived M1.b). |
-| KLayout LVS unique | **FAIL** — extracted top ports show mega-short `W\|cmp\|ct\|gnd\|tail\|tn\|tp\|vbp\|vdd\|vt` [TOOL] |
-| netgen unique | **FAIL** (device/net count mismatch) [TOOL] |
-| Inductor fab/LVS GDS diff | not re-run this stop |
-| Var W/L/Nx compare | not re-run this stop |
-| ct labelled port | exported on TM1 [GDS]; LVS connectivity unproven (in mega-short) |
-| Fingers script | not run |
+Gate (≥ 1 % / ≈ 40 MHz top margin): **FAIL**.
 
-## LVS short root causes found [TOOL]
-1. Shared M3 column at x≈256 for `tail` signal and `tail_block.gnd` (and nearby vt).
-2. Separate tn/tp west escapes required (shared column shorted tn↔tp).
-3. Tail “north ring” M2 at y≈869 overlapped the vdd M2 rail at y=871.33 (w=4) →
-   shorted `tail` into `vdd` and the mega-net.
+## Steps 2–6
+Not started (gate fail → re-pack plan + stop per prompt).
 
-## Die re-total [HAND/GDS]
-Island **0.5743 mm²** into §8: still fits ≈ 2.5 × 2.5 mm (~2.2 mm² slack) [HAND].
-Art TM2 keep-out remains a chip-floorplan / Phase 5 item (not in this island).
+## Direct bank–core re-pack plan [HAND]
+Written in `spec/p27-layout-notes.md` § P2.7.2c next re-pack.
+- Island C ≈ 32–37 fF/side (V stub only, no west escape).
+- With bank 40 + core 30: total ≈ 102–107 fF/side → linearised top margin
+  ≈ +5 MHz [HAND from SCH Δ] — still under 40 MHz.
+- Even island 0 leaves ≈ +44 MHz from bank+core alone [HAND].
 
-## Finding
-P2.7.2c re-pack join is **not accepted**. DRC was achieved per group before the last
-tail-ring edit; full-assembly unique LVS is blocked by inter-block M2/M3 shorts.
-Target C ≤ 30 fF/side is not met with the west-escape bank path (≈ 59 fF/side [HAND]).
-
-## Artifacts
-`p272c/build_assemble.py`, `out/vco_top.gds.gz`, `.png`, `.spice`, per-group
-`summary_build_*.txt` / `summary_drc_lvs_*.txt`, this stop.
+## Decision needed
+Owner: how to proceed given direct-access estimate still < 40 MHz top margin
+when bank+core HAND highs are additive — accept lower gate, trim HAND bounds,
+or other.

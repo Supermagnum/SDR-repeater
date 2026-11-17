@@ -1,0 +1,25 @@
+# P2.7.2c band coverage with routing parasitics [SCH]
+
+Parasitics per tank side (high end of each range):
+- island routing C = 59.4 fF [HAND] (p272c summary_build_controls)
+- bank wiring C = 40.0 fF [HAND] (p272b_bank summary_rc_bank)
+- core-internal C = 30.0 fF [HAND] (p272b summary_rc_tank)
+- total C/side = 129.4 fF [HAND]
+- series R = 3.4 Ω [HAND] (island ≈3 Ω + core 0.4 Ω)
+Model: Rseries from tp/tn into C to gnd (stub RC).
+
+Pass gate: top margin ≥ 1 % ≈ 40 MHz (decisions 2026-11-17 re-pack result).
+
+| case | parasitics | MOS | CAP | T | code | Vtune | f (GHz) | limit | margin (MHz) | Amp | PASS |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| top | none | mos_ss | cap_wcs | -40 | 0 | 1.0 | 4.330 | 4.20 | 130 | 1.45 | yes |
+| bot | none | mos_ss | cap_bcs | -40 | 255 | 0.3 | 3.044 | 3.12 | 76 | 1.09 | yes |
+| top | island+bank+core | mos_ss | cap_wcs | -40 | 0 | 1.0 | 4.171 | 4.20 | -29 | 1.40 | NO |
+| bot | island+bank+core | mos_ss | cap_bcs | -40 | 255 | 0.3 | 2.986 | 3.12 | 134 | 1.07 | yes |
+
+## Margin change (parasitics − none) [SCH]
+
+- top: 130 → -29 MHz (Δ -159 MHz)
+- bot: 76 → 134 MHz (Δ +58 MHz)
+
+Gate (≥ 40 MHz top margin with parasitics): FAIL [SCH].

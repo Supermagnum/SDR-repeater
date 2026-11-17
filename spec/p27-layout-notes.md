@@ -1,6 +1,8 @@
 # P2.7 layout notes
 
-Status: **P2.7.2c WIP — not accepted.** Re-pack plan + join in progress. Outline **0.5743 mm²** [GDS]. Per-group DRC reached clean; full LVS FAIL (mega-short). tn/tp C≈59 fF/side [HAND]. Stop: `p272c/out/summary_p272c_stop.txt`. Chip art accepted (overlay). Blocks PASS.
+Status: **P2.7.2c STOP — band-margin gate FAIL.** Re-pack C≈59 fF/side + bank/core parasitics
+drops top margin 130 → **−29 MHz** [SCH] (`summary_p272c_route_c_range.txt`). Direct
+bank–core re-pack plan written below; awaiting owner. Chip art PASS. Blocks PASS.
 
 ---
 
@@ -696,6 +698,51 @@ for sch ports.
 
 **Artifacts:** `p272c/build_assemble.py`, `out/vco_top.gds.gz`, per-group
 `summary_drc_lvs_*.txt`, `summary_p272c_stop.txt`.
+
+#### P2.7.2c band-margin gate on routing C (2026-11-17) [SCH] — **FAIL**
+
+`analog/vco/step3/run_p272c_route_c_range.py` → `summary_p272c_route_c_range.txt`.
+
+Parasitics per side (high end): island 59.4 + bank wiring 40 + core-internal 30 =
+**129.4 fF**, series R **3.4 Ω** [HAND]. Stub RC on tp/tn.
+
+| case | none [SCH] | +parasitics [SCH] | Δ |
+|---|---|---|---|
+| top (ss/wcs/−40, code 0) | +130 MHz | **−29 MHz** | −159 MHz |
+| bot (ss/bcs/−40, code 255) | +76 MHz | +134 MHz | +58 MHz |
+
+Gate (≥ 40 MHz top margin): **FAIL**. Keep-pack path closed
+(`decisions.md` 2026-11-17 re-pack result).
+
+#### P2.7.2c next re-pack — direct bank–core pin access [HAND] — before place
+
+**Why:** west corridor bank escape added ≈ 250 µm H + V to each tn/tp net and
+dominated the 59 fF island C. Direct access = short vertical stub only from bank
+north-edge pins to the tank spine (no west ring).
+
+| Block | Place rule |
+|---|---|
+| `vco_bank` | South of core; **X-align** `bank.tp.x` = `core.tp.x` (unchanged) |
+| `vco_core_tank` | `(0, bank.top + 8)` |
+| `vco_var` / `ampcal_det` | East of core; **Y-align** tn to core.tn (unchanged) |
+| `tail_block` | East of core, **north of var**, with **unique** M3 X clear of power/vt |
+| tn/tp | Separate y tracks; bank joins by **V stub only** at pin X (through the
+  8 µm corridor), not via a shared west column |
+
+| Estimate | tn | tp | Tag |
+|---|---|---|---|
+| Route L | ≈ 315 µm | ≈ 369 µm | [HAND] |
+| Island C @ w=2, C′=0.10 fF/µm | ≈ 32 fF | ≈ 37 fF | [HAND] |
+| + bank wiring 40 + core 30 | ≈ 102 fF | ≈ 107 fF | [HAND] |
+| Linearised top margin vs 129.4 fF case | ≈ +5 MHz | — | [HAND] from SCH Δ |
+
+Even with direct access, **high-end bank+core alone** (~70 fF) linearises to
+≈ +44 MHz top margin; with island ≈32 fF the estimate is ≈ +5 MHz — still under
+40 MHz. Owner must decide whether to (a) accept a lower margin / re-cut HAND
+bank+core bounds, (b) require a still-tighter island (≤ ~0 fF extra → not
+realistic), or (c) change the gate.
+
+**Stop for owner.** Do not place this pack until decided.
 
 ### P2.7.3 — PEX + post-layout VCO range / steps / PN bounds
 **Inputs:** P2.7.2 PEX.  
