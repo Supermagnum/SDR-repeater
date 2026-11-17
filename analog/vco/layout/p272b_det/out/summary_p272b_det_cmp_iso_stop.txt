@@ -1,0 +1,72 @@
+# P2.7.2b Prompt 06 — ampcal_det cmp/en isolation join — STOP
+
+Date: 2026-11-17
+Decision recorded: decisions.md "2026-11-17 — D22 join, comparator isolation" (D22 not done).
+Prior commit: 21e7e8b (plan join stop).
+
+## Pass criteria vs results (per step)
+
+| Step | Criteria | Result |
+|---|---|---|
+| 0 Prior commit | Last run files; D22 not done | DONE [git 21e7e8b] |
+| 1 Re-check power/nbias/hold | DRC + KLayout LVS + netgen | DRC PASS (dens. waived) [TOOL]. LVS/netgen FAIL until full ports + connectivity [TOOL] |
+| 2 Plan amend | cmp/en own east M3; via clear of hold/gnd | DONE in p27-layout-notes + build (split x_cmp_gnd / x_cmp_m3 / x_en_m3) [HAND] |
+| 3a Join rep | DRC + both LVS; no merge | DRC PASS; ports hold≠rep [TOOL]. LVS FAIL (incomplete) |
+| 3b Detector taps | DRC + both LVS | DRC PASS; ports ct/gnd/hold/rep/tn/tp/vdd distinct [TOOL] |
+| 3c Comparator (cmp, cl_cmp) | DRC + both LVS; no merge | DRC PASS; ports include cmp/vthn distinct; Ccl_cmp = cmp↔gnd [TOOL]. LVS FAIL (see below) |
+| 3d en / control | DRC + both LVS; full join | DRC PASS; ports `cmp ct en gnd hold rep tn tp vdd vthn` **no merges** [TOOL]. **KLayout LVS FAIL; netgen FAIL (pin matching)** [TOOL] |
+| 4 Footprint / tank | [GDS]; tank load/side | Footprint **0.0186 mm²** [GDS] (bbox −12.25,−20.005;138.25,103.42). Pocket 0.0121. Tank load/side: **not computed** (PEX / Cgg extract not run) |
+| 5 Specs + commit | Update specs; commit job files | Specs updated this stop. **Commit not made** (ask first) |
+
+## What failed or is uncertain
+
+1. Full-join unique LVS still FAIL [TOOL]. Extract has all top ports distinct and
+   `Ccl_cmp cmp gnd` connected. Netgen: device counts match after merge (26↔26) but
+   "Top level cell failed pin matching." KLayout: "Netlists don't match."
+2. Suspected internal connectivity [TOOL extract vs SCH]: PMOS mirror extract shows
+   `M$29 vdd vdd vdd vdd` / `M$31 cmp vdd vdd vdd` (n1 appears tied to vdd); diff-pair
+   sources share net with nbias (`$19`). cmp_se alone previously LVS-clean — join
+   power / ttail / nbias routing likely. Not fully net-traced this stop.
+3. Intermediate LVS unique-match cannot pass before all nets exist; gate used was
+   DRC + no `|`-merged port names per group [TOOL].
+4. Tank C per side uncertain (PEX not run). Hand/PDK still ≈ 0.5–1 fF/side [HAND/PDK].
+5. Area 0.0186 > pocket 0.0121 [GDS] — P2.7.2c die-level gate (decision already).
+
+## Fixes landed this run (within / amending plan)
+
+- rep M3 `x_e_sf` west of hold_caps cmim via M3 (M3.b) [TOOL DRC].
+- hold TM1 spine ends before rep drop (hold|rep) [TOOL extract].
+- bias gnd power tap moved to east GR above en gate straps (en|gnd) [TOOL extract].
+- cl_cmp MINUS and PLUS on **separate** M3 columns `x_cmp_gnd` / `x_cmp_m3` (cmp|gnd) [TOOL].
+- M5 bridge extended to vs5 (MINUS was floating) [TOOL extract].
+- No via12 on vs5 / via1t (V1.b) [TOOL DRC].
+
+## Decision needed
+
+How to close ampcal_det LVS with ports already distinct and DRC clean:
+- (A) Net-trace n1↔vdd and ttail/ss2↔nbias in the join; fix within plan (or amend
+  power / x_cb / cmp vdd lane) until KLayout + netgen uniquely match.
+- (B) Accept DRC + no-port-merge as join gate; defer unique LVS to a follow-up with
+  flattened cmp_se pin-outs exposed for debug.
+- (C) Other.
+
+Recommend (A).
+
+## Found, not done
+
+ampcal_det join under comparator-isolation plan is **not done**: full-join DRC clean
+and top ports distinct, but KLayout LVS + netgen do not uniquely match; footprint
+0.0186 mm² [GDS].
+
+## Next run (expected)
+
+1. Finish ampcal_det unique LVS (n1/vdd and ttail/nbias net-trace) — still P2.7.2b D22.
+2. Then: chip art cell, then P2.7.2c VCO top assembly.
+
+## Key artifacts
+
+- `analog/vco/layout/p272b_det/build_cells.py`
+- `out/ampcal_det.gds` / `.gds.gz` area 0.0186 mm² [GDS]
+- `out/prove_iso_en12.log` (full join DRC clean; LVS FAIL)
+- `out/lvs_ampcal_det/ampcal_det_extracted.cir` (ports distinct; Ccl_cmp cmp gnd)
+- `spec/p27-layout-notes.md` (plan amends)

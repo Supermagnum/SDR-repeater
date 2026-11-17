@@ -14,63 +14,33 @@ Cell pin lists are equivalent.
 Device classes rhigh and rhigh are equivalent.
 
 Class ampcal_det (0):  Merged 4 parallel devices.
-Class ampcal_det (1):  Merged 4 parallel devices.
+Class ampcal_det (1):  Merged 1 parallel devices.
 Subcircuit summary:
 Circuit 1: ampcal_det                      |Circuit 2: ampcal_det                      
 -------------------------------------------|-------------------------------------------
-sg13_lv_nmos (22->18)                      |sg13_lv_nmos (19->15) **Mismatch**         
-cap_cmim (3)                               |cap_cmim (3->2) **Mismatch**               
+sg13_lv_nmos (22->18)                      |sg13_lv_nmos (19->18)                      
+cap_cmim (3)                               |cap_cmim (3)                               
 rhigh (3)                                  |rhigh (3)                                  
 sg13_lv_pmos (2)                           |sg13_lv_pmos (2)                           
-Number of devices: 26 **Mismatch**         |Number of devices: 22 **Mismatch**         
-Number of nets: 21 **Mismatch**            |Number of nets: 16 **Mismatch**            
+Number of devices: 26                      |Number of devices: 26                      
+Number of nets: 21 **Mismatch**            |Number of nets: 20 **Mismatch**            
 ---------------------------------------------------------------------------------------
 NET mismatches: Class fragments follow (with fanout counts):
 Circuit 1: ampcal_det                      |Circuit 2: ampcal_det                      
 
 ---------------------------------------------------------------------------------------
-Net: pd_d                                  |Net: \$6                                   
-  sg13_lv_nmos/(drain|source) = 2          |  sg13_lv_nmos/(drain|source) = 1          
+Net: nbias                                 |Net: \$22                                  
+  rhigh/(1|2) = 1                          |  sg13_lv_nmos/(drain|source) = 1          
+  sg13_lv_nmos/(drain|source) = 1          |                                           
+  sg13_lv_nmos/gate = 5                    |                                           
                                            |                                           
-Net: hold                                  |Net: \$7                                   
+Net: ttail                                 |Net: \$23                                  
   sg13_lv_nmos/(drain|source) = 3          |  sg13_lv_nmos/(drain|source) = 1          
-  cap_cmim/top = 1                         |                                           
-  sg13_lv_nmos/gate = 1                    |                                           
                                            |                                           
-Net: en                                    |Net: \$8                                   
-  sg13_lv_nmos/gate = 5                    |  sg13_lv_nmos/(drain|source) = 1          
-                                           |                                           
-Net: gnd                                   |Net: \$18                                  
-  sg13_lv_nmos/bulk = 18                   |  sg13_lv_nmos/(drain|source) = 1          
-  sg13_lv_nmos/(drain|source) = 7          |                                           
-  sg13_lv_nmos/gate = 1                    |                                           
-  cap_cmim/bottom = 3                      |                                           
-  rhigh/3 = 3                              |                                           
-                                           |                                           
-Net: rep                                   |Net: \$19                                  
-  sg13_lv_nmos/(drain|source) = 2          |  sg13_lv_nmos/(drain|source) = 1          
-  cap_cmim/top = 1                         |                                           
-                                           |                                           
-Net: ttail                                 |Net: \$49                                  
-  sg13_lv_nmos/(drain|source) = 3          |  cap_cmim/bottom = 1                      
-                                           |                                           
-Net: ss2                                   |Net: \$9                                   
-  sg13_lv_nmos/(drain|source) = 3          |  sg13_lv_nmos/(drain|source) = 2          
-                                           |                                           
-Net: cmp                                   |Net: \$10                                  
-  sg13_lv_nmos/(drain|source) = 1          |  sg13_lv_nmos/(drain|source) = 2          
-  sg13_lv_pmos/(drain|source) = 1          |                                           
-  cap_cmim/top = 1                         |                                           
-                                           |                                           
-Net: nbias                                 |Net: cmp|en|gnd|hold|rep                   
-  rhigh/(1|2) = 1                          |  sg13_lv_nmos/gate = 9                    
-  sg13_lv_nmos/(drain|source) = 1          |  sg13_lv_nmos/(drain|source) = 15         
-  sg13_lv_nmos/gate = 5                    |  sg13_lv_nmos/bulk = 15                   
-                                           |  sg13_lv_pmos/(drain|source) = 1          
-                                           |  rhigh/3 = 3                              
+Net: ss2                                   |Net: \$19                                  
+  sg13_lv_nmos/(drain|source) = 3          |  sg13_lv_nmos/(drain|source) = 5          
+                                           |  sg13_lv_nmos/gate = 5                    
                                            |  rhigh/(1|2) = 1                          
-                                           |  cap_cmim/top = 2                         
-                                           |  cap_cmim/bottom = 1                      
                                            |                                           
 Net: vdd                                   |Net: vdd                                   
   sg13_lv_nmos/(drain|source) = 3          |  sg13_lv_nmos/(drain|source) = 4          
@@ -79,96 +49,10 @@ Net: vdd                                   |Net: vdd
   sg13_lv_pmos/bulk = 2                    |  sg13_lv_pmos/bulk = 2                    
                                            |  sg13_lv_pmos/gate = 2                    
                                            |                                           
-Net: pd_h                                  |(no matching net)                          
-  sg13_lv_nmos/(drain|source) = 2          |                                           
-                                           |                                           
-Net: pd_r                                  |(no matching net)                          
-  sg13_lv_nmos/(drain|source) = 2          |                                           
-                                           |                                           
-Net: pd_tt                                 |(no matching net)                          
-  sg13_lv_nmos/(drain|source) = 2          |                                           
-                                           |                                           
-Net: pd_ss                                 |(no matching net)                          
-  sg13_lv_nmos/(drain|source) = 2          |                                           
-                                           |                                           
 Net: n1                                    |(no matching net)                          
   sg13_lv_nmos/(drain|source) = 1          |                                           
   sg13_lv_pmos/(drain|source) = 1          |                                           
   sg13_lv_pmos/gate = 2                    |                                           
----------------------------------------------------------------------------------------
-DEVICE mismatches: Class fragments follow (with node fanout counts):
-Circuit 1: ampcal_det                      |Circuit 2: ampcal_det                      
-
----------------------------------------------------------------------------------------
-Instance: sg13_lv_nmos:dL                  |Instance: sg13_lv_nmos:$1                  
-  (drain,source) = (32,32)                 |  (drain,source) = (47,1)                  
-  gate = 32                                |  gate = 47                                
-  bulk = 32                                |  bulk = 47                                
-                                           |                                           
-Instance: sg13_lv_nmos:diode               |Instance: sg13_lv_nmos:$2                  
-  (drain,source) = (7,2)                   |  (drain,source) = (47,1)                  
-  gate = 7                                 |  gate = 47                                
-  bulk = 32                                |  bulk = 47                                
-                                           |                                           
-Instance: sg13_lv_nmos:en_d                |Instance: sg13_lv_nmos:$3                  
-  (drain,source) = (32,2)                  |  (drain,source) = (47,1)                  
-  gate = 5                                 |  gate = 47                                
-  bulk = 32                                |  bulk = 47                                
-                                           |                                           
-Instance: sg13_lv_nmos:id_h                |Instance: sg13_lv_nmos:$4                  
-  (drain,source) = (5,2)                   |  (drain,source) = (47,2)                  
-  gate = 7                                 |  gate = 47                                
-  bulk = 32                                |  bulk = 47                                
-                                           |                                           
-Instance: sg13_lv_nmos:en_h                |Instance: sg13_lv_nmos:$5                  
-  (drain,source) = (32,2)                  |  (drain,source) = (47,2)                  
-  gate = 5                                 |  gate = 47                                
-  bulk = 32                                |  bulk = 47                                
-                                           |                                           
-Instance: sg13_lv_nmos:id_r                |Instance: sg13_lv_nmos:$9                  
-  (drain,source) = (3,2)                   |  (drain,source) = (47,47)                 
-  gate = 7                                 |  gate = 47                                
-  bulk = 32                                |  bulk = 47                                
-                                           |                                           
-Instance: sg13_lv_nmos:en_r                |Instance: sg13_lv_nmos:$15                 
-  (drain,source) = (32,2)                  |  (drain,source) = (2,1)                   
-  gate = 5                                 |  gate = 47                                
-  bulk = 32                                |  bulk = 47                                
-                                           |                                           
-Instance: sg13_lv_nmos:id_tt               |Instance: sg13_lv_nmos:$17                 
-  (drain,source) = (3,2)                   |  (drain,source) = (2,1)                   
-  gate = 7                                 |  gate = 47                                
-  bulk = 32                                |  bulk = 47                                
-                                           |                                           
-Instance: sg13_lv_nmos:en_tt               |Instance: cap_cmim:$36                     
-  (drain,source) = (32,2)                  |  top = 47                                 
-  gate = 5                                 |  bottom = 47                              
-  bulk = 32                                |                                           
-                                           |                                           
-                                           |                                           
-Instance: sg13_lv_nmos:id_ss               |Instance: cap_cmim:$38                     
-  (drain,source) = (3,2)                   |  top = 47                                 
-  gate = 7                                 |  bottom = 1                               
-  bulk = 32                                |                                           
-                                           |                                           
-                                           |                                           
-Instance: sg13_lv_nmos:en_ss               |(no matching instance)                     
-  (drain,source) = (32,2)                  |                                           
-  gate = 5                                 |                                           
-  bulk = 32                                |                                           
-                                           |                                           
-                                           |                                           
-Instance: cap_cmim:chold                   |(no matching instance)                     
-  top = 5                                  |                                           
-  bottom = 32                              |                                           
-                                           |                                           
-Instance: cap_cmim:crep                    |(no matching instance)                     
-  top = 3                                  |                                           
-  bottom = 32                              |                                           
-                                           |                                           
-Instance: cap_cmim:cl_cmp                  |(no matching instance)                     
-  top = 3                                  |                                           
-  bottom = 32                              |                                           
 ---------------------------------------------------------------------------------------
 Netlists do not match.
 Port matching may fail to disambiguate symmetries.
@@ -176,17 +60,16 @@ Port matching may fail to disambiguate symmetries.
 Subcircuit pins:
 Circuit 1: ampcal_det                      |Circuit 2: ampcal_det                      
 -------------------------------------------|-------------------------------------------
-vdd                                        |(no pin, node is \$6)                      
-hold                                       |(no pin, node is \$7)                      
-en                                         |(no pin, node is \$8)                      
-gnd                                        |(no pin, node is \$18)                     
-rep                                        |(no pin, node is \$19)                     
-cmp                                        |(no pin, node is \$10)                     
+vdd                                        |(no pin, node is \$22)                     
+cmp                                        |cmp                                        
+rep                                        |rep                                        
 vthn                                       |vthn                                       
-ct                                         |tn **Mismatch**                            
-tn                                         |ct **Mismatch**                            
+ct                                         |ct                                         
+tn                                         |tn                                         
 tp                                         |tp                                         
-(no pin, node is n1)                       |cmp|en|gnd|hold|rep                        
+gnd                                        |gnd                                        
+en                                         |en                                         
+hold                                       |hold                                       
 (no pin, node is n1)                       |vdd                                        
 ---------------------------------------------------------------------------------------
 Cell pin lists for ampcal_det and ampcal_det altered to match.

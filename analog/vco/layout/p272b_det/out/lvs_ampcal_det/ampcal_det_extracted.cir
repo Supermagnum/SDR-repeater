@@ -1,55 +1,52 @@
-* Extracted by KLayout with SG13G2 LVS runset on : 17/11/2026 01:54
+* Extracted by KLayout with SG13G2 LVS runset on : 17/11/2026 02:56
 
-.SUBCKT ampcal_det cmp|en|gnd|hold|rep ct tn tp vdd vthn
-M$1 \$6 cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep
-+ sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
-M$2 \$7 cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep
-+ sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
-M$3 \$8 cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep
-+ sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
-M$4 \$9 cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep
-+ sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
-M$5 \$10 cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep
-+ sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u PD=4.68u rfmode=0
-M$6 cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep \$6 cmp|en|gnd|hold|rep
-+ sg13_lv_nmos L=1u W=1u AS=0.34p AD=0.34p PS=2.68u PD=2.68u rfmode=0
-M$7 cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep \$7 cmp|en|gnd|hold|rep
-+ sg13_lv_nmos L=1u W=1u AS=0.34p AD=0.34p PS=2.68u PD=2.68u rfmode=0
-M$8 cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep \$8 cmp|en|gnd|hold|rep
-+ sg13_lv_nmos L=1u W=1u AS=0.34p AD=0.34p PS=2.68u PD=2.68u rfmode=0
-M$9 cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep
-+ cmp|en|gnd|hold|rep sg13_lv_nmos L=0.5u W=4u AS=1.36p AD=1.36p PS=9.36u
+.SUBCKT ampcal_det cmp ct en gnd hold rep tn tp vdd vthn
+M$1 \$5 en gnd gnd sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$2 \$6 en gnd gnd sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$3 \$7 en gnd gnd sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$4 \$8 en gnd gnd sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$5 \$9 en gnd gnd sg13_lv_nmos L=0.13u W=2u AS=0.68p AD=0.68p PS=4.68u
++ PD=4.68u rfmode=0
+M$6 \$19 \$19 \$5 gnd sg13_lv_nmos L=1u W=1u AS=0.34p AD=0.34p PS=2.68u
++ PD=2.68u rfmode=0
+M$7 hold \$19 \$6 gnd sg13_lv_nmos L=1u W=1u AS=0.34p AD=0.34p PS=2.68u
++ PD=2.68u rfmode=0
+M$8 rep \$19 \$7 gnd sg13_lv_nmos L=1u W=1u AS=0.34p AD=0.34p PS=2.68u PD=2.68u
++ rfmode=0
+M$9 gnd gnd gnd gnd sg13_lv_nmos L=0.5u W=4u AS=1.36p AD=1.36p PS=9.36u
 + PD=9.36u rfmode=0
-M$10 \$16 cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep
-+ sg13_lv_nmos L=0.5u W=4u AS=1.06p AD=1.06p PS=7.06u PD=7.06u rfmode=0
-M$12 \$17 vthn cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep sg13_lv_nmos L=0.5u W=4u
-+ AS=1.06p AD=1.06p PS=7.06u PD=7.06u rfmode=0
-M$15 \$18 cmp|en|gnd|hold|rep \$9 cmp|en|gnd|hold|rep sg13_lv_nmos L=1u W=5.5u
-+ AS=1.4575p AD=1.4575p PS=9.31u PD=9.31u rfmode=0
-M$17 \$19 cmp|en|gnd|hold|rep \$10 cmp|en|gnd|hold|rep sg13_lv_nmos L=1u W=5.5u
-+ AS=1.4575p AD=1.4575p PS=9.31u PD=9.31u rfmode=0
-M$19 cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep
-+ cmp|en|gnd|hold|rep sg13_lv_nmos L=0.13u W=1u AS=0.34p AD=0.34p PS=3.36u
+M$10 \$20 hold \$19 gnd sg13_lv_nmos L=0.5u W=4u AS=1.06p AD=1.06p PS=7.06u
++ PD=7.06u rfmode=0
+M$12 \$21 vthn \$19 gnd sg13_lv_nmos L=0.5u W=4u AS=1.06p AD=1.06p PS=7.06u
++ PD=7.06u rfmode=0
+M$15 \$22 \$19 \$8 gnd sg13_lv_nmos L=1u W=5.5u AS=1.4575p AD=1.4575p PS=9.31u
++ PD=9.31u rfmode=0
+M$17 \$23 \$19 \$9 gnd sg13_lv_nmos L=1u W=5.5u AS=1.4575p AD=1.4575p PS=9.31u
++ PD=9.31u rfmode=0
+M$19 gnd gnd gnd gnd sg13_lv_nmos L=0.13u W=1u AS=0.34p AD=0.34p PS=3.36u
 + PD=3.36u rfmode=0
-M$20 vdd tp cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep sg13_lv_nmos L=0.13u W=0.5u
-+ AS=0.17p AD=0.17p PS=1.68u PD=1.68u rfmode=0
-M$21 vdd ct cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep sg13_lv_nmos L=0.13u W=1u
-+ AS=0.34p AD=0.34p PS=3.36u PD=3.36u rfmode=0
-M$23 vdd tn cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep sg13_lv_nmos L=0.13u W=0.5u
-+ AS=0.17p AD=0.17p PS=1.68u PD=1.68u rfmode=0
-M$25 vdd \$17 cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep sg13_lv_nmos L=0.5u W=4u
-+ AS=1.06p AD=1.06p PS=7.06u PD=7.06u rfmode=0
-M$27 cmp|en|gnd|hold|rep \$16 cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep
-+ sg13_lv_nmos L=0.5u W=4u AS=1.06p AD=1.06p PS=7.06u PD=7.06u rfmode=0
+M$20 vdd tp hold gnd sg13_lv_nmos L=0.13u W=0.5u AS=0.17p AD=0.17p PS=1.68u
++ PD=1.68u rfmode=0
+M$21 vdd ct rep gnd sg13_lv_nmos L=0.13u W=1u AS=0.34p AD=0.34p PS=3.36u
++ PD=3.36u rfmode=0
+M$23 vdd tn hold gnd sg13_lv_nmos L=0.13u W=0.5u AS=0.17p AD=0.17p PS=1.68u
++ PD=1.68u rfmode=0
+M$25 vdd \$21 \$19 gnd sg13_lv_nmos L=0.5u W=4u AS=1.06p AD=1.06p PS=7.06u
++ PD=7.06u rfmode=0
+M$27 cmp \$20 \$19 gnd sg13_lv_nmos L=0.5u W=4u AS=1.06p AD=1.06p PS=7.06u
++ PD=7.06u rfmode=0
 M$29 vdd vdd vdd vdd sg13_lv_pmos L=0.5u W=4u AS=1.06p AD=1.06p PS=7.06u
 + PD=7.06u rfmode=0
-M$31 cmp|en|gnd|hold|rep vdd vdd vdd sg13_lv_pmos L=0.5u W=4u AS=1.06p AD=1.06p
-+ PS=7.06u PD=7.06u rfmode=0
-R$33 \$16 vdd cmp|en|gnd|hold|rep rhigh w=0.5u l=6.96u ps=0u b=0 m=1
-R$34 \$17 vdd cmp|en|gnd|hold|rep rhigh w=0.5u l=6.96u ps=0u b=0 m=1
-R$35 cmp|en|gnd|hold|rep vdd cmp|en|gnd|hold|rep rhigh w=0.5u l=78u ps=0u b=0
-+ m=1
-C$36 cmp|en|gnd|hold|rep cmp|en|gnd|hold|rep cap_cmim w=16.27u l=16.27u
-+ A=264.7129p P=65.08u m=2
-C$38 cmp|en|gnd|hold|rep \$49 cap_cmim w=5.71u l=5.71u A=32.6041p P=22.84u m=1
+M$31 cmp vdd vdd vdd sg13_lv_pmos L=0.5u W=4u AS=1.06p AD=1.06p PS=7.06u
++ PD=7.06u rfmode=0
+R$33 \$20 vdd gnd rhigh w=0.5u l=6.96u ps=0u b=0 m=1
+R$34 \$21 vdd gnd rhigh w=0.5u l=6.96u ps=0u b=0 m=1
+R$35 \$19 vdd gnd rhigh w=0.5u l=78u ps=0u b=0 m=1
+C$36 hold gnd cap_cmim w=16.27u l=16.27u A=264.7129p P=65.08u m=1
+C$37 rep gnd cap_cmim w=16.27u l=16.27u A=264.7129p P=65.08u m=1
+C$38 cmp gnd cap_cmim w=5.71u l=5.71u A=32.6041p P=22.84u m=1
 .ENDS ampcal_det

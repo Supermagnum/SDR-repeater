@@ -772,3 +772,10 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
   deferred to P2.7.2c.
 - Every net group is checked with DRC and both LVS tools before the next is added.
 - D22 footprint (0.0180 mm² [GDS]) counted at the P2.7.2c die-level gate once LVS is clean.
+
+## 2026-11-17 — D22 join, internal-net shorts
+- Join with comparator isolation: DRC clean (density waived), top ports distinct; KLayout LVS
+  and netgen fail (extract: n1 ↔ vdd, ttail / ss2 ↔ nbias). Not accepted.
+- Port checks do not replace LVS: each net group passes only when both LVS tools match,
+  including internal nets.
+- Footprint 0.0186 mm² [GDS] carried to the P2.7.2c die-level gate.

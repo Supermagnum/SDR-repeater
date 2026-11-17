@@ -1,6 +1,6 @@
 # P2.7 layout notes
 
-Status: **D23 ≤ 0.38 mm² final.** **tail_block join PASS** (0.0950 mm² [GDS]). **Island outline 0.3906 > 0.38** — finding (die-level gate at P2.7.2c). **P2.7.2b varactor join PASS** (M1.b = SVaricap PCell waived); strip area 0.0066 > 0.0062 (width OK; under full pocket 0.0187). **D22 not done:** bias_pd ports PASS; ampcal_det **plan join** power+bias+hold DRC clean; full route extract `cmp|en|gnd|hold|rep` + DRC M3.a/V1.b/V2.b; footprint **0.0180** > pocket 0.0121 [GDS]. Stop: `summary_p272b_det_plan_join_stop.txt`.
+Status: **D23 ≤ 0.38 mm² final.** **tail_block join PASS** (0.0950 mm² [GDS]). **Island outline 0.3906 > 0.38** — finding (die-level gate at P2.7.2c). **P2.7.2b varactor join PASS** (M1.b = SVaricap PCell waived); strip area 0.0066 > 0.0062 (width OK; under full pocket 0.0187). **D22 not done:** ampcal_det **cmp/en isolation** — full-join DRC clean; top ports distinct; KLayout LVS + netgen FAIL; footprint **0.0186** > pocket 0.0121 [GDS]. Stop: `summary_p272b_det_cmp_iso_stop.txt`.
 
 ---
 
@@ -509,16 +509,29 @@ east of hold/SF; bias_pd east of cmp; cl_cmp north of cmp, clear of bias. Gap �
 | gnd | y_gnd = min(cell bottoms) − 3 µm | M2 H | Same; no via over hold_caps M5. hold_caps/bias_pd gnd M1-only → via12. |
 | nbias | y_nbias = y_vdd − 2.5 µm | M2 H | bias_pd only until top assembly. |
 | hold | y_hold = y_rep_jog − 4 µm (jog = bottom − 1.5) | TM1 then M3 | TM1 spine ±0.9; centre gap to jog ≥ 3.6 [TM1.b amend]. |
-| rep | y_rep = y_hold − 5 µm | TM1 then M3 | Parallel to hold; never share a Y with hold on TM1/M2. |
+| rep | y_rep = y_hold − 5 µm | TM1 then M3 | Parallel to hold; V-drop east of hold spine end (no TM1 cross at y_hold) [amend hold\|rep]. |
 | tn / tp / ct | at SF pin Y (north) | M2 H short | Tank stubs west/north; no cross of hold/rep. |
-| cmp out | y_cmp east of cmp | M2 H | East of bias; **away from tank / V_tune** (west). |
-| en | y_en = bias en pin Y | M2 H | East exit only. |
+| cmp out | y_cmp = max(cmp,cl tops)+2 | M2 H + M3 | **Own east column** x_cmp_m3 = bias.right+5 [amend comparator isolation]. |
+| en | y_en = bias en pin Y | M2 H + M3 | **Own east column** x_en_m3 = bias.right+8; clear of hold/gnd [amend]. |
 | ttail / ss2 | x_cb between cmp and bias | M3 V | Short M2 at pin Y into x_cb, then M3. |
 
-Landing X (M3 columns / via1t): x_w_hold = SF.left − 4.5 µm; **SF rep** = SF.right + 2.5 µm
-(east, not west — plan); x_hc = mid(hold.right, cmp.left); x_cb = mid(cmp.right, bias.left);
-x_e = bias.right + 3 µm. Power M3 lanes: SF.right+1.5 / SF.left−1.5 / cmp±1.5 / bias.right+1.5 /
-hold.left−1.5 [amend 2026-11-17 power DRC].
+Landing X (M3 columns / via1t): x_w_hold = SF.left − 4.5 µm; **SF rep** = SF.right + 3.5 µm;
+x_hc = hold.right + 0.8 µm (**not** mid-gap — mid-gap ≈ cmp gnd lane → `gnd|hold` [TOOL]);
+x_bh = max(cmp.right+3, bias.left−3.5); x_br = bias.right+3.5; x_cb = mid(cmp,bias);
+x_e = bias.right + 3 µm. Power M3 lanes: SF±1.5 / cmp±1.5 / bias.right+1.5 /
+hold.left−1.5 — hold landings stay ≥1.0 µm clear [amend 2026-11-17 LVS].
+
+**Comparator / en isolation (2026-11-17) [HAND/TOOL] — option A**
+
+Prior full join merged `cmp|en|gnd|hold|rep` [TOOL extract]. Fix: dedicated east
+M3 columns — MINUS→gnd on `x_cmp_gnd` (bias.right+2.5, between gnd lane +1.5 and
+rep tap +3.5); PLUS/cmp on `x_cmp_m3` (bias.right+5.5); en on `x_en_m3`
+(bias.right+8.5). Sharing one column for MINUS+PLUS merged `cmp|gnd` [TOOL].
+cl_cmp M5 bridge must cover vs5 (else MINUS floats). Bias gnd power tap on east
+ptap-GR above en gate straps (pin-Y M2 H crossed en straps → `en|gnd` [TOOL]).
+rep SF M3 `x_e_sf` = SF.right+2.8 (clear of hold_caps cmim via M3; +3.5 → M3.b).
+cl_cmp stays in ampcal_det. Join order: power → nbias → hold → rep → taps → cmp → en;
+DRC + both LVS after each (gate: DRC + no `|`-merged ports until unique LVS).
 
 **Cell ports — side and pin layer** (change = move before join)
 
@@ -555,7 +568,7 @@ DRC + KLayout LVS + netgen after each. Net-trace on merge; fix within plan or am
 | det_sf_pair | PASS | PASS | PASS | 4× 0.5/0.13 ABBA + dummies; ct on M3; **0.0007 mm²** |
 | cmp_se | PASS | PASS | PASS | M2.b fixed; rhigh l=6.96 µm; **0.0023 mm²** |
 | bias_pd | PASS | PASS | PASS | hold W / rep E ports; rhigh 78 µm; **0.0041 mm²** |
-| ampcal_det join | partial | FAIL | FAIL | plan M2-H/M3-V: power+bias+hold DRC clean; full → `cmp\|en\|gnd\|hold\|rep`; **0.0180 > 0.0121** |
+| ampcal_det join | PASS dens. | FAIL | FAIL | cmp/en iso: DRC clean; ports distinct; LVS pin/connectivity FAIL; **0.0186 > 0.0121** |
 
 **Fab sch [SCH]:** `ampcal_det.sch` uses cmim / rhigh / MOS sinks+en / vthn. Quick
 re-sim tt/27 top: code 20, Amp **1.377 V** vs ideal code 14 / 1.250 V — FAIL window
