@@ -830,3 +830,14 @@ Accepted as proposed in `spec/vco-amplitude-cal.md` (option C), with two changes
 - The core + tank TM1.b notches are fixed in the core cell and re-proven, not in the
   assembler; the fab GDS is exactly the verified cells.
 - Hierarchical spice and the inductor black-box LVS path are reconciled before sign-off.
+
+## 2026-11-17 — Tank parasitics and band margin
+- Band-margin gate (≥ 1 %, ≈ 40 MHz at both ends after parasitics) is kept.
+- The hand bounds for the bank wiring and core-internal tank C are replaced by RC extraction
+  of the accepted core + tank and bank cells.
+- The fixed tank capacitance in core + tank is trimmed to absorb the measured parasitics
+  (island routing for the direct bank–core pack + extracted bank + extracted core), balancing
+  top and bottom margins. Band overlap over corners and the D20 V_tune window are re-checked.
+  If the fixed capacitor is too small to absorb the parasitics, a finding to the owner.
+- P2.7.2c continues with the direct bank–core re-pack (≈ 32–37 fF / side [HAND]), after the
+  trim.
